@@ -1,4 +1,9 @@
 package com.letraaletra.api.domain.power.manipulation;
 
-public class DetectTrapsPower extends ManipulationPower{
+import com.letraaletra.api.domain.power.PowerRarity;
+
+public class DetectTrapsPower extends ManipulationPower {
+    public DetectTrapsPower(String name, PowerRarity rarity) {
+        super(name, rarity);
+    }
 }

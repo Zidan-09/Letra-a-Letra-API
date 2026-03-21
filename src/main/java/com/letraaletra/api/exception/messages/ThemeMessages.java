@@ -3,6 +3,7 @@ package com.letraaletra.api.exception.messages;
 import com.letraaletra.api.exception.MessageCode;
 
 public enum ThemeMessages implements MessageCode {
+    FAILED_TO_LOAD_THEMES("failed_to_load_themes"),
     THEME_NOT_FOUND("theme_not_found");
 
     private final String message;

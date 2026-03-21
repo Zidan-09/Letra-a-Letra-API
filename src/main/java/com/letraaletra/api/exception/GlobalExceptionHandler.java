@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler
-    public ResponseEntity<?> handleAppException(AppException ex) {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
         return ResponseEntity
                 .status(ex.getStatus())
                 .body(new ErrorResponse(false, ex.getMessage()));
     }
 
-    @ExceptionHandler
-    public ResponseEntity<?> handleGenericException() {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         return ResponseEntity
                 .status(500)
                 .body(new ErrorResponse(false, ServerMessages.INTERNAL_ERROR.getMessage()));

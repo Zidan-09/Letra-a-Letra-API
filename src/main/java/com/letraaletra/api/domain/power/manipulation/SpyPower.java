@@ -1,4 +1,9 @@
 package com.letraaletra.api.domain.power.manipulation;
 
-public class SpyPower extends ManipulationPower{
+import com.letraaletra.api.domain.power.PowerRarity;
+
+public class SpyPower extends ManipulationPower {
+    public SpyPower(String name, PowerRarity rarity) {
+        super(name, rarity);
+    }
 }
