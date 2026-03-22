@@ -1,18 +1,19 @@
 package com.letraaletra.api.domain.board;
 
+import com.letraaletra.api.domain.position.Position;
 import com.letraaletra.api.dto.response.game.CellView;
 
 public class Board {
-    private Cell[][] grid;
-    private Word[] words;
+    private final Cell[][] grid;
+    private final Word[] words;
 
     public Board(Cell[][] grid, Word[] words) {
         this.grid = grid;
         this.words = words;
     }
 
-    public Cell[][] getGrid() {
-        return grid;
+    public Cell getCellOfGrid(Position position) {
+        return grid[position.getX()][position.getY()];
     }
 
     public Word[] getWords() {

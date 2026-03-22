@@ -2,6 +2,7 @@ package com.letraaletra.api.domain;
 
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.player.Player;
+import com.letraaletra.api.dto.response.player.PlayerDTO;
 
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +33,15 @@ public class GameState {
         return board;
     }
 
+    public String currentPlayerTurn() {
+        return turnOrder.get(currentTurnIndex);
+    }
+
     public void nextTurn() {
         currentTurnIndex = (currentTurnIndex + 1) % turnOrder.size();
+    }
+
+    public List<PlayerDTO> getPlayersDTO() {
+        return players.values().stream().map(Player::getPlayerToSend).toList();
     }
 }

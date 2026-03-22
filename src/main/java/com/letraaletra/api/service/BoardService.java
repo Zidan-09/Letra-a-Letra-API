@@ -70,7 +70,7 @@ public class BoardService {
 
             Position position = new Position(x, y);
 
-            grid[x][y] = new Cell(word.charAt(i), position, null);
+            grid[x][y] = new Cell(word.charAt(i), position);
             positions.add(position);
         }
 
@@ -88,7 +88,7 @@ public class BoardService {
 
                     Position position = new Position(i, j);
 
-                    grid[i][j] = new Cell(letter, position, null);
+                    grid[i][j] = new Cell(letter, position);
                 }
             }
         }

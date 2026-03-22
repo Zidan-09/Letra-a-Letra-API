@@ -3,6 +3,7 @@ package com.letraaletra.api.domain;
 import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.dto.response.game.GameStateDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,5 +66,13 @@ public class Game {
 
     public void updateGameSettings(GameSettings gameSettings) {
         this.gameSettings = gameSettings;
+    }
+
+    public GameStateDTO getGameStateToSend() {
+        return new GameStateDTO(
+                gameState.getPlayersDTO(),
+                gameState.getBoard().toView(),
+                gameState.currentPlayerTurn()
+        );
     }
 }

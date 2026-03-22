@@ -2,12 +2,14 @@ package com.letraaletra.api.domain.participant;
 
 public class Participant {
     private final String userId;
+    private final String socketId;
     private final String nickname;
     private final String avatar;
     private ParticipantRole role;
 
-    public Participant(String userId, String nickname, String avatar, ParticipantRole role) {
+    public Participant(String userId, String socketId, String nickname, String avatar, ParticipantRole role) {
         this.userId = userId;
+        this.socketId = socketId;
         this.nickname = nickname;
         this.avatar = avatar;
         this.role = role;
@@ -15,6 +17,10 @@ public class Participant {
 
     public String getUserId() {
         return userId;
+    }
+
+    public String getSocketId() {
+        return socketId;
     }
 
     public String getNickname() {
