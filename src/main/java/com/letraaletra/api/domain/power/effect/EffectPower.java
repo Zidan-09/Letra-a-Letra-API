@@ -10,4 +10,12 @@ public class EffectPower extends Power {
         super(name, rarity);
         this.duration = duration;
     }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void decrementDuration() {
+        this.duration--;
+    }
 }
