@@ -1,17 +1,16 @@
 package com.letraaletra.api.exception;
 
-import org.springframework.http.HttpStatus;
+import jakarta.validation.constraints.NotNull;
 
-public class AppException extends RuntimeException{
-    private final HttpStatus status;
+public class AppException extends RuntimeException {
+    private final MessageCode messageCode;
 
-    public AppException(HttpStatus status, MessageCode message) {
-        super(message.getMessage());
-        this.status = status;
+    public AppException(@NotNull MessageCode messageCode) {
+        super(messageCode.getMessage());
+        this.messageCode = messageCode;
     }
 
-    public HttpStatus getStatus() {
-        return status;
+    public MessageCode getMessageCode() {
+        return messageCode;
     }
-
 }

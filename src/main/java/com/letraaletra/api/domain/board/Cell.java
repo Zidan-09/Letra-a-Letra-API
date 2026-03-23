@@ -32,9 +32,8 @@ public class Cell {
         return revealedById;
     }
 
-    public char reveal(String actor) {
+    public void reveal(String actor) {
         this.revealed = true;
         this.revealedById = actor;
-        return letter;
     }
 }
