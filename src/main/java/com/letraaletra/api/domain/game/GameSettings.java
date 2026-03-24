@@ -7,14 +7,14 @@ public class GameSettings {
     private Theme theme;
     private GameMode gameMode;
     private boolean allowSpectators;
-    private boolean privateRoom;
+    private boolean privateGame;
 
-    public GameSettings(String hostId, Theme theme, GameMode gameMode, boolean allowSpectators, boolean privateRoom) {
+    public GameSettings(String hostId, Theme theme, GameMode gameMode, boolean allowSpectators, boolean privateGame) {
         this.hostId = hostId;
         this.theme = theme;
         this.gameMode = gameMode;
         this.allowSpectators = allowSpectators;
-        this.privateRoom = privateRoom;
+        this.privateGame = privateGame;
     }
 
     public String getHostId() {
@@ -33,8 +33,8 @@ public class GameSettings {
         return allowSpectators;
     }
 
-    public boolean isPrivateRoom() {
-        return privateRoom;
+    public boolean isPrivateGame() {
+        return privateGame;
     }
 
     public void changeHost(String newHostId) {
@@ -53,7 +53,7 @@ public class GameSettings {
         this.allowSpectators = !this.allowSpectators;
     }
 
-    public void togglePrivateRoom() {
-        this.privateRoom = !this.privateRoom;
+    public void togglePrivateGame() {
+        this.privateGame = !this.privateGame;
     }
 }

@@ -3,6 +3,8 @@ package com.letraaletra.api.exception.messages;
 import com.letraaletra.api.exception.MessageCode;
 
 public enum GameMessages implements MessageCode {
+    GAME_FOUND("game_found"),
+    GAMES_FOUND("games_found"),
     GAME_NOT_FOUND("game_not_found"),
     GAME_ALREADY_STARTED("game_already_started"),
     GAME_ALREADY_FINISHED("game_already_finished"),

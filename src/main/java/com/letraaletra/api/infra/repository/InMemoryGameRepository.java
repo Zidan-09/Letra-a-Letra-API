@@ -1,6 +1,7 @@
 package com.letraaletra.api.infra.repository;
 
 import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.dto.response.game.GameDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -16,17 +17,20 @@ public class InMemoryGameRepository implements GameRepository {
     }
 
     @Override
-    public Game find(String id) {
-        return games.get(id);
-    }
-
-    @Override
     public void save(Game game) {
         this.games.replace(game.getId(), game);
     }
 
     @Override
-    public List<Game> get() {
-        return List.copyOf(games.values().stream().toList());
+    public Game find(String id) {
+        return games.get(id);
+    }
+
+    @Override
+    public List<GameDTO> get() {
+        return List.copyOf(games.values().
+                                stream().
+                                map(Game::getGameToSend).
+                                toList());
     }
 }

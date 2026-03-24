@@ -17,11 +17,11 @@ public class TokenService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String userId) {
+    public String generateToken(String id) {
         return Jwts.builder()
-                .claim("id", userId)
+                .claim("id", id)
                 .issuedAt(new java.util.Date())
-                .expiration(new java.util.Date(System.currentTimeMillis() + (12 * 60 * 60 * 1000L)))
+                .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -36,7 +36,6 @@ public class TokenService {
                     .get("id", String.class);
 
         } catch (Exception ex) {
-            System.out.println(ex);
             return null;
         }
     }

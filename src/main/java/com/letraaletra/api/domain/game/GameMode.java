@@ -9,7 +9,6 @@ public enum GameMode {
 
     private final int[][] directions;
 
-    // Construtor do Enum
     GameMode(int[][] directions) {
         this.directions = directions;
     }
