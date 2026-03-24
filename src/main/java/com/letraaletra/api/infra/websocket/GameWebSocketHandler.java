@@ -1,6 +1,6 @@
 package com.letraaletra.api.infra.websocket;
 
-import com.letraaletra.api.dto.request.websocket.PlayerActionDTO;
+import com.letraaletra.api.dto.request.websocket.WsRequestDTO;
 import org.jspecify.annotations.NonNull;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,9 +21,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
-        PlayerActionDTO action = objectMapper.readValue(
+        WsRequestDTO request = objectMapper.readValue(
                 message.getPayload(),
-                PlayerActionDTO.class
+                WsRequestDTO.class
         );
 
 

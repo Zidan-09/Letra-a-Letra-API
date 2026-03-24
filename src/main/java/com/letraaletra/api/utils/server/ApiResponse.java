@@ -19,6 +19,10 @@ public class ApiResponse {
                 ));
     }
 
+    public static <T> ResponseEntity<SuccessResponse<T>> success(T data, String message) {
+        return success(data, message, HttpStatus.OK);
+    }
+
     public static <T> ResponseEntity<SuccessResponse<T>> success(T data) {
         return success(data, "ok", HttpStatus.OK);
     }

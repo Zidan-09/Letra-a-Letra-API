@@ -1,6 +1,8 @@
 package com.letraaletra.api.service;
 
 import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.domain.game.GameSettings;
+import com.letraaletra.api.dto.response.game.GameDTO;
 import com.letraaletra.api.exception.exceptions.GameNotFoundException;
 import com.letraaletra.api.infra.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ public class GameService {
     @Autowired
     private GameRepository gameRepository;
 
-    public void createGame() {
+    public void createGame(String name, GameSettings gameSettings) {
 
     }
 
@@ -27,7 +29,7 @@ public class GameService {
         return game;
     }
 
-    public List<Game> getGames() {
+    public List<GameDTO> getGames() {
         return gameRepository.get();
     }
 }

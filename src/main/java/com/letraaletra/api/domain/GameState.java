@@ -19,7 +19,7 @@ public class GameState {
         this.board = board;
         this.turnOrder = players.values().stream()
                 .sorted(Comparator.comparingInt(Player::getTurn))
-                .map(Player::getPlayerId)
+                .map(Player::getUserId)
                 .toList();
 
         this.currentTurnIndex = 0;

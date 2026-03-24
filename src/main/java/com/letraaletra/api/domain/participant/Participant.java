@@ -1,5 +1,7 @@
 package com.letraaletra.api.domain.participant;
 
+import com.letraaletra.api.dto.response.participant.ParticipantDTO;
+
 public class Participant {
     private final String userId;
     private final String socketId;
@@ -37,5 +39,14 @@ public class Participant {
 
     public void changeRole(ParticipantRole role) {
         this.role = role;
+    }
+
+    public ParticipantDTO getParticipantToSend() {
+        return new ParticipantDTO(
+            userId,
+            nickname,
+            avatar,
+            role
+        );
     }
 }

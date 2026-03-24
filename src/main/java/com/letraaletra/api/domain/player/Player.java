@@ -6,23 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private final String playerId;
-    private final String socketId;
+    private final String userId;
+    private final String nickname;
+    private final String avatar;
     private final int turn;
     private int score = 0;
 
-    public Player(String playerId, String socketId, int turn) {
-        this.playerId = playerId;
-        this.socketId = socketId;
+    public Player(String userId, String nickname, String avatar, int turn) {
+        this.userId = userId;
+        this.nickname = nickname;
+        this.avatar = avatar;
         this.turn = turn;
     }
 
-    public String getPlayerId() {
-        return playerId;
-    }
-
-    public String getSocketId() {
-        return socketId;
+    public String getUserId() {
+        return userId;
     }
 
     public int getTurn() {
@@ -39,8 +37,11 @@ public class Player {
 
     public PlayerDTO getPlayerToSend() {
         return new PlayerDTO(
-                playerId,
-                score
+                userId,
+                nickname,
+                avatar,
+                score,
+                0
         );
     }
 }
