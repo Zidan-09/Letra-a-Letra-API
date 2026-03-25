@@ -12,9 +12,9 @@ import com.letraaletra.api.dto.response.participant.ParticipantDTO;
 import com.letraaletra.api.dto.response.websocket.GameStartedWsResponse;
 import com.letraaletra.api.dto.response.websocket.GameUpdatedWsResponse;
 import com.letraaletra.api.exception.exceptions.GameNotFoundException;
-import com.letraaletra.api.exception.exceptions.OnlyHostCanStart;
-import com.letraaletra.api.exception.exceptions.SessionNotFound;
-import com.letraaletra.api.exception.exceptions.UserNotFound;
+import com.letraaletra.api.exception.exceptions.OnlyHostCanStartException;
+import com.letraaletra.api.exception.exceptions.SessionNotFoundException;
+import com.letraaletra.api.exception.exceptions.UserNotFoundException;
 import com.letraaletra.api.infra.repository.GameRepository;
 import com.letraaletra.api.infra.repository.SessionRepository;
 import com.letraaletra.api.infra.repository.UserRepository;
@@ -62,7 +62,7 @@ public class GameService {
         User user = userRepository.find(userId);
 
         if (user == null) {
-            throw new UserNotFound();
+            throw new UserNotFoundException();
         }
 
         Participant host = ParticipantFactory.fromUser(user, sessionId, ParticipantRole.PLAYER);
@@ -90,13 +90,13 @@ public class GameService {
         WebSocketSession session = sessionRepository.find(sessionId);
 
         if (session == null) {
-            throw new SessionNotFound();
+            throw new SessionNotFoundException();
         }
 
         String tokenUserId = (String) session.getAttributes().get("token");
 
         if (tokenUserId == null) {
-            throw new UserNotFound();
+            throw new UserNotFoundException();
         }
 
         String userId = tokenService.getTokenContent(tokenUserId);
@@ -104,7 +104,7 @@ public class GameService {
         User user = userRepository.find(userId);
 
         if (user == null) {
-            throw new UserNotFound();
+            throw new UserNotFoundException();
         }
 
         ParticipantRole role = game.nextParticipantRole();
@@ -131,11 +131,11 @@ public class GameService {
         Participant participant = game.findBySession(sessionId);
 
         if (participant == null) {
-            throw new UserNotFound();
+            throw new UserNotFoundException();
         }
 
         if (!participant.getUserId().equals(hostId)) {
-            throw new OnlyHostCanStart();
+            throw new OnlyHostCanStartException();
         }
 
         GameState gameState = gameStateService.generateGameState(game);

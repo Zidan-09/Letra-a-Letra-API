@@ -22,6 +22,13 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public User findByEmail(String email) {
+        return userMap.values().stream()
+                .filter(u -> u.getEmail().equals(email))
+                .findFirst().orElse(null);
+    }
+
+    @Override
     public List<User> get() {
         return List.copyOf(userMap.values());
     }

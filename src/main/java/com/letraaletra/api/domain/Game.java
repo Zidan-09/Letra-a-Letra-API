@@ -4,8 +4,7 @@ import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
-import com.letraaletra.api.exception.AppException;
-import com.letraaletra.api.exception.exceptions.UserAlreadyInGame;
+import com.letraaletra.api.exception.exceptions.UserAlreadyInGameException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +55,7 @@ public class Game {
                 .anyMatch(p -> p.getUserId().equals(participant.getUserId()));
 
         if (alreadyExists) {
-            throw new UserAlreadyInGame();
+            throw new UserAlreadyInGameException();
         }
 
         participants.put(participant.getUserId(), participant);

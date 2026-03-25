@@ -7,6 +7,8 @@ public enum UserMessages implements MessageCode {
     USER_UPDATED("user_updated"),
     USER_DELETED("user_deleted"),
 
+    USER_LOGGED("user_logged"),
+
     USER_FOUND("user_found"),
     USERS_FOUND("users_found"),
     USER_NOT_FOUND("user_not_found"),

@@ -27,7 +27,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes
     ) {
-
+        System.out.println("Tentativa de conexão estabelecida!");
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
