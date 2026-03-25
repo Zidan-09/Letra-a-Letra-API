@@ -6,6 +6,6 @@ import java.util.List;
 
 public record GameStateDTO(
         List<PlayerDTO> players,
-        CellView[][] board,
+        BoardDTO[][] board,
         String currentTurnPlayerId
 ) {}

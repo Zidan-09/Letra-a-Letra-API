@@ -11,15 +11,13 @@ import org.mockito.Mock;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class GameStateServiceTest {
+class PlayerActionServiceTest {
 
     @Mock
     private BoardService boardService;
 
     @InjectMocks
-    private GameStateService gameStateService;
+    private PlayerActionService playerActionService;
 
     @Test
     @DisplayName("Should return the correspondent letter of the selected cell")

@@ -6,22 +6,36 @@ import com.letraaletra.api.domain.board.Word;
 import com.letraaletra.api.domain.game.GameMode;
 import com.letraaletra.api.domain.position.Position;
 import com.letraaletra.api.domain.theme.Theme;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Service
 public class BoardService {
+    @Autowired
+    private ThemeWordSelector themeWordSelector;
+
     public Board createBoard(Theme theme, GameMode gameMode) {
         Cell[][] grid = new Cell[10][10];
         List<Word> placedWords = new ArrayList<>();
 
-        for (String wordValue : theme.getWords()) {
-            boolean placed = false;
-            int attemps = 0;
+        List<String> words;
 
-            while (!placed && attemps < 500) {
-                attemps++;
+        if (theme != null) {
+            words = new ArrayList<>(theme.getWords());
+        } else {
+            words = new ArrayList<>(themeWordSelector.pickRandomThemeWords(5));
+        }
+
+        for (String wordValue : words) {
+            boolean placed = false;
+            int tries = 0;
+
+            while (!placed && tries < 500) {
+                tries++;
 
                 int row = ThreadLocalRandom.current().nextInt(grid.length);
                 int column = ThreadLocalRandom.current().nextInt(grid[0].length);

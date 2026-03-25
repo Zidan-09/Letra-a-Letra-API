@@ -1,22 +1,30 @@
 package com.letraaletra.api.infra.websocket;
 
 import com.letraaletra.api.dto.request.websocket.WsRequestDTO;
+import com.letraaletra.api.infra.repository.SessionRepository;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
+@Component
 public class GameWebSocketHandler extends TextWebSocketHandler {
-    private final CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private SessionRepository sessionRepository;
+
+    @Autowired
+    private WsRequestDispatcher wsRequestDispatcher;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
-        sessions.add(session);
-
+        sessionRepository.save(session);
     }
 
     @Override
@@ -26,11 +34,11 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 WsRequestDTO.class
         );
 
-
+        wsRequestDispatcher.dispatch(request, session);
     }
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, org.springframework.web.socket.@NonNull CloseStatus status) throws Exception {
-        sessions.remove(session);
+        sessionRepository.remove(session);
     }
 }

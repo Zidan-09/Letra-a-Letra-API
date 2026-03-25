@@ -1,7 +1,8 @@
 package com.letraaletra.api.dto.response.game;
 
-public record CellView(
+public record BoardDTO(
         boolean revealed,
         Character letter,
-        String revealedById
-) {}
+        String revealedBy
+) {
+}

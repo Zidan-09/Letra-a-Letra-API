@@ -2,56 +2,47 @@ package com.letraaletra.api.service;
 
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
-import com.letraaletra.api.domain.board.Cell;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.position.Position;
-import com.letraaletra.api.dto.response.game.GameStateDTO;
-import com.letraaletra.api.exception.exceptions.*;
-import com.letraaletra.api.infra.repository.GameRepository;
+import com.letraaletra.api.domain.board.Board;
+import com.letraaletra.api.domain.game.GameSettings;
+import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.domain.player.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GameStateService {
-
     @Autowired
-    private GameRepository gameRepository;
+    private BoardService boardService;
 
-    public GameStateDTO revealCell(String gameId, String playerId, Position position) {
-        Game game = gameRepository.find(gameId);
+    public GameState generateGameState(Game game) {
+        GameSettings gameSettings = game.getGameSettings();
 
-        if (game == null) {
-            throw new GameNotFoundException();
-        }
+        List<Participant> participants = game.getParticipants();
 
-        if (game.getGameStatus() != GameStatus.RUNNING) {
-            throw new GameNotStarted();
-        }
+        Map<String, Player> players = new HashMap<>();
 
-        GameState gameState = game.getGameState();
+        participants.forEach(p -> {
+            Player player = new Player(
+                    p.getUserId(),
+                    p.getNickname(),
+                    p.getAvatar()
+            );
 
-        if (!Objects.equals(gameState.currentPlayerTurn(), playerId)) {
-            throw new NotYourTurnException();
-        }
+            players.put(p.getUserId(), player);
+        });
 
-        // Validações de poder futuramente
+        Board board = boardService.createBoard(
+                gameSettings.getTheme(),
+                gameSettings.getGameMode()
+        );
 
-        Cell cell = gameState.getBoard().getCellOfGrid(position);
-
-        if (cell == null) {
-            throw new InvalidPositionException();
-        }
-
-        if (cell.isRevealed()) {
-            throw new CellAlreadyRevealedException();
-        }
-
-        // Validação de poder aplicado na célula futuramente
-
-        cell.reveal(playerId);
-
-        return game.getGameStateToSend();
+        return new GameState(
+            players,
+            board
+        );
     }
 }

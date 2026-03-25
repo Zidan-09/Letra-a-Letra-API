@@ -9,6 +9,7 @@ public enum GameMessages implements MessageCode {
     GAME_ALREADY_STARTED("game_already_started"),
     GAME_ALREADY_FINISHED("game_already_finished"),
     GAME_NOT_STARTED("game_not_started"),
+    ONLY_HOST_CAN_START("only_host_can_start"),
 
     NOT_YOUR_TURN("not_your_turn"),
     INVALID_MOVE("invalid_move"),
@@ -17,8 +18,7 @@ public enum GameMessages implements MessageCode {
 
     WORD_ALREADY_FOUND("word_already_found"),
 
-    MAX_PLAYERS_REACHED("max_players_reached"),
-    PLAYER_ALREADY_IN_GAME("player_already_in_game");
+    MAX_PLAYERS_REACHED("max_players_reached");
 
     private final String message;
 

@@ -5,6 +5,7 @@ import com.letraaletra.api.domain.user.User;
 import java.util.List;
 
 public interface UserRepository {
+    void save(User user);
     User find(String id);
-    List<User> findAll();
+    List<User> get();
 }
