@@ -1,9 +1,12 @@
 package com.letraaletra.api.controller;
 
 import com.letraaletra.api.dto.request.user.CreateUserRequestDTO;
+import com.letraaletra.api.dto.request.user.LoginRequestDTO;
 import com.letraaletra.api.dto.response.SuccessResponse;
+import com.letraaletra.api.dto.response.user.LoginResponseDTO;
 import com.letraaletra.api.dto.response.user.UserDTO;
 import com.letraaletra.api.exception.messages.UserMessages;
+import com.letraaletra.api.service.AuthService;
 import com.letraaletra.api.service.UserService;
 import com.letraaletra.api.utils.server.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,8 +23,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping
-    public ResponseEntity<SuccessResponse<UserDTO>> create(@RequestBody @Valid CreateUserRequestDTO request) {
+    public ResponseEntity<SuccessResponse<UserDTO>> register(@RequestBody @Valid CreateUserRequestDTO request) {
         UserDTO result = userService.create(
                 request.nickname(),
                 request.avatar(),
@@ -37,5 +43,12 @@ public class UserController {
         UserDTO result = userService.find(userId);
 
         return ApiResponse.success(result, UserMessages.USER_FOUND.getMessage());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<SuccessResponse<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO request) {
+        LoginResponseDTO result = authService.login(request);
+
+        return ApiResponse.success(result, UserMessages.USER_LOGGED.getMessage());
     }
 }

@@ -39,7 +39,7 @@ public class PlayerActionService {
         }
 
         if (game.getGameStatus() != GameStatus.RUNNING) {
-            throw new GameNotStarted();
+            throw new GameNotStartedException();
         }
 
         GameState gameState = game.getGameState();

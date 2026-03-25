@@ -24,6 +24,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+        System.out.println("Conectou no handler!");
         sessionRepository.save(session);
     }
 

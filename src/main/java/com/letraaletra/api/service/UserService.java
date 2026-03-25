@@ -2,7 +2,7 @@ package com.letraaletra.api.service;
 
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.dto.response.user.UserDTO;
-import com.letraaletra.api.exception.exceptions.UserNotFound;
+import com.letraaletra.api.exception.exceptions.UserNotFoundException;
 import com.letraaletra.api.infra.repository.UserRepository;
 import com.letraaletra.api.service.mappers.UserDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class UserService {
         User user = userRepository.find(id);
 
         if (user == null) {
-            throw new UserNotFound();
+            throw new UserNotFoundException();
         }
 
         return userDTOMapper.toDTO(user);
