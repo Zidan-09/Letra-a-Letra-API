@@ -4,9 +4,7 @@ import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.player.Player;
 import com.letraaletra.api.dto.response.player.PlayerDTO;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GameState {
     private final Map<String, Player> players;
@@ -17,8 +15,11 @@ public class GameState {
     public GameState(Map<String, Player> players, Board board) {
         this.players = players;
         this.board = board;
-        this.turnOrder = players.values().stream()
-                .sorted(Comparator.comparingInt(Player::getTurn))
+
+        List<Player> list = new ArrayList<>(players.values());
+        Collections.shuffle(list);
+
+        this.turnOrder = list.stream()
                 .map(Player::getUserId)
                 .toList();
 
@@ -39,9 +40,5 @@ public class GameState {
 
     public void nextTurn() {
         currentTurnIndex = (currentTurnIndex + 1) % turnOrder.size();
-    }
-
-    public List<PlayerDTO> getPlayersDTO() {
-        return players.values().stream().map(Player::getPlayerToSend).toList();
     }
 }

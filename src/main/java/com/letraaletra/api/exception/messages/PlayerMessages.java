@@ -8,9 +8,7 @@ public enum PlayerMessages implements MessageCode {
     PLAYER_NOT_IN_GAME("player_not_in_game"),
 
     INVALID_PLAYER_ACTION("invalid_player_action"),
-    PLAYER_DISCONNECTED("player_disconnected"),
-
-    INVALID_PLAYER_NAME("invalid_player_name");
+    PLAYER_DISCONNECTED("player_disconnected");
 
     private final String message;
 

@@ -4,10 +4,10 @@ import com.letraaletra.api.domain.theme.Theme;
 
 public class GameSettings {
     private String hostId;
-    private Theme theme;
-    private GameMode gameMode;
-    private boolean allowSpectators;
-    private boolean privateGame;
+    private final Theme theme;
+    private final GameMode gameMode;
+    private final boolean allowSpectators;
+    private final boolean privateGame;
 
     public GameSettings(String hostId, Theme theme, GameMode gameMode, boolean allowSpectators, boolean privateGame) {
         this.hostId = hostId;
@@ -39,21 +39,5 @@ public class GameSettings {
 
     public void changeHost(String newHostId) {
         this.hostId = newHostId;
-    }
-
-    public void changeTheme(Theme theme) {
-        this.theme = theme;
-    }
-
-    public void changeGameMode(GameMode gameMode) {
-        this.gameMode = gameMode;
-    }
-
-    public void toggleAllowSpectators() {
-        this.allowSpectators = !this.allowSpectators;
-    }
-
-    public void togglePrivateGame() {
-        this.privateGame = !this.privateGame;
     }
 }

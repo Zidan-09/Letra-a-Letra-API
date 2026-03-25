@@ -22,7 +22,8 @@ public class ThemeLoader {
         try (InputStream inputStream = getClass().getResourceAsStream("/data/themes.json")) {
             Map<String, List<String>> rawData = objectMapper.readValue(
                     inputStream,
-                    new TypeReference<Map<String, List<String>>>() {}
+                    new TypeReference<>() {
+                    }
             );
 
             return rawData.entrySet().stream()
