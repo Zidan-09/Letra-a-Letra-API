@@ -28,7 +28,7 @@ public class AuthService {
             throw new UserNotFoundException();
         }
 
-        boolean matches = passwordService.matches(user.getId(), request.password());
+        boolean matches = passwordService.matches(request.password(), user.getPassword());
 
         if (!matches) {
             throw new InvalidPasswordException();

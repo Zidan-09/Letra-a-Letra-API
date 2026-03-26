@@ -33,7 +33,7 @@ public class BoardService {
         if (theme != null) {
             words = new ArrayList<>(theme.getWords().stream().limit(5).toList());
         } else {
-            words = new ArrayList<>(themeWordSelector.pickRandomThemeWords(5));
+            words = new ArrayList<>(themeWordSelector.pickRandomThemeWords());
         }
 
         for (String wordValue : words) {

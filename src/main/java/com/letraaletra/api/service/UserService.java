@@ -25,15 +25,15 @@ public class UserService {
     private PasswordService passwordService;
 
     public UserDTO create(String nickname, String email, String password) {
-        boolean isNicknameAlreadyInUse = userRepository.findByNickname(nickname) != null;
+        boolean existsNickname = userRepository.existsByNickname(nickname);
 
-        if (isNicknameAlreadyInUse) {
+        if (existsNickname) {
             throw new NicknameAlreadyInUseException();
         }
 
-        boolean isEmailAlreadyInUse = userRepository.findByEmail(email) != null;
+        boolean existsEmail = userRepository.existsByEmail(email);
 
-        if (isEmailAlreadyInUse) {
+        if (existsEmail) {
             throw new EmailAlreadyInUseException();
         }
 

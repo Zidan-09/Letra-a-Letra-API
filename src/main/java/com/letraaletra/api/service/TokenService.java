@@ -1,5 +1,6 @@
 package com.letraaletra.api.service;
 
+import com.letraaletra.api.exception.exceptions.InvalidTokenException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class TokenService {
                     .get("id", String.class);
 
         } catch (Exception ex) {
-            return null;
+            throw new InvalidTokenException();
         }
     }
 }
