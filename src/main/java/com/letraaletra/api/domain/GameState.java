@@ -2,7 +2,6 @@ package com.letraaletra.api.domain;
 
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.player.Player;
-import com.letraaletra.api.dto.response.player.PlayerDTO;
 
 import java.util.*;
 
