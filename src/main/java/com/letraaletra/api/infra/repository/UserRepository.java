@@ -7,7 +7,8 @@ import java.util.List;
 public interface UserRepository {
     void save(User user);
     User find(String id);
-    User findByNickname(String nickname);
+    boolean existsByNickname(String nickname);
+    boolean existsByEmail(String email);
     User findByEmail(String email);
     List<User> get();
 }

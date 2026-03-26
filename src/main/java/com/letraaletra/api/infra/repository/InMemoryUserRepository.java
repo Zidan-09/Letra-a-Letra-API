@@ -22,17 +22,22 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByNickname(String nickname) {
+    public User findByEmail(String email) {
         return userMap.values().stream()
-                .filter(u -> u.getNickname().equals(nickname))
-                .findFirst().orElse(null);
+                .filter(u -> u.getNickname().equals(email))
+                .findFirst() .orElse(null);
     }
 
     @Override
-    public User findByEmail(String email) {
+    public boolean existsByNickname(String nickname) {
         return userMap.values().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst().orElse(null);
+                .anyMatch(u -> u.getNickname().equals(nickname));
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userMap.values().stream()
+                .anyMatch(u -> u.getEmail().equals(email));
     }
 
     @Override

@@ -25,7 +25,8 @@ public enum UserMessages implements MessageCode {
 
     USER_ALREADY_IN_GAME("user_already_in_game"),
 
-    INVALID_USER_DATA("invalid_user_data");
+    INVALID_USER_DATA("invalid_user_data"),
+    INVALID_TOKEN("invalid_token");
 
     private final String message;
 
