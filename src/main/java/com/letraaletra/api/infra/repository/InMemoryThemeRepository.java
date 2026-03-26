@@ -5,18 +5,30 @@ import com.letraaletra.api.infra.loader.ThemeLoader;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class InMemoryThemeRepository implements ThemeRepository {
 
-    private final ThemeLoader loader;
+    private final Map<String, Theme> themeMap;
 
     public InMemoryThemeRepository(ThemeLoader loader) {
-        this.loader = loader;
+        this.themeMap = new ConcurrentHashMap<>(Map.copyOf(loader.load()));
+    }
+
+    @Override
+    public void save(Theme theme) {
+        themeMap.put(theme.getThemeId(), theme);
+    }
+
+    @Override
+    public Theme findById(String themeId) {
+        return themeMap.get(themeId);
     }
 
     @Override
     public List<Theme> findAll() {
-        return loader.load();
+        return List.copyOf(themeMap.values());
     }
 }

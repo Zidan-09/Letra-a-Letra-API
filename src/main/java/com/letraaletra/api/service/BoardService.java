@@ -25,7 +25,7 @@ public class BoardService {
         List<String> words;
 
         if (theme != null) {
-            words = new ArrayList<>(theme.getWords());
+            words = new ArrayList<>(theme.getWords().stream().limit(5).toList());
         } else {
             words = new ArrayList<>(themeWordSelector.pickRandomThemeWords(5));
         }
@@ -55,10 +55,12 @@ public class BoardService {
 
         fillEmptySpaces(grid);
 
+        bindCellsToWords(grid, placedWords);
+
         return new Board(grid, placedWords.toArray(new Word[0]));
     }
 
-    public boolean canPlaceWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
+    private boolean canPlaceWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
         for (int i = 0; i < word.length(); i++) {
             int x = row + dx * i;
             int y = column + dy * i;
@@ -75,7 +77,7 @@ public class BoardService {
         return true;
     }
 
-    public Word placeWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
+    private Word placeWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
         List<Position> positions = new ArrayList<>();
 
         for (int i = 0; i < word.length(); i++) {
@@ -84,14 +86,17 @@ public class BoardService {
 
             Position position = new Position(x, y);
 
-            grid[x][y] = new Cell(word.charAt(i), position);
+            if (grid[x][y] == null) {
+                grid[x][y] = new Cell(word.charAt(i), position);
+            }
+
             positions.add(position);
         }
 
         return new Word(word, positions);
     }
 
-    public void fillEmptySpaces(Cell[][] grid) {
+    private void fillEmptySpaces(Cell[][] grid) {
         String letters = "abcdefghijklmnopqrstuvwxyz";
 
         for (int i = 0; i < grid.length; i++) {
@@ -104,6 +109,15 @@ public class BoardService {
 
                     grid[i][j] = new Cell(letter, position);
                 }
+            }
+        }
+    }
+
+    private void bindCellsToWords(Cell[][] grid, List<Word> words) {
+        for (Word word : words) {
+            for (Position pos : word.getPositions()) {
+                Cell cell = grid[pos.getX()][pos.getY()];
+                cell.addRelatedWord(word);
             }
         }
     }

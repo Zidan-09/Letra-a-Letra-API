@@ -34,6 +34,10 @@ public class Word {
     }
 
     public void markAsFound(String playerId) {
+        if (found) {
+            return;
+        }
+
         this.found = true;
         this.foundById = playerId;
     }

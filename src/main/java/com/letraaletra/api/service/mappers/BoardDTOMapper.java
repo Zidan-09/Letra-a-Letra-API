@@ -15,7 +15,7 @@ public class BoardDTOMapper {
 
         for (int i = 0; i < range; i++) {
             for (int j = 0; j < range; j++) {
-                Cell cell = board.getCellOfGrid(new Position(i, j));
+                Cell cell = board.getCell(new Position(i, j));
 
                 dto[i][j] = mapCellToView(cell);
             }

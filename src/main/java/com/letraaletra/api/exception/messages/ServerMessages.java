@@ -8,7 +8,8 @@ public enum ServerMessages implements MessageCode {
     SERVICE_UNAVAILABLE("service_unavailable"),
     TIMEOUT("timeout"),
     UNAUTHORIZED("unauthorized"),
-    FORBIDDEN("forbidden");
+    FORBIDDEN("forbidden"),
+    INVALID_ID("invalid_id");
 
     private final String message;
 

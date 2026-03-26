@@ -4,6 +4,8 @@ import com.letraaletra.api.dto.request.websocket.playeractions.PlayerAction;
 import com.letraaletra.api.dto.request.websocket.playeractions.RevealAction;
 import com.letraaletra.api.exception.exceptions.InvalidPlayerActionException;
 import com.letraaletra.api.service.PlayerActionService;
+import com.letraaletra.api.service.actions.GameAction;
+import com.letraaletra.api.service.actions.RevealCellAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,10 +23,12 @@ public class PlayerActionRequestDispatcher {
     }
 
     private void handleReveal(RevealAction request, WebSocketSession session, String gameTokenId) {
-        playerActionService.revealCell(
+        GameAction gameAction = new RevealCellAction(request.position());
+
+        playerActionService.execute(
                 gameTokenId,
                 (String) session.getAttributes().get("userId"),
-                request.position()
+                gameAction
         );
     }
 }
