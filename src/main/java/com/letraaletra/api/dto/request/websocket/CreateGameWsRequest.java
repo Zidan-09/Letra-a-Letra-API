@@ -1,9 +1,12 @@
 package com.letraaletra.api.dto.request.websocket;
 
-import com.letraaletra.api.domain.game.GameSettings;
+import jakarta.validation.constraints.NotBlank;
 
 public record CreateGameWsRequest(
+        @NotBlank
         String name,
-        GameSettings gameSettings
+
+        @NotBlank
+        GameSettingsDTO settings
 ) implements WsRequestDTO {
 }

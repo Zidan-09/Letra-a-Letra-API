@@ -1,5 +1,6 @@
 package com.letraaletra.api.infra.websocket;
 
+import com.letraaletra.api.domain.position.Position;
 import com.letraaletra.api.dto.request.websocket.playeractions.PlayerAction;
 import com.letraaletra.api.dto.request.websocket.playeractions.RevealAction;
 import com.letraaletra.api.exception.exceptions.InvalidPlayerActionException;
@@ -23,7 +24,8 @@ public class PlayerActionRequestDispatcher {
     }
 
     private void handleReveal(RevealAction request, WebSocketSession session, String gameTokenId) {
-        GameAction gameAction = new RevealCellAction(request.position());
+        Position position = new Position(request.position().getX(), request.position().getY());
+        GameAction gameAction = new RevealCellAction(position);
 
         playerActionService.execute(
                 gameTokenId,

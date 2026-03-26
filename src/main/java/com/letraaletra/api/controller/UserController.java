@@ -30,7 +30,6 @@ public class UserController {
     public ResponseEntity<SuccessResponse<UserDTO>> register(@RequestBody @Valid CreateUserRequestDTO request) {
         UserDTO result = userService.create(
                 request.nickname(),
-                request.avatar(),
                 request.email(),
                 request.password()
         );

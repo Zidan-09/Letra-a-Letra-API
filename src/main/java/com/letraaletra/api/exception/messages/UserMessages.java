@@ -17,7 +17,7 @@ public enum UserMessages implements MessageCode {
 
     USER_ALREADY_EXISTS("user_already_exists"),
     EMAIL_ALREADY_IN_USE("email_already_in_use"),
-    USERNAME_ALREADY_IN_USE("username_already_in_use"),
+    NICKNAME_ALREADY_IN_USE("nickname_already_in_use"),
 
     INVALID_CREDENTIALS("invalid_credentials"),
     USER_DISABLED("user_disabled"),
