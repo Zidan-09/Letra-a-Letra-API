@@ -6,6 +6,7 @@ import com.letraaletra.api.domain.board.Word;
 import com.letraaletra.api.domain.game.GameMode;
 import com.letraaletra.api.domain.position.Position;
 import com.letraaletra.api.domain.theme.Theme;
+import com.letraaletra.api.infra.repository.ThemeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,12 @@ public class BoardService {
     @Autowired
     private ThemeWordSelector themeWordSelector;
 
-    public Board createBoard(Theme theme, GameMode gameMode) {
+    @Autowired
+    private ThemeRepository themeRepository;
+
+    public Board createBoard(String themeId, GameMode gameMode) {
+        Theme theme = themeRepository.findById(themeId);
+
         Cell[][] grid = new Cell[10][10];
         List<Word> placedWords = new ArrayList<>();
 

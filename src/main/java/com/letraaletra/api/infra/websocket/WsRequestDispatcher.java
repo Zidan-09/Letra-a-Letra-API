@@ -1,5 +1,6 @@
 package com.letraaletra.api.infra.websocket;
 
+import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.dto.request.websocket.*;
 import com.letraaletra.api.exception.exceptions.InvalidPlayerActionException;
 import com.letraaletra.api.service.GameService;
@@ -26,11 +27,21 @@ public class WsRequestDispatcher {
     }
 
     private void handleCreate(CreateGameWsRequest request, WebSocketSession session) {
+        String userId = (String) session.getAttributes().get("userId");
+
+        GameSettingsDTO settings = request.settings();
+
         gameService.createGame(
                 request.name(),
-                request.gameSettings(),
+                new GameSettings(
+                        userId,
+                        settings.themeId(),
+                        settings.gameMode(),
+                        settings.allowSpectators(),
+                        settings.privateGame()
+                ),
                 session.getId(),
-                (String) session.getAttributes().get("userId")
+                userId
         );
     }
 

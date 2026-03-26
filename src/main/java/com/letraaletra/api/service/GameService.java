@@ -56,7 +56,7 @@ public class GameService {
     @Autowired
     private ParticipantDTOMapper participantDTOMapper;
 
-    public void createGame(String name, GameSettings gameSettings, String userId, String sessionId) {
+    public void createGame(String name, GameSettings gameSettings, String sessionId, String userId) {
         String gameId = UUID.randomUUID().toString();
 
         User user = userRepository.find(userId);
@@ -93,13 +93,7 @@ public class GameService {
             throw new SessionNotFoundException();
         }
 
-        String tokenUserId = (String) session.getAttributes().get("token");
-
-        if (tokenUserId == null) {
-            throw new UserNotFoundException();
-        }
-
-        String userId = tokenService.getTokenContent(tokenUserId);
+        String userId = (String) session.getAttributes().get("userId");
 
         User user = userRepository.find(userId);
 

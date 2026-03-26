@@ -9,11 +9,9 @@ import com.letraaletra.api.domain.player.Player;
 import com.letraaletra.api.domain.position.Position;
 import com.letraaletra.api.exception.exceptions.CellAlreadyRevealedException;
 import com.letraaletra.api.exception.exceptions.NotYourTurnException;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class RevealCellAction implements GameAction {
     private final Position position;
 

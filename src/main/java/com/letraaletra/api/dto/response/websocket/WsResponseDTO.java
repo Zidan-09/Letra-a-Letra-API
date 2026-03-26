@@ -11,8 +11,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = GameUpdatedWsResponse.class, name = "GAME_UPDATED"),
         @JsonSubTypes.Type(value = GameStartedWsResponse.class, name = "GAME_STARTED"),
         @JsonSubTypes.Type(value = GameStateUpdatedWsResponse.class, name = "GAME_STATE_UPDATED"),
-        @JsonSubTypes.Type(value = GameOverWsResponse.class, name = "GAME_OVER")
+        @JsonSubTypes.Type(value = GameOverWsResponse.class, name = "GAME_OVER"),
+        @JsonSubTypes.Type(value = ErrorWsResponse.class, name = "ERROR")
 })
 public sealed interface WsResponseDTO
-    permits GameUpdatedWsResponse, GameStartedWsResponse, GameStateUpdatedWsResponse, GameOverWsResponse {
+    permits GameUpdatedWsResponse, GameStartedWsResponse, GameStateUpdatedWsResponse, GameOverWsResponse, ErrorWsResponse {
 }

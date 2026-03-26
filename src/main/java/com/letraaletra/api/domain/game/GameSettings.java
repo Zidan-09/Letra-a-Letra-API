@@ -1,17 +1,15 @@
 package com.letraaletra.api.domain.game;
 
-import com.letraaletra.api.domain.theme.Theme;
-
 public class GameSettings {
     private String hostId;
-    private final Theme theme;
+    private final String themeId;
     private final GameMode gameMode;
     private final boolean allowSpectators;
     private final boolean privateGame;
 
-    public GameSettings(String hostId, Theme theme, GameMode gameMode, boolean allowSpectators, boolean privateGame) {
+    public GameSettings(String hostId, String themeId, GameMode gameMode, boolean allowSpectators, boolean privateGame) {
         this.hostId = hostId;
-        this.theme = theme;
+        this.themeId = themeId;
         this.gameMode = gameMode;
         this.allowSpectators = allowSpectators;
         this.privateGame = privateGame;
@@ -21,8 +19,8 @@ public class GameSettings {
         return hostId;
     }
 
-    public Theme getTheme() {
-        return theme;
+    public String getThemeId() {
+        return themeId;
     }
 
     public GameMode getGameMode() {

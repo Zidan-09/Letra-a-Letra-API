@@ -2,6 +2,8 @@ package com.letraaletra.api.service;
 
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.dto.response.user.UserDTO;
+import com.letraaletra.api.exception.exceptions.EmailAlreadyInUseException;
+import com.letraaletra.api.exception.exceptions.NicknameAlreadyInUseException;
 import com.letraaletra.api.exception.exceptions.UserNotFoundException;
 import com.letraaletra.api.infra.repository.UserRepository;
 import com.letraaletra.api.service.mappers.UserDTOMapper;
@@ -22,13 +24,25 @@ public class UserService {
     @Autowired
     private PasswordService passwordService;
 
-    public UserDTO create(String nickname, String avatar, String email, String password) {
+    public UserDTO create(String nickname, String email, String password) {
+        boolean isNicknameAlreadyInUse = userRepository.findByNickname(nickname) != null;
+
+        if (isNicknameAlreadyInUse) {
+            throw new NicknameAlreadyInUseException();
+        }
+
+        boolean isEmailAlreadyInUse = userRepository.findByEmail(email) != null;
+
+        if (isEmailAlreadyInUse) {
+            throw new EmailAlreadyInUseException();
+        }
+
         String userId = UUID.randomUUID().toString();
 
         User user = new User(
                 userId,
                 nickname,
-                avatar,
+                "avatar id inventado",
                 email,
                 passwordService.hash(password)
         );

@@ -1,6 +1,7 @@
 package com.letraaletra.api.infra.websocket;
 
 import com.letraaletra.api.service.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,8 @@ import java.util.Map;
 @Component
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
-    private final TokenService tokenService;
-
-    public AuthHandshakeInterceptor(TokenService tokenService) {
-        this.tokenService = tokenService;
-    }
+    @Autowired
+    private TokenService tokenService;
 
     @Override
     public boolean beforeHandshake(
@@ -27,7 +25,6 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes
     ) {
-        System.out.println("Tentativa de conexão estabelecida!");
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 

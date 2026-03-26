@@ -36,7 +36,7 @@ public class GameStateService {
         });
 
         Board board = boardService.createBoard(
-                gameSettings.getTheme(),
+                gameSettings.getThemeId(),
                 gameSettings.getGameMode()
         );
 
