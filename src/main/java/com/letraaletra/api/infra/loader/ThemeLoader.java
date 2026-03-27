@@ -1,7 +1,7 @@
 package com.letraaletra.api.infra.loader;
 
 import com.letraaletra.api.domain.theme.Theme;
-import com.letraaletra.api.exception.messages.ThemeMessages;
+import com.letraaletra.api.presentation.messages.ThemeMessages;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;

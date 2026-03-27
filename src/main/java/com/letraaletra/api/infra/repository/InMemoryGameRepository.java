@@ -1,6 +1,7 @@
 package com.letraaletra.api.infra.repository;
 
 import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.domain.repository.GameRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

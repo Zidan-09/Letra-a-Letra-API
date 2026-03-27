@@ -1,5 +1,6 @@
 package com.letraaletra.api.infra.repository;
 
+import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.theme.Theme;
 import com.letraaletra.api.infra.loader.ThemeLoader;
 import org.springframework.stereotype.Repository;
