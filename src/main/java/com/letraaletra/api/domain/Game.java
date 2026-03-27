@@ -4,7 +4,8 @@ import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
-import com.letraaletra.api.exception.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
+import com.letraaletra.api.infra.websocket.exceptions.UserAlreadyInGameException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,13 @@ public class Game {
         return gameSettings;
     }
 
+    public Participant getParticipant(String sessionId) {
+        return participants.values().stream()
+                .filter(p -> p.getSocketId().equals(sessionId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void join(Participant participant) {
         boolean alreadyExists = participants.values().stream()
                 .anyMatch(p -> p.getUserId().equals(participant.getUserId()));
@@ -59,6 +67,20 @@ public class Game {
         }
 
         participants.put(participant.getUserId(), participant);
+    }
+
+    public void remove(String userId) {
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
+        if (participant.getRole() == ParticipantRole.PLAYER) {
+
+        }
+
+        participants.remove(userId);
     }
 
     public void participantLeaveGame(String userId) {

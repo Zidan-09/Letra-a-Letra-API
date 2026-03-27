@@ -1,7 +1,7 @@
 package com.letraaletra.api.exception;
 
-import com.letraaletra.api.dto.response.ErrorResponse;
-import com.letraaletra.api.exception.messages.ServerMessages;
+import com.letraaletra.api.presentation.dto.response.ErrorResponse;
+import com.letraaletra.api.presentation.messages.ServerMessages;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

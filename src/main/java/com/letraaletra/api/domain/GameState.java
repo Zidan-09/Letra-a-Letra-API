@@ -2,6 +2,7 @@ package com.letraaletra.api.domain;
 
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.player.Player;
+import com.letraaletra.api.domain.game.exceptions.PlayerNotInGameException;
 
 import java.util.*;
 
@@ -27,6 +28,22 @@ public class GameState {
 
     public Map<String, Player> getPlayers() {
         return Map.copyOf(players);
+    }
+
+    public List<String> getPlayerIds() {
+        return players.values().stream()
+                .map(Player::getUserId)
+                .toList();
+    }
+
+    public Player getPlayerOrThrow(String userId) {
+        Player player = players.get(userId);
+
+        if (player == null) {
+            throw new PlayerNotInGameException();
+        }
+
+        return player;
     }
 
     public Board getBoard() {

@@ -5,15 +5,11 @@ import java.util.List;
 
 public class Player {
     private final String userId;
-    private final String nickname;
-    private final String avatar;
     private final List<String> inventory = new ArrayList<>();
     private int score = 0;
 
-    public Player(String userId, String nickname, String avatar) {
+    public Player(String userId) {
         this.userId = userId;
-        this.nickname = nickname;
-        this.avatar = avatar;
     }
 
     public String getUserId() {
