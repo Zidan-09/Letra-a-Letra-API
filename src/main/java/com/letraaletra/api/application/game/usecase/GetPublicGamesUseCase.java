@@ -28,7 +28,7 @@ public class GetPublicGamesUseCase {
 
     public List<GameDTO> execute() {
         return gameRepository.get().stream()
-                .filter(game -> !game.getGameSettings().isPrivateGame())
+                .filter(game -> !game.getRoomSettings().isPrivateGame())
                 .map(this::toPublicGameDTO)
                 .toList();
     }

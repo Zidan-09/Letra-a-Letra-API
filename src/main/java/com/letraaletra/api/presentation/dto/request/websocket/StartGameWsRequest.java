@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 
 public record StartGameWsRequest(
         @NotBlank
-        String tokenGameId
+        String tokenGameId,
+
+        @NotBlank
+        GameSettingsDTO settings
 ) implements WsRequestDTO {
 }

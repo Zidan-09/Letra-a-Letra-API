@@ -8,12 +8,6 @@ public record GameSettingsDTO(
         String themeId,
 
         @NotBlank
-        GameMode gameMode,
-
-        @NotBlank
-        boolean allowSpectators,
-
-        @NotBlank
-        boolean privateGame
+        GameMode gameMode
 ) {
 }

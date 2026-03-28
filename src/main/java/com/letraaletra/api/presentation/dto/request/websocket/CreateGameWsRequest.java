@@ -1,5 +1,6 @@
 package com.letraaletra.api.presentation.dto.request.websocket;
 
+import com.letraaletra.api.presentation.dto.request.websocket.playeractions.RoomSettingsDTO;
 import jakarta.validation.constraints.NotBlank;
 
 public record CreateGameWsRequest(
@@ -7,6 +8,6 @@ public record CreateGameWsRequest(
         String name,
 
         @NotBlank
-        GameSettingsDTO settings
+        RoomSettingsDTO settings
 ) implements WsRequestDTO {
 }

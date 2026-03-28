@@ -73,7 +73,6 @@ class StartGameUseCaseTest {
 
         GameSettings settings = mock(GameSettings.class);
         lenient().when(game.getGameSettings()).thenReturn(settings);
-        lenient().when(settings.getHostId()).thenReturn(hostId);
         lenient().when(settings.getThemeId()).thenReturn("theme123");
         lenient().when(settings.getGameMode()).thenReturn(GameMode.NORMAL);
 

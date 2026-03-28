@@ -2,6 +2,8 @@ package com.letraaletra.api.domain;
 
 import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
+import com.letraaletra.api.domain.game.RoomSettings;
+import com.letraaletra.api.domain.game.exceptions.InvalidRoomPositionException;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
@@ -15,16 +17,21 @@ public class Game {
     private final String id;
     private final String roomName;
     private final Map<String, Participant> participants = new HashMap<>();
+    private final RoomSettings roomSettings;
+    private final Map<Integer, String> positions = new HashMap<>();
+    private String hostId;
     private GameStatus gameStatus;
     private GameState gameState;
     private GameSettings gameSettings;
 
-    public Game(String id, String roomName, GameSettings gameSettings, Participant host) {
+    public Game(String id, String roomName, RoomSettings roomSettings, Participant host) {
         this.id = id;
         this.roomName = roomName;
         this.participants.put(host.getUserId(), host);
+        this.hostId = host.getUserId();
+        this.positions.put(0, host.getUserId());
         this.gameStatus = GameStatus.WAITING;
-        this.gameSettings = gameSettings;
+        this.roomSettings = roomSettings;
     }
 
     public String getId() {
@@ -39,12 +46,20 @@ public class Game {
         return List.copyOf(participants.values());
     }
 
+    public String getHostId() {
+        return hostId;
+    }
+
     public GameStatus getGameStatus() {
         return gameStatus;
     }
 
     public GameState getGameState() {
         return gameState;
+    }
+
+    public RoomSettings getRoomSettings() {
+        return roomSettings;
     }
 
     public GameSettings getGameSettings() {
@@ -70,21 +85,30 @@ public class Game {
     }
 
     public void remove(String userId) {
-        Participant participant = participants.get(userId);
-
+        Participant participant = participants.remove(userId);
         if (participant == null) {
             throw new UserNotInGameException();
         }
 
-        if (participant.getRole() == ParticipantRole.PLAYER) {
-
+        if (participants.isEmpty()) {
+            return;
         }
 
-        participants.remove(userId);
+        if (participant.getUserId().equals(hostId)) {
+            participants.values().stream()
+                    .findFirst()
+                    .ifPresent(p -> hostId = p.getUserId());
+        }
     }
 
-    public void participantLeaveGame(String userId) {
-        participants.remove(userId);
+    public void changePosition(String userId, int position) {
+        if (positions.get(position) != null) {
+            throw new InvalidRoomPositionException();
+        }
+
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+
+        positions.put(position, userId);
     }
 
     public void setGameStatus(GameStatus gameStatus) {

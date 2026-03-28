@@ -3,7 +3,7 @@ package com.letraaletra.api.application.game.usecase;
 import com.letraaletra.api.application.game.service.MapParticipantsService;
 import com.letraaletra.api.application.user.service.TokenService;
 import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.game.GameSettings;
+import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantFactory;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -41,7 +41,7 @@ public class CreateGameUseCase {
     @Autowired
     private MapParticipantsService mapParticipantsService;
 
-    public void execute(String name, GameSettings gameSettings, String sessionId, String userId) {
+    public void execute(String name, RoomSettings roomSettings, String sessionId, String userId) {
         String gameId = UUID.randomUUID().toString();
 
         User user = userRepository.find(userId);
@@ -50,7 +50,7 @@ public class CreateGameUseCase {
 
         Participant host = ParticipantFactory.fromUser(user, sessionId, ParticipantRole.PLAYER);
 
-        Game game = new Game(gameId, name, gameSettings, host);
+        Game game = new Game(gameId, name, roomSettings, host);
 
         gameRepository.save(game);
 
