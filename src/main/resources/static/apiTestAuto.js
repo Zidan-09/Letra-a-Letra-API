@@ -10,6 +10,10 @@ class User {
   addToken(token) {
     this.token = token;
   }
+
+  addId(id) {
+    this.id = id;
+  }
 }
 
 const endpoint = "http://localhost:8080";
@@ -43,6 +47,7 @@ async function main() {
     }).then(res => res.json());
 
     user.addToken(res.data.token);
+    user.addId(res.data.id);
   }
 }
 
@@ -57,16 +62,23 @@ function connectUser(user) {
 
     ws.on("message", (data) => {
       const msg = JSON.parse(data);
-      console.log(msg)
-      if (msg.data && msg.data.board) {
-        const board = msg.data.board;
 
-        const lettersBoard = board.map(row =>
-          row.map(cell => cell.letter)
-        );
+      if (user.nickname === "Zidan") {
+        if (msg.event && msg.event === "GAME_OVER") {
+          console.log(msg);
+        }
 
-        console.table(lettersBoard);
+        if (msg.data && msg.data.board) {
+          const board = msg.data.board;
+
+          const lettersBoard = board.map(row =>
+            row.map(cell => cell.letter)
+          );
+
+          console.table(lettersBoard);
+        }
       }
+      
       events.push(msg);
     });
 
@@ -102,82 +114,86 @@ async function startSocket() {
     tokenGameId: tokenGameId
   }));
 
-  const joinEvent = await waitForEvent(e => e.event === "GAME_UPDATED");
+  await waitForEvent(e => e.event === "GAME_UPDATED");
 
   await ws3.send(JSON.stringify({
     type: "JOIN_GAME",
     tokenGameId: tokenGameId
   }));
 
-  const joinEvent2 = await waitForEvent(e => e.event === "GAME_UPDATED");
+  await waitForEvent(e => e.event === "GAME_UPDATED");
 
-  await ws1.send(JSON.stringify({
-    type: "START_GAME",
-    tokenGameId: tokenGameId
-  }));
+  for (let i = 0; i < 3; i++) {
 
-  const startEvent = await waitForEvent(e => e.event === "GAME_STARTED");
+    await ws1.send(JSON.stringify({
+      type: "START_GAME",
+      tokenGameId: tokenGameId
+    }));
+  
+    const started = await waitForEvent(e => e.event === "GAME_STARTED");
 
-  // PLAY GAME TEST
+    let currentPlayer = started.data.currentTurnPlayerId;
+  
+    const positions = [];
+  
+    for (let x = 0; x < 10; x++) {
+      for (let y = 0; y < 10; y++) {
+        positions.push({ x, y });
+      }
+    }
+  
+    while (positions.length > 0) {  
+      const pos = drawPosition(positions);
 
-  const positions = [];
+      if (currentPlayer === user1.id) {
+        await ws1.send(JSON.stringify({
+          type: "PLAYER_ACTION",
+          tokenGameId: tokenGameId,
+          action: {
+            type: "REVEAL",
+            position: pos
+          }
+        }));
 
-  for (let x = 0; x < 10; x++) {
-    for (let y = 0; y < 10; y++) {
-      positions.push({ x, y });
+        await waitForEvent(e => e.event === "GAME_STATE_UPDATED");
+
+        currentPlayer = user2.id;
+
+      } else {
+        await ws2.send(JSON.stringify({
+          type: "PLAYER_ACTION",
+          tokenGameId: tokenGameId,
+          action: {
+            type: "REVEAL",
+            position: pos
+          }
+        }));
+
+        await waitForEvent(e => e.event === "GAME_STATE_UPDATED");
+
+        currentPlayer = user1.id;
+      }
     }
   }
-
-  while (positions.length > 0) {
-    const pos = drawPosition(positions);
-
-    for (const connection of [ws1, ws2]) {
-      await connection.send(JSON.stringify({
-        type: "PLAYER_ACTION",
-        tokenGameId: tokenGameId,
-        action: {
-          type: "REVEAL",
-          position: pos
-        }
-      }));
-
-      const update = await waitForEvent(e => e.event === "GAME_STATE_UPDATED");
-      console.log(update);
-    }
-  }
-
-  ws1.send(JSON.stringify({
-    type: "PLAYER_ACTION",
-    tokenGameId: tokenGameId,
-    action: {
-      type: "REVEAL",
-      position: drawPosition()
-    }
-  }));
 }
 
 function waitForEvent(predicate) {
   return new Promise((resolve) => {
     const interval = setInterval(() => {
-      const event = events.find(predicate);
+      const index = events.findIndex(predicate);
 
-      if (event) {
+      if (index !== -1) {
+        const event = events.splice(index, 1)[0];
         clearInterval(interval);
         resolve(event);
       }
-
-      const err = events.find(e => e.event === "ERROR");
-
-      if (err) {
-        clearInterval(interval);
-        resolve(err);
-      }
-
     }, 10);
   });
 }
 
 function drawPosition(positions) {
+  if (!positions || positions.length === 0) return null;
+
   const index = Math.floor(Math.random() * positions.length);
   return positions.splice(index, 1)[0];
 }

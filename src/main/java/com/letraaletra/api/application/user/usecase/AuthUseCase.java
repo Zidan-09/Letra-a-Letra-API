@@ -32,7 +32,7 @@ public class AuthUseCase {
 
         String token = tokenService.generateToken(user.getId());
 
-        return buildResponse(token);
+        return buildResponse(user.getId(), token);
     }
 
     private void validateUser(User user) {
@@ -49,8 +49,9 @@ public class AuthUseCase {
         }
     }
 
-    private LoginResponseDTO buildResponse(String token) {
+    private LoginResponseDTO buildResponse(String userId, String token) {
         return new LoginResponseDTO(
+                userId,
                 token
         );
     }
