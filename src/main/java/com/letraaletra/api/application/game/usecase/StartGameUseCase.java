@@ -7,6 +7,7 @@ import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -82,6 +83,8 @@ public class StartGameUseCase {
         List<String> playerIds = state.getPlayerIds();
 
         Map<String, User> users = userRepository.findMapByIds(playerIds);
+
+        game.setGameStatus(GameStatus.RUNNING);
 
         GameStartedWsResponse data = buildResponse(state, users);
 

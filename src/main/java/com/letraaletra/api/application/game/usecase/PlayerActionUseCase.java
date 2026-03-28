@@ -1,5 +1,6 @@
 package com.letraaletra.api.application.game.usecase;
 
+import com.letraaletra.api.application.game.service.GameOverService;
 import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.presentation.dto.mappers.GameStateResponseAssembler;
 import com.letraaletra.api.domain.user.User;
@@ -32,6 +33,9 @@ public class PlayerActionUseCase {
     private TokenService tokenService;
 
     @Autowired
+    private GameOverService gameOverService;
+
+    @Autowired
     private BroadcastService broadCast;
 
     @Autowired
@@ -54,6 +58,8 @@ public class PlayerActionUseCase {
 
         GameStateUpdatedWsResponse data = buildResponse(state, users);
         broadCast.send(gameId, data);
+
+        checkGameOver(game);
     }
 
     private void validateGame(Game game) {
@@ -70,5 +76,10 @@ public class PlayerActionUseCase {
         return new GameStateUpdatedWsResponse(
                 gameStateResponseAssembler.get(state, users)
         );
+    }
+
+    private void checkGameOver(Game game) {
+        gameOverService.buildIfFinished(game)
+                .ifPresent(response -> broadCast.send(game.getId(), response));
     }
 }
