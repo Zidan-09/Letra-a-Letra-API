@@ -7,7 +7,9 @@ import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
+import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -55,24 +57,26 @@ public class StartGameUseCase {
     @Autowired
     private BroadcastService broadcast;
 
-    public void execute(String tokenGameId, String sessionId) {
+    public void execute(String tokenGameId, GameSettings settings, String sessionId) {
         String gameId = tokenService.getTokenContent(tokenGameId);
 
         Game game = gameRepository.find(gameId);
 
-        String hostId = game.getGameSettings().getHostId();
+        validateGame(game);
+
+        String hostId = game.getHostId();
         Participant participant = game.findBySession(sessionId);
 
         validateParticipant(participant);
         validateHost(participant, hostId);
 
-        String themeId = game.getGameSettings().getThemeId();
+        String themeId = settings.getThemeId();
 
         Theme theme = themeRepository.findById(themeId);
 
         List<String> words = selectWords(theme);
 
-        GameMode gameMode = game.getGameSettings().getGameMode();
+        GameMode gameMode = settings.getGameMode();
 
         Board board = boardGenerator.generate(words, gameMode);
 
@@ -89,6 +93,12 @@ public class StartGameUseCase {
         GameStartedWsResponse data = buildResponse(state, users);
 
         broadcast.send(gameId, data);
+    }
+
+    private void validateGame(Game game) {
+        if (game == null) {
+            throw new GameNotFoundException();
+        }
     }
 
     private List<String> selectWords(Theme theme) {

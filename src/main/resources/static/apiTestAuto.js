@@ -27,27 +27,36 @@ const events = [];
 
 async function main() {
   for (const user of [user1, user2, user3]) {
-    await fetch(`${endpoint}/user`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nickname: user.nickname,
-        email: user.email,
-        password: user.password
-      })
-    });
+    try {
+      await fetch(`${endpoint}/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nickname: user.nickname,
+          email: user.email,
+          password: user.password
+        })
+      });
 
-    const res = await fetch(`${endpoint}/user/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: user.email,
-        password: user.password
-      })
-    }).then(res => res.json());
+    } catch (err) {
+      console.error(err);
+    }
 
-    user.addToken(res.data.token);
-    user.addId(res.data.id);
+    try {
+      const res = await fetch(`${endpoint}/user/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          password: user.password
+        })
+      }).then(res => res.json());
+
+      user.addToken(res.data.token);
+      user.addId(res.data.id);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
@@ -99,8 +108,6 @@ async function startSocket() {
     type: "CREATE_GAME",
     name: "Minha Sala",
     settings: {
-      themeId: "tech",
-      gameMode: "NORMAL",
       allowSpectators: true,
       privateGame: false
     }
@@ -123,11 +130,15 @@ async function startSocket() {
 
   await waitForEvent(e => e.event === "GAME_UPDATED");
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
 
     await ws1.send(JSON.stringify({
       type: "START_GAME",
-      tokenGameId: tokenGameId
+      tokenGameId: tokenGameId,
+      settings: {
+        themeId: "tech",
+        gameMode: "NORMAL"
+      }
     }));
   
     const started = await waitForEvent(e => e.event === "GAME_STARTED");
@@ -180,6 +191,14 @@ async function startSocket() {
 function waitForEvent(predicate) {
   return new Promise((resolve) => {
     const interval = setInterval(() => {
+      const over = events.findLastIndex(e => e.event == "GAME_OVER");
+
+      if (over !== -1) {
+        const event = events.splice(over, 1)[0];
+        clearInterval(interval);
+        resolve(event);
+      }
+
       const index = events.findIndex(predicate);
 
       if (index !== -1) {
