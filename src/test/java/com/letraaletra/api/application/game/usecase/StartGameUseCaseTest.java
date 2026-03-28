@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -70,14 +71,16 @@ class StartGameUseCaseTest {
         lenient().when(game.findBySession(sessionId)).thenReturn(participant);
         String hostId = "userHost";
         lenient().when(participant.getUserId()).thenReturn(hostId);
+        lenient().when(game.getHostId()).thenReturn(hostId);
 
+        lenient().when(game.getParticipants()).thenReturn(List.of(participant));
         GameSettings settings = mock(GameSettings.class);
         lenient().when(game.getGameSettings()).thenReturn(settings);
         lenient().when(settings.getThemeId()).thenReturn("theme123");
         lenient().when(settings.getGameMode()).thenReturn(GameMode.NORMAL);
 
         lenient().when(themeRepository.findById("theme123")).thenReturn(theme);
-        lenient().when(themeWordSelector.pickRandomWords(theme)).thenReturn(List.of("word1", "word2"));
+        lenient().when(boardGenerator.generate(anyList(), eq(GameMode.NORMAL))).thenReturn(board);
 
         lenient().when(boardGenerator.generate(List.of("word1", "word2"), GameMode.NORMAL)).thenReturn(board);
         lenient().when(gameStateGenerator.generate(anyList(), eq(board))).thenReturn(gameState);
@@ -91,7 +94,9 @@ class StartGameUseCaseTest {
     @Test
     @DisplayName("Should start game successfully")
     void execute_success() {
-        startGameUseCase.execute(tokenGameId, sessionId);
+        GameSettings settings = new GameSettings("tech", GameMode.NORMAL);
+
+        startGameUseCase.execute(tokenGameId, settings, sessionId);
 
         verify(game).updateGameState(gameState);
         verify(broadcast).send(eq(gameId), any(GameStartedWsResponse.class));
@@ -100,20 +105,24 @@ class StartGameUseCaseTest {
     @Test
     @DisplayName("Should throw UserNotFoundException if participant not found")
     void execute_participantNotFound() {
+        GameSettings settings = new GameSettings("tech", GameMode.NORMAL);
+
         when(game.findBySession(sessionId)).thenReturn(null);
 
         assertThrows(UserNotFoundException.class,
-                () -> startGameUseCase.execute(tokenGameId, sessionId)
+                () -> startGameUseCase.execute(tokenGameId, settings, sessionId)
         );
     }
 
     @Test
     @DisplayName("Should throw OnlyHostCanStartException if participant is not host")
     void execute_notHost() {
+        GameSettings settings = new GameSettings("tech", GameMode.NORMAL);
+
         when(participant.getUserId()).thenReturn("otherUser");
 
         assertThrows(OnlyHostCanStartException.class,
-                () -> startGameUseCase.execute(tokenGameId, sessionId)
+                () -> startGameUseCase.execute(tokenGameId, settings, sessionId)
         );
     }
 }

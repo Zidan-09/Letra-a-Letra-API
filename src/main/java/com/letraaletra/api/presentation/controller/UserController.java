@@ -15,10 +15,12 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/user")
+@Validated
 public class UserController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class UserController {
     private AuthUseCase authUseCase;
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<UserDTO>> register(@RequestBody @Valid CreateUserRequestDTO request) {
+    public ResponseEntity<SuccessResponse<UserDTO>> register(@Valid @RequestBody CreateUserRequestDTO request) {
         UserDTO result = registerUser.execute(
                 request.nickname(),
                 request.email(),
@@ -49,7 +51,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO request) {
+    public ResponseEntity<SuccessResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO request) {
         LoginResponseDTO result = authUseCase.login(request);
 
         return ApiResponse.success(result, UserMessages.USER_LOGGED.getMessage());

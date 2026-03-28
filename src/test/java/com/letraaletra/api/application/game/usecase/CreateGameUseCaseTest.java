@@ -3,8 +3,7 @@ package com.letraaletra.api.application.game.usecase;
 import com.letraaletra.api.application.game.service.MapParticipantsService;
 import com.letraaletra.api.application.user.service.TokenService;
 import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.game.GameMode;
-import com.letraaletra.api.domain.game.GameSettings;
+import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -57,7 +56,7 @@ class CreateGameUseCaseTest {
         String userId = "user123";
         String sessionId = "session123";
         String gameName = "My Game";
-        GameSettings gameSettings = new GameSettings(userId, "themeId", GameMode.NORMAL, false, false);
+        RoomSettings gameSettings = new RoomSettings(false, false);
         User user = new User(userId, "nickname", "avatar", "email@email.com", "hash");
 
         when(userRepository.find(userId)).thenReturn(user);
@@ -83,7 +82,7 @@ class CreateGameUseCaseTest {
         String userId = "user123";
         String sessionId = "session123";
         String gameName = "My Game";
-        GameSettings gameSettings = new GameSettings(userId, "themeId", GameMode.NORMAL, false, false);
+        RoomSettings gameSettings = new RoomSettings(false, false);
 
         when(userRepository.find(userId)).thenReturn(null);
 

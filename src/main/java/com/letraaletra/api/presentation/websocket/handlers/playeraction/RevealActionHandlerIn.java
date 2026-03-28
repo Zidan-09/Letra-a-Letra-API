@@ -17,7 +17,7 @@ public class RevealActionHandlerIn implements InGameActionHandler<RevealActionDT
 
     @Override
     public void handle(RevealActionDTO request, WebSocketSession session, String gameTokenId) {
-        Position position = new Position(request.position().getX(), request.position().getY());
+        Position position = new Position(request.position().x(), request.position().y());
         GameAction gameAction = new RevealCellAction(position);
 
         playerActionUseCase.execute(

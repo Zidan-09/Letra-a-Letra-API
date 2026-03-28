@@ -1,5 +1,6 @@
 package com.letraaletra.api.application.game.usecase;
 
+import com.letraaletra.api.application.game.service.GameOverService;
 import com.letraaletra.api.application.user.service.TokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
@@ -20,10 +21,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +37,7 @@ class PlayerActionUseCaseTest {
     @Mock private GameRepository gameRepository;
     @Mock private UserRepository userRepository;
     @Mock private TokenService tokenService;
+    @Mock private GameOverService gameOverService;
     @Mock private BroadcastService broadcast;
     @Mock private GameStateResponseAssembler gameStateResponseAssembler;
 
@@ -64,6 +68,9 @@ class PlayerActionUseCaseTest {
     @Test
     @DisplayName("Should execute player action successfully")
     void execute_success() {
+        Mockito.when(gameOverService.buildIfFinished(game))
+                        .thenReturn(Optional.empty());
+
         playerActionUseCase.execute(tokenGameId, userId, action);
 
         verify(action).execute(gameState, userId);
