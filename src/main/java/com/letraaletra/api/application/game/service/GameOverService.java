@@ -2,6 +2,7 @@ package com.letraaletra.api.application.game.service;
 
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.service.GameOverChecker;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.player.Player;
@@ -37,6 +38,8 @@ public class GameOverService {
         if (!result.finished()) {
             return Optional.empty();
         }
+
+        game.setGameStatus(GameStatus.WAITING);
 
         return Optional.of(buildResponse(result));
     }

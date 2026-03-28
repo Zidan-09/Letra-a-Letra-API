@@ -5,6 +5,7 @@ import com.letraaletra.api.domain.board.Word;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.presentation.dto.response.game.BoardDTO;
 import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
+import com.letraaletra.api.presentation.dto.response.game.WordDTO;
 import com.letraaletra.api.presentation.dto.response.player.PlayerDTO;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,13 @@ public class GameStateResponseAssembler {
     @Autowired
     private PlayerDTOMapper playerDTOMapper;
 
+    @Autowired
+    private WordDTOMapper wordDTOMapper;
+
     public GameStateDTO get(GameState gameState, Map<String, User> users) {
         List<PlayerDTO> playerDTOS = mapPlayers(gameState, users);
 
-        List<Word> words = Arrays.stream(gameState.getBoard().words()).toList();
+        List<WordDTO> words = mapWords(gameState);
 
         BoardDTO[][] boardDTO = boardDTOMapper.toDTO(gameState.getBoard());
 
@@ -45,6 +49,14 @@ public class GameStateResponseAssembler {
                     }
                     return playerDTOMapper.toDTO(p, user);
                 })
+                .toList();
+    }
+
+    private List<WordDTO> mapWords(GameState state) {
+        List<Word> words = Arrays.stream(state.getBoard().words()).toList();
+
+        return words.stream()
+                .map(w -> wordDTOMapper.toDTO(w))
                 .toList();
     }
 }
