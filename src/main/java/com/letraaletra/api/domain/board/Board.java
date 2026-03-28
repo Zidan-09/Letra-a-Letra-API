@@ -5,7 +5,7 @@ import com.letraaletra.api.domain.position.Position;
 public record Board(Cell[][] grid, Word[] words) {
 
     public Cell getCell(Position position) {
-        return grid[position.getX()][position.getY()];
+        return grid[position.x()][position.y()];
     }
 
     @Override

@@ -100,7 +100,7 @@ public class BoardGenerator {
     private void bindCellsToWords(Cell[][] grid, List<Word> words) {
         for (Word word : words) {
             for (Position pos : word.getPositions()) {
-                Cell cell = grid[pos.getX()][pos.getY()];
+                Cell cell = grid[pos.x()][pos.y()];
                 cell.addRelatedWord(word);
             }
         }

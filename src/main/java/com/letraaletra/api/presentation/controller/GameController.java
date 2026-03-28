@@ -7,6 +7,7 @@ import com.letraaletra.api.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.presentation.messages.GameMessages;
 import com.letraaletra.api.presentation.response.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class GameController {
     }
 
     @GetMapping("/{tokenGameId}")
-    public ResponseEntity<SuccessResponse<Game>> getGameById(@RequestParam String tokenGameId) {
+    public ResponseEntity<SuccessResponse<Game>> getGameById(@Valid @RequestParam String tokenGameId) {
         Game result = findByTokenGameId.execute(tokenGameId);
 
         return ApiResponse.success(result, GameMessages.GAME_FOUND.getMessage());

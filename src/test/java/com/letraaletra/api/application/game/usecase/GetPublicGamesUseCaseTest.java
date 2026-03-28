@@ -4,6 +4,7 @@ import com.letraaletra.api.application.game.service.MapParticipantsService;
 import com.letraaletra.api.application.user.service.TokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.GameSettings;
+import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -43,8 +44,8 @@ class GetPublicGamesUseCaseTest {
     @Test
     @DisplayName("Should return a List of games with public game setting true")
     void execute() {
-        GameSettings settingsPublic = new GameSettings(null, null, null, false, true);
-        GameSettings settingsPrivate = new GameSettings(null, null, null, false, false);
+        RoomSettings settingsPublic = new RoomSettings(false, true);
+        RoomSettings settingsPrivate = new RoomSettings(false, false);
 
         Participant host = new Participant("user1", "session1", "test", "avatar1", ParticipantRole.PLAYER);
 
