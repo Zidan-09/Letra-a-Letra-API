@@ -4,6 +4,7 @@ import com.letraaletra.api.presentation.dto.request.websocket.WsRequestDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.ErrorWsResponse;
 import com.letraaletra.api.exception.WebSocketException;
 import com.letraaletra.api.domain.repository.SessionRepository;
+import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private SessionRepository sessionRepository;
 
     @Autowired
-    private WsRequestDispatcher wsRequestDispatcher;
+    private RoomRequestDispatcher roomRequestDispatcher;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -39,7 +40,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         );
 
         try {
-            wsRequestDispatcher.dispatch(request, session);
+            roomRequestDispatcher.dispatch(request, session);
 
         } catch (WebSocketException ex) {
             sendError(ex, session);
