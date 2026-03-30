@@ -52,6 +52,9 @@ public class CreateGameUseCase {
 
         Game game = new Game(gameId, name, roomSettings, host);
 
+        user.enterGame(gameId);
+
+        userRepository.save(user);
         gameRepository.save(game);
 
         String tokenGameId = tokenService.generateToken(gameId);

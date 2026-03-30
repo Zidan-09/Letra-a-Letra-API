@@ -1,13 +1,12 @@
 package com.letraaletra.api.domain;
 
-import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.game.exceptions.InvalidRoomPositionException;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
-import com.letraaletra.api.infra.websocket.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +21,6 @@ public class Game {
     private String hostId;
     private GameStatus gameStatus;
     private GameState gameState;
-    private GameSettings gameSettings;
 
     public Game(String id, String roomName, RoomSettings roomSettings, Participant host) {
         this.id = id;
@@ -62,15 +60,15 @@ public class Game {
         return roomSettings;
     }
 
-    public GameSettings getGameSettings() {
-        return gameSettings;
-    }
-
     public Participant getParticipant(String sessionId) {
         return participants.values().stream()
                 .filter(p -> p.getSocketId().equals(sessionId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public Participant getParticipantByUserId(String userId) {
+        return participants.get(userId);
     }
 
     public void join(Participant participant) {
@@ -101,6 +99,16 @@ public class Game {
         }
     }
 
+    public void reconnect(String userId, String sessionId) {
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
+        participant.connect(sessionId);
+    }
+
     public void changePosition(String userId, int position) {
         if (positions.get(position) != null) {
             throw new InvalidRoomPositionException();
@@ -117,10 +125,6 @@ public class Game {
 
     public void updateGameState(GameState gameState) {
         this.gameState = gameState;
-    }
-
-    public void updateGameSettings(GameSettings gameSettings) {
-        this.gameSettings = gameSettings;
     }
 
     public ParticipantRole nextParticipantRole() {

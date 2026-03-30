@@ -1,4 +1,4 @@
-package com.letraaletra.api.infra.websocket.exceptions;
+package com.letraaletra.api.domain.user.exceptions;
 
 import com.letraaletra.api.exception.WebSocketException;
 import com.letraaletra.api.presentation.messages.UserMessages;

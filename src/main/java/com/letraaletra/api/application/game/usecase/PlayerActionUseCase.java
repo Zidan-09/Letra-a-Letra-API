@@ -52,6 +52,8 @@ public class PlayerActionUseCase {
 
         action.execute(state, userId);
 
+        gameRepository.save(game);
+
         List<String> playerIds = state.getPlayerIds();
 
         Map<String, User> users = userRepository.findMapByIds(playerIds);
