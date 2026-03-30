@@ -2,10 +2,11 @@ package com.letraaletra.api.domain.participant;
 
 public class Participant {
     private final String userId;
-    private final String socketId;
     private final String nickname;
     private final String avatar;
+    private String socketId;
     private ParticipantRole role;
+    private boolean connected;
 
     public Participant(String userId, String socketId, String nickname, String avatar, ParticipantRole role) {
         this.userId = userId;
@@ -13,6 +14,7 @@ public class Participant {
         this.nickname = nickname;
         this.avatar = avatar;
         this.role = role;
+        this.connected = true;
     }
 
     public String getUserId() {
@@ -37,5 +39,18 @@ public class Participant {
 
     public void changeRole(ParticipantRole role) {
         this.role = role;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void connect(String sessionId) {
+        this.connected = true;
+        this.socketId = sessionId;
+    }
+
+    public void disconnect() {
+        this.connected = false;
     }
 }

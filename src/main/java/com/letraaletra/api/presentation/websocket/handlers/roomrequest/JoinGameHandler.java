@@ -15,7 +15,8 @@ public class JoinGameHandler implements RoomRequestHandler<JoinGameWsRequest> {
     public void handle(JoinGameWsRequest request, WebSocketSession session) {
         joinGame.execute(
                 request.tokenGameId(),
-                session.getId()
+                session.getId(),
+                (String) session.getAttributes().get("userId")
         );
     }
 

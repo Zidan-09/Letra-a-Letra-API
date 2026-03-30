@@ -90,6 +90,8 @@ public class StartGameUseCase {
 
         game.setGameStatus(GameStatus.RUNNING);
 
+        gameRepository.save(game);
+
         GameStartedWsResponse data = buildResponse(state, users);
 
         broadcast.send(gameId, data);

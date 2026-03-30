@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -75,7 +74,6 @@ class StartGameUseCaseTest {
 
         lenient().when(game.getParticipants()).thenReturn(List.of(participant));
         GameSettings settings = mock(GameSettings.class);
-        lenient().when(game.getGameSettings()).thenReturn(settings);
         lenient().when(settings.getThemeId()).thenReturn("theme123");
         lenient().when(settings.getGameMode()).thenReturn(GameMode.NORMAL);
 
