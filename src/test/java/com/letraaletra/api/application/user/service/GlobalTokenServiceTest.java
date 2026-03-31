@@ -1,6 +1,7 @@
 package com.letraaletra.api.application.user.service;
 
-import com.letraaletra.api.infra.websocket.exceptions.InvalidTokenException;
+import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.domain.security.exceptions.InvalidTokenException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,15 +12,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class TokenServiceTest {
+class GlobalTokenServiceTest {
 
     @InjectMocks
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @BeforeEach
     void setup() {
         ReflectionTestUtils.setField(
-                tokenService,
+                globalTokenService,
                 "secret",
                 "my-super-secret-key-with-at-least-32-chars!!"
         );
@@ -30,7 +31,7 @@ class TokenServiceTest {
     void generateToken() {
         String id = "id";
 
-        String token = tokenService.generateToken(id);
+        String token = globalTokenService.generateToken(id);
 
         Assertions.assertNotNull(token);
     }
@@ -40,9 +41,9 @@ class TokenServiceTest {
     void getTokenContent() {
         String id = "id";
 
-        String token = tokenService.generateToken(id);
+        String token = globalTokenService.generateToken(id);
 
-        String tokenContent = tokenService.getTokenContent(token);
+        String tokenContent = globalTokenService.getTokenContent(token);
 
         Assertions.assertNotNull(tokenContent);
     }
@@ -52,9 +53,9 @@ class TokenServiceTest {
     void match() {
         String id = "id";
 
-        String token = tokenService.generateToken(id);
+        String token = globalTokenService.generateToken(id);
 
-        String tokenContent = tokenService.getTokenContent(token);
+        String tokenContent = globalTokenService.getTokenContent(token);
 
         Assertions.assertEquals(id, tokenContent);
     }
@@ -64,6 +65,6 @@ class TokenServiceTest {
     void notGetTokenContent() {
         String fakeToken = "fake-token";
 
-        Assertions.assertThrows(InvalidTokenException.class, () -> tokenService.getTokenContent(fakeToken));
+        Assertions.assertThrows(InvalidTokenException.class, () -> globalTokenService.getTokenContent(fakeToken));
     }
 }

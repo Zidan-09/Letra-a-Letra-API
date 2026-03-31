@@ -31,7 +31,7 @@ class MapParticipantsServiceTest {
     void execute() {
         Participant participant = new Participant("id", "sId", "test", "avatar1", ParticipantRole.PLAYER);
         RoomSettings settings = new RoomSettings(false, false);
-        Game game = new Game("id", "name", settings, participant);
+        Game game = new Game("id", "code", "name", settings, participant);
 
         ParticipantDTO expectedDTO = new ParticipantDTO("id", "test", "avatar1", ParticipantRole.PLAYER);
 

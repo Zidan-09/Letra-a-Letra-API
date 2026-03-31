@@ -13,7 +13,8 @@ public class GameDTOMapper {
         return new GameDTO(
                 tokenGameId,
                 game.getRoomName(),
-                participantDTOS
+                participantDTOS,
+                game.getPositions()
         );
     }
 }

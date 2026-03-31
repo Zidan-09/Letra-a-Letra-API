@@ -1,7 +1,7 @@
 package com.letraaletra.api.exception;
 
 import com.letraaletra.api.presentation.dto.response.ErrorResponse;
-import com.letraaletra.api.presentation.messages.ServerMessages;
+import com.letraaletra.api.presentation.response.ServerMessages;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

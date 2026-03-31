@@ -1,7 +1,9 @@
 package com.letraaletra.api.application.game.usecase;
 
+import com.letraaletra.api.application.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.application.game.service.TimeoutManager;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
@@ -30,7 +32,13 @@ public class CreateGameUseCase {
     private GameRepository gameRepository;
 
     @Autowired
-    private TokenService tokenService;
+    private TimeoutManager timeoutManager;
+
+    @Autowired
+    private GlobalTokenService globalTokenService;
+
+    @Autowired
+    private GenerateRoomCode generateRoomCode;
 
     @Autowired
     private GameDTOMapper gameDTOMapper;
@@ -50,18 +58,22 @@ public class CreateGameUseCase {
 
         Participant host = ParticipantFactory.fromUser(user, sessionId, ParticipantRole.PLAYER);
 
-        Game game = new Game(gameId, name, roomSettings, host);
+        String code = getCode();
+
+        Game game = new Game(gameId, code, name, roomSettings, host);
 
         user.enterGame(gameId);
 
         userRepository.save(user);
         gameRepository.save(game);
 
-        String tokenGameId = tokenService.generateToken(gameId);
+        String tokenGameId = globalTokenService.generateToken(gameId);
 
         List<ParticipantDTO> participantDTOS = mapParticipantsService.execute(game);
 
         GameUpdatedWsResponse response = buildResponse(game, tokenGameId, participantDTOS);
+
+        timeoutManager.start(gameId);
 
         broadCast.send(gameId, response);
     }
@@ -70,6 +82,17 @@ public class CreateGameUseCase {
         if (user == null) {
             throw new UserNotFoundException();
         }
+    }
+
+    private String getCode() {
+        String code;
+
+        do {
+            code = generateRoomCode.execute();
+
+        } while (gameRepository.existsByCode(code));
+
+        return code;
     }
 
     private GameUpdatedWsResponse buildResponse(Game game, String tokenGameId, List<ParticipantDTO> participantDTOS) {

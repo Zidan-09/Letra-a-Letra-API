@@ -10,11 +10,24 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CreateGameWsRequest.class, name = "CREATE_GAME"),
         @JsonSubTypes.Type(value = JoinGameWsRequest.class, name = "JOIN_GAME"),
+        @JsonSubTypes.Type(value = SwapPlaceWsRequest.class, name = "SWAP_PLACE"),
         @JsonSubTypes.Type(value = StartGameWsRequest.class, name = "START_GAME"),
         @JsonSubTypes.Type(value = LeftGameWsRequest.class, name = "LEFT_GAME"),
+        @JsonSubTypes.Type(value = KickParticipantWsRequest.class, name = "KICK_PARTICIPANT"),
+        @JsonSubTypes.Type(value = BanParticipantWsRequest.class, name = "BAN_PARTICIPANT"),
+        @JsonSubTypes.Type(value = UnbanParticipantWsRequest.class, name = "UNBAN_USER"),
         @JsonSubTypes.Type(value = PlayerActionWsRequest.class, name = "PLAYER_ACTION")
 })
 
 public sealed interface WsRequestDTO
-    permits CreateGameWsRequest, JoinGameWsRequest, StartGameWsRequest, LeftGameWsRequest, PlayerActionWsRequest {
-}
+    permits
+        CreateGameWsRequest,
+        JoinGameWsRequest,
+        SwapPlaceWsRequest,
+        StartGameWsRequest,
+        LeftGameWsRequest,
+        KickParticipantWsRequest,
+        BanParticipantWsRequest,
+        UnbanParticipantWsRequest,
+        PlayerActionWsRequest
+{}

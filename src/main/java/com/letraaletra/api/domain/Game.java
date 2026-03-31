@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class Game {
     private final String id;
+    private final String code;
     private final String roomName;
     private final Map<String, Participant> participants = new HashMap<>();
     private final RoomSettings roomSettings;
@@ -22,8 +23,9 @@ public class Game {
     private GameStatus gameStatus;
     private GameState gameState;
 
-    public Game(String id, String roomName, RoomSettings roomSettings, Participant host) {
+    public Game(String id, String code, String roomName, RoomSettings roomSettings, Participant host) {
         this.id = id;
+        this.code = code;
         this.roomName = roomName;
         this.participants.put(host.getUserId(), host);
         this.hostId = host.getUserId();
@@ -34,6 +36,10 @@ public class Game {
 
     public String getId() {
         return id;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getRoomName() {
@@ -71,6 +77,10 @@ public class Game {
         return participants.get(userId);
     }
 
+    public Map<Integer, String> getPositions() {
+        return positions;
+    }
+
     public void join(Participant participant) {
         boolean alreadyExists = participants.values().stream()
                 .anyMatch(p -> p.getUserId().equals(participant.getUserId()));
@@ -80,6 +90,7 @@ public class Game {
         }
 
         participants.put(participant.getUserId(), participant);
+        positions.put(participants.size(), participant.getUserId());
     }
 
     public void remove(String userId) {

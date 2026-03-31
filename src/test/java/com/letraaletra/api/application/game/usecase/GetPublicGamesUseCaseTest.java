@@ -1,9 +1,8 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -30,7 +29,7 @@ class GetPublicGamesUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Mock
     private GameDTOMapper gameDTOMapper;
@@ -49,14 +48,14 @@ class GetPublicGamesUseCaseTest {
 
         Participant host = new Participant("user1", "session1", "test", "avatar1", ParticipantRole.PLAYER);
 
-        Game publicGame = new Game("id1", "test1", settingsPublic, host);
-        Game privateGame = new Game("id2", "test2", settingsPrivate, host);
+        Game publicGame = new Game("id1", "code1", "test1", settingsPublic, host);
+        Game privateGame = new Game("id2", "code2", "test2", settingsPrivate, host);
 
         List<Game> games = List.of(publicGame, privateGame);
 
         when(gameRepository.get()).thenReturn(games);
 
-        when(tokenService.generateToken(anyString()))
+        when(globalTokenService.generateToken(anyString()))
                 .thenReturn("token-game-id-fake");
 
         when(mapParticipants.execute(any(Game.class)))
@@ -75,7 +74,7 @@ class GetPublicGamesUseCaseTest {
         assertEquals(1, gameDTOS.size());
 
         verify(gameRepository).get();
-        verify(tokenService, times(1)).generateToken(anyString());
+        verify(globalTokenService, times(1)).generateToken(anyString());
         verify(mapParticipants).execute(any(Game.class));
         verify(gameDTOMapper).toDTO(any(Game.class), anyString(), anyList());
     }

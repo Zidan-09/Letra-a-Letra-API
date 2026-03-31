@@ -1,7 +1,9 @@
 package com.letraaletra.api.application.game.usecase;
 
+import com.letraaletra.api.application.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.application.game.service.TimeoutManager;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -36,7 +38,13 @@ class CreateGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
+
+    @Mock
+    private GenerateRoomCode generateRoomCode;
+
+    @Mock
+    private TimeoutManager timeoutManager;
 
     @Mock
     private GameDTOMapper gameDTOMapper;
@@ -60,7 +68,8 @@ class CreateGameUseCaseTest {
         User user = new User(userId, "nickname", "avatar", "email@email.com", "hash");
 
         when(userRepository.find(userId)).thenReturn(user);
-        when(tokenService.generateToken(anyString())).thenReturn("token123");
+        when(generateRoomCode.execute()).thenReturn("code");
+        when(globalTokenService.generateToken(anyString())).thenReturn("token123");
         when(mapParticipantsService.execute(any(Game.class)))
                 .thenReturn(List.of(new ParticipantDTO(userId, "nickname", "avatar", ParticipantRole.PLAYER)));
         when(gameDTOMapper.toDTO(any(Game.class), anyString(), anyList()))
@@ -70,7 +79,7 @@ class CreateGameUseCaseTest {
 
         verify(userRepository).find(userId);
         verify(gameRepository).save(any(Game.class));
-        verify(tokenService).generateToken(anyString());
+        verify(globalTokenService).generateToken(anyString());
         verify(mapParticipantsService).execute(any(Game.class));
         verify(gameDTOMapper).toDTO(any(Game.class), eq("token123"), anyList());
         verify(broadCast).send(anyString(), any(GameUpdatedWsResponse.class));

@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.messages;
+package com.letraaletra.api.presentation.response;
 
 import com.letraaletra.api.exception.MessageCode;
 

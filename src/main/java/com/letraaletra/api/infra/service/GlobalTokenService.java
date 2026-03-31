@@ -1,6 +1,7 @@
-package com.letraaletra.api.application.user.service;
+package com.letraaletra.api.infra.service;
 
-import com.letraaletra.api.infra.websocket.exceptions.InvalidTokenException;
+import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.security.exceptions.InvalidTokenException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class TokenService {
+public class GlobalTokenService implements TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 

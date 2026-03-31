@@ -1,7 +1,7 @@
 package com.letraaletra.api.domain.game.exceptions;
 
 import com.letraaletra.api.exception.WebSocketException;
-import com.letraaletra.api.presentation.messages.GameMessages;
+import com.letraaletra.api.domain.game.GameMessages;
 
 public class CellAlreadyRevealedException extends WebSocketException {
     public CellAlreadyRevealedException() {

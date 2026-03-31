@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.user.usecase;
 
 import com.letraaletra.api.application.user.service.PasswordService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.presentation.dto.request.user.LoginRequestDTO;
 import com.letraaletra.api.presentation.dto.response.user.LoginResponseDTO;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class AuthUseCase {
 
     @Autowired
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Autowired
     private PasswordService passwordService;
@@ -30,7 +30,7 @@ public class AuthUseCase {
 
         checkMatch(request.password(), user.getPassword());
 
-        String token = tokenService.generateToken(user.getId());
+        String token = globalTokenService.generateToken(user.getId());
 
         return buildResponse(user.getId(), token);
     }

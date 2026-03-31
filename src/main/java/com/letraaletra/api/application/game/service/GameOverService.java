@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-
 @Service
 public class GameOverService {
     @Autowired
@@ -26,6 +25,9 @@ public class GameOverService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TimeoutManager timeoutManager;
 
     @Autowired
     private PlayerDTOMapper playerDTOMapper;
@@ -40,6 +42,7 @@ public class GameOverService {
         }
 
         game.setGameStatus(GameStatus.WAITING);
+        timeoutManager.start(game.getId());
 
         return Optional.of(buildResponse(result));
     }

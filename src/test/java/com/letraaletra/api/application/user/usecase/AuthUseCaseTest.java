@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.user.usecase;
 
 import com.letraaletra.api.application.user.service.PasswordService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.presentation.dto.request.user.LoginRequestDTO;
 import com.letraaletra.api.presentation.dto.response.user.LoginResponseDTO;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class AuthUseCaseTest {
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Mock
     private PasswordService passwordService;
@@ -43,7 +43,7 @@ class AuthUseCaseTest {
         Mockito.when(passwordService.matches("12345", "hash"))
                 .thenReturn(true);
 
-        Mockito.when(tokenService.generateToken(user.getId()))
+        Mockito.when(globalTokenService.generateToken(user.getId()))
                 .thenReturn("fake-token");
 
         LoginResponseDTO result = authUseCase.login(
@@ -51,7 +51,7 @@ class AuthUseCaseTest {
         );
 
         Assertions.assertEquals("fake-token", result.token());
-        Mockito.verify(tokenService).generateToken("id");
+        Mockito.verify(globalTokenService).generateToken("id");
     }
 
     @Test
@@ -64,7 +64,7 @@ class AuthUseCaseTest {
 
         Assertions.assertThrows(UserNotFoundException.class, () -> authUseCase.login(request));
 
-        Mockito.verify(tokenService, Mockito.never()).generateToken(Mockito.any());
+        Mockito.verify(globalTokenService, Mockito.never()).generateToken(Mockito.any());
     }
 
     @Test
@@ -82,6 +82,6 @@ class AuthUseCaseTest {
 
         Assertions.assertThrows(InvalidPasswordException.class, () -> authUseCase.login(request));
 
-        Mockito.verify(tokenService, Mockito.never()).generateToken(Mockito.any());
+        Mockito.verify(globalTokenService, Mockito.never()).generateToken(Mockito.any());
     }
 }

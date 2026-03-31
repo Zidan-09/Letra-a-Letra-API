@@ -1,7 +1,8 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.ThemeWordSelectorService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.application.game.service.TimeoutManager;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.domain.board.Board;
@@ -31,7 +32,7 @@ import java.util.Map;
 @Service
 public class StartGameUseCase {
     @Autowired
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Autowired
     private GameRepository gameRepository;
@@ -46,6 +47,9 @@ public class StartGameUseCase {
     private ThemeRepository themeRepository;
 
     @Autowired
+    private TimeoutManager timeoutManager;
+
+    @Autowired
     private ThemeWordSelectorService themeWordSelector;
 
     @Autowired
@@ -58,11 +62,13 @@ public class StartGameUseCase {
     private BroadcastService broadcast;
 
     public void execute(String tokenGameId, GameSettings settings, String sessionId) {
-        String gameId = tokenService.getTokenContent(tokenGameId);
+        String gameId = globalTokenService.getTokenContent(tokenGameId);
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
+
+        timeoutManager.cancel(gameId);
 
         String hostId = game.getHostId();
         Participant participant = game.findBySession(sessionId);
