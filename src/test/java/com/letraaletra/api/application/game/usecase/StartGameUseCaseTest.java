@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.ThemeWordSelectorService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.*;
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.board.service.BoardGenerator;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class StartGameUseCaseTest {
 
-    @Mock private TokenService tokenService;
+    @Mock private GlobalTokenService globalTokenService;
     @Mock private GameRepository gameRepository;
     @Mock private GameStateGenerator gameStateGenerator;
     @Mock private UserRepository userRepository;
@@ -64,7 +64,7 @@ class StartGameUseCaseTest {
 
     @BeforeEach
     void setup() {
-        lenient().when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
 
         lenient().when(game.findBySession(sessionId)).thenReturn(participant);

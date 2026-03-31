@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.participant.Participant;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 class JoinGameUseCaseTest {
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Mock
     private GameRepository gameRepository;
@@ -72,7 +72,7 @@ class JoinGameUseCaseTest {
         WebSocketSession session = mock(WebSocketSession.class);
         User user = new User(userId, "nick", "avatar", "email@email.com", "hash");
 
-        lenient().when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
         lenient().when(sessionRepository.find(sessionId)).thenReturn(session);
         Map<String, Object> attributes = new HashMap<>();
@@ -106,7 +106,7 @@ class JoinGameUseCaseTest {
         ParticipantDTO participantDTO = new ParticipantDTO(userId, "nick", "avatar", ParticipantRole.PLAYER);
         List<ParticipantDTO> participants = List.of(participantDTO);
 
-        GameDTO expectedGameDTO = new GameDTO(tokenGameId, "name", participants);
+        GameDTO expectedGameDTO = new GameDTO(tokenGameId, "name", participants, game.getPositions());
 
         when(game.nextParticipantRole()).thenReturn(ParticipantRole.PLAYER);
         when(mapParticipantsService.execute(game)).thenReturn(participants);

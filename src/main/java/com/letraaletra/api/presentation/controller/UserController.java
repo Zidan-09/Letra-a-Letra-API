@@ -7,7 +7,7 @@ import com.letraaletra.api.presentation.dto.request.user.LoginRequestDTO;
 import com.letraaletra.api.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.user.LoginResponseDTO;
 import com.letraaletra.api.presentation.dto.response.user.UserDTO;
-import com.letraaletra.api.presentation.messages.UserMessages;
+import com.letraaletra.api.domain.user.UserMessages;
 import com.letraaletra.api.application.user.usecase.AuthUseCase;
 import com.letraaletra.api.presentation.response.ApiResponse;
 import jakarta.validation.Valid;

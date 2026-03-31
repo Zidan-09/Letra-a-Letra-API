@@ -1,7 +1,7 @@
 package com.letraaletra.api.infra.websocket.exceptions;
 
 import com.letraaletra.api.exception.WebSocketException;
-import com.letraaletra.api.presentation.messages.UserMessages;
+import com.letraaletra.api.domain.user.UserMessages;
 
 public class SessionNotFoundException extends WebSocketException {
     public SessionNotFoundException() {

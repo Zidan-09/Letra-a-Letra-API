@@ -1,11 +1,12 @@
 package com.letraaletra.api.presentation.controller;
 
+import com.letraaletra.api.application.game.usecase.FindByCodeUseCase;
 import com.letraaletra.api.application.game.usecase.FindByTokenGameIdUseCase;
 import com.letraaletra.api.application.game.usecase.GetPublicGamesUseCase;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
-import com.letraaletra.api.presentation.messages.GameMessages;
+import com.letraaletra.api.domain.game.GameMessages;
 import com.letraaletra.api.presentation.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/game")
@@ -23,6 +25,9 @@ public class GameController {
 
     @Autowired
     private FindByTokenGameIdUseCase findByTokenGameId;
+
+    @Autowired
+    private FindByCodeUseCase findByCode;
 
     @GetMapping
     public ResponseEntity<SuccessResponse<List<GameDTO>>> getGames() {
@@ -36,5 +41,12 @@ public class GameController {
         Game result = findByTokenGameId.execute(tokenGameId);
 
         return ApiResponse.success(result, GameMessages.GAME_FOUND.getMessage());
+    }
+
+    @GetMapping("/code/{code}")
+    public ResponseEntity<SuccessResponse<Optional<GameDTO>>> getGameByCode(@Valid @RequestParam String code) {
+        Optional<GameDTO> result = findByCode.execute(code);
+
+        return ApiResponse.success(result);
     }
 }

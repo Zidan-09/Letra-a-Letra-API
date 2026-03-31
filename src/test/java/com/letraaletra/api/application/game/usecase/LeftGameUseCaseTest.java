@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.game.usecase;
 
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
@@ -24,7 +24,7 @@ class LeftGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @InjectMocks
     private LeftGameUseCase leftGameUseCase;
@@ -41,7 +41,7 @@ class LeftGameUseCaseTest {
 
     @BeforeEach
     void setup() {
-        when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
     }
 
     @Test

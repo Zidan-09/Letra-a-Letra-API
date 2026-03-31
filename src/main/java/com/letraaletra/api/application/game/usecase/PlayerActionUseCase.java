@@ -2,11 +2,15 @@ package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.GameOverService;
 import com.letraaletra.api.domain.GameState;
+import com.letraaletra.api.domain.game.exceptions.PlayerNotInGameException;
+import com.letraaletra.api.domain.game.exceptions.SpectatorCanNotPlayException;
+import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.presentation.dto.mappers.GameStateResponseAssembler;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.presentation.dto.response.websocket.GameStateUpdatedWsResponse;
@@ -30,7 +34,7 @@ public class PlayerActionUseCase {
     private UserRepository userRepository;
 
     @Autowired
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Autowired
     private GameOverService gameOverService;
@@ -42,11 +46,12 @@ public class PlayerActionUseCase {
     private GameStateResponseAssembler gameStateResponseAssembler;
 
     public void execute(String gameTokenId, String userId, GameAction action) {
-        String gameId = tokenService.getTokenContent(gameTokenId);
+        String gameId = globalTokenService.getTokenContent(gameTokenId);
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
+        validatePlayer(userId, game);
 
         GameState state = game.getGameState();
 
@@ -71,6 +76,18 @@ public class PlayerActionUseCase {
 
         if (game.getGameStatus() != GameStatus.RUNNING) {
             throw new GameNotStartedException();
+        }
+    }
+
+    private void validatePlayer(String userId, Game game) {
+        Participant participant = game.getParticipantByUserId(userId);
+
+        if (participant == null) {
+            throw new PlayerNotInGameException();
+        }
+
+        if (participant.getRole().equals(ParticipantRole.SPECTATOR)) {
+            throw new SpectatorCanNotPlayException();
         }
     }
 

@@ -1,7 +1,9 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.GameOverService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.domain.participant.ParticipantRole;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
@@ -36,7 +38,7 @@ class PlayerActionUseCaseTest {
 
     @Mock private GameRepository gameRepository;
     @Mock private UserRepository userRepository;
-    @Mock private TokenService tokenService;
+    @Mock private GlobalTokenService globalTokenService;
     @Mock private GameOverService gameOverService;
     @Mock private BroadcastService broadcast;
     @Mock private GameStateResponseAssembler gameStateResponseAssembler;
@@ -53,13 +55,15 @@ class PlayerActionUseCaseTest {
     private final String tokenGameId = "token123";
     private final String gameId = "game123";
     private final String userId = "user1";
+    private final Participant participant = new Participant(userId, "sid", "test", "avatar", ParticipantRole.PLAYER);
 
     @BeforeEach
     void setup() {
-        lenient().when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
         lenient().when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
         lenient().when(game.getGameState()).thenReturn(gameState);
+        lenient().when(game.getParticipantByUserId(userId)).thenReturn(participant);
         lenient().when(gameState.getPlayerIds()).thenReturn(List.of(userId));
         lenient().when(userRepository.findMapByIds(List.of(userId))).thenReturn(Map.of(userId, user));
         lenient().when(gameStateResponseAssembler.get(gameState, Map.of(userId, user))).thenReturn(gameStateDTO);

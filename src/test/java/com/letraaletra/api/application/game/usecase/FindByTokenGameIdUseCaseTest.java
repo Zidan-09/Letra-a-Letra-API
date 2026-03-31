@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.game.usecase;
 
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class FindByTokenGameIdUseCaseTest {
 
     @Mock
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Mock
     private GameRepository gameRepository;
@@ -35,9 +35,9 @@ class FindByTokenGameIdUseCaseTest {
         String gameId = "game123";
         Participant participant = new Participant("id", "sId", "test", "avatar1", ParticipantRole.PLAYER);
 
-        Game game = new Game(gameId, "My Game", null, participant);
+        Game game = new Game(gameId, "code", "My Game", null, participant);
 
-        when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(game);
 
         Game result = findByTokenGameIdUseCase.execute(tokenGameId);
@@ -45,7 +45,7 @@ class FindByTokenGameIdUseCaseTest {
         assertNotNull(result);
         assertEquals(gameId, result.getId());
 
-        verify(tokenService).getTokenContent(tokenGameId);
+        verify(globalTokenService).getTokenContent(tokenGameId);
         verify(gameRepository).find(gameId);
     }
 
@@ -55,14 +55,14 @@ class FindByTokenGameIdUseCaseTest {
         String tokenGameId = "token123";
         String gameId = "game123";
 
-        when(tokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(null);
 
         assertThrows(GameNotFoundException.class, () ->
                 findByTokenGameIdUseCase.execute(tokenGameId)
         );
 
-        verify(tokenService).getTokenContent(tokenGameId);
+        verify(globalTokenService).getTokenContent(tokenGameId);
         verify(gameRepository).find(gameId);
     }
 }

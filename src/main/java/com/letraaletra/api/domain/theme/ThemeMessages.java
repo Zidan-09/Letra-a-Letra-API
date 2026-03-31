@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.messages;
+package com.letraaletra.api.domain.theme;
 
 import com.letraaletra.api.exception.MessageCode;
 

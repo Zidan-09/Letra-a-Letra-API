@@ -1,7 +1,7 @@
 package com.letraaletra.api.domain.game.exceptions;
 
 import com.letraaletra.api.exception.WebSocketException;
-import com.letraaletra.api.presentation.messages.PlayerMessages;
+import com.letraaletra.api.domain.player.PlayerMessages;
 
 public class PlayerNotInGameException extends WebSocketException {
     public PlayerNotInGameException() {

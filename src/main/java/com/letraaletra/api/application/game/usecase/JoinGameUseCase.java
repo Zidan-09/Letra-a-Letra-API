@@ -1,9 +1,10 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.user.service.TokenService;
+import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
+import com.letraaletra.api.domain.game.exceptions.RoomFullException;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantFactory;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -23,7 +24,7 @@ import java.util.List;
 @Service
 public class JoinGameUseCase {
     @Autowired
-    private TokenService tokenService;
+    private GlobalTokenService globalTokenService;
 
     @Autowired
     private GameRepository gameRepository;
@@ -41,7 +42,7 @@ public class JoinGameUseCase {
     private BroadcastService broadCast;
 
     public void execute(String tokenGameId, String sessionId, String userId) {
-        String gameId = tokenService.getTokenContent(tokenGameId);
+        String gameId = globalTokenService.getTokenContent(tokenGameId);
 
         Game game = gameRepository.find(gameId);
 
@@ -82,6 +83,10 @@ public class JoinGameUseCase {
     private void validateGame(Game game) {
         if (game == null) {
             throw new GameNotFoundException();
+        }
+
+        if (game.getParticipants().size() == 7) {
+            throw new RoomFullException();
         }
     }
 
