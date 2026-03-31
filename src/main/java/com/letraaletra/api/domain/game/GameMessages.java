@@ -10,9 +10,8 @@ public enum GameMessages implements MessageCode {
     GAME_ALREADY_FINISHED("game_already_finished"),
     GAME_NOT_STARTED("game_not_started"),
     ONLY_HOST_CAN_START("only_host_can_start"),
-    ONLY_HOST_CAN_KICK("only_host_can_kick"),
-    ONLY_HOST_CAN_BAN("only_host_can_ban"),
-    ONLY_HOST_CAN_UNBAN("only_host_can_unban"),
+    ONLY_HOST_CAN_MODERATE("only_host_can_moderate"),
+    INVALID_MODERATE_ACTION("invalid_moderate_action"),
 
     GAME_IS_RUNNING("game_is_running"),
     ROOM_FULL("room_full"),
