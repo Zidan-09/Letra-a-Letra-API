@@ -42,6 +42,9 @@ class GameOverServiceTest {
     @Mock
     private PlayerDTOMapper playerDTOMapper;
 
+    @Mock
+    private TimeoutManager timeoutManager;
+
     private final BoardGenerator boardGenerator = new BoardGenerator();
 
     @InjectMocks

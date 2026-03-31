@@ -3,22 +3,23 @@ package com.letraaletra.api.domain;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.game.exceptions.InvalidRoomPositionException;
+import com.letraaletra.api.domain.game.exceptions.ParticipantAlreadyBannedException;
+import com.letraaletra.api.domain.game.exceptions.ParticipantNotBannedException;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
 import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Game {
     private final String id;
     private final String code;
     private final String roomName;
     private final Map<String, Participant> participants = new HashMap<>();
-    private final RoomSettings roomSettings;
     private final Map<Integer, String> positions = new HashMap<>();
+    private final RoomSettings roomSettings;
+    private final Set<String> blacklist = new HashSet<>();
     private String hostId;
     private GameStatus gameStatus;
     private GameState gameState;
@@ -154,5 +155,25 @@ public class Game {
                 .filter(p -> p.getSocketId().equals(sessionId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean isBlackListed(String userId) {
+        return blacklist.contains(userId);
+    }
+
+    public void addToBlackList(String userId) {
+        if (blacklist.contains(userId)) {
+            throw new ParticipantAlreadyBannedException();
+        }
+
+        blacklist.add(userId);
+    }
+
+    public void removeFromBlackList(String userId) {
+        if (!blacklist.contains(userId)) {
+            throw new ParticipantNotBannedException();
+        }
+
+        blacklist.remove(userId);
     }
 }

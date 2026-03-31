@@ -17,6 +17,9 @@ public enum GameMessages implements MessageCode {
     GAME_IS_RUNNING("game_is_running"),
     ROOM_FULL("room_full"),
 
+    PARTICIPANT_ALREADY_BANNED("participant_already_banned"),
+    PARTICIPANT_NOT_BANNED("participant_not_banned"),
+
     NOT_YOUR_TURN("not_your_turn"),
     INVALID_MOVE("invalid_move"),
     CELL_ALREADY_REVEALED("cell_already_revealed"),

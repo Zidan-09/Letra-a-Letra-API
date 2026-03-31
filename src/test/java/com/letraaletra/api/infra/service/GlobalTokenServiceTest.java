@@ -1,6 +1,5 @@
-package com.letraaletra.api.application.user.service;
+package com.letraaletra.api.infra.service;
 
-import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.security.exceptions.InvalidTokenException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -16,8 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(MockitoExtension.class)
 class RegisterUserUseCaseTest {
 
@@ -40,7 +38,6 @@ class RegisterUserUseCaseTest {
         String email = "email@email.com";
         String password = "12345678";
 
-        User user = new User("id", nickname, "avatar1", email, "hash");
         UserDTO expectedDTO = new UserDTO("id", nickname, "avatar1");
 
         Mockito.when(userRepository.existsByNickname(nickname))
@@ -69,8 +66,6 @@ class RegisterUserUseCaseTest {
         String email = "email@email.com";
         String password = "12345678";
 
-        User user = new User("id", nickname, "avatar1", email, "hash");
-
         Mockito.when(userRepository.existsByNickname(nickname))
                 .thenReturn(true);
 
@@ -83,8 +78,6 @@ class RegisterUserUseCaseTest {
         String nickname = "test";
         String email = "email@email.com";
         String password = "12345678";
-
-        User user = new User("id", nickname, "avatar1", email, "hash");
 
         Mockito.when(userRepository.existsByNickname(nickname))
                 .thenReturn(false);

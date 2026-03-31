@@ -1,11 +1,17 @@
 package com.letraaletra.api.application.game.usecase;
 
+import com.letraaletra.api.application.game.service.MapParticipantsService;
+import com.letraaletra.api.domain.participant.ParticipantRole;
+import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
 import com.letraaletra.api.domain.repository.GameRepository;
+import com.letraaletra.api.infra.websocket.BroadcastService;
+import com.letraaletra.api.presentation.dto.mappers.GameDTOMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +32,18 @@ class LeftGameUseCaseTest {
     @Mock
     private GlobalTokenService globalTokenService;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private MapParticipantsService mapParticipantsService;
+
+    @Mock
+    private GameDTOMapper gameDTOMapper;
+
+    @Mock
+    private BroadcastService broadcastService;
+
     @InjectMocks
     private LeftGameUseCase leftGameUseCase;
 
@@ -36,9 +54,6 @@ class LeftGameUseCaseTest {
     @Mock
     private Game game;
 
-    @Mock
-    private Participant participant;
-
     @BeforeEach
     void setup() {
         when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
@@ -48,13 +63,16 @@ class LeftGameUseCaseTest {
     @DisplayName("Should remove participant from game successfully")
     void execute_success() {
         when(gameRepository.find(gameId)).thenReturn(game);
-        when(game.getParticipant(sessionId)).thenReturn(participant);
         String userId = "user1";
-        when(participant.getUserId()).thenReturn(userId);
+        Participant participant = new Participant(userId, "sid", "test", "avatar", ParticipantRole.PLAYER);
+        when(game.getParticipant(sessionId)).thenReturn(participant);
+        User user = new User(userId, "test", "avatar", "test@email.com", "hash");
+        when(userRepository.find(userId)).thenReturn(user);
 
         leftGameUseCase.execute(tokenGameId, sessionId);
 
         verify(game).remove(userId);
+        verify(mapParticipantsService).execute(game);
     }
 
     @Test

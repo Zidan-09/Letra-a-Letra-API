@@ -24,6 +24,10 @@ public class Player {
         return List.copyOf(inventory);
     }
 
+    public void removeFromInventory(int index) {
+        inventory.remove(index);
+    }
+
     public int getScore() {
         return score;
     }

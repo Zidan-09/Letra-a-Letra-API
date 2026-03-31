@@ -53,8 +53,8 @@ class DisconnectManagerTest {
         handleTimeoutMethod.setAccessible(true);
     }
 
-    private void invokeTimeout(String userId, String gameId) throws Exception {
-        handleTimeoutMethod.invoke(disconnectManager, userId, gameId);
+    private void invokeTimeout() throws Exception {
+        handleTimeoutMethod.invoke(disconnectManager, DisconnectManagerTest.USER_ID, DisconnectManagerTest.GAME_ID);
     }
 
     @Test
@@ -63,7 +63,7 @@ class DisconnectManagerTest {
         when(gameRepository.find(GAME_ID)).thenReturn(null);
         when(userRepository.find(USER_ID)).thenReturn(null);
 
-        invokeTimeout(USER_ID, GAME_ID);
+        invokeTimeout();
 
         verifyNoInteractions(broadcast);
     }
@@ -78,7 +78,7 @@ class DisconnectManagerTest {
         when(userRepository.find(USER_ID)).thenReturn(user);
         when(game.getParticipantByUserId(USER_ID)).thenReturn(null);
 
-        invokeTimeout(USER_ID, GAME_ID);
+        invokeTimeout();
 
         verifyNoInteractions(broadcast);
     }
@@ -95,7 +95,7 @@ class DisconnectManagerTest {
         when(game.getParticipantByUserId(USER_ID)).thenReturn(participant);
         when(participant.isConnected()).thenReturn(true);
 
-        invokeTimeout(USER_ID, GAME_ID);
+        invokeTimeout();
 
         verifyNoInteractions(broadcast);
     }
@@ -122,7 +122,7 @@ class DisconnectManagerTest {
         when(assembler.get(eq(state), any()))
                 .thenReturn(mock(GameStateDTO.class));
 
-        invokeTimeout(USER_ID, GAME_ID);
+        invokeTimeout();
 
         verify(game).remove(USER_ID);
         verify(user).leaveGame();

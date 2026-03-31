@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.game.usecase.KickParticipantUseCase;
+import com.letraaletra.api.application.game.usecase.BanParticipantUseCase;
 import com.letraaletra.api.domain.repository.SessionRepository;
-import com.letraaletra.api.presentation.dto.request.websocket.KickParticipantWsRequest;
+import com.letraaletra.api.presentation.dto.request.websocket.BanParticipantWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.ModerationWsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 @Component
-public class KickParticipantHandler implements RoomRequestHandler<KickParticipantWsRequest> {
+public class BanParticipantHandler implements RoomRequestHandler<BanParticipantWsRequest> {
     @Autowired
-    private KickParticipantUseCase kickParticipant;
+    private BanParticipantUseCase banParticipant;
 
     @Autowired
     private SessionRepository sessionRepository;
@@ -25,14 +25,14 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final Logger logger = LoggerFactory.getLogger(KickParticipantHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(BanParticipantHandler.class);
 
     @Override
-    public void handle(KickParticipantWsRequest request, WebSocketSession session) {
+    public void handle(BanParticipantWsRequest request, WebSocketSession session) {
         String hostId = (String) session.getAttributes().get("userId");
         String targetId = request.participantId();
 
-        kickParticipant.execute(
+        banParticipant.execute(
                 request.tokenGameId(),
                 targetId,
                 hostId
@@ -41,7 +41,7 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
         WebSocketSession target = sessionRepository.findByUserId(targetId);
 
         String json = objectMapper.writeValueAsString(
-                new ModerationWsResponse("Kicked from game")
+                new ModerationWsResponse("Banned from game")
         );
 
         try {
@@ -49,10 +49,11 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
         } catch (IOException e) {
             logger.warn("Error to send message to {}: {}", target.getId(), e.getMessage());
         }
+
     }
 
     @Override
-    public Class<KickParticipantWsRequest> getType() {
-        return KickParticipantWsRequest.class;
+    public Class<BanParticipantWsRequest> getType() {
+        return BanParticipantWsRequest.class;
     }
 }
