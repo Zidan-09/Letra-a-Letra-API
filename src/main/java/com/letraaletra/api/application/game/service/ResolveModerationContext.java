@@ -2,10 +2,7 @@ package com.letraaletra.api.application.game.service;
 
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exceptions.GameIsRunningException;
-import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
-import com.letraaletra.api.domain.game.exceptions.OnlyHostCanKickException;
-import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
+import com.letraaletra.api.domain.game.exceptions.*;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
@@ -20,15 +17,16 @@ public class ResolveModerationContext {
     @Autowired
     private GameRepository gameRepository;
 
-    public ModerationContext resolve(String tokenGameId, String participantId, String userId) {
+    public ModerationContext resolve(String tokenGameId, String targetId, String hostId) {
         String gameId = tokenService.getTokenContent(tokenGameId);
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
-        validateUser(userId, game);
+        validateUser(hostId, game);
+        validateAction(targetId, hostId);
 
-        Participant participant = game.getParticipantByUserId(participantId);
+        Participant participant = game.getParticipantByUserId(targetId);
 
         validateParticipant(participant);
 
@@ -36,6 +34,12 @@ public class ResolveModerationContext {
                 game,
                 participant
         );
+    }
+
+    private void validateAction(String targetId, String hostId) {
+        if (targetId.equals(hostId)) {
+            throw new InvalidModerateActionException();
+        }
     }
 
     private void validateGame(Game game) {
@@ -56,7 +60,7 @@ public class ResolveModerationContext {
 
     private void validateUser(String userId, Game game) {
         if (!game.getHostId().equals(userId)) {
-            throw new OnlyHostCanKickException();
+            throw new OnlyHostCanModerateException();
         }
     }
 }
