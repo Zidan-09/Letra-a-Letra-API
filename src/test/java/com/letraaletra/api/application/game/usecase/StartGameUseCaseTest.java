@@ -1,6 +1,7 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.ThemeWordSelectorService;
+import com.letraaletra.api.application.game.service.TimeoutManager;
 import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.*;
 import com.letraaletra.api.domain.board.Board;
@@ -61,6 +62,7 @@ class StartGameUseCaseTest {
     @Mock private GameState gameState;
     @Mock private User user;
     @Mock private GameStateDTO gameStateDTO;
+    @Mock private TimeoutManager timeoutManager;
 
     @BeforeEach
     void setup() {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class KickParticipantUseCase {
+public class BanParticipantUseCase {
     @Autowired
     private ResolveModerationContext resolveModerationContext;
 
@@ -36,6 +36,7 @@ public class KickParticipantUseCase {
         Game game = context.game();
 
         game.remove(participantId);
+        game.addToBlackList(participantId);
 
         gameRepository.save(game);
 

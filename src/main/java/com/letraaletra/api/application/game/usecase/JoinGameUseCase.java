@@ -1,6 +1,7 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
+import com.letraaletra.api.domain.game.exceptions.UserBannedException;
 import com.letraaletra.api.infra.service.GlobalTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
@@ -51,6 +52,7 @@ public class JoinGameUseCase {
         User user = userRepository.find(userId);
 
         validateUser(user);
+        checkIfBlackListed(game, userId);
 
         ParticipantRole role = game.nextParticipantRole();
 
@@ -77,6 +79,12 @@ public class JoinGameUseCase {
     private void validateUser(User user) {
         if (user == null) {
             throw new UserNotFoundException();
+        }
+    }
+
+    private void checkIfBlackListed(Game game, String userId) {
+        if (game.isBlackListed(userId)) {
+            throw new UserBannedException();
         }
     }
 
