@@ -2,7 +2,8 @@ package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.ThemeWordSelectorService;
 import com.letraaletra.api.application.game.service.TimeoutManager;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.game.StartGameUseCase;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.*;
 import com.letraaletra.api.domain.board.Board;
 import com.letraaletra.api.domain.board.service.BoardGenerator;
@@ -17,8 +18,8 @@ import com.letraaletra.api.domain.theme.Theme;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.game.exceptions.OnlyHostCanStartException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.presentation.dto.mappers.GameStateResponseAssembler;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
+import com.letraaletra.api.presentation.mappers.game.GameStateResponseAssembler;
 import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameStartedWsResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class StartGameUseCaseTest {
 
-    @Mock private GlobalTokenService globalTokenService;
+    @Mock private JsonWebTokenService jsonWebTokenService;
     @Mock private GameRepository gameRepository;
     @Mock private GameStateGenerator gameStateGenerator;
     @Mock private UserRepository userRepository;
@@ -66,7 +67,7 @@ class StartGameUseCaseTest {
 
     @BeforeEach
     void setup() {
-        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
 
         lenient().when(game.findBySession(sessionId)).thenReturn(participant);

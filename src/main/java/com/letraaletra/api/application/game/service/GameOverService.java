@@ -9,7 +9,7 @@ import com.letraaletra.api.domain.player.Player;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.presentation.dto.mappers.PlayerDTOMapper;
+import com.letraaletra.api.presentation.mappers.game.PlayerDTOMapper;
 import com.letraaletra.api.presentation.dto.response.game.GameOverDTO;
 import com.letraaletra.api.presentation.dto.response.player.PlayerDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameOverWsResponse;

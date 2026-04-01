@@ -96,6 +96,8 @@ public class Game {
 
     public void remove(String userId) {
         Participant participant = participants.remove(userId);
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+
         if (participant == null) {
             throw new UserNotInGameException();
         }
@@ -166,6 +168,7 @@ public class Game {
             throw new ParticipantAlreadyBannedException();
         }
 
+        remove(userId);
         blacklist.add(userId);
     }
 

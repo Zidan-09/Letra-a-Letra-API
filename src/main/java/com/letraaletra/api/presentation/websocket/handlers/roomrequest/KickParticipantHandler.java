@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.game.usecase.KickParticipantUseCase;
+import com.letraaletra.api.application.usecase.participant.KickParticipantUseCase;
 import com.letraaletra.api.domain.repository.SessionRepository;
 import com.letraaletra.api.presentation.dto.request.websocket.KickParticipantWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.ModerationWsResponse;

@@ -1,13 +1,14 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.game.GetPublicGamesUseCase;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.presentation.dto.mappers.GameDTOMapper;
+import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,7 @@ class GetPublicGamesUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GlobalTokenService globalTokenService;
+    private JsonWebTokenService jsonWebTokenService;
 
     @Mock
     private GameDTOMapper gameDTOMapper;
@@ -55,7 +56,7 @@ class GetPublicGamesUseCaseTest {
 
         when(gameRepository.get()).thenReturn(games);
 
-        when(globalTokenService.generateToken(anyString()))
+        when(jsonWebTokenService.generateToken(anyString()))
                 .thenReturn("token-game-id-fake");
 
         when(mapParticipants.execute(any(Game.class)))
@@ -74,7 +75,7 @@ class GetPublicGamesUseCaseTest {
         assertEquals(1, gameDTOS.size());
 
         verify(gameRepository).get();
-        verify(globalTokenService, times(1)).generateToken(anyString());
+        verify(jsonWebTokenService, times(1)).generateToken(anyString());
         verify(mapParticipants).execute(any(Game.class));
         verify(gameDTOMapper).toDTO(any(Game.class), anyString(), anyList());
     }

@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.game.usecase.SwapRoomPositionUseCase;
+import com.letraaletra.api.application.usecase.participant.SwapRoomPositionUseCase;
 import com.letraaletra.api.presentation.dto.request.websocket.SwapPlaceWsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

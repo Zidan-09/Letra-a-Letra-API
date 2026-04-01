@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.playeraction;
 
-import com.letraaletra.api.application.game.usecase.PlayerActionUseCase;
+import com.letraaletra.api.application.usecase.player.PlayerActionUseCase;
 import com.letraaletra.api.domain.game.actions.GameAction;
 import com.letraaletra.api.domain.game.actions.RevealCellAction;
 import com.letraaletra.api.domain.position.Position;

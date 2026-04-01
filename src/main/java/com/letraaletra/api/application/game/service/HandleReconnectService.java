@@ -4,7 +4,7 @@ import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.presentation.dto.mappers.GameStateResponseAssembler;
+import com.letraaletra.api.presentation.mappers.game.GameStateResponseAssembler;
 import com.letraaletra.api.presentation.dto.response.websocket.GameStateUpdatedWsResponse;
 import com.letraaletra.api.presentation.websocket.PlayerGameContext;
 import org.slf4j.Logger;
