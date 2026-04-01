@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.game.usecase.StartGameUseCase;
+import com.letraaletra.api.application.usecase.game.StartGameUseCase;
 import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.presentation.dto.request.websocket.GameSettingsDTO;
 import com.letraaletra.api.presentation.dto.request.websocket.StartGameWsRequest;

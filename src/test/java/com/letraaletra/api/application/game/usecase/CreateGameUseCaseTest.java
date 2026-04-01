@@ -3,7 +3,8 @@ package com.letraaletra.api.application.game.usecase;
 import com.letraaletra.api.application.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.game.service.MapParticipantsService;
 import com.letraaletra.api.application.game.service.TimeoutManager;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.game.CreateGameUseCase;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.ParticipantRole;
@@ -11,8 +12,8 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.presentation.dto.mappers.GameDTOMapper;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
+import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameUpdatedWsResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,7 @@ class CreateGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GlobalTokenService globalTokenService;
+    private JsonWebTokenService jsonWebTokenService;
 
     @Mock
     private GenerateRoomCode generateRoomCode;
@@ -69,7 +70,7 @@ class CreateGameUseCaseTest {
 
         when(userRepository.find(userId)).thenReturn(user);
         when(generateRoomCode.execute()).thenReturn("code");
-        when(globalTokenService.generateToken(anyString())).thenReturn("token123");
+        when(jsonWebTokenService.generateToken(anyString())).thenReturn("token123");
         when(mapParticipantsService.execute(any(Game.class)))
                 .thenReturn(List.of(new ParticipantDTO(userId, "nickname", "avatar", ParticipantRole.PLAYER)));
         when(gameDTOMapper.toDTO(any(Game.class), anyString(), anyList()))
@@ -79,7 +80,7 @@ class CreateGameUseCaseTest {
 
         verify(userRepository).find(userId);
         verify(gameRepository).save(any(Game.class));
-        verify(globalTokenService).generateToken(anyString());
+        verify(jsonWebTokenService).generateToken(anyString());
         verify(mapParticipantsService).execute(any(Game.class));
         verify(gameDTOMapper).toDTO(any(Game.class), eq("token123"), anyList());
         verify(broadCast).send(anyString(), any(GameUpdatedWsResponse.class));

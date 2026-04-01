@@ -1,9 +1,10 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.GameOverService;
+import com.letraaletra.api.application.usecase.player.PlayerActionUseCase;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
@@ -13,8 +14,8 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.game.exceptions.GameNotStartedException;
-import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.presentation.dto.mappers.GameStateResponseAssembler;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
+import com.letraaletra.api.presentation.mappers.game.GameStateResponseAssembler;
 import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameStateUpdatedWsResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class PlayerActionUseCaseTest {
 
     @Mock private GameRepository gameRepository;
     @Mock private UserRepository userRepository;
-    @Mock private GlobalTokenService globalTokenService;
+    @Mock private JsonWebTokenService jsonWebTokenService;
     @Mock private GameOverService gameOverService;
     @Mock private BroadcastService broadcast;
     @Mock private GameStateResponseAssembler gameStateResponseAssembler;
@@ -59,7 +60,7 @@ class PlayerActionUseCaseTest {
 
     @BeforeEach
     void setup() {
-        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
         lenient().when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
         lenient().when(game.getGameState()).thenReturn(gameState);

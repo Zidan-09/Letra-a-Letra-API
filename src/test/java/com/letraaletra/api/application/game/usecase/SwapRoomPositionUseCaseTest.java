@@ -1,7 +1,8 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.participant.SwapRoomPositionUseCase;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.exceptions.GameIsRunningException;
@@ -9,8 +10,8 @@ import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.presentation.dto.mappers.GameDTOMapper;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
+import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameUpdatedWsResponse;
@@ -36,7 +37,7 @@ class SwapRoomPositionUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GlobalTokenService globalTokenService;
+    private JsonWebTokenService jsonWebTokenService;
 
     @Mock
     private GameDTOMapper gameDTOMapper;
@@ -71,7 +72,7 @@ class SwapRoomPositionUseCaseTest {
         List<ParticipantDTO> participantsDTO = List.of(mock(ParticipantDTO.class));
         GameDTO gameDTO = new GameDTO("tokenId", "test", List.of(), game.getPositions());
 
-        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(game);
         when(game.getGameStatus()).thenReturn(GameStatus.WAITING);
         when(game.getParticipantByUserId(userId)).thenReturn(participant);
@@ -89,7 +90,7 @@ class SwapRoomPositionUseCaseTest {
 
     @Test
     void shouldThrowWhenGameNotFound() {
-        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(null);
 
         assertThrows(GameNotFoundException.class,
@@ -101,7 +102,7 @@ class SwapRoomPositionUseCaseTest {
 
     @Test
     void shouldThrowWhenGameIsRunning() {
-        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(game);
         when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
 
@@ -114,7 +115,7 @@ class SwapRoomPositionUseCaseTest {
 
     @Test
     void shouldThrowWhenUserNotInGame() {
-        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(game);
         when(game.getGameStatus()).thenReturn(GameStatus.WAITING);
         when(game.getParticipantByUserId(userId)).thenReturn(null);
@@ -131,7 +132,7 @@ class SwapRoomPositionUseCaseTest {
         List<ParticipantDTO> participantsDTO = List.of(mock(ParticipantDTO.class));
         GameDTO gameDTO = new GameDTO("tokenId", "test", List.of(), game.getPositions());
 
-        when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         when(gameRepository.find(gameId)).thenReturn(game);
         when(game.getGameStatus()).thenReturn(GameStatus.WAITING);
         when(game.getParticipantByUserId(userId)).thenReturn(participant);

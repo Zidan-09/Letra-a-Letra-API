@@ -3,7 +3,9 @@ package com.letraaletra.api.application.game.service;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomCloseReasons;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.infra.websocket.BroadcastService;
+import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
 import com.letraaletra.api.presentation.dto.response.websocket.RoomClosedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,9 @@ public class TimeoutManager {
 
     @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private BroadcastService broadcast;
@@ -47,8 +52,17 @@ public class TimeoutManager {
 
         if (game == null) return;
 
-        gameRepository.removeByCode(game.getCode());
+        game.getParticipants().forEach(p -> {
+            String userId = p.getUserId();
+
+            User user = userRepository.find(userId);
+
+            user.leaveGame();
+
+            userRepository.save(user);
+        });
 
         broadcast.send(gameId, new RoomClosedResponse(RoomCloseReasons.INACTIVITY));
+        gameRepository.removeByCode(game.getCode());
     }
 }

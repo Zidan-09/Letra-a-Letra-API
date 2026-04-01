@@ -1,9 +1,10 @@
 package com.letraaletra.api.application.user.usecase;
 
+import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.presentation.dto.mappers.UserDTOMapper;
+import com.letraaletra.api.presentation.mappers.user.UserDTOMapper;
 import com.letraaletra.api.presentation.dto.response.user.UserDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

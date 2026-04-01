@@ -1,10 +1,11 @@
 package com.letraaletra.api.application.user.usecase;
 
-import com.letraaletra.api.application.user.service.PasswordService;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.user.AuthUseCase;
+import com.letraaletra.api.infrastructure.security.BCryptPasswordService;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.presentation.dto.request.user.LoginRequestDTO;
-import com.letraaletra.api.presentation.dto.response.user.LoginResponseDTO;
+import com.letraaletra.api.presentation.dto.request.user.SignInRequestDTO;
+import com.letraaletra.api.presentation.dto.response.user.SignInResponseDTO;
 import com.letraaletra.api.domain.user.exceptions.InvalidPasswordException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -21,10 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class AuthUseCaseTest {
 
     @Mock
-    private GlobalTokenService globalTokenService;
+    private JsonWebTokenService jsonWebTokenService;
 
     @Mock
-    private PasswordService passwordService;
+    private BCryptPasswordService BCryptPasswordService;
 
     @Mock
     private UserRepository userRepository;
@@ -40,18 +41,18 @@ class AuthUseCaseTest {
         Mockito.when(userRepository.findByEmail("email@email.com"))
                 .thenReturn(user);
 
-        Mockito.when(passwordService.matches("12345", "hash"))
+        Mockito.when(BCryptPasswordService.matches("12345", "hash"))
                 .thenReturn(true);
 
-        Mockito.when(globalTokenService.generateToken(user.getId()))
+        Mockito.when(jsonWebTokenService.generateToken(user.getId()))
                 .thenReturn("fake-token");
 
-        LoginResponseDTO result = authUseCase.login(
-                new LoginRequestDTO("email@email.com", "12345")
+        SignInResponseDTO result = authUseCase.login(
+                new SignInRequestDTO("email@email.com", "12345")
         );
 
         Assertions.assertEquals("fake-token", result.token());
-        Mockito.verify(globalTokenService).generateToken("id");
+        Mockito.verify(jsonWebTokenService).generateToken("id");
     }
 
     @Test
@@ -60,11 +61,11 @@ class AuthUseCaseTest {
         Mockito.when(userRepository.findByEmail("email@email.com"))
                 .thenReturn(null);
 
-        LoginRequestDTO request = new LoginRequestDTO("email@email.com", "12345");
+        SignInRequestDTO request = new SignInRequestDTO("email@email.com", "12345");
 
         Assertions.assertThrows(UserNotFoundException.class, () -> authUseCase.login(request));
 
-        Mockito.verify(globalTokenService, Mockito.never()).generateToken(Mockito.any());
+        Mockito.verify(jsonWebTokenService, Mockito.never()).generateToken(Mockito.any());
     }
 
     @Test
@@ -75,13 +76,13 @@ class AuthUseCaseTest {
         Mockito.when(userRepository.findByEmail("email@email.com"))
                 .thenReturn(user);
 
-        Mockito.when(passwordService.matches("12345", "hash"))
+        Mockito.when(BCryptPasswordService.matches("12345", "hash"))
                 .thenReturn(false);
 
-        LoginRequestDTO request = new LoginRequestDTO("email@email.com", "12345");
+        SignInRequestDTO request = new SignInRequestDTO("email@email.com", "12345");
 
         Assertions.assertThrows(InvalidPasswordException.class, () -> authUseCase.login(request));
 
-        Mockito.verify(globalTokenService, Mockito.never()).generateToken(Mockito.any());
+        Mockito.verify(jsonWebTokenService, Mockito.never()).generateToken(Mockito.any());
     }
 }

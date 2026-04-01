@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.game.service;
 
 import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.presentation.dto.mappers.ParticipantDTOMapper;
+import com.letraaletra.api.presentation.mappers.game.ParticipantDTOMapper;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -4,7 +4,7 @@ import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.participant.Participant;
 import com.letraaletra.api.domain.participant.ParticipantRole;
-import com.letraaletra.api.presentation.dto.mappers.ParticipantDTOMapper;
+import com.letraaletra.api.presentation.mappers.game.ParticipantDTOMapper;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

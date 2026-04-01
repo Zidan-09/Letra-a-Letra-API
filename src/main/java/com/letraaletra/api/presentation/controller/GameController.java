@@ -1,12 +1,15 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.application.game.usecase.FindByCodeUseCase;
-import com.letraaletra.api.application.game.usecase.FindByTokenGameIdUseCase;
-import com.letraaletra.api.application.game.usecase.GetPublicGamesUseCase;
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.application.command.game.FindByTokenCommand;
+import com.letraaletra.api.application.usecase.game.FindByCodeUseCase;
+import com.letraaletra.api.application.usecase.game.FindByTokenGameIdUseCase;
+import com.letraaletra.api.application.usecase.game.GetPublicGamesUseCase;
+import com.letraaletra.api.application.output.game.FindByTokenOutput;
 import com.letraaletra.api.presentation.dto.response.SuccessResponse;
+import com.letraaletra.api.presentation.dto.response.game.FindByTokenResponseDTO;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.domain.game.GameMessages;
+import com.letraaletra.api.presentation.mappers.game.FindByTokenMapper;
 import com.letraaletra.api.presentation.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,10 @@ public class GameController {
     private GetPublicGamesUseCase getGames;
 
     @Autowired
-    private FindByTokenGameIdUseCase findByTokenGameId;
+    private FindByTokenMapper findByTokenMapper;
+
+    @Autowired
+    private FindByTokenGameIdUseCase findByTokenGameIdUseCase;
 
     @Autowired
     private FindByCodeUseCase findByCode;
@@ -37,14 +43,18 @@ public class GameController {
     }
 
     @GetMapping("/{tokenGameId}")
-    public ResponseEntity<SuccessResponse<Game>> getGameById(@Valid @RequestParam String tokenGameId) {
-        Game result = findByTokenGameId.execute(tokenGameId);
+    public ResponseEntity<SuccessResponse<FindByTokenResponseDTO>> getGameById(@Valid @PathVariable String tokenGameId) {
+        FindByTokenCommand command = findByTokenMapper.toCommand(tokenGameId);
 
-        return ApiResponse.success(result, GameMessages.GAME_FOUND.getMessage());
+        FindByTokenOutput output = findByTokenGameIdUseCase.execute(command);
+
+        FindByTokenResponseDTO dto = findByTokenMapper.toResponseDTO(output);
+
+        return ApiResponse.success(dto, GameMessages.GAME_FOUND.getMessage());
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<SuccessResponse<Optional<GameDTO>>> getGameByCode(@Valid @RequestParam String code) {
+    public ResponseEntity<SuccessResponse<Optional<GameDTO>>> getGameByCode(@Valid @PathVariable String code) {
         Optional<GameDTO> result = findByCode.execute(code);
 
         return ApiResponse.success(result);

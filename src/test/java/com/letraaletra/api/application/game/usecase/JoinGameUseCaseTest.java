@@ -1,7 +1,8 @@
 package com.letraaletra.api.application.game.usecase;
 
 import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infra.service.GlobalTokenService;
+import com.letraaletra.api.application.usecase.game.JoinGameUseCase;
+import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
 import com.letraaletra.api.domain.Game;
 import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
 import com.letraaletra.api.domain.participant.Participant;
@@ -11,8 +12,8 @@ import com.letraaletra.api.domain.repository.SessionRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.infra.websocket.BroadcastService;
-import com.letraaletra.api.presentation.dto.mappers.GameDTOMapper;
+import com.letraaletra.api.infrastructure.websocket.BroadcastService;
+import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameUpdatedWsResponse;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.*;
 class JoinGameUseCaseTest {
 
     @Mock
-    private GlobalTokenService globalTokenService;
+    private JsonWebTokenService jsonWebTokenService;
 
     @Mock
     private GameRepository gameRepository;
@@ -72,7 +73,7 @@ class JoinGameUseCaseTest {
         WebSocketSession session = mock(WebSocketSession.class);
         User user = new User(userId, "nick", "avatar", "email@email.com", "hash");
 
-        lenient().when(globalTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
+        lenient().when(jsonWebTokenService.getTokenContent(tokenGameId)).thenReturn(gameId);
         lenient().when(gameRepository.find(gameId)).thenReturn(game);
         lenient().when(sessionRepository.find(sessionId)).thenReturn(session);
         Map<String, Object> attributes = new HashMap<>();
