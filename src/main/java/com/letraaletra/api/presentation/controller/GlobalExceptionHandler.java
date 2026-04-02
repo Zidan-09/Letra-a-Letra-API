@@ -1,9 +1,10 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.exception.HttpException;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.presentation.dto.response.http.ErrorResponse;
 import com.letraaletra.api.presentation.dto.response.http.ServerMessages;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(HttpException.class)
-    public ResponseEntity<ErrorResponse> handleHttpException(HttpException ex) {
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ErrorResponse> handleHttpException(DomainException ex) {
         return ResponseEntity
-                .status(ex.getStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(false, ex.getMessage()));
     }
 

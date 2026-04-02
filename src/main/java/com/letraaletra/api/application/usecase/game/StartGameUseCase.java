@@ -2,7 +2,6 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.StartGameCommand;
 import com.letraaletra.api.application.port.GameTimeOut;
-import com.letraaletra.api.application.service.ThemeWordSelectorService;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
@@ -19,33 +18,36 @@ import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.game.board.theme.Theme;
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
-@Service
 public class StartGameUseCase {
-    @Autowired
-    private TokenService tokenService;
+    private final GameRepository gameRepository;
+    private final GameStateGenerator gameStateGenerator;
+    private final ThemeRepository themeRepository;
+    private final GameTimeOut gameTimeOut;
+    private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
+    private final BoardGenerator boardGenerator;
+    private final TokenService tokenService;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private GameStateGenerator gameStateGenerator;
-
-    @Autowired
-    private ThemeRepository themeRepository;
-
-    @Autowired
-    private GameTimeOut gameTimeOut;
-
-    @Autowired
-    private ThemeWordSelectorService themeWordSelector;
-
-    @Autowired
-    private BoardGenerator boardGenerator;
+    public StartGameUseCase(
+            GameRepository gameRepository,
+            GameStateGenerator gameStateGenerator,
+            ThemeRepository themeRepository,
+            GameTimeOut gameTimeOut,
+            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            BoardGenerator boardGenerator,
+            TokenService tokenService
+    ) {
+        this.gameRepository = gameRepository;
+        this.gameStateGenerator = gameStateGenerator;
+        this.themeRepository = themeRepository;
+        this.gameTimeOut = gameTimeOut;
+        this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
+        this.boardGenerator = boardGenerator;
+        this.tokenService = tokenService;
+    }
 
     public StartGameOutput execute(StartGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
@@ -91,9 +93,9 @@ public class StartGameUseCase {
 
     private List<String> selectWords(Theme theme) {
         if (theme != null) {
-            return themeWordSelector.pickRandomWords(theme);
+            return theme.pickRandomWords(5, new Random());
         } else {
-            return themeWordSelector.pickRandomThemeWords();
+            return pickRandomThemeWordsUseCase.execute();
         }
     }
 

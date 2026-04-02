@@ -6,23 +6,22 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class FindByCodeUseCase {
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService jsonWebTokenService;
+    public FindByCodeUseCase(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public FindByCodeOutput execute(FindByCodeCommand command) {
         Game game = gameRepository.findByCode(command.code());
 
         validateGame(game);
 
-        String token = jsonWebTokenService.generateToken(game.getId());
+        String token = tokenService.generateToken(game.getId());
 
         return buildReturn(token);
     }

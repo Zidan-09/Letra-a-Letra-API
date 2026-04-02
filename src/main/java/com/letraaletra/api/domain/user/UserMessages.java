@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.user;
 
-import com.letraaletra.api.exception.MessageCode;
+import com.letraaletra.api.domain.MessageCode;
 
 public enum UserMessages implements MessageCode {
     USER_CREATED("user_created"),

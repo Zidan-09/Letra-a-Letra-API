@@ -8,20 +8,17 @@ import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 import com.letraaletra.api.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SignInUseCase {
+    private final UserRepository userRepository;
+    private final PasswordService passwordService;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private PasswordService passwordService;
-
-    @Autowired
-    private UserRepository userRepository;
+    public SignInUseCase(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
+        this.userRepository = userRepository;
+        this.passwordService = passwordService;
+        this.tokenService = tokenService;
+    }
 
     public SignInOutput login(SignInCommand command) {
         User user = userRepository.findByEmail(command.email());

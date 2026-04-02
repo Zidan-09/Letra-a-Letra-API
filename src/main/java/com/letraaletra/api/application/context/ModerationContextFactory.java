@@ -1,4 +1,4 @@
-package com.letraaletra.api.application.service;
+package com.letraaletra.api.application.context;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
@@ -8,16 +8,15 @@ import com.letraaletra.api.domain.game.participant.exception.InvalidModerateActi
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
-public class ResolveModerationContext {
-    @Autowired
-    private TokenService tokenService;
+public class ModerationContextFactory {
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private GameRepository gameRepository;
+    public ModerationContextFactory(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public ModerationContext resolve(String tokenGameId, String targetId, String hostId) {
         String gameId = tokenService.getTokenContent(tokenGameId);

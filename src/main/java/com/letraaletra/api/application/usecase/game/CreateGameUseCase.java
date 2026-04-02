@@ -2,7 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.CreateGameCommand;
 import com.letraaletra.api.application.port.GameTimeOut;
-import com.letraaletra.api.application.service.GenerateRoomCode;
+import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.output.game.CreateGameOutput;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
@@ -13,27 +13,23 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
 public class CreateGameUseCase {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final GameRepository gameRepository;
+    private final GameTimeOut gameTimeOut;
+    private final TokenService tokenService;
+    private final GenerateRoomCode generateRoomCode;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private GameTimeOut gameTimeOut;
-
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private GenerateRoomCode generateRoomCode;
+    public CreateGameUseCase(UserRepository userRepository, GameRepository gameRepository, GameTimeOut gameTimeOut, TokenService tokenService, GenerateRoomCode generateRoomCode) {
+        this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
+        this.gameTimeOut = gameTimeOut;
+        this.tokenService = tokenService;
+        this.generateRoomCode = generateRoomCode;
+    }
 
     public CreateGameOutput execute(CreateGameCommand command) {
         String gameId = UUID.randomUUID().toString();

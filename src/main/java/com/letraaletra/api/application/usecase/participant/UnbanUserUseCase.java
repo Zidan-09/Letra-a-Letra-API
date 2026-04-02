@@ -9,16 +9,15 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class UnbanUserUseCase {
-    @Autowired
-    private TokenService tokenService;
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private GameRepository gameRepository;
+    public UnbanUserUseCase(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public UnbanParticipantOutput execute(UnbanParticipantCommand command) {
         String gameId = tokenService.getTokenContent(command.token());

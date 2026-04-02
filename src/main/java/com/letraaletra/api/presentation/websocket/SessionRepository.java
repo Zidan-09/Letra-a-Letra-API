@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.websocket;
+package com.letraaletra.api.presentation.websocket;
 
 import org.springframework.web.socket.WebSocketSession;
 

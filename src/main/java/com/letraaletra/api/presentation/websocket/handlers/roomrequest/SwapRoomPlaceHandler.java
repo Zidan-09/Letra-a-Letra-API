@@ -32,7 +32,7 @@ public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRe
 
         SwapPositionResponseDTO dto = swapPositionMapper.toResponseDTO(output);
 
-        gameNotifier.send(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
     }
 
     @Override

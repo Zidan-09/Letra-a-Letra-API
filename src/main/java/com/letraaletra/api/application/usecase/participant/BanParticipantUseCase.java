@@ -1,24 +1,23 @@
 package com.letraaletra.api.application.usecase.participant;
 
 import com.letraaletra.api.application.command.participant.BanParticipantCommand;
-import com.letraaletra.api.application.service.ModerationContext;
-import com.letraaletra.api.application.service.ResolveModerationContext;
+import com.letraaletra.api.application.context.ModerationContext;
+import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.BanParticipantOutput;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class BanParticipantUseCase {
-    @Autowired
-    private ResolveModerationContext resolveModerationContext;
+    private final GameRepository gameRepository;
+    private final ModerationContextFactory moderationContextFactory;
 
-    @Autowired
-    private GameRepository gameRepository;
+    public BanParticipantUseCase(GameRepository gameRepository, ModerationContextFactory moderationContextFactory) {
+        this.gameRepository = gameRepository;
+        this.moderationContextFactory = moderationContextFactory;
+    }
 
     public BanParticipantOutput execute(BanParticipantCommand command) {
-        ModerationContext context = resolveModerationContext.resolve(command.token(), command.target(), command.user());
+        ModerationContext context = moderationContextFactory.resolve(command.token(), command.target(), command.user());
         Game game = context.game();
 
         game.addToBlackList(command.target());

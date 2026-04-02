@@ -9,14 +9,14 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
 public class FindByTokenGameIdUseCase {
+    private final TokenService tokenService;
+    private final GameRepository gameRepository;
 
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private GameRepository gameRepository;
+    public FindByTokenGameIdUseCase(TokenService tokenService, GameRepository gameRepository) {
+        this.tokenService = tokenService;
+        this.gameRepository = gameRepository;
+    }
 
     public FindByTokenOutput execute(FindByTokenCommand command) {
         String gameId = tokenService.getTokenContent(command.token());

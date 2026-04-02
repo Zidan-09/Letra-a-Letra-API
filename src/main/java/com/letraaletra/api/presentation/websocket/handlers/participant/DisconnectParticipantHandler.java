@@ -33,7 +33,7 @@ public class DisconnectParticipantHandler {
         output.ifPresent(out -> {
             DisconnectParticipantResponseDTO dto = disconnectParticipantMapper.toResponseDTO(out);
 
-            gameNotifier.send(out.game(), dto);
+            gameNotifier.notifierAll(out.game(), dto);
         });
     }
 }

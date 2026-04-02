@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.dto.response.http;
 
-import com.letraaletra.api.exception.MessageCode;
+import com.letraaletra.api.domain.MessageCode;
 
 public enum ServerMessages implements MessageCode {
     INVALID_INPUT("invalid_input"),

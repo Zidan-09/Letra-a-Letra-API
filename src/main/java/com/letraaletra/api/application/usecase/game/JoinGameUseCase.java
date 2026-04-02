@@ -14,19 +14,17 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JoinGameUseCase {
-    @Autowired
-    private TokenService tokenService;
+    private final GameRepository gameRepository;
+    private final UserRepository userRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public JoinGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.userRepository = userRepository;
+        this.tokenService = tokenService;
+    }
 
     public JoinGameOutput execute(JoinGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
@@ -75,7 +73,11 @@ public class JoinGameUseCase {
             throw new GameNotFoundException();
         }
 
-        if (game.getParticipants().size() == 7) {
+        if (
+                game.getParticipants().size() == 7 ||
+                game.getRoomSettings().roomAllowSpectators() &&
+                game.getParticipants().size() == 2
+        ) {
             throw new RoomFullException();
         }
     }
