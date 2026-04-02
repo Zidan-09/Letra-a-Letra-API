@@ -10,16 +10,15 @@ import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
 import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
 import com.letraaletra.api.presentation.dto.request.user.CreateUserRequestDTO;
 import com.letraaletra.api.presentation.dto.request.user.SignInRequestDTO;
-import com.letraaletra.api.presentation.dto.response.SuccessResponse;
+import com.letraaletra.api.presentation.dto.response.http.SuccessResponseDTO;
 import com.letraaletra.api.presentation.dto.response.user.CreateUserResponseDTO;
 import com.letraaletra.api.presentation.dto.response.user.FindUserResponseDTO;
 import com.letraaletra.api.presentation.dto.response.user.SignInResponseDTO;
 import com.letraaletra.api.domain.user.UserMessages;
-import com.letraaletra.api.application.usecase.user.AuthUseCase;
+import com.letraaletra.api.application.usecase.user.SignInUseCase;
 import com.letraaletra.api.presentation.mappers.user.CreateUserMapper;
 import com.letraaletra.api.presentation.mappers.user.FindUserMapper;
 import com.letraaletra.api.presentation.mappers.user.SignInMapper;
-import com.letraaletra.api.presentation.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +48,10 @@ public class UserController {
     private FindUserByIdUseCase findUserById;
 
     @Autowired
-    private AuthUseCase authUseCase;
+    private SignInUseCase signInUseCase;
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<CreateUserResponseDTO>> register(@Valid @RequestBody CreateUserRequestDTO request) {
+    public ResponseEntity<SuccessResponseDTO<CreateUserResponseDTO>> register(@Valid @RequestBody CreateUserRequestDTO request) {
         CreateUserCommand command = createUserMapper.toCommand(request);
 
         CreateUserOutput output = createUserUseCase.execute(command);
@@ -63,7 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<SuccessResponse<FindUserResponseDTO>> find(@PathVariable @NotBlank String userId) {
+    public ResponseEntity<SuccessResponseDTO<FindUserResponseDTO>> find(@PathVariable @NotBlank String userId) {
         FindUserCommand command = findUserMapper.toCommand(userId);
 
         FindUserOutput output = findUserById.execute(command);
@@ -74,10 +73,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse<SignInResponseDTO>> login(@Valid @RequestBody SignInRequestDTO request) {
+    public ResponseEntity<SuccessResponseDTO<SignInResponseDTO>> login(@Valid @RequestBody SignInRequestDTO request) {
         SignInCommand command = signInMapper.toCommand(request);
 
-        SignInOutput output = authUseCase.login(command);
+        SignInOutput output = signInUseCase.login(command);
 
         SignInResponseDTO dto = signInMapper.toResponseDTO(output);
 

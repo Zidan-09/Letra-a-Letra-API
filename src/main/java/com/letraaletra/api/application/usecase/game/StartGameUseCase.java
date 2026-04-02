@@ -1,38 +1,33 @@
 package com.letraaletra.api.application.usecase.game;
 
-import com.letraaletra.api.application.game.service.ThemeWordSelectorService;
-import com.letraaletra.api.application.game.service.TimeoutManager;
-import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
-import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.GameState;
-import com.letraaletra.api.domain.board.Board;
-import com.letraaletra.api.domain.board.service.BoardGenerator;
+import com.letraaletra.api.application.command.game.StartGameCommand;
+import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.service.ThemeWordSelectorService;
+import com.letraaletra.api.application.output.game.StartGameOutput;
+import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.board.Board;
+import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.GameMode;
-import com.letraaletra.api.domain.game.GameSettings;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
-import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.ThemeRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
-import com.letraaletra.api.domain.theme.Theme;
-import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.domain.game.exceptions.OnlyHostCanStartException;
+import com.letraaletra.api.domain.game.board.theme.Theme;
+import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.infrastructure.websocket.BroadcastService;
-import com.letraaletra.api.presentation.mappers.game.GameStateResponseAssembler;
-import com.letraaletra.api.presentation.dto.response.websocket.GameStartedWsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class StartGameUseCase {
     @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    private TokenService tokenService;
 
     @Autowired
     private GameRepository gameRepository;
@@ -41,13 +36,10 @@ public class StartGameUseCase {
     private GameStateGenerator gameStateGenerator;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private ThemeRepository themeRepository;
 
     @Autowired
-    private TimeoutManager timeoutManager;
+    private GameTimeOut gameTimeOut;
 
     @Autowired
     private ThemeWordSelectorService themeWordSelector;
@@ -55,34 +47,28 @@ public class StartGameUseCase {
     @Autowired
     private BoardGenerator boardGenerator;
 
-    @Autowired
-    private GameStateResponseAssembler gameStateResponseAssembler;
-
-    @Autowired
-    private BroadcastService broadcast;
-
-    public void execute(String tokenGameId, GameSettings settings, String sessionId) {
-        String gameId = jsonWebTokenService.getTokenContent(tokenGameId);
+    public StartGameOutput execute(StartGameCommand command) {
+        String gameId = tokenService.getTokenContent(command.token());
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
 
-        timeoutManager.cancel(gameId);
+        gameTimeOut.cancel(game);
 
         String hostId = game.getHostId();
-        Participant participant = game.findBySession(sessionId);
+        Participant participant = game.findBySession(command.session());
 
         validateParticipant(participant);
         validateHost(participant, hostId);
 
-        String themeId = settings.getThemeId();
+        String themeId = command.settings().getThemeId();
 
         Theme theme = themeRepository.findById(themeId);
 
         List<String> words = selectWords(theme);
 
-        GameMode gameMode = settings.getGameMode();
+        GameMode gameMode = command.settings().getGameMode();
 
         Board board = boardGenerator.generate(words, gameMode);
 
@@ -90,17 +76,11 @@ public class StartGameUseCase {
 
         game.updateGameState(state);
 
-        List<String> playerIds = state.getPlayerIds();
-
-        Map<String, User> users = userRepository.findMapByIds(playerIds);
-
         game.setGameStatus(GameStatus.RUNNING);
 
         gameRepository.save(game);
 
-        GameStartedWsResponse data = buildResponse(state, users);
-
-        broadcast.send(gameId, data);
+        return buildReturn(game, gameId);
     }
 
     private void validateGame(Game game) {
@@ -129,9 +109,10 @@ public class StartGameUseCase {
         }
     }
 
-    private GameStartedWsResponse buildResponse(GameState state, Map<String, User> users) {
-        return new GameStartedWsResponse(
-                gameStateResponseAssembler.get(state, users)
+    private StartGameOutput buildReturn(Game game, String id) {
+        return new StartGameOutput(
+                id,
+                game
         );
     }
 }

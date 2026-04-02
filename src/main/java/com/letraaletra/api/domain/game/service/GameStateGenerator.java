@@ -1,10 +1,10 @@
 package com.letraaletra.api.domain.game.service;
 
-import com.letraaletra.api.domain.GameState;
-import com.letraaletra.api.domain.board.Board;
-import com.letraaletra.api.domain.participant.Participant;
-import com.letraaletra.api.domain.participant.ParticipantRole;
-import com.letraaletra.api.domain.player.Player;
+import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.board.Board;
+import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.domain.game.participant.ParticipantRole;
+import com.letraaletra.api.domain.game.player.Player;
 
 import java.util.HashMap;
 import java.util.List;

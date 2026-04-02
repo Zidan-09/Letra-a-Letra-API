@@ -2,7 +2,7 @@ package com.letraaletra.api.application.usecase.user;
 
 import com.letraaletra.api.application.command.user.CreateUserCommand;
 import com.letraaletra.api.application.output.user.CreateUserOutput;
-import com.letraaletra.api.infrastructure.security.BCryptPasswordService;
+import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
@@ -18,7 +18,7 @@ public class CreateUserUseCase {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordService BCryptPasswordService;
+    private PasswordService passwordService;
 
     public CreateUserOutput execute(CreateUserCommand command) {
 
@@ -37,7 +37,7 @@ public class CreateUserUseCase {
                 nickname,
                 "avatar id inventado",
                 email,
-                BCryptPasswordService.hash(password)
+                passwordService.hash(password)
         );
 
         userRepository.save(user);

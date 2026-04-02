@@ -1,7 +1,7 @@
 package com.letraaletra.api.infrastructure.loader;
 
-import com.letraaletra.api.domain.theme.Theme;
-import com.letraaletra.api.domain.theme.ThemeMessages;
+import com.letraaletra.api.domain.game.board.theme.Theme;
+import com.letraaletra.api.domain.game.board.theme.ThemeMessages;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;

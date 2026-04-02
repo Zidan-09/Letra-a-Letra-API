@@ -1,22 +1,17 @@
 package com.letraaletra.api.application.usecase.participant;
 
-import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.application.command.participant.SwapPositionCommand;
+import com.letraaletra.api.application.output.participant.SwapPositionOutput;
+import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exceptions.GameIsRunningException;
-import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
-import com.letraaletra.api.domain.game.exceptions.UserNotInGameException;
-import com.letraaletra.api.domain.participant.Participant;
+import com.letraaletra.api.domain.game.exception.GameIsRunningException;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
+import com.letraaletra.api.domain.game.exception.UserNotInGameException;
+import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.infrastructure.websocket.BroadcastService;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
-import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
-import com.letraaletra.api.presentation.dto.response.websocket.GameUpdatedWsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class SwapRoomPositionUseCase {
@@ -24,37 +19,24 @@ public class SwapRoomPositionUseCase {
     private GameRepository gameRepository;
 
     @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    private TokenService tokenService;
 
-    @Autowired
-    private GameDTOMapper gameDTOMapper;
-
-    @Autowired
-    private MapParticipantsService mapParticipantsService;
-
-    @Autowired
-    private BroadcastService broadcast;
-
-    public void execute(String tokenGameId, int position, String userId) {
-        String gameId = jsonWebTokenService.getTokenContent(tokenGameId);
+    public SwapPositionOutput execute(SwapPositionCommand command) {
+        String gameId = tokenService.getTokenContent(command.token());
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
 
-        Participant participant = game.getParticipantByUserId(userId);
+        Participant participant = game.getParticipantByUserId(command.user());
 
         validateParticipant(participant);
 
-        game.changePosition(userId, position);
+        game.changePosition(command.user(), command.position());
 
         gameRepository.save(game);
 
-        List<ParticipantDTO> participants = mapParticipantsService.execute(game);
-
-        GameUpdatedWsResponse response = buildResponse(game, tokenGameId, participants);
-
-        broadcast.send(gameId, response);
+        return buildReturn(game, command.token());
     }
 
     private void validateGame(Game game) {
@@ -73,9 +55,10 @@ public class SwapRoomPositionUseCase {
         }
     }
 
-    private GameUpdatedWsResponse buildResponse(Game game, String tokenGameId, List<ParticipantDTO> participants) {
-        return new GameUpdatedWsResponse(
-                gameDTOMapper.toDTO(game, tokenGameId, participants)
+    private SwapPositionOutput buildReturn(Game game, String token) {
+        return new SwapPositionOutput(
+                token,
+                game
         );
     }
 }

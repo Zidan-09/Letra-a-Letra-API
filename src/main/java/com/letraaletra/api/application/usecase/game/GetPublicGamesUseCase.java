@@ -1,16 +1,15 @@
 package com.letraaletra.api.application.usecase.game;
 
-import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.application.output.game.GetGamesOutput;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
-import com.letraaletra.api.presentation.dto.response.game.GameDTO;
-import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
+import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GetPublicGamesUseCase {
@@ -18,24 +17,26 @@ public class GetPublicGamesUseCase {
     private GameRepository gameRepository;
 
     @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    private TokenService tokenService;
 
-    @Autowired
-    private GameDTOMapper gameDTOMapper;
+    public GetGamesOutput execute() {
+        List<Game> games = gameRepository.getPublic();
 
-    @Autowired
-    private MapParticipantsService mapParticipants;
+        Map<String, String> tokens = new HashMap<>();
 
-    public List<GameDTO> execute() {
-        return gameRepository.get().stream()
-                .filter(game -> !game.getRoomSettings().isPrivateGame())
-                .map(this::toPublicGameDTO)
-                .toList();
+        for (Game game : games) {
+            String token = tokenService.generateToken(game.getId());
+
+            tokens.put(token, game.getId());
+        }
+
+        return buildReturn(games, tokens);
     }
 
-    private GameDTO toPublicGameDTO(Game game) {
-        String token = jsonWebTokenService.generateToken(game.getId());
-        List<ParticipantDTO> participants = mapParticipants.execute(game);
-        return gameDTOMapper.toDTO(game, token, participants);
+    private GetGamesOutput buildReturn(List<Game> games, Map<String, String> tokens) {
+        return new GetGamesOutput(
+                games,
+                tokens
+        );
     }
 }

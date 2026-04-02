@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.playeraction;
 
-import com.letraaletra.api.presentation.dto.request.websocket.playeractions.PlayerActionDTO;
+import com.letraaletra.api.presentation.dto.request.player.PlayerActionDTO;
 import org.springframework.web.socket.WebSocketSession;
 
 public interface InGameActionHandler<T extends PlayerActionDTO> {

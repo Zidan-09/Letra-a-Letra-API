@@ -1,17 +1,13 @@
 package com.letraaletra.api.application.usecase.game;
 
-import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.application.command.game.FindByCodeCommand;
+import com.letraaletra.api.application.output.game.FindByCodeOutput;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
+import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
-import com.letraaletra.api.presentation.dto.response.game.GameDTO;
-import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FindByCodeUseCase {
@@ -19,27 +15,27 @@ public class FindByCodeUseCase {
     private GameRepository gameRepository;
 
     @Autowired
-    private MapParticipantsService mapParticipantsService;
+    private TokenService jsonWebTokenService;
 
-    @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    public FindByCodeOutput execute(FindByCodeCommand command) {
+        Game game = gameRepository.findByCode(command.code());
 
-    @Autowired
-    private GameDTOMapper gameDTOMapper;
+        validateGame(game);
 
-    public Optional<GameDTO> execute(String roomCode) {
-        Game game = gameRepository.findByCode(roomCode);
+        String token = jsonWebTokenService.generateToken(game.getId());
 
+        return buildReturn(token);
+    }
+
+    private void validateGame(Game game) {
         if (game == null) {
-            return Optional.empty();
+            throw new GameNotFoundException();
         }
+    }
 
-        String tokenGameId = jsonWebTokenService.generateToken(game.getId());
-
-        List<ParticipantDTO> participantDTOS = mapParticipantsService.execute(game);
-
-        GameDTO gameDTO = gameDTOMapper.toDTO(game, tokenGameId, participantDTOS);
-
-        return Optional.of(gameDTO);
+    private FindByCodeOutput buildReturn(String token) {
+        return new FindByCodeOutput(
+                token
+        );
     }
 }

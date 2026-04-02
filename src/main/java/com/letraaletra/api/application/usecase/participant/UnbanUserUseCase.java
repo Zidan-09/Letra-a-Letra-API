@@ -1,10 +1,12 @@
 package com.letraaletra.api.application.usecase.participant;
 
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.application.command.participant.UnbanParticipantCommand;
+import com.letraaletra.api.application.output.participant.UnbanParticipantOutput;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exceptions.GameIsRunningException;
-import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
-import com.letraaletra.api.domain.game.exceptions.OnlyHostCanModerateException;
+import com.letraaletra.api.domain.game.exception.GameIsRunningException;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
+import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +20,19 @@ public class UnbanUserUseCase {
     @Autowired
     private GameRepository gameRepository;
 
-    public void execute(String tokenGameId, String participantId, String userId) {
-        String gameId = tokenService.getTokenContent(tokenGameId);
+    public UnbanParticipantOutput execute(UnbanParticipantCommand command) {
+        String gameId = tokenService.getTokenContent(command.token());
 
         Game game = gameRepository.find(gameId);
 
         validateGame(game);
-        validateHost(game, userId);
+        validateHost(game, command.user());
 
-        game.removeFromBlackList(participantId);
+        game.removeFromBlackList(command.target());
 
         gameRepository.save(game);
+
+        return buildReturn(game);
     }
 
     private void validateGame(Game game) {
@@ -45,5 +49,9 @@ public class UnbanUserUseCase {
         if (!game.getHostId().equals(hostId)) {
             throw new OnlyHostCanModerateException();
         }
+    }
+
+    private UnbanParticipantOutput buildReturn(Game game) {
+        return new UnbanParticipantOutput(game);
     }
 }

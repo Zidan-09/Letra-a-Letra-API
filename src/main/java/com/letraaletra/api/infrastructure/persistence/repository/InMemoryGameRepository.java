@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.repository;
 
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
 import org.springframework.stereotype.Repository;
 
@@ -40,6 +40,14 @@ public class InMemoryGameRepository implements GameRepository {
     @Override
     public List<Game> get() {
         return List.copyOf(games.values());
+    }
+
+    @Override
+    public List<Game> getPublic() {
+        return List.copyOf(games.values().stream()
+                .filter(game -> !game.getRoomSettings().isPrivateGame())
+                .toList()
+        );
     }
 
     @Override

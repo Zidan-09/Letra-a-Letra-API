@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.repository;
 
-import com.letraaletra.api.domain.repository.SessionRepository;
+import com.letraaletra.api.infrastructure.websocket.SessionRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
 
