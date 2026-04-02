@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.repository;
 
-import com.letraaletra.api.domain.theme.Theme;
+import com.letraaletra.api.domain.game.board.theme.Theme;
 
 import java.util.List;
 

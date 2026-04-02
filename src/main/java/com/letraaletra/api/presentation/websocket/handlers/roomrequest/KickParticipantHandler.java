@@ -1,9 +1,14 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
+import com.letraaletra.api.application.command.participant.KickParticipantCommand;
+import com.letraaletra.api.application.output.participant.KickParticipantOutput;
 import com.letraaletra.api.application.usecase.participant.KickParticipantUseCase;
-import com.letraaletra.api.domain.repository.SessionRepository;
-import com.letraaletra.api.presentation.dto.request.websocket.KickParticipantWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.ModerationWsResponse;
+import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.infrastructure.websocket.SessionRepository;
+import com.letraaletra.api.presentation.dto.request.KickParticipantWsRequest;
+import com.letraaletra.api.presentation.dto.response.websocket.KickParticipantResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.ModerationResponseDTO;
+import com.letraaletra.api.presentation.mappers.participant.KickParticipantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,28 +25,35 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
     private KickParticipantUseCase kickParticipant;
 
     @Autowired
+    private KickParticipantMapper kickParticipantMapper;
+
+    @Autowired
     private SessionRepository sessionRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private GameNotifier broadcastService;
+
     private final Logger logger = LoggerFactory.getLogger(KickParticipantHandler.class);
 
     @Override
     public void handle(KickParticipantWsRequest request, WebSocketSession session) {
-        String hostId = (String) session.getAttributes().get("userId");
-        String targetId = request.participantId();
+        String userId = (String) session.getAttributes().get("userId");
 
-        kickParticipant.execute(
-                request.tokenGameId(),
-                targetId,
-                hostId
-        );
+        KickParticipantCommand command = kickParticipantMapper.toCommand(request, userId);
 
-        WebSocketSession target = sessionRepository.findByUserId(targetId);
+        KickParticipantOutput output = kickParticipant.execute(command);
+
+        KickParticipantResponseDTO dto = kickParticipantMapper.toResponseDTO(output);
+
+        broadcastService.send(output.game(), dto);
+
+        WebSocketSession target = sessionRepository.findByUserId(request.participantId());
 
         String json = objectMapper.writeValueAsString(
-                new ModerationWsResponse("Kicked from game")
+                new ModerationResponseDTO("Kicked from game")
         );
 
         try {

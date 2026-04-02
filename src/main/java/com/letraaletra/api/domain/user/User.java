@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.user;
 
-import com.letraaletra.api.domain.user.exceptions.InvalidIdException;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
 public class User {
@@ -49,7 +49,7 @@ public class User {
 
     public void enterGame(String gameId) {
         if (gameId == null || gameId.isBlank()) {
-            throw new InvalidIdException();
+            throw new GameNotFoundException();
         }
 
         if (this.currentGameId != null) {

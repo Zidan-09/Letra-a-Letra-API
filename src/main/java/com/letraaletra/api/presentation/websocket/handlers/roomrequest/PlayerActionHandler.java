@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.presentation.dto.request.websocket.PlayerActionWsRequest;
+import com.letraaletra.api.presentation.dto.request.PlayerActionWsRequest;
 import com.letraaletra.api.presentation.websocket.dispatcher.PlayerActionRequestDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

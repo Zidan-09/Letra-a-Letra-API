@@ -2,13 +2,11 @@ package com.letraaletra.api.infrastructure.persistence.repository;
 
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
@@ -22,17 +20,6 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public User find(String id) {
         return userMap.get(id);
-    }
-
-    @Override
-    public Map<String, User> findMapByIds(List<String> ids) {
-        return ids.stream()
-                .map(id -> {
-                    User user = userMap.get(id);
-                    if (user == null) throw new UserNotFoundException();
-                    return user;
-                })
-                .collect(Collectors.toMap(User::getId, u -> u));
     }
 
     @Override

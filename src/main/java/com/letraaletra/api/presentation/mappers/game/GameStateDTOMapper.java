@@ -1,21 +1,37 @@
 package com.letraaletra.api.presentation.mappers.game;
 
-import com.letraaletra.api.presentation.dto.response.game.BoardDTO;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
-import com.letraaletra.api.presentation.dto.response.game.WordDTO;
-import com.letraaletra.api.presentation.dto.response.player.PlayerDTO;
+import com.letraaletra.api.presentation.mappers.board.BoardDTOMapper;
+import com.letraaletra.api.presentation.mappers.board.WordDTOMapper;
+import com.letraaletra.api.presentation.mappers.player.PlayerDTOMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Component
 public class GameStateDTOMapper {
-    public GameStateDTO toDTO(List<PlayerDTO> playerDTOS, BoardDTO[][] boardDTO, List<WordDTO> words, String currentPlayerTurn) {
+    @Autowired
+    private BoardDTOMapper boardDTOMapper;
+
+    @Autowired
+    private WordDTOMapper wordDTOMapper;
+
+    @Autowired
+    private PlayerDTOMapper playerDTOMapper;
+
+    public GameStateDTO toDTO(Game game) {
         return new GameStateDTO(
-                playerDTOS,
-                boardDTO,
-                words,
-                currentPlayerTurn
+                game.getGameState().getPlayers().values().stream()
+                        .map(player -> playerDTOMapper.toDTO(
+                                player,
+                                game.getParticipantByUserId(player.getUserId())
+                        ))
+                        .toList(),
+                boardDTOMapper.toDTO(game.getGameState().getBoard()),
+                Arrays.stream(game.getGameState().getBoard().words()).map(word -> wordDTOMapper.toDTO(word)).toList(),
+                game.getGameState().currentPlayerTurn()
         );
     }
 }

@@ -1,25 +1,19 @@
 package com.letraaletra.api.infrastructure.websocket;
 
-import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.broadcast.BroadCastService;
-import com.letraaletra.api.domain.participant.Participant;
-import com.letraaletra.api.presentation.dto.response.websocket.WsResponseDTO;
-import com.letraaletra.api.domain.game.exceptions.GameNotFoundException;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.SessionRepository;
+import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-@Service
-public class BroadcastService implements BroadCastService {
-    @Autowired
-    private GameRepository gameRepository;
-
+@Component
+public class BroadcastService implements GameNotifier {
     @Autowired
     private SessionRepository sessionRepository;
 
@@ -27,9 +21,7 @@ public class BroadcastService implements BroadCastService {
     private ObjectMapper objectMapper;
 
     @Override
-    public void send(String gameId, WsResponseDTO dto) {
-        Game game = gameRepository.find(gameId);
-
+    public void send(Game game, Object dto) {
         if (game == null) {
             throw new GameNotFoundException();
         }

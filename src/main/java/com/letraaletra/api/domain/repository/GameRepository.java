@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.repository;
 
-import com.letraaletra.api.domain.Game;
+import com.letraaletra.api.domain.game.Game;
 
 import java.util.List;
 
@@ -10,5 +10,6 @@ public interface GameRepository {
     Game findByCode(String code);
     boolean existsByCode(String code);
     List<Game> get();
+    List<Game> getPublic();
     void removeByCode(String code);
 }

@@ -1,7 +1,7 @@
 package com.letraaletra.api.presentation.websocket.dispatcher;
 
-import com.letraaletra.api.presentation.dto.request.websocket.playeractions.*;
-import com.letraaletra.api.domain.game.exceptions.InvalidPlayerActionException;
+import com.letraaletra.api.presentation.dto.request.player.PlayerActionDTO;
+import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
 import com.letraaletra.api.presentation.websocket.handlers.playeraction.InGameActionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

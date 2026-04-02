@@ -28,7 +28,7 @@ const events = [];
 async function main() {
   for (const user of [user1, user2, user3]) {
     try {
-      await fetch(`${endpoint}/user`, {
+      const res = await fetch(`${endpoint}/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -36,7 +36,9 @@ async function main() {
           email: user.email,
           password: user.password
         })
-      });
+      }).then(res => res.json());
+
+      console.log(res);
 
     } catch (err) {
       console.error(err);
@@ -51,6 +53,8 @@ async function main() {
           password: user.password
         })
       }).then(res => res.json());
+
+      console.log(res);
 
       user.addToken(res.data.token);
       user.addId(res.data.id);
@@ -71,6 +75,8 @@ function connectUser(user) {
 
     ws.on("message", (data) => {
       const msg = JSON.parse(data);
+
+      console.log(msg);
 
       if (user.nickname === "Zidan") {
         if (msg.event && msg.event === "GAME_OVER") {

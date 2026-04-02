@@ -1,26 +1,21 @@
 package com.letraaletra.api.application.usecase.game;
 
-import com.letraaletra.api.application.game.service.GenerateRoomCode;
-import com.letraaletra.api.application.game.service.MapParticipantsService;
-import com.letraaletra.api.application.game.service.TimeoutManager;
-import com.letraaletra.api.domain.broadcast.BroadCastService;
+import com.letraaletra.api.application.command.game.CreateGameCommand;
+import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.service.GenerateRoomCode;
+import com.letraaletra.api.application.output.game.CreateGameOutput;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.domain.Game;
-import com.letraaletra.api.domain.game.RoomSettings;
-import com.letraaletra.api.domain.participant.Participant;
-import com.letraaletra.api.domain.participant.ParticipantFactory;
-import com.letraaletra.api.domain.participant.ParticipantRole;
+import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
+import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
-import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
-import com.letraaletra.api.presentation.dto.response.websocket.GameUpdatedWsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,7 +27,7 @@ public class CreateGameUseCase {
     private GameRepository gameRepository;
 
     @Autowired
-    private TimeoutManager timeoutManager;
+    private GameTimeOut gameTimeOut;
 
     @Autowired
     private TokenService tokenService;
@@ -40,27 +35,18 @@ public class CreateGameUseCase {
     @Autowired
     private GenerateRoomCode generateRoomCode;
 
-    @Autowired
-    private GameDTOMapper gameDTOMapper;
-
-    @Autowired
-    private BroadCastService broadCast;
-
-    @Autowired
-    private MapParticipantsService mapParticipantsService;
-
-    public void execute(String name, RoomSettings roomSettings, String sessionId, String userId) {
+    public CreateGameOutput execute(CreateGameCommand command) {
         String gameId = UUID.randomUUID().toString();
 
-        User user = userRepository.find(userId);
+        User user = userRepository.find(command.user());
 
         validateUser(user);
 
-        Participant host = ParticipantFactory.fromUser(user, sessionId, ParticipantRole.PLAYER);
+        Participant host = ParticipantFactory.fromUser(user, command.session(), ParticipantRole.PLAYER);
 
         String code = getCode();
 
-        Game game = new Game(gameId, code, name, roomSettings, host);
+        Game game = new Game(gameId, code, command.name(), command.settings(), host);
 
         user.enterGame(gameId);
 
@@ -69,13 +55,9 @@ public class CreateGameUseCase {
 
         String tokenGameId = tokenService.generateToken(gameId);
 
-        List<ParticipantDTO> participantDTOS = mapParticipantsService.execute(game);
+        gameTimeOut.start(game);
 
-        GameUpdatedWsResponse response = buildResponse(game, tokenGameId, participantDTOS);
-
-        timeoutManager.start(gameId);
-
-        broadCast.send(gameId, response);
+        return buildReturn(tokenGameId, game);
     }
 
     private void validateUser(User user) {
@@ -95,9 +77,7 @@ public class CreateGameUseCase {
         return code;
     }
 
-    private GameUpdatedWsResponse buildResponse(Game game, String tokenGameId, List<ParticipantDTO> participantDTOS) {
-        return new GameUpdatedWsResponse(
-                gameDTOMapper.toDTO(game, tokenGameId, participantDTOS)
-        );
+    private CreateGameOutput buildReturn(String token, Game game) {
+        return new CreateGameOutput(token, game);
     }
 }

@@ -1,12 +1,12 @@
 package com.letraaletra.api.presentation.websocket;
 
-import com.letraaletra.api.presentation.dto.request.websocket.WsRequestDTO;
-import com.letraaletra.api.presentation.dto.response.websocket.ErrorWsResponse;
+import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponseDTO;
 import com.letraaletra.api.exception.WebSocketException;
-import com.letraaletra.api.domain.repository.SessionRepository;
+import com.letraaletra.api.infrastructure.websocket.SessionRepository;
 import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;
-import com.letraaletra.api.application.game.service.HandleDisconnectService;
-import com.letraaletra.api.application.game.service.HandleReconnectService;
+import com.letraaletra.api.presentation.websocket.handlers.participant.DisconnectParticipantHandler;
+import com.letraaletra.api.presentation.websocket.handlers.participant.ReconnectParticipantHandler;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +29,10 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private RoomRequestDispatcher roomRequestDispatcher;
 
     @Autowired
-    private HandleReconnectService handleReconnectService;
+    private ReconnectParticipantHandler reconnectParticipantHandler;
 
     @Autowired
-    private HandleDisconnectService handleDisconnectService;
+    private DisconnectParticipantHandler disconnectParticipantHandler;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -40,14 +40,14 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(GlobalWebSocketHandler.class);
 
     @Override
-    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         sessionRepository.save(session);
 
-        handleReconnectService.execute(session);
+        reconnectParticipantHandler.handle(session);
     }
 
     @Override
-    protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
         WsRequestDTO request = objectMapper.readValue(
                 message.getPayload(),
                 WsRequestDTO.class
@@ -62,14 +62,14 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(@NonNull WebSocketSession session, org.springframework.web.socket.@NonNull CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, org.springframework.web.socket.@NonNull CloseStatus status) {
         sessionRepository.remove(session);
 
-        handleDisconnectService.execute(session);
+        disconnectParticipantHandler.handler(session);
     }
 
-    private void sendError(Exception ex, WebSocketSession session) throws IOException {
-        String json = objectMapper.writeValueAsString(new ErrorWsResponse(ex.getMessage()));
+    private void sendError(Exception ex, WebSocketSession session) {
+        String json = objectMapper.writeValueAsString(new ErrorResponseDTO(ex.getMessage()));
 
         try {
             session.sendMessage(new TextMessage(json));

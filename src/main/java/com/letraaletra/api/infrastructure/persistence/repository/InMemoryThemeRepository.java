@@ -1,7 +1,7 @@
 package com.letraaletra.api.infrastructure.persistence.repository;
 
 import com.letraaletra.api.domain.repository.ThemeRepository;
-import com.letraaletra.api.domain.theme.Theme;
+import com.letraaletra.api.domain.game.board.theme.Theme;
 import com.letraaletra.api.infrastructure.loader.ThemeLoader;
 import org.springframework.stereotype.Repository;
 

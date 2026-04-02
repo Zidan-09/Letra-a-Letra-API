@@ -1,0 +1,87 @@
+package com.letraaletra.api.domain.game;
+
+import com.letraaletra.api.domain.game.board.Board;
+import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
+import com.letraaletra.api.domain.game.service.GameOverResult;
+
+import java.util.*;
+
+public class GameState {
+    private final Map<String, Player> players;
+    private final Board board;
+    private final List<String> turnOrder;
+    private int currentTurnIndex;
+
+    public GameState(Map<String, Player> players, Board board) {
+        this.players = players;
+        this.board = board;
+
+        List<Player> list = new ArrayList<>(players.values());
+        Collections.shuffle(list);
+
+        this.turnOrder = list.stream()
+                .map(Player::getUserId)
+                .toList();
+
+        this.currentTurnIndex = 0;
+    }
+
+    public Map<String, Player> getPlayers() {
+        return Map.copyOf(players);
+    }
+
+    public List<String> getPlayerIds() {
+        return players.values().stream()
+                .map(Player::getUserId)
+                .toList();
+    }
+
+    public Player getPlayerOrThrow(String userId) {
+        Player player = players.get(userId);
+
+        if (player == null) {
+            throw new PlayerNotInGameException();
+        }
+
+        return player;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public String currentPlayerTurn() {
+        return turnOrder.get(currentTurnIndex);
+    }
+
+    public void nextTurn() {
+        currentTurnIndex = (currentTurnIndex + 1) % turnOrder.size();
+    }
+
+    public GameOverResult gameOverChecker() {
+        List<Player> playersList = players.values().stream().toList();
+
+        if (players.isEmpty()) {
+            return new GameOverResult(true, null, null);
+        }
+
+        if (players.size() == 1) {
+            Player winner = playersList.getFirst();
+            return new GameOverResult(true, winner, null);
+        }
+
+        Player p1 = playersList.getFirst();
+        Player p2 = playersList.get(1);
+
+        if (p1.getScore() == 3) {
+            return new GameOverResult(true, p1, p2);
+        }
+
+        if (p2.getScore() == 3) {
+            return new GameOverResult(true, p2, p1);
+        }
+
+        return new GameOverResult(false, null, null);
+    }
+}

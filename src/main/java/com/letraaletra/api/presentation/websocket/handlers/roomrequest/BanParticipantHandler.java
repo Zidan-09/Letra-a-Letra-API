@@ -1,9 +1,14 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
+import com.letraaletra.api.application.command.participant.BanParticipantCommand;
+import com.letraaletra.api.application.output.participant.BanParticipantOutput;
 import com.letraaletra.api.application.usecase.participant.BanParticipantUseCase;
-import com.letraaletra.api.domain.repository.SessionRepository;
-import com.letraaletra.api.presentation.dto.request.websocket.BanParticipantWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.ModerationWsResponse;
+import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.infrastructure.websocket.SessionRepository;
+import com.letraaletra.api.presentation.dto.request.BanParticipantWsRequest;
+import com.letraaletra.api.presentation.dto.response.websocket.BanParticipantResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.ModerationResponseDTO;
+import com.letraaletra.api.presentation.mappers.participant.BanParticipantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,28 +25,35 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
     private BanParticipantUseCase banParticipant;
 
     @Autowired
+    private BanParticipantMapper banParticipantMapper;
+
+    @Autowired
     private SessionRepository sessionRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private GameNotifier broadcastService;
+
     private final Logger logger = LoggerFactory.getLogger(BanParticipantHandler.class);
 
     @Override
     public void handle(BanParticipantWsRequest request, WebSocketSession session) {
-        String hostId = (String) session.getAttributes().get("userId");
-        String targetId = request.participantId();
+        String userId = (String) session.getAttributes().get("userId");
 
-        banParticipant.execute(
-                request.tokenGameId(),
-                targetId,
-                hostId
-        );
+        BanParticipantCommand command = banParticipantMapper.toCommand(request, userId);
 
-        WebSocketSession target = sessionRepository.findByUserId(targetId);
+        BanParticipantOutput output = banParticipant.execute(command);
+
+        BanParticipantResponseDTO dto = banParticipantMapper.toResponseDTO(output);
+
+        broadcastService.send(output.game(), dto);
+
+        WebSocketSession target = sessionRepository.findByUserId(request.participantId());
 
         String json = objectMapper.writeValueAsString(
-                new ModerationWsResponse("Banned from game")
+                new ModerationResponseDTO("Banned from game")
         );
 
         try {
