@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket;
 
-import com.letraaletra.api.infrastructure.security.JsonWebTokenService;
+import com.letraaletra.api.domain.security.TokenService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
     @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    private TokenService tokenService;
 
     @Override
     public boolean beforeHandshake(
@@ -29,7 +29,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        String userId = jsonWebTokenService.getTokenContent(token);
+        String userId = tokenService.getTokenContent(token);
 
         if (userId == null) {
             return false;

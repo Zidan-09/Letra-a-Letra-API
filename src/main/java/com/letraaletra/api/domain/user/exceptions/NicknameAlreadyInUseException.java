@@ -1,11 +1,10 @@
 package com.letraaletra.api.domain.user.exceptions;
 
-import com.letraaletra.api.exception.HttpException;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.domain.user.UserMessages;
-import org.springframework.http.HttpStatus;
 
-public class NicknameAlreadyInUseException extends HttpException {
+public class NicknameAlreadyInUseException extends DomainException {
     public NicknameAlreadyInUseException() {
-        super(HttpStatus.BAD_REQUEST, UserMessages.NICKNAME_ALREADY_IN_USE);
+        super(UserMessages.NICKNAME_ALREADY_IN_USE);
     }
 }

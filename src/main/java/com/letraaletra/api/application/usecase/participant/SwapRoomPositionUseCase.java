@@ -10,16 +10,15 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.exception.UserNotInGameException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SwapRoomPositionUseCase {
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public SwapRoomPositionUseCase(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public SwapPositionOutput execute(SwapPositionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());

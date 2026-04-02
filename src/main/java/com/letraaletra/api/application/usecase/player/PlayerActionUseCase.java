@@ -13,17 +13,15 @@ import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.exception.GameNotStartedException;
 import com.letraaletra.api.domain.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class PlayerActionUseCase {
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private TokenService tokenService;
+    public PlayerActionUseCase(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public PlayerActionOutput execute(PlayerActionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
@@ -39,7 +37,7 @@ public class PlayerActionUseCase {
 
         gameRepository.save(game);
 
-        return buildReturn(game, gameId);
+        return buildReturn(game);
     }
 
     private void validateGame(Game game) {
@@ -64,7 +62,7 @@ public class PlayerActionUseCase {
         }
     }
 
-    private PlayerActionOutput buildReturn(Game game, String id) {
+    private PlayerActionOutput buildReturn(Game game) {
         return new PlayerActionOutput(
                 game
         );

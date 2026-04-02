@@ -1,10 +1,7 @@
-package com.letraaletra.api.application.service;
-
-import org.springframework.stereotype.Service;
+package com.letraaletra.api.domain.game.service;
 
 import java.security.SecureRandom;
 
-@Service
 public class GenerateRoomCode {
     private final SecureRandom random = new SecureRandom();
 

@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.game;
 
-import com.letraaletra.api.exception.MessageCode;
+import com.letraaletra.api.domain.MessageCode;
 
 public enum GameMessages implements MessageCode {
     GAME_FOUND("game_found"),

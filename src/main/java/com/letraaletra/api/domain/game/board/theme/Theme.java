@@ -3,7 +3,10 @@ package com.letraaletra.api.domain.game.board.theme;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class Theme {
     private final String id;
@@ -31,5 +34,14 @@ public class Theme {
 
     public List<String> getWords() {
         return words;
+    }
+
+    public List<String> pickRandomWords(int amount, Random random) {
+        List<String> shuffled = new ArrayList<>(this.words);
+        Collections.shuffle(shuffled, random);
+
+        return shuffled.stream()
+                .limit(amount)
+                .toList();
     }
 }

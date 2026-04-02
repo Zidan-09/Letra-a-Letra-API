@@ -30,7 +30,7 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
 
         StartGameResponseDTO dto = startGameMapper.toResponseDTO(output);
 
-        broadcastService.send(output.game(), dto);
+        broadcastService.notifierAll(output.game(), dto);
     }
 
     @Override

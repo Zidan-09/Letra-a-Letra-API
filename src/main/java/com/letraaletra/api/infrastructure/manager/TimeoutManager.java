@@ -48,6 +48,6 @@ public class TimeoutManager implements GameTimeOut {
                 new CloseRoomCommand(game)
         );
 
-        gameNotifier.send(output.game(), RoomCloseReasons.INACTIVITY);
+        gameNotifier.notifierAll(output.game(), RoomCloseReasons.INACTIVITY);
     }
 }

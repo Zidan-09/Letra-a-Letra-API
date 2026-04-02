@@ -32,7 +32,7 @@ public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest
 
         CreateGameResponseDTO dto = createGameMapper.toResponseDTO(output);
 
-        gameNotifier.send(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
     }
 
     @Override

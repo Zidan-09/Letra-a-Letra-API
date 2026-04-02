@@ -11,19 +11,17 @@ import com.letraaletra.api.domain.game.exception.UserNotInGameException;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class LeftGameUseCase {
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final UserRepository userRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private UserRepository userRepository;
+    public LeftGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.userRepository = userRepository;
+        this.tokenService = tokenService;
+    }
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());

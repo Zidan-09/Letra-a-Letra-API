@@ -39,7 +39,7 @@ public class RevealActionHandler implements InGameActionHandler<RevealActionDTO>
 
         PlayerActionResponseDTO dto = playerActionMapper.toResponseDTO(output);
 
-        gameNotifier.send(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
     }
 
     @Override

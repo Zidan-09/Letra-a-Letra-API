@@ -1,22 +1,21 @@
-package com.letraaletra.api.application.service;
+package com.letraaletra.api.application.context;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public class PlayerGameContextResolver {
-    @Autowired
-    private UserRepository userRepository;
+public class PlayerGameContextFactory {
+    private final GameRepository gameRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private GameRepository gameRepository;
+    public PlayerGameContextFactory(GameRepository gameRepository, UserRepository userRepository) {
+        this.gameRepository = gameRepository;
+        this.userRepository = userRepository;
+    }
 
     public Optional<PlayerGameContext> resolve(String userId) {
         if (userId == null) return Optional.empty();
@@ -35,6 +34,6 @@ public class PlayerGameContextResolver {
         Participant participant = game.getParticipantByUserId(userId);
         if (participant == null) return Optional.empty();
 
-        return Optional.of(new PlayerGameContext(user, game, participant));
+        return Optional.of(new PlayerGameContext(game, participant));
     }
 }

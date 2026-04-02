@@ -8,10 +8,12 @@ import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
 public class FindUserByIdUseCase {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public FindUserByIdUseCase(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public FindUserOutput execute(FindUserCommand command) {
         User user = userRepository.find(command.id());

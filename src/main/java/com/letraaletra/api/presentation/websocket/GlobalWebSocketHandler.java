@@ -1,23 +1,19 @@
 package com.letraaletra.api.presentation.websocket;
 
+import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponseDTO;
-import com.letraaletra.api.exception.WebSocketException;
-import com.letraaletra.api.infrastructure.websocket.SessionRepository;
 import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;
 import com.letraaletra.api.presentation.websocket.handlers.participant.DisconnectParticipantHandler;
 import com.letraaletra.api.presentation.websocket.handlers.participant.ReconnectParticipantHandler;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 
 @Component
 public class GlobalWebSocketHandler extends TextWebSocketHandler {
@@ -35,9 +31,10 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private DisconnectParticipantHandler disconnectParticipantHandler;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private GameNotifier gameNotifier;
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalWebSocketHandler.class);
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -56,7 +53,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         try {
             roomRequestDispatcher.dispatch(request, session);
 
-        } catch (WebSocketException ex) {
+        } catch (DomainException ex) {
             sendError(ex, session);
         }
     }
@@ -69,12 +66,10 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void sendError(Exception ex, WebSocketSession session) {
+        String userId = (String) session.getAttributes().get("userId");
+
         String json = objectMapper.writeValueAsString(new ErrorResponseDTO(ex.getMessage()));
 
-        try {
-            session.sendMessage(new TextMessage(json));
-        } catch (IOException e) {
-            logger.warn("Error to send message to {}: {}", session.getId(), e.getMessage());
-        }
+        gameNotifier.notifierOne(userId, json);
     }
 }

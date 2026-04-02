@@ -1,11 +1,10 @@
 package com.letraaletra.api.domain.user.exceptions;
 
-import com.letraaletra.api.exception.HttpException;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.domain.user.UserMessages;
-import org.springframework.http.HttpStatus;
 
-public class EmailAlreadyInUseException extends HttpException {
+public class EmailAlreadyInUseException extends DomainException {
     public EmailAlreadyInUseException() {
-        super(HttpStatus.BAD_REQUEST, UserMessages.EMAIL_ALREADY_IN_USE);
+        super(UserMessages.EMAIL_ALREADY_IN_USE);
     }
 }

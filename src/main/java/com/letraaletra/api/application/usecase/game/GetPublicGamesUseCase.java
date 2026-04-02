@@ -11,13 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service
 public class GetPublicGamesUseCase {
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public GetPublicGamesUseCase(GameRepository gameRepository, TokenService tokenService) {
+        this.gameRepository = gameRepository;
+        this.tokenService = tokenService;
+    }
 
     public GetGamesOutput execute() {
         List<Game> games = gameRepository.getPublic();

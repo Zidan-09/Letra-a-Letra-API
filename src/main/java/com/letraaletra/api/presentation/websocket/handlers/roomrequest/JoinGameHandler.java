@@ -32,7 +32,7 @@ public class JoinGameHandler implements RoomRequestHandler<JoinGameWsRequest> {
 
         JoinGameResponseDTO dto = joinGameMapper.toResponseDTO(output);
 
-        gameNotifier.send(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package com.letraaletra.api.domain.security.exceptions;
 
-import com.letraaletra.api.exception.HttpException;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.domain.user.UserMessages;
-import org.springframework.http.HttpStatus;
 
-public class InvalidPasswordException extends HttpException {
+public class InvalidPasswordException extends DomainException {
     public InvalidPasswordException() {
-        super(HttpStatus.FORBIDDEN, UserMessages.INVALID_CREDENTIALS);
+        super(UserMessages.INVALID_CREDENTIALS);
     }
 }

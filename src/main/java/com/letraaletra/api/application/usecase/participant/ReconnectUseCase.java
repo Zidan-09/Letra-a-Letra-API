@@ -2,27 +2,25 @@ package com.letraaletra.api.application.usecase.participant;
 
 import com.letraaletra.api.application.command.participant.ReconnectParticipantCommand;
 import com.letraaletra.api.application.output.participant.ReconnectParticipantOutput;
-import com.letraaletra.api.application.service.PlayerGameContextResolver;
+import com.letraaletra.api.application.context.PlayerGameContextFactory;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
 public class ReconnectUseCase {
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final PlayerGameContextFactory playerGameContextFactory;
+    private final DisconnectScheduler disconnectScheduler;
 
-    @Autowired
-    private DisconnectScheduler disconnectScheduler;
-
-    @Autowired
-    private PlayerGameContextResolver playerGameContextResolver;
+    public ReconnectUseCase(GameRepository gameRepository, PlayerGameContextFactory playerGameContextFactory, DisconnectScheduler disconnectScheduler) {
+        this.gameRepository = gameRepository;
+        this.playerGameContextFactory = playerGameContextFactory;
+        this.disconnectScheduler = disconnectScheduler;
+    }
 
     public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantCommand command) {
-        return playerGameContextResolver.resolve(command.user())
+        return playerGameContextFactory.resolve(command.user())
                 .map(ctx -> {
                     disconnectScheduler.cancel(command.user(), ctx.game().getId());
 

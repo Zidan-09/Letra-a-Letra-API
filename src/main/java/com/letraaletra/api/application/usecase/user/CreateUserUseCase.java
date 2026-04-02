@@ -7,18 +7,17 @@ import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.domain.user.exceptions.NicknameAlreadyInUseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
 public class CreateUserUseCase {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
-    @Autowired
-    private PasswordService passwordService;
+    public CreateUserUseCase(UserRepository userRepository, PasswordService passwordService) {
+        this.userRepository = userRepository;
+        this.passwordService = passwordService;
+    }
 
     public CreateUserOutput execute(CreateUserCommand command) {
 
