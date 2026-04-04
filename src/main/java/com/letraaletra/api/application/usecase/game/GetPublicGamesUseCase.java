@@ -4,8 +4,6 @@ import com.letraaletra.api.application.output.game.GetGamesOutput;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +26,7 @@ public class GetPublicGamesUseCase {
         for (Game game : games) {
             String token = tokenService.generateToken(game.getId());
 
-            tokens.put(token, game.getId());
+            tokens.put(game.getId(), token);
         }
 
         return buildReturn(games, tokens);

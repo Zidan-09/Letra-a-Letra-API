@@ -1,5 +1,6 @@
 package com.letraaletra.api.domain.game;
 
+import com.letraaletra.api.domain.game.exception.RoomFullException;
 import com.letraaletra.api.domain.game.participant.exception.InvalidRoomPositionException;
 import com.letraaletra.api.domain.game.participant.exception.ParticipantAlreadyBannedException;
 import com.letraaletra.api.domain.game.participant.exception.ParticipantNotBannedException;
@@ -80,7 +81,7 @@ public class Game {
         return positions;
     }
 
-    public void join(Participant participant) {
+    public synchronized void join(Participant participant) {
         boolean alreadyExists = participants.values().stream()
                 .anyMatch(p -> p.getUserId().equals(participant.getUserId()));
 
@@ -88,26 +89,35 @@ public class Game {
             throw new UserAlreadyInGameException();
         }
 
-        participants.put(participant.getUserId(), participant);
+        int size = participants.size();
+
+        boolean isFullWithoutSpectators = !roomSettings.roomAllowSpectators() && size >= 2;
+        boolean isFullWithSpectators = size >= 7;
+
+        if (isFullWithoutSpectators || isFullWithSpectators) {
+            throw new RoomFullException();
+        }
+
         positions.put(participants.size(), participant.getUserId());
+        participants.put(participant.getUserId(), participant);
     }
 
-    public void remove(String userId) {
-        Participant participant = participants.remove(userId);
-        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+    public synchronized void remove(String userId) {
+        Participant participant = participants.get(userId);
 
         if (participant == null) {
             throw new UserNotInGameException();
         }
+
+        participants.remove(userId);
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
 
         if (participants.isEmpty()) {
             return;
         }
 
         if (participant.getUserId().equals(hostId)) {
-            participants.values().stream()
-                    .findFirst()
-                    .ifPresent(p -> hostId = p.getUserId());
+            hostId = participants.keySet().iterator().next();
         }
     }
 
@@ -122,12 +132,19 @@ public class Game {
     }
 
     public void changePosition(String userId, int position) {
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
         if (positions.get(position) != null) {
             throw new InvalidRoomPositionException();
         }
 
-        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+        participant.changeRole(position > 2 ? ParticipantRole.SPECTATOR : ParticipantRole.PLAYER);
 
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
         positions.put(position, userId);
     }
 
@@ -176,5 +193,11 @@ public class Game {
         }
 
         blacklist.remove(userId);
+    }
+
+    public int getAmountPlayers() {
+        return participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .toList().size();
     }
 }

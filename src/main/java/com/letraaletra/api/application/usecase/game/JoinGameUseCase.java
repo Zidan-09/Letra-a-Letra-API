@@ -6,7 +6,6 @@ import com.letraaletra.api.domain.game.exception.UserBannedException;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.domain.game.exception.RoomFullException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
@@ -71,14 +70,6 @@ public class JoinGameUseCase {
     private void validateGame(Game game) {
         if (game == null) {
             throw new GameNotFoundException();
-        }
-
-        if (
-                game.getParticipants().size() == 7 ||
-                game.getRoomSettings().roomAllowSpectators() &&
-                game.getParticipants().size() == 2
-        ) {
-            throw new RoomFullException();
         }
     }
 

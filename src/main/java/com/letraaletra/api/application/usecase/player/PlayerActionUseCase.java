@@ -2,11 +2,13 @@ package com.letraaletra.api.application.usecase.player;
 
 import com.letraaletra.api.application.command.player.PlayerActionCommand;
 import com.letraaletra.api.application.output.player.PlayerActionOutput;
+import com.letraaletra.api.application.port.GameTimeOut;
 import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
+import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
@@ -14,13 +16,17 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.exception.GameNotStartedException;
 import com.letraaletra.api.domain.repository.GameRepository;
 
+import java.util.Optional;
+
 public class PlayerActionUseCase {
     private final GameRepository gameRepository;
     private final TokenService tokenService;
+    private final GameTimeOut gameTimeOut;
 
-    public PlayerActionUseCase(GameRepository gameRepository, TokenService tokenService) {
+    public PlayerActionUseCase(GameRepository gameRepository, TokenService tokenService, GameTimeOut gameTimeOut) {
         this.gameRepository = gameRepository;
         this.tokenService = tokenService;
+        this.gameTimeOut = gameTimeOut;
     }
 
     public PlayerActionOutput execute(PlayerActionCommand command) {
@@ -35,9 +41,12 @@ public class PlayerActionUseCase {
 
         command.action().execute(state, command.user());
 
+        GameOverResult gameOverResult = state.gameOverChecker();
+        handleGameOver(game, gameOverResult);
+
         gameRepository.save(game);
 
-        return buildReturn(game);
+        return buildReturn(game, gameOverResult);
     }
 
     private void validateGame(Game game) {
@@ -62,9 +71,18 @@ public class PlayerActionUseCase {
         }
     }
 
-    private PlayerActionOutput buildReturn(Game game) {
+    private void handleGameOver(Game game, GameOverResult result) {
+        if (!result.finished()) return;
+
+        game.setGameStatus(GameStatus.WAITING);
+
+        gameTimeOut.start(game);
+    }
+
+    private PlayerActionOutput buildReturn(Game game, GameOverResult gameOverResult) {
         return new PlayerActionOutput(
-                game
+                game,
+                gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()
         );
     }
 }

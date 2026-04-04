@@ -3,6 +3,8 @@ package com.letraaletra.api.application.usecase.game;
 import com.letraaletra.api.application.command.game.StartGameCommand;
 import com.letraaletra.api.application.port.GameTimeOut;
 import com.letraaletra.api.application.output.game.StartGameOutput;
+import com.letraaletra.api.domain.game.exception.GameIsRunningException;
+import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameState;
@@ -88,6 +90,14 @@ public class StartGameUseCase {
     private void validateGame(Game game) {
         if (game == null) {
             throw new GameNotFoundException();
+        }
+
+        if (game.getGameStatus() == GameStatus.RUNNING) {
+            throw new GameIsRunningException();
+        }
+
+        if (game.getAmountPlayers() < 2) {
+            throw new InsufficientPlayersException();
         }
     }
 
