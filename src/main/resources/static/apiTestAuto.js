@@ -220,6 +220,8 @@ async function runGameFlow(ws1, ws2, ws3) {
     }
   }
 
+  let passTurn = true;
+
   while (positions.length > 0) {
     const pos = positions.splice(Math.floor(Math.random() * positions.length), 1)[0];
 
@@ -241,6 +243,25 @@ async function runGameFlow(ws1, ws2, ws3) {
       e.event === "PLAYER_ACTION_RESULT" &&
       e.data.currentTurnPlayerId !== currentPlayer
     );
+
+    if (passTurn) {
+      await sleep(50000);
+
+      console.log("Passou o turno")
+
+      const result = await waitForEvent(
+        e => e.event === "TURN_EXPIRED"
+      );
+
+      currentPlayer = result.data.currentTurnPlayerId;
+      console.log(result);
+      console.log(currentPlayer);
+      passTurn = false;
+
+      await sleep(5000);
+
+      continue;
+    }
 
     if (result.event === "GAME_OVER") {
       console.log("🏁 Fim do jogo!");
@@ -315,6 +336,10 @@ async function main() {
   const ws3 = await connect(users[2]);
 
   await runGameFlow(ws1, ws2, ws3);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 main().catch(console.error);

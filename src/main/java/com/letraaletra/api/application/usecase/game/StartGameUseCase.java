@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.StartGameCommand;
-import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.domain.game.exception.GameIsRunningException;
 import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
@@ -28,7 +28,7 @@ public class StartGameUseCase {
     private final GameRepository gameRepository;
     private final GameStateGenerator gameStateGenerator;
     private final ThemeRepository themeRepository;
-    private final GameTimeOut gameTimeOut;
+    private final GameTimeoutManager gameTimeoutManager;
     private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
@@ -37,7 +37,7 @@ public class StartGameUseCase {
             GameRepository gameRepository,
             GameStateGenerator gameStateGenerator,
             ThemeRepository themeRepository,
-            GameTimeOut gameTimeOut,
+            GameTimeoutManager gameTimeoutManager,
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
             BoardGenerator boardGenerator,
             TokenService tokenService
@@ -45,7 +45,7 @@ public class StartGameUseCase {
         this.gameRepository = gameRepository;
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;
-        this.gameTimeOut = gameTimeOut;
+        this.gameTimeoutManager = gameTimeoutManager;
         this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
         this.boardGenerator = boardGenerator;
         this.tokenService = tokenService;
@@ -58,7 +58,7 @@ public class StartGameUseCase {
 
         validateGame(game);
 
-        gameTimeOut.cancel(game);
+        gameTimeoutManager.cancel(game);
 
         String hostId = game.getHostId();
         Participant participant = game.findBySession(command.session());

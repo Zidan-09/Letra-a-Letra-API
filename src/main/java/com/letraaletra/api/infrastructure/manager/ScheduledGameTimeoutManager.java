@@ -3,10 +3,9 @@ package com.letraaletra.api.infrastructure.manager;
 import com.letraaletra.api.application.command.game.CloseRoomCommand;
 import com.letraaletra.api.application.output.game.CloseRoomOutput;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.usecase.game.CloseRoomDueToTimeoutUseCase;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.RoomCloseReasons;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
-public class TimeoutManager implements GameTimeOut {
+public class ScheduledGameTimeoutManager implements GameTimeoutManager {
     @Autowired
     private CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase;
 
@@ -48,6 +47,8 @@ public class TimeoutManager implements GameTimeOut {
                 new CloseRoomCommand(game)
         );
 
-        gameNotifier.notifierAll(output.game(), RoomCloseReasons.INACTIVITY);
+        RoomClosed data = new RoomClosed(output.event(), output.reason());
+
+        gameNotifier.notifierAll(output.game(), data);
     }
 }

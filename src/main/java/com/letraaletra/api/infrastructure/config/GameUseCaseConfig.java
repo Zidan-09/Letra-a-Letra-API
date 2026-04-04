@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.config;
 
-import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.usecase.game.*;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
@@ -22,8 +22,8 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public CreateGameUseCase createGameUseCase(UserRepository userRepository, GameRepository gameRepository, GameTimeOut gameTimeOut, TokenService tokenService, GenerateRoomCode generateRoomCode) {
-        return new CreateGameUseCase(userRepository, gameRepository, gameTimeOut, tokenService, generateRoomCode);
+    public CreateGameUseCase createGameUseCase(UserRepository userRepository, GameRepository gameRepository, GameTimeoutManager gameTimeoutManager, TokenService tokenService, GenerateRoomCode generateRoomCode) {
+        return new CreateGameUseCase(userRepository, gameRepository, gameTimeoutManager, tokenService, generateRoomCode);
     }
 
     @Bean
@@ -60,7 +60,7 @@ public class GameUseCaseConfig {
     public StartGameUseCase startGameUseCase(GameRepository gameRepository,
                                              GameStateGenerator gameStateGenerator,
                                              ThemeRepository themeRepository,
-                                             GameTimeOut gameTimeOut,
+                                             GameTimeoutManager gameTimeoutManager,
                                              PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
                                              BoardGenerator boardGenerator,
                                              TokenService tokenService
@@ -69,10 +69,15 @@ public class GameUseCaseConfig {
                 gameRepository,
                 gameStateGenerator,
                 themeRepository,
-                gameTimeOut,
+                gameTimeoutManager,
                 pickRandomThemeWordsUseCase,
                 boardGenerator,
                 tokenService
         );
+    }
+
+    @Bean
+    public ExpireTurnUseCase expireTurnUseCase(GameRepository gameRepository) {
+        return new ExpireTurnUseCase(gameRepository);
     }
 }

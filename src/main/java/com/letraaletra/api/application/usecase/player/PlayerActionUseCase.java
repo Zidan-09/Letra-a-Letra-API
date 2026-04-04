@@ -2,7 +2,8 @@ package com.letraaletra.api.application.usecase.player;
 
 import com.letraaletra.api.application.command.player.PlayerActionCommand;
 import com.letraaletra.api.application.output.player.PlayerActionOutput;
-import com.letraaletra.api.application.port.GameTimeOut;
+import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
@@ -16,17 +17,20 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.exception.GameNotStartedException;
 import com.letraaletra.api.domain.repository.GameRepository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public class PlayerActionUseCase {
     private final GameRepository gameRepository;
     private final TokenService tokenService;
-    private final GameTimeOut gameTimeOut;
+    private final GameTimeoutManager gameTimeoutManager;
+    private final TurnTimeoutManager turnTimeoutManager;
 
-    public PlayerActionUseCase(GameRepository gameRepository, TokenService tokenService, GameTimeOut gameTimeOut) {
+    public PlayerActionUseCase(GameRepository gameRepository, TokenService tokenService, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
         this.gameRepository = gameRepository;
         this.tokenService = tokenService;
-        this.gameTimeOut = gameTimeOut;
+        this.gameTimeoutManager = gameTimeoutManager;
+        this.turnTimeoutManager = turnTimeoutManager;
     }
 
     public PlayerActionOutput execute(PlayerActionCommand command) {
@@ -44,9 +48,15 @@ public class PlayerActionUseCase {
         GameOverResult gameOverResult = state.gameOverChecker();
         handleGameOver(game, gameOverResult);
 
+        Instant now = Instant.now().plusSeconds(45);
+
+        state.nextTurn(now);
+
         gameRepository.save(game);
 
-        return buildReturn(game, gameOverResult);
+        turnTimeoutManager.start(game);
+
+        return buildOutput(game, gameOverResult);
     }
 
     private void validateGame(Game game) {
@@ -76,10 +86,10 @@ public class PlayerActionUseCase {
 
         game.setGameStatus(GameStatus.WAITING);
 
-        gameTimeOut.start(game);
+        gameTimeoutManager.start(game);
     }
 
-    private PlayerActionOutput buildReturn(Game game, GameOverResult gameOverResult) {
+    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult) {
         return new PlayerActionOutput(
                 game,
                 gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()

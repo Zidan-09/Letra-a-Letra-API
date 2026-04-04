@@ -5,6 +5,7 @@ import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 
+import java.time.Instant;
 import java.util.*;
 
 public class GameState {
@@ -12,8 +13,10 @@ public class GameState {
     private final Board board;
     private final List<String> turnOrder;
     private int currentTurnIndex;
+    private Instant turnEndsAt;
+    private int version;
 
-    public GameState(Map<String, Player> players, Board board) {
+    public GameState(Map<String, Player> players, Board board, Instant turnEnds) {
         this.players = players;
         this.board = board;
 
@@ -25,16 +28,12 @@ public class GameState {
                 .toList();
 
         this.currentTurnIndex = 0;
+        this.turnEndsAt = turnEnds;
+        this.version = 1;
     }
 
     public Map<String, Player> getPlayers() {
         return Map.copyOf(players);
-    }
-
-    public List<String> getPlayerIds() {
-        return players.values().stream()
-                .map(Player::getUserId)
-                .toList();
     }
 
     public Player getPlayerOrThrow(String userId) {
@@ -51,12 +50,26 @@ public class GameState {
         return board;
     }
 
+    public Instant getCurrentTurnEnds() {
+        return turnEndsAt;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
     public String currentPlayerTurn() {
         return turnOrder.get(currentTurnIndex);
     }
 
-    public void nextTurn() {
+    public void nextTurn(Instant turnEnds) {
+        version++;
         currentTurnIndex = (currentTurnIndex + 1) % turnOrder.size();
+        turnEndsAt = turnEnds;
+    }
+
+    public boolean isTurnExpired(Instant now) {
+        return now.isAfter(turnEndsAt);
     }
 
     public GameOverResult gameOverChecker() {

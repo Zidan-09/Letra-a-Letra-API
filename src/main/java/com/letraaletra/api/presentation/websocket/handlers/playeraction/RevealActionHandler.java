@@ -46,15 +46,20 @@ public class RevealActionHandler implements InGameActionHandler<RevealActionDTO>
 
         gameNotifier.notifierAll(output.game(), dto);
 
-        if (output.gameOver().isPresent()) {
-            GameOverResponseDTO overDto = gameOverMapper.toResponseDTO(output.gameOver().get(), output.game());
-
-            gameNotifier.notifierAll(output.game(), overDto);
-        }
+        notifyGameOverIfPresent(output);
     }
 
     @Override
     public Class<RevealActionDTO> getType() {
         return RevealActionDTO.class;
+    }
+
+    private void notifyGameOverIfPresent(PlayerActionOutput output) {
+        output.gameOver().ifPresent(gameOver -> {
+            GameOverResponseDTO dto =
+                    gameOverMapper.toResponseDTO(gameOver, output.game());
+
+            gameNotifier.notifierAll(output.game(), dto);
+        });
     }
 }
