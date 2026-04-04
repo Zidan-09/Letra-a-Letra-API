@@ -2,7 +2,6 @@ package com.letraaletra.api.application.port;
 
 import com.letraaletra.api.domain.game.Game;
 
-public interface GameTimeOut {
+public interface TurnTimeoutManager {
     void start(Game game);
-    void cancel(Game game);
 }

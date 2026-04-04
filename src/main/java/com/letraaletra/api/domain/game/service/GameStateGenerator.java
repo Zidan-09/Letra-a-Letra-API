@@ -6,6 +6,7 @@ import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.player.Player;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,8 @@ public class GameStateGenerator {
 
         return new GameState(
                 players,
-                board
+                board,
+                Instant.now().plusSeconds(45)
         );
     }
 }

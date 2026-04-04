@@ -34,8 +34,6 @@ public class RevealCellAction implements GameAction {
         cell.reveal(userId);
 
         checkCompletedWords(cell, userId, state);
-
-        state.nextTurn();
     }
 
     private void checkCompletedWords(Cell cell, String userId, GameState state) {
