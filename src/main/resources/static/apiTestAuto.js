@@ -1,5 +1,8 @@
 import WebSocket from "ws";
 
+const endpoint = "http://localhost:8080";
+const wspoint = "ws://localhost:8080/ws/game";
+
 class User {
   constructor(nickname, email, password) {
     this.nickname = nickname;
@@ -7,204 +10,109 @@ class User {
     this.password = password;
   }
 
-  addToken(token) {
-    this.token = token;
-  }
-
-  addId(id) {
-    this.id = id;
+  setAuth(data) {
+    this.id = data.id;
+    this.token = data.token;
   }
 }
 
-const endpoint = "http://localhost:8080";
-const wspoint = "ws://localhost:8080/ws/game";
-
-const user1 = new User("Zidan", "zidan@email.com", "12345678");
-const user2 = new User("Ronaldo", "ronaldo@email.com", "12345678");
-const user3 = new User("Rogério", "rogerio@email.com", "12345678");
+const users = [
+  new User("Zidan", "zidan@email.com", "12345678"),
+  new User("Ronaldo", "ronaldo@email.com", "12345678"),
+  new User("Rogerio", "rogerio@email.com", "12345678"),
+];
 
 const events = [];
 
-async function main() {
-  for (const user of [user1, user2, user3]) {
-    try {
-      const res = await fetch(`${endpoint}/user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname: user.nickname,
-          email: user.email,
-          password: user.password
-        })
-      }).then(res => res.json());
+/* =========================
+   HTTP HELPERS
+========================= */
 
-      console.log(res);
+async function http(method, path, body) {
+  const res = await fetch(`${endpoint}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(res => res.json());
 
-    } catch (err) {
-      console.error(err);
-    }
+  console.log(res);
 
-    try {
-      const res = await fetch(`${endpoint}/user/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-          password: user.password
-        })
-      }).then(res => res.json());
-
-      console.log(res);
-
-      user.addToken(res.data.token);
-      user.addId(res.data.id);
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  return res;
 }
 
-function connectUser(user) {
+/* =========================
+   AUTH FLOW
+========================= */
+
+async function registerAndLogin(user) {
+  console.log(`\n👤 Criando usuário: ${user.nickname}`);
+
+  await http("POST", "/user", {
+    nickname: user.nickname,
+    email: user.email,
+    password: user.password
+  });
+
+  console.log(`🔐 Logando: ${user.nickname}`);
+
+  const login = await http("POST", "/user/login", {
+    email: user.email,
+    password: user.password
+  });
+
+  user.setAuth(login.data);
+}
+
+/* =========================
+   WEBSOCKET
+========================= */
+
+function connect(user) {
   return new Promise((resolve) => {
     const ws = new WebSocket(`${wspoint}?token=${user.token}`);
 
     ws.on("open", () => {
-      console.log(`${user.nickname} conectado`);
+      console.log(`🟢 ${user.nickname} conectado`);
       resolve(ws);
     });
 
     ws.on("message", (data) => {
       const msg = JSON.parse(data);
 
-      console.log(msg);
+      console.log(`📩 [${user.nickname}]`, msg);
 
-      if (user.nickname === "Zidan") {
-        if (msg.event && msg.event === "GAME_OVER") {
-          console.log(msg);
-        }
+      if (msg.data && msg.data.board) {
+        const board = msg.data.board;
 
-        if (msg.data && msg.data.board) {
-          const board = msg.data.board;
+        const lettersBoard = board.map(row =>
+          row.map(cell => cell.letter)
+        );
 
-          const lettersBoard = board.map(row =>
-            row.map(cell => cell.letter)
-          );
-
-          console.table(lettersBoard);
-        }
+        console.table(lettersBoard);
       }
-      
-      events.push(msg);
+
+      events.push({ ...msg, user: user.nickname });
     });
 
     ws.on("close", () => {
-      console.log(`${user.nickname} desconectado`);
+      console.log(`🔴 ${user.nickname} desconectado`);
     });
   });
 }
 
-async function startSocket() {
-  await main();
-
-  const ws1 = await connectUser(user1);
-  const ws2 = await connectUser(user2);
-  const ws3 = await connectUser(user3);
-
-  await ws1.send(JSON.stringify({
-    type: "CREATE_GAME",
-    name: "Minha Sala",
-    settings: {
-      allowSpectators: true,
-      privateGame: false
-    }
-  }));
-
-  const createEvent = await waitForEvent(e => e.event === "GAME_UPDATED");
-  const tokenGameId = createEvent.data.tokenGameId;
-
-  await ws2.send(JSON.stringify({
-    type: "JOIN_GAME",
-    tokenGameId: tokenGameId
-  }));
-
-  await waitForEvent(e => e.event === "GAME_UPDATED");
-
-  await ws3.send(JSON.stringify({
-    type: "JOIN_GAME",
-    tokenGameId: tokenGameId
-  }));
-
-  await waitForEvent(e => e.event === "GAME_UPDATED");
-
-  for (let i = 0; i < 2; i++) {
-
-    await ws1.send(JSON.stringify({
-      type: "START_GAME",
-      tokenGameId: tokenGameId,
-      settings: {
-        themeId: "tech",
-        gameMode: "NORMAL"
-      }
-    }));
-  
-    const started = await waitForEvent(e => e.event === "GAME_STARTED");
-
-    let currentPlayer = started.data.currentTurnPlayerId;
-  
-    const positions = [];
-  
-    for (let x = 0; x < 10; x++) {
-      for (let y = 0; y < 10; y++) {
-        positions.push({ x, y });
-      }
-    }
-  
-    while (positions.length > 0) {  
-      const pos = drawPosition(positions);
-
-      if (currentPlayer === user1.id) {
-        await ws1.send(JSON.stringify({
-          type: "PLAYER_ACTION",
-          tokenGameId: tokenGameId,
-          action: {
-            type: "REVEAL",
-            position: pos
-          }
-        }));
-
-        await waitForEvent(e => e.event === "GAME_STATE_UPDATED");
-
-        currentPlayer = user2.id;
-
-      } else {
-        await ws2.send(JSON.stringify({
-          type: "PLAYER_ACTION",
-          tokenGameId: tokenGameId,
-          action: {
-            type: "REVEAL",
-            position: pos
-          }
-        }));
-
-        await waitForEvent(e => e.event === "GAME_STATE_UPDATED");
-
-        currentPlayer = user1.id;
-      }
-    }
-  }
+function send(ws, payload) {
+  ws.send(JSON.stringify(payload));
 }
 
-function waitForEvent(predicate) {
-  return new Promise((resolve) => {
+/* =========================
+   EVENT WAIT
+========================= */
+
+function waitForEvent(predicate, timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
     const interval = setInterval(() => {
-      const over = events.findLastIndex(e => e.event == "GAME_OVER");
-
-      if (over !== -1) {
-        const event = events.splice(over, 1)[0];
-        clearInterval(interval);
-        resolve(event);
-      }
-
       const index = events.findIndex(predicate);
 
       if (index !== -1) {
@@ -212,15 +120,201 @@ function waitForEvent(predicate) {
         clearInterval(interval);
         resolve(event);
       }
+
+      if (Date.now() - start > timeout) {
+        clearInterval(interval);
+        reject("Timeout esperando evento");
+      }
     }, 10);
   });
 }
 
-function drawPosition(positions) {
-  if (!positions || positions.length === 0) return null;
+/* =========================
+   GAME FLOW
+========================= */
 
-  const index = Math.floor(Math.random() * positions.length);
-  return positions.splice(index, 1)[0];
+async function runGameFlow(ws1, ws2, ws3) {
+  console.log("\n🎮 Criando jogo...");
+
+  send(ws1, {
+    type: "CREATE_GAME",
+    name: "Sala Teste",
+    settings: {
+      allowSpectators: true,
+      privateGame: false
+    }
+  });
+
+  const created = await waitForEvent(e => e.event === "GAME_CREATED");
+
+  // pegar token via HTTP (testa endpoint)
+  const games = await http("GET", "/game");
+
+  const tokenGameId = games.data.games[0]?.tokenGameId;
+
+  console.log("🎯 Token do jogo:", tokenGameId);
+
+  /* =========================
+     JOIN
+  ========================= */
+
+  send(ws2, {
+    type: "JOIN_GAME",
+    tokenGameId
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
+
+  send(ws3, {
+    type: "JOIN_GAME",
+    tokenGameId
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
+
+  /* =========================
+     SWAP POSITION
+  ========================= */
+
+  send(ws2, {
+    type: "SWAP_POSITION",
+    tokenGameId,
+    position: 3
+  });
+
+  await waitForEvent(e => e.event === "POSITIONS_UPDATED");
+
+  send(ws3, {
+    type: "SWAP_POSITION",
+    tokenGameId,
+    position: 1
+  });
+
+  await waitForEvent(e => e.event === "POSITIONS_UPDATED");
+
+  /* =========================
+     START GAME
+  ========================= */
+
+  send(ws1, {
+    type: "START_GAME",
+    tokenGameId,
+    settings: {
+      themeId: "tech",
+      gameMode: "NORMAL"
+    }
+  });
+
+  const started = await waitForEvent(e => e.event === "GAME_STARTED");
+
+  let currentPlayer = started.data.currentTurnPlayerId;
+
+  /* =========================
+     GAME LOOP
+  ========================= */
+
+  const positions = [];
+  for (let x = 0; x < 10; x++) {
+    for (let y = 0; y < 10; y++) {
+      positions.push({ x, y });
+    }
+  }
+
+  while (positions.length > 0) {
+    const pos = positions.splice(Math.floor(Math.random() * positions.length), 1)[0];
+
+    const currentWs =
+      currentPlayer === users[0].id ? ws1 :
+      currentPlayer === users[1].id ? ws2 : ws3;
+
+    send(currentWs, {
+      type: "PLAYER_ACTION",
+      tokenGameId,
+      action: {
+        type: "REVEAL",
+        position: pos
+      }
+    });
+
+    const result = await waitForEvent(
+      e => e.event === "GAME_OVER" ||
+      e.event === "PLAYER_ACTION_RESULT" &&
+      e.data.currentTurnPlayerId !== currentPlayer
+    );
+
+    if (result.event === "GAME_OVER") {
+      console.log("🏁 Fim do jogo!");
+      break;
+    }
+
+    currentPlayer = result.data.currentTurnPlayerId;
+  }
+
+  /* =========================
+     KICK / BAN / UNBAN TEST
+  ========================= */
+
+  console.log("\n⚖️ Testando moderação...");
+
+  send(ws1, {
+    type: "KICK_PARTICIPANT",
+    tokenGameId,
+    participantId: users[2].id
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_KICKED");
+
+  send(ws1, {
+    type: "BAN_PARTICIPANT",
+    tokenGameId,
+    participantId: users[2].id
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_BANNED");
+
+  send(ws1, {
+    type: "UNBAN_PARTICIPANT",
+    tokenGameId,
+    userId: users[2].id
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_UNBANNED");
+
+  /* =========================
+     LEAVE
+  ========================= */
+
+  send(ws2, {
+    type: "LEFT_GAME",
+    tokenGameId
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_LEAVE");
+
+  console.log("\n✅ Teste finalizado com sucesso");
 }
 
-startSocket();
+/* =========================
+   MAIN
+========================= */
+
+async function main() {
+  console.log("🚀 Iniciando testes...");
+
+  // auth
+  for (const user of users) {
+    await registerAndLogin(user);
+  }
+
+  // buscar user (testa GET)
+  await http("GET", `/user/${users[0].id}`);
+
+  // sockets
+  const ws1 = await connect(users[0]);
+  const ws2 = await connect(users[1]);
+  const ws3 = await connect(users[2]);
+
+  await runGameFlow(ws1, ws2, ws3);
+}
+
+main().catch(console.error);
