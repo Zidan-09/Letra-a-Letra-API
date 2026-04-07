@@ -1,0 +1,17 @@
+package com.letraaletra.api.domain.game;
+
+public enum StateEvent {
+    CELL_REVEALED,
+    WORD_FOUNDED,
+    CELL_BLOCKED,
+    CELL_UNBLOCKED,
+    CELL_TRAPPED,
+    TRAP_TRIGGERED,
+    TRAPS_DETECTED,
+    PLAYER_SPIED,
+    PLAYER_FROZEN,
+    PLAYER_UNFREEZE,
+    PLAYER_BLINDED,
+    PLAYER_USE_LANTERN,
+    PLAYER_USE_IMMUNITY
+}

@@ -23,6 +23,7 @@ public enum GameMessages implements MessageCode {
     NOT_YOUR_TURN("not_your_turn"),
     INVALID_MOVE("invalid_move"),
     CELL_ALREADY_REVEALED("cell_already_revealed"),
+    CELL_ALREADY_HAS_AN_EFFECT("cell_already_has_an_effect"),
     INVALID_POSITION("invalid_position"),
     SPECTATOR_CAN_NOT_PLAY("spectator_can_not_play"),
 

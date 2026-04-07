@@ -7,6 +7,6 @@ public record PlayerDTO(
         String nickname,
         String avatar,
         int score,
-        List<String> inventory
+        List<InventoryDTO> inventory
 ) {
 }
