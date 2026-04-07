@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 @JsonTypeName("FREEZE")
 public record FreezeActionDTO(
         @NotBlank
+        String actionId,
+
+        @NotBlank
         String targetId
 ) implements PlayerActionDTO {
 }

@@ -5,6 +5,7 @@ import com.letraaletra.api.application.output.player.PlayerActionOutput;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -18,6 +19,7 @@ import com.letraaletra.api.domain.game.exception.GameNotStartedException;
 import com.letraaletra.api.domain.repository.GameRepository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public class PlayerActionUseCase {
@@ -43,7 +45,7 @@ public class PlayerActionUseCase {
 
         GameState state = game.getGameState();
 
-        command.action().execute(state, command.user());
+        Optional<List<StateEvent>> event = command.action().execute(state, command.user());
 
         GameOverResult gameOverResult = state.gameOverChecker();
         handleGameOver(game, gameOverResult);
@@ -56,7 +58,7 @@ public class PlayerActionUseCase {
 
         turnTimeoutManager.start(game);
 
-        return buildOutput(game, gameOverResult);
+        return buildOutput(game, gameOverResult, event.orElse(null));
     }
 
     private void validateGame(Game game) {
@@ -89,9 +91,10 @@ public class PlayerActionUseCase {
         gameTimeoutManager.start(game);
     }
 
-    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult) {
+    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult, List<StateEvent> event) {
         return new PlayerActionOutput(
                 game,
+                event,
                 gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()
         );
     }

@@ -1,12 +1,16 @@
 package com.letraaletra.api.domain.game.player;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.letraaletra.api.domain.game.board.cell.PowerType;
+import com.letraaletra.api.domain.game.player.effect.PlayerEffect;
+import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
+
+import java.util.*;
 
 public class Player {
     private final String userId;
-    private final List<String> inventory = new ArrayList<>();
+    private final LinkedHashMap<String, PowerType> inventory = new LinkedHashMap<>();
     private int score = 0;
+    private final List<PlayerEffect> effects = new ArrayList<>();
 
     public Player(String userId) {
         this.userId = userId;
@@ -16,18 +20,24 @@ public class Player {
         return userId;
     }
 
-    public void addToInventory() {
+    public void addToInventory(PowerType powerType) {
         if (inventory.size() == 5) return;
 
-        inventory.add("power");
+        String id = UUID.randomUUID().toString();
+
+        inventory.put(id, powerType);
     }
 
-    public List<String> getInventory() {
-        return List.copyOf(inventory);
+    public Map<String, PowerType> getInventory() {
+        return Map.copyOf(inventory);
     }
 
-    public void removeFromInventory(int index) {
-        inventory.remove(index);
+    public void removeFromInventory(String id) {
+        if (!inventory.containsKey(id)) {
+            throw new InvalidPlayerActionException();
+        }
+
+        inventory.remove(id);
     }
 
     public int getScore() {
@@ -36,5 +46,9 @@ public class Player {
 
     public void incrementScore() {
         this.score++;
+    }
+
+    public void applyEffect(PlayerEffect effect) {
+        effects.add(effect); //fazer a verificação se já tem o efeito, se for spy (apenas adiciona), se for qualquer outro (substitui)
     }
 }

@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 @JsonTypeName("BLIND")
 public record BlindActionDTO(
         @NotBlank
+        String actionId,
+
+        @NotBlank
         String targetId
 ) implements PlayerActionDTO {
 }
