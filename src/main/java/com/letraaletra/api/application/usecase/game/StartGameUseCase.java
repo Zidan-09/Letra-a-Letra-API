@@ -84,7 +84,7 @@ public class StartGameUseCase {
 
         gameRepository.save(game);
 
-        return buildReturn(game, gameId);
+        return buildOutput(game, gameId);
     }
 
     private void validateGame(Game game) {
@@ -121,7 +121,7 @@ public class StartGameUseCase {
         }
     }
 
-    private StartGameOutput buildReturn(Game game, String id) {
+    private StartGameOutput buildOutput(Game game, String id) {
         return new StartGameOutput(
                 id,
                 game
