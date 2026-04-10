@@ -4,11 +4,10 @@ import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
-import com.letraaletra.api.domain.game.board.cell.effect.CellEffect;
-import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
 import com.letraaletra.api.domain.game.board.cell.exception.CellAlreadyRevealedException;
 import com.letraaletra.api.domain.game.board.position.Position;
 import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.domain.game.player.effect.SpyEffect;
 import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
@@ -16,13 +15,13 @@ import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException
 import java.util.List;
 import java.util.Optional;
 
-public class TrapCellAction implements GameAction {
-    private final Position position;
+public class SpyCellAction implements GameAction {
     private final String powerId;
+    private final Position position;
 
-    public TrapCellAction(Position position, String powerId) {
-        this.position = position;
+    public SpyCellAction(String powerId, Position position) {
         this.powerId = powerId;
+        this.position = position;
     }
 
     @Override
@@ -34,20 +33,13 @@ public class TrapCellAction implements GameAction {
         validatePower(player);
 
         Cell cell = state.getBoard().getCell(position);
-
         validateCell(cell);
 
-        boolean canContinue = activateEffect(cell, userId);
+        player.removeFromInventory(powerId);
 
-        if (!canContinue) return Optional.empty();
+        player.applyEffect(new SpyEffect(position));
 
-        cell.setEffect(
-                new TrapEffect(userId)
-        );
-
-        state.getPlayerOrThrow(userId).removeFromInventory(powerId);
-
-        return Optional.of(List.of(StateEvent.CELL_TRAPPED));
+        return Optional.of(List.of(StateEvent.PLAYER_SPIED));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
@@ -69,7 +61,7 @@ public class TrapCellAction implements GameAction {
     private void validatePower(Player player) {
         PowerType power = player.getInventory().get(powerId);
 
-        if (power != PowerType.TRAP) {
+        if (power != PowerType.SPY) {
             throw new InvalidPlayerActionException();
         }
     }
@@ -78,17 +70,5 @@ public class TrapCellAction implements GameAction {
         if (player == null) {
             throw new PlayerNotInGameException();
         }
-    }
-
-    private boolean activateEffect(Cell cell, String player) {
-        if (cell.hasEffect()) {
-            CellEffect effect = cell.getEffect();
-
-            if (!(effect instanceof TrapEffect))  return true;
-
-            return effect.onInteract(this, player, cell);
-        }
-
-        return true;
     }
 }

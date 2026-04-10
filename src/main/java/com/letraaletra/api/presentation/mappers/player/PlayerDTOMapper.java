@@ -19,7 +19,8 @@ public class PlayerDTOMapper {
                 player.getScore(),
                 player.getInventory().keySet().stream()
                         .map(key -> inventoryDTOMapper.toDTO(key, player.getInventory().get(key)))
-                        .toList()
+                        .toList(),
+                player.getEffects()
         );
     }
 }

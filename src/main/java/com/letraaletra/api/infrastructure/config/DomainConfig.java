@@ -2,8 +2,11 @@ package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.board.service.CellFactory;
+import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
+import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
+import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,5 +33,15 @@ public class DomainConfig {
     @Bean
     public GenerateRoomCode generateRoomCode() {
         return new GenerateRoomCode();
+    }
+
+    @Bean
+    public DefaultGameStateGenerator defaultGameStateGenerator(GameStateGenerator gameStateGenerator, BoardGenerator boardGenerator) {
+        return new DefaultGameStateGenerator(gameStateGenerator, boardGenerator);
+    }
+
+    @Bean
+    public DefaultGameGenerator defaultGameGenerator(TokenService tokenService) {
+        return new DefaultGameGenerator(tokenService);
     }
 }

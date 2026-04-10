@@ -66,6 +66,7 @@ public class GameState {
         version++;
         currentTurnIndex = (currentTurnIndex + 1) % turnOrder.size();
         turnEndsAt = turnEnds;
+        players.values().forEach(Player::decrementEffectDuration);
     }
 
     public boolean isTurnExpired(Instant now) {

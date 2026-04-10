@@ -4,6 +4,8 @@ import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
 import com.letraaletra.api.application.usecase.game.*;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
+import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
+import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -13,6 +15,8 @@ import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Random;
 
 @Configuration
 public class GameUseCaseConfig {
@@ -83,13 +87,26 @@ public class GameUseCaseConfig {
     }
 
     @Bean
+    public PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
+        return new PickRandomThemeWordsUseCase(themeRepository, new Random());
+    }
+
+    @Bean
     public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
             MatchmakingRepository matchmakingRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            DefaultGameStateGenerator defaultGameStateGenerator,
+            DefaultGameGenerator defaultGameGenerator,
+            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase
     ) {
         return new JoinMatchmakingQueueUseCase(
                 matchmakingRepository,
-                userRepository
+                userRepository,
+                gameRepository,
+                defaultGameStateGenerator,
+                defaultGameGenerator,
+                pickRandomThemeWordsUseCase
         );
     }
 }

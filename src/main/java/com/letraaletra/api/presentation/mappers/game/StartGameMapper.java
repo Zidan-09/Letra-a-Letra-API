@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class StartGameMapper {
 
-
     @Autowired
     private GameStateDTOMapper gameStateDTOMapper;
 

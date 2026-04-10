@@ -32,6 +32,10 @@ public class Player {
         return Map.copyOf(inventory);
     }
 
+    public List<PlayerEffect> getEffects() {
+        return List.copyOf(effects);
+    }
+
     public void removeFromInventory(String id) {
         if (!inventory.containsKey(id)) {
             throw new InvalidPlayerActionException();
@@ -49,6 +53,15 @@ public class Player {
     }
 
     public void applyEffect(PlayerEffect effect) {
-        effects.add(effect); //fazer a verificação se já tem o efeito, se for spy (apenas adiciona), se for qualquer outro (substitui)
+        effects.add(effect);
+    }
+
+    public void decrementEffectDuration() {
+        effects.forEach(PlayerEffect::onTurnPassed);
+        effects.removeIf(PlayerEffect::canRemove);
+    }
+
+    public void removeEffect(Class<? extends PlayerEffect> type) {
+        effects.removeIf(type::isInstance);
     }
 }

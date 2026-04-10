@@ -11,6 +11,7 @@ public sealed interface WsRequestDTO
     permits
         CreateGameWsRequest,
         JoinGameWsRequest,
+        JoinMatchmakingGameWsRequest,
         SwapPositionWsRequest,
         StartGameWsRequest,
         LeftGameWsRequest,
