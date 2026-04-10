@@ -11,6 +11,7 @@ public sealed interface WsResponseDTO
     permits
         CreateGameResponseDTO,
         JoinGameResponseDTO,
+        JoinMatchmakingResponseDTO,
         LeftGameResponseDTO,
         StartGameResponseDTO,
         GameOverResponseDTO,
