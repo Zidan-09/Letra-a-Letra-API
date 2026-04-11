@@ -1,56 +1,41 @@
 package com.letraaletra.api.application.usecase.game;
 
+import com.letraaletra.api.application.command.actor.JoinGameActorCommand;
 import com.letraaletra.api.application.command.game.JoinGameCommand;
 import com.letraaletra.api.application.output.game.JoinGameOutput;
-import com.letraaletra.api.domain.game.exception.UserBannedException;
+import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
-import com.letraaletra.api.domain.game.participant.ParticipantRole;
-import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
+import java.util.concurrent.CompletableFuture;
+
 public class JoinGameUseCase {
-    private final GameRepository gameRepository;
     private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final ActorManager actorManager;
 
-    public JoinGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
-        this.gameRepository = gameRepository;
+    public JoinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
+        this.actorManager = actorManager;
     }
 
     public JoinGameOutput execute(JoinGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-
-        Game game = gameRepository.find(gameId);
-
-        validateGame(game);
-
         User user = userRepository.find(command.user());
-
         validateUser(user);
-        checkIfBlackListed(game, command.user());
 
-        ParticipantRole role = game.nextParticipantRole();
+        Actor actor = actorManager.getOrCreate(gameId);
+        CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, command.session()));
 
-        Participant participant = ParticipantFactory.fromUser(user, command.session(), role);
+        Game game = future.join();
 
-        try {
-            user.enterGame(gameId);
-            game.join(participant);
-        } catch (Exception e) {
-            user.leaveGame();
-            throw e;
-        }
-
+        user.enterGame(game.getId());
         userRepository.save(user);
-        gameRepository.save(game);
 
         return buildReturn(command.token(), game);
     }
@@ -58,18 +43,6 @@ public class JoinGameUseCase {
     private void validateUser(User user) {
         if (user == null) {
             throw new UserNotFoundException();
-        }
-    }
-
-    private void checkIfBlackListed(Game game, String userId) {
-        if (game.isBlackListed(userId)) {
-            throw new UserBannedException();
-        }
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
         }
     }
 

@@ -8,6 +8,5 @@ public interface MatchmakingRepository {
     void remove(MatchmakingUser user);
     void removeById(String id);
     MatchmakingUser poll(GameMode gameMode);
-    boolean isEmpty();
     boolean onQueue(String userId);
 }

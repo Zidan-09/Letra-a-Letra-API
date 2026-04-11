@@ -4,7 +4,7 @@ import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.presentation.websocket.SessionRepository;
+import com.letraaletra.api.application.port.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +31,18 @@ public class BroadcastService implements GameNotifier {
             throw new GameNotFoundException();
         }
 
-        String json = objectMapper.writeValueAsString(dto);
+        final String json;
+        try {
+            json = objectMapper.writeValueAsString(dto);
+        } catch (Exception e) {
+            logger.warn("Error serializing broadcast message: {}", e.getMessage());
+            return;
+        }
 
         for (Participant participant : game.getParticipants()) {
             WebSocketSession session = sessionRepository.find(participant.getSocketId());
 
-            if (session == null) {
-                continue;
-            }
-
-            if (!session.isOpen()) {
-                sessionRepository.remove(session);
+            if (session == null || !session.isOpen()) {
                 continue;
             }
 
@@ -53,20 +54,29 @@ public class BroadcastService implements GameNotifier {
     public void notifierOne(String userId, Object dto) {
         WebSocketSession session = sessionRepository.findByUserId(userId);
 
-        String json = objectMapper.writeValueAsString(dto);
-
-        if (!session.isOpen()) {
-            sessionRepository.remove(session);
+        if (session == null || !session.isOpen()) {
+            return;
         }
 
-        send(session, json);
+        try {
+            String json = objectMapper.writeValueAsString(dto);
+            send(session, json);
+        } catch (Exception e) {
+            logger.warn("Error serializing message for user {}: {}", userId, e.getMessage());
+        }
     }
 
     private void send(WebSocketSession session, String json) {
+        if (session == null || !session.isOpen()) return;
+
         try {
             session.sendMessage(new TextMessage(json));
-        } catch (IOException e) {
-            logger.warn("Error to send message to {}: {}", session.getId(), e.getMessage());
+
+        } catch (IOException | IllegalStateException e) {
+            logger.warn("Error sending message to {}: {}",
+                    session.getId(),
+                    e.getMessage()
+            );
         }
     }
 }

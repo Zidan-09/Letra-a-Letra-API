@@ -10,7 +10,6 @@ import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
 import java.util.List;
-import java.util.Optional;
 
 public class DetectTrapsAction implements GameAction {
     private final String powerId;
@@ -20,7 +19,7 @@ public class DetectTrapsAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -34,7 +33,7 @@ public class DetectTrapsAction implements GameAction {
 
         player.applyEffect(effect);
 
-        return Optional.of(List.of(StateEvent.TRAPS_DETECTED));
+        return List.of(StateEvent.TRAPS_DETECTED);
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

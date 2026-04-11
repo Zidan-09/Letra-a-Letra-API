@@ -1,124 +1,72 @@
 package com.letraaletra.api.application.usecase.game;
 
+import com.letraaletra.api.application.command.actor.StartGameActorCommand;
 import com.letraaletra.api.application.command.game.StartGameCommand;
+import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
-import com.letraaletra.api.domain.game.exception.GameIsRunningException;
-import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
+import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
-import com.letraaletra.api.domain.game.GameMode;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.game.board.theme.Theme;
-import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
-import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase {
-    private final GameRepository gameRepository;
     private final GameStateGenerator gameStateGenerator;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;
     private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
+    private final TurnTimeoutManager turnTimeoutManager;
+    private final GameActorManager gameActorManager;
 
     public StartGameUseCase(
-            GameRepository gameRepository,
             GameStateGenerator gameStateGenerator,
             ThemeRepository themeRepository,
             GameTimeoutManager gameTimeoutManager,
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
             BoardGenerator boardGenerator,
-            TokenService tokenService
+            TokenService tokenService,
+            TurnTimeoutManager turnTimeoutManager,
+            GameActorManager gameActorManager
     ) {
-        this.gameRepository = gameRepository;
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;
         this.gameTimeoutManager = gameTimeoutManager;
         this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
         this.boardGenerator = boardGenerator;
         this.tokenService = tokenService;
+        this.turnTimeoutManager = turnTimeoutManager;
+        this.gameActorManager = gameActorManager;
     }
 
     public StartGameOutput execute(StartGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Game game = gameRepository.find(gameId);
+        Theme theme = themeRepository.findById(command.settings().getThemeId());
 
-        validateGame(game);
+        List<String> words = (theme != null)
+                ? theme.pickRandomWords(5, new Random())
+                : pickRandomThemeWordsUseCase.execute();
 
-        gameTimeoutManager.cancel(game);
+        Board board = boardGenerator.generate(words, command.settings().getGameMode());
 
-        String hostId = game.getHostId();
-        Participant participant = game.findBySession(command.session());
+        Actor actor = gameActorManager.getOrCreate(gameId);
 
-        validateParticipant(participant);
-        validateHost(participant, hostId);
+        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateGenerator, gameTimeoutManager, turnTimeoutManager));
 
-        String themeId = command.settings().getThemeId();
-
-        Theme theme = themeRepository.findById(themeId);
-
-        List<String> words = selectWords(theme);
-
-        GameMode gameMode = command.settings().getGameMode();
-
-        Board board = boardGenerator.generate(words, gameMode);
-
-        GameState state = gameStateGenerator.generate(game.getParticipants(), board);
-
-        game.updateGameState(state);
-
-        game.setGameStatus(GameStatus.RUNNING);
-
-        gameRepository.save(game);
+        Game game = future.join();
 
         return buildOutput(game, gameId);
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
-        }
-
-        if (game.getGameStatus() == GameStatus.RUNNING) {
-            throw new GameIsRunningException();
-        }
-
-        if (game.getAmountPlayers() < 2) {
-            throw new InsufficientPlayersException();
-        }
-    }
-
-    private List<String> selectWords(Theme theme) {
-        if (theme != null) {
-            return theme.pickRandomWords(5, new Random());
-        } else {
-            return pickRandomThemeWordsUseCase.execute();
-        }
-    }
-
-    private void validateParticipant(Participant participant) {
-        if (participant == null) {
-            throw new UserNotFoundException();
-        }
-    }
-
-    private void validateHost(Participant participant, String hostId) {
-        if (!participant.getUserId().equals(hostId)) {
-            throw new OnlyHostCanStartException();
-        }
     }
 
     private StartGameOutput buildOutput(Game game, String id) {

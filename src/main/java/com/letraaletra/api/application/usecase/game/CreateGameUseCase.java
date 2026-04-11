@@ -8,7 +8,6 @@ import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
-import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
@@ -38,7 +37,7 @@ public class CreateGameUseCase {
 
         validateUser(user);
 
-        Participant host = ParticipantFactory.fromUser(user, command.session(), ParticipantRole.PLAYER);
+        Participant host = ParticipantFactory.fromUser(user, command.session());
 
         String code = getCode();
 

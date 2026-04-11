@@ -8,13 +8,13 @@ public class Participant {
     private ParticipantRole role;
     private boolean connected;
 
-    public Participant(String userId, String socketId, String nickname, String avatar, ParticipantRole role) {
+    public Participant(String userId, String socketId, String nickname, String avatar) {
         this.userId = userId;
         this.socketId = socketId;
         this.nickname = nickname;
         this.avatar = avatar;
-        this.role = role;
         this.connected = true;
+        this.role = ParticipantRole.SPECTATOR;
     }
 
     public String getUserId() {

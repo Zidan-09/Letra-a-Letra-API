@@ -10,7 +10,6 @@ import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
 import java.util.List;
-import java.util.Optional;
 
 public class FreezePlayerAction implements GameAction {
     private final String powerId;
@@ -22,7 +21,7 @@ public class FreezePlayerAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -35,7 +34,7 @@ public class FreezePlayerAction implements GameAction {
         player.removeFromInventory(powerId);
         opponent.applyEffect(new FreezeEffect());
 
-        return Optional.of(List.of(StateEvent.PLAYER_FROZEN));
+        return List.of(StateEvent.PLAYER_FROZEN);
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

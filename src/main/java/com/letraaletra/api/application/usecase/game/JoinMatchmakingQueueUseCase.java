@@ -5,19 +5,22 @@ import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
 import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
 import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameResult;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
+import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JoinMatchmakingQueueUseCase {
     private final MatchmakingRepository matchmakingRepository;
@@ -26,6 +29,10 @@ public class JoinMatchmakingQueueUseCase {
     private final DefaultGameStateGenerator defaultGameStateGenerator;
     private final DefaultGameGenerator defaultGameGenerator;
     private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
+    private final GenerateRoomCode generateRoomCode;
+    private final TokenService tokenService;
+
+    private final Map<GameMode, Object> locks = new ConcurrentHashMap<>();
 
     public JoinMatchmakingQueueUseCase(
             MatchmakingRepository matchmakingRepository,
@@ -33,7 +40,9 @@ public class JoinMatchmakingQueueUseCase {
             GameRepository gameRepository,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
-            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase
+            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            GenerateRoomCode generateRoomCode,
+            TokenService tokenService
     ) {
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
@@ -41,46 +50,46 @@ public class JoinMatchmakingQueueUseCase {
         this.defaultGameStateGenerator = defaultGameStateGenerator;
         this.defaultGameGenerator = defaultGameGenerator;
         this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
+        this.generateRoomCode = generateRoomCode;
+        this.tokenService = tokenService;
     }
 
-    public synchronized JoinMatchmakingOutput execute(JoinMatchmakingCommand command) {
+    public JoinMatchmakingOutput execute(JoinMatchmakingCommand command) {
         MatchmakingUser matchmakingUser = command.matchmakingUser();
 
         User user = userRepository.find(matchmakingUser.user());
-
         validateUser(user);
 
-        boolean isEmptyQueue = matchmakingRepository.isEmpty();
+        Object lock = locks.computeIfAbsent(command.gameMode(), k -> new Object());
 
-        if (isEmptyQueue) {
-            matchmakingRepository.add(matchmakingUser, command.gameMode());
+        synchronized (lock) {
+            MatchmakingUser matchmakingOpponent = matchmakingRepository.poll(command.gameMode());
 
-            return buildOutput(new DefaultGameResult(null, null));
+            if (matchmakingOpponent == null) {
+                matchmakingRepository.add(matchmakingUser, command.gameMode());
+                return buildOutput(new DefaultGameResult(null));
+            }
+
+            User opponent = userRepository.find(matchmakingOpponent.user());
+
+            validateUser(opponent);
+
+            Participant player1 = ParticipantFactory.fromUser(opponent, matchmakingOpponent.session());
+
+            Participant player2 = ParticipantFactory.fromUser(user, matchmakingUser.session());
+
+            DefaultGameResult result = defaultGameGenerator.generate(player1, player2, getCode());
+
+            user.enterGame(result.game().getId());
+
+
+            userRepository.save(user);
+            userRepository.save(opponent);
+
+            startDefaultGame(result.game(), command.gameMode());
+
+            return buildOutput(result);
         }
-
-        Participant player2 = ParticipantFactory.fromUser(user, matchmakingUser.session(), ParticipantRole.PLAYER);
-
-        MatchmakingUser matchmakingOpponent = matchmakingRepository.poll(command.gameMode());
-
-        User opponent = userRepository.find(matchmakingOpponent.user());
-
-        validateUser(opponent);
-
-        Participant player1 = ParticipantFactory.fromUser(opponent, matchmakingOpponent.session(), ParticipantRole.PLAYER);
-
-        DefaultGameResult result = defaultGameGenerator.generate(player1, player2);
-
-        user.enterGame(result.game().getId());
-        opponent.enterGame(result.game().getId());
-
-        userRepository.save(user);
-        userRepository.save(opponent);
-
-        startDefaultGame(result.game(), command.gameMode());
-
-        gameRepository.save(result.game());
-
-        return buildOutput(result);
     }
 
     private void validateUser(User user) {
@@ -91,16 +100,30 @@ public class JoinMatchmakingQueueUseCase {
 
     private void startDefaultGame(Game game, GameMode gameMode) {
         List<String> words = pickRandomThemeWordsUseCase.execute();
+
         GameState state = defaultGameStateGenerator.generate(game, gameMode, words);
 
         game.setGameStatus(GameStatus.RUNNING);
 
         game.updateGameState(state);
+
+        gameRepository.save(game);
+    }
+
+    private String getCode() {
+        String code;
+
+        do {
+            code = generateRoomCode.execute();
+
+        } while (gameRepository.existsByCode(code));
+
+        return code;
     }
 
     private JoinMatchmakingOutput buildOutput(DefaultGameResult result) {
         return new JoinMatchmakingOutput(
-                result.game() != null ? Optional.of(result.token()) : Optional.empty(),
+                result.game() != null ? Optional.of(tokenService.generateToken(result.game().getId())) : Optional.empty(),
                 result.game() != null ? Optional.of(result.game()) : Optional.empty()
         );
     }

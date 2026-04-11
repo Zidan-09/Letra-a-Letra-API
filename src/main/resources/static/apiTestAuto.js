@@ -288,7 +288,7 @@ async function runGameFlow(ws1, ws2, ws3) {
   send(ws1, {
     type: "BAN_PARTICIPANT",
     tokenGameId,
-    participantId: users[2].id
+    participantId: users[1].id
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_BANNED");
@@ -296,10 +296,17 @@ async function runGameFlow(ws1, ws2, ws3) {
   send(ws1, {
     type: "UNBAN_PARTICIPANT",
     tokenGameId,
-    userId: users[2].id
+    userId: users[1].id
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_UNBANNED");
+
+  send(ws2, {
+    type: "JOIN_GAME",
+    tokenGameId
+  });
+
+  await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
 
   /* =========================
      LEAVE

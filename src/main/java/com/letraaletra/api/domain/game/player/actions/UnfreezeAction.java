@@ -10,7 +10,6 @@ import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UnfreezeAction implements GameAction {
     private final String powerId;
@@ -20,7 +19,7 @@ public class UnfreezeAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -32,7 +31,7 @@ public class UnfreezeAction implements GameAction {
 
         player.removeEffect(FreezeEffect.class);
 
-        return Optional.of(List.of(StateEvent.PLAYER_UNFREEZE));
+        return List.of(StateEvent.PLAYER_UNFREEZE);
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

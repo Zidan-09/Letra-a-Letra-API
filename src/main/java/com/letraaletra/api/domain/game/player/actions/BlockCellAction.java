@@ -13,7 +13,6 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 
 import java.util.List;
-import java.util.Optional;
 
 public class BlockCellAction implements GameAction {
     private final Position position;
@@ -25,7 +24,7 @@ public class BlockCellAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         validatePower(state.getPlayerOrThrow(userId));
@@ -36,7 +35,7 @@ public class BlockCellAction implements GameAction {
 
         boolean canContinue = activateEffect(cell, userId);
 
-        if (!canContinue) return Optional.empty();
+        if (!canContinue) return null;
 
         cell.setEffect(
                 new BlockEffect(userId)
@@ -44,7 +43,7 @@ public class BlockCellAction implements GameAction {
 
         state.getPlayerOrThrow(userId).removeFromInventory(powerId);
 
-        return Optional.of(List.of(StateEvent.CELL_BLOCKED));
+        return List.of(StateEvent.CELL_BLOCKED);
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

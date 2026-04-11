@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GameAction {
-    Optional<List<StateEvent>> execute(GameState state, String userId);
+    List<StateEvent> execute(GameState state, String userId);
 }

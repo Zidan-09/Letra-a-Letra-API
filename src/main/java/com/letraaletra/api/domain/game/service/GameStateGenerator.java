@@ -16,7 +16,7 @@ public class GameStateGenerator {
         Map<String, Player> players = new HashMap<>();
 
         participants
-                .stream().filter(p -> p.getRole().equals(ParticipantRole.PLAYER))
+                .stream().filter(p -> p.getRole() == ParticipantRole.PLAYER)
                 .forEach(p -> {
                     Player player = new Player(
                             p.getUserId()

@@ -1,56 +1,40 @@
 package com.letraaletra.api.application.usecase.participant;
 
+import com.letraaletra.api.application.command.actor.SwapPositionActorCommand;
 import com.letraaletra.api.application.command.participant.SwapPositionCommand;
 import com.letraaletra.api.application.output.participant.SwapPositionOutput;
+import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exception.GameIsRunningException;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.domain.game.exception.UserNotInGameException;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.GameRepository;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
+
+import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase {
-    private final GameRepository gameRepository;
+    private final GameActorManager gameActorManager;
     private final TokenService tokenService;
 
-    public SwapRoomPositionUseCase(GameRepository gameRepository, TokenService tokenService) {
-        this.gameRepository = gameRepository;
+    public SwapRoomPositionUseCase(GameActorManager gameActorManager, TokenService tokenService) {
+        this.gameActorManager = gameActorManager;
         this.tokenService = tokenService;
     }
 
     public SwapPositionOutput execute(SwapPositionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Game game = gameRepository.find(gameId);
+        Actor actor = gameActorManager.getOrCreate(gameId);
+        validateActor(actor);
 
-        validateGame(game);
-
-        Participant participant = game.getParticipantByUserId(command.user());
-
-        validateParticipant(participant);
-
-        game.changePosition(command.user(), command.position());
-
-        gameRepository.save(game);
+        CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(command.user(), command.position()));
+        Game game = future.join();
 
         return buildReturn(game, command.token());
     }
 
-    private void validateGame(Game game) {
-        if (game == null) {
+    private void validateActor(Actor actor) {
+        if (actor == null) {
             throw new GameNotFoundException();
-        }
-
-        if (game.getGameStatus().equals(GameStatus.RUNNING)) {
-            throw new GameIsRunningException();
-        }
-    }
-
-    private void validateParticipant(Participant participant) {
-        if (participant == null) {
-            throw new UserNotInGameException();
         }
     }
 
