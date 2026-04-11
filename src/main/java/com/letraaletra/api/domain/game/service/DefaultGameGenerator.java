@@ -3,31 +3,22 @@ package com.letraaletra.api.domain.game.service;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.security.TokenService;
 
 import java.util.UUID;
 
 public class DefaultGameGenerator {
-    private final TokenService tokenService;
-
-    public DefaultGameGenerator(TokenService tokenService) {
-        this.tokenService = tokenService;
-    }
-
-    public DefaultGameResult generate(Participant player1, Participant player2) {
+    public DefaultGameResult generate(Participant player1, Participant player2, String code) {
         RoomSettings settings = new RoomSettings(true, true);
         String gameId = UUID.randomUUID().toString();
 
-        Game game = new Game(gameId, "default-code", "default-name", settings, player1);
-
-        String token = tokenService.generateToken(gameId);
+        Game game = new Game(gameId, code, "default-name", settings, player1);
 
         game.join(player2);
 
-        return builtResult(token, game);
+        return builtResult(game);
     }
 
-    private DefaultGameResult builtResult(String token, Game game) {
-        return new DefaultGameResult(token, game);
+    private DefaultGameResult builtResult(Game game) {
+        return new DefaultGameResult(game);
     }
 }

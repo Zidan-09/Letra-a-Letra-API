@@ -7,16 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Repository
 public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     private final Map<GameMode, Queue<MatchmakingUser>> queues = new ConcurrentHashMap<>();
-    private final Map<MatchmakingUser, GameMode> queueLocal = new ConcurrentHashMap<>();
-    private final Map<String, MatchmakingUser> matchmakingUserMap = new ConcurrentHashMap<>();
-    private final Set<String> users = ConcurrentHashMap.newKeySet();
+    private final Map<String, MatchmakingUser> users = new ConcurrentHashMap<>();
 
     public InMemoryMatchmakingRepository() {
         for (GameMode mode : GameMode.values()) {
@@ -26,51 +23,40 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
 
     @Override
     public void add(MatchmakingUser matchmakingUser, GameMode gameMode) {
-        if (users.add(matchmakingUser.user())) {
+        if (users.putIfAbsent(matchmakingUser.user(), matchmakingUser) == null) {
             queues.get(gameMode).add(matchmakingUser);
-            queueLocal.put(matchmakingUser, gameMode);
-            matchmakingUserMap.put(matchmakingUser.user(), matchmakingUser);
         }
     }
 
     @Override
     public void remove(MatchmakingUser matchmakingUser) {
-        if (users.remove(matchmakingUser.user())) {
-            queues.get(queueLocal.get(matchmakingUser)).remove(matchmakingUser);
-            queueLocal.remove(matchmakingUser);
-            matchmakingUserMap.remove(matchmakingUser.user());
-        }
+        removeById(matchmakingUser.user());
     }
 
     @Override
     public void removeById(String id) {
-        if (users.remove(id)) {
-            MatchmakingUser matchmakingUser = matchmakingUserMap.get(id);
-            queues.get(queueLocal.get(matchmakingUser)).remove(matchmakingUser);
-            queueLocal.remove(matchmakingUser);
-            matchmakingUserMap.remove(matchmakingUser.user());
+        MatchmakingUser user = users.remove(id);
+
+        if (user == null) return;
+
+        for (Queue<MatchmakingUser> queue : queues.values()) {
+            queue.remove(user);
         }
     }
 
     @Override
     public MatchmakingUser poll(GameMode gameMode) {
-        MatchmakingUser matchmakingUser = queues.get(gameMode).poll();
-        queueLocal.remove(matchmakingUser);
+        MatchmakingUser user = queues.get(gameMode).poll();
 
-        if (matchmakingUser != null) {
-            users.remove(matchmakingUser.user());
+        if (user != null) {
+            users.remove(user.user());
         }
 
-        return matchmakingUser;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return users.isEmpty();
+        return user;
     }
 
     @Override
     public boolean onQueue(String userId) {
-        return users.contains(userId);
+        return users.containsKey(userId);
     }
 }

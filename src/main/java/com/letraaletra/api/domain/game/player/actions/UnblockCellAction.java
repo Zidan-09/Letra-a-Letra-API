@@ -11,7 +11,6 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UnblockCellAction implements GameAction {
     private final Position position;
@@ -23,7 +22,7 @@ public class UnblockCellAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
@@ -35,7 +34,7 @@ public class UnblockCellAction implements GameAction {
 
         cell.clearEffect();
 
-        return Optional.of(List.of(StateEvent.CELL_UNBLOCKED));
+        return List.of(StateEvent.CELL_UNBLOCKED);
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

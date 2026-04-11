@@ -1,12 +1,15 @@
 package com.letraaletra.api.domain.game;
 
+import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.exception.RoomFullException;
+import com.letraaletra.api.domain.game.exception.UserBannedException;
 import com.letraaletra.api.domain.game.participant.exception.InvalidRoomPositionException;
 import com.letraaletra.api.domain.game.participant.exception.ParticipantAlreadyBannedException;
 import com.letraaletra.api.domain.game.participant.exception.ParticipantNotBannedException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.exception.UserNotInGameException;
+import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
 import java.util.*;
@@ -27,6 +30,7 @@ public class Game {
         this.id = id;
         this.code = code;
         this.roomName = roomName;
+        host.changeRole(ParticipantRole.PLAYER);
         this.participants.put(host.getUserId(), host);
         this.hostId = host.getUserId();
         this.positions.put(0, host.getUserId());
@@ -66,26 +70,29 @@ public class Game {
         return roomSettings;
     }
 
-    public Participant getParticipant(String sessionId) {
-        return participants.values().stream()
-                .filter(p -> p.getSocketId().equals(sessionId))
-                .findFirst()
-                .orElse(null);
-    }
-
     public Participant getParticipantByUserId(String userId) {
         return participants.get(userId);
     }
 
     public Map<Integer, String> getPositions() {
-        return positions;
+        return Map.copyOf(positions);
     }
 
-    public synchronized void join(Participant participant) {
-        boolean alreadyExists = participants.values().stream()
-                .anyMatch(p -> p.getUserId().equals(participant.getUserId()));
+    public void start(Board board, GameStateGenerator stateGenerator) {
+        GameState state = stateGenerator.generate(participants.values().stream().toList(), board);
 
-        if (alreadyExists) {
+        this.gameStatus = GameStatus.RUNNING;
+        this.gameState = state;
+    }
+
+    public void join(Participant participant) {
+        String userId = participant.getUserId();
+
+        if (isBlackListed(userId)) {
+            throw new UserBannedException();
+        }
+
+        if (participants.containsKey(userId)) {
             throw new UserAlreadyInGameException();
         }
 
@@ -98,11 +105,18 @@ public class Game {
             throw new RoomFullException();
         }
 
-        positions.put(participants.size(), participant.getUserId());
-        participants.put(participant.getUserId(), participant);
+        ParticipantRole role = determineRole();
+        participant.changeRole(role);
+
+        if (role == ParticipantRole.PLAYER) {
+            assertMaxPlayers();
+        }
+
+        participants.put(userId, participant);
+        positions.put(nextAvailablePosition(), userId);
     }
 
-    public synchronized void remove(String userId) {
+    public void remove(String userId) {
         Participant participant = participants.get(userId);
 
         if (participant == null) {
@@ -138,11 +152,19 @@ public class Game {
             throw new UserNotInGameException();
         }
 
-        if (positions.get(position) != null) {
+        if (positions.containsKey(position)) {
             throw new InvalidRoomPositionException();
         }
 
-        participant.changeRole(position > 2 ? ParticipantRole.SPECTATOR : ParticipantRole.PLAYER);
+        ParticipantRole newRole = position >= 2
+                ? ParticipantRole.SPECTATOR
+                : ParticipantRole.PLAYER;
+
+        if (newRole == ParticipantRole.PLAYER) {
+            assertMaxPlayersExcluding(userId);
+        }
+
+        participant.changeRole(newRole);
 
         positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
         positions.put(position, userId);
@@ -154,17 +176,6 @@ public class Game {
 
     public void updateGameState(GameState gameState) {
         this.gameState = gameState;
-    }
-
-    public ParticipantRole nextParticipantRole() {
-        long players = participants.values().stream()
-                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .limit(3)
-                .count();
-
-        return players >= 2
-                ? ParticipantRole.SPECTATOR
-                : ParticipantRole.PLAYER;
     }
 
     public Participant findBySession(String sessionId) {
@@ -183,7 +194,6 @@ public class Game {
             throw new ParticipantAlreadyBannedException();
         }
 
-        remove(userId);
         blacklist.add(userId);
     }
 
@@ -196,8 +206,44 @@ public class Game {
     }
 
     public int getAmountPlayers() {
-        return participants.values().stream()
+        return (int) participants.values().stream()
                 .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .toList().size();
+                .count();
+    }
+
+    private ParticipantRole determineRole() {
+        long players = participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .count();
+
+        return players >= 2
+                ? ParticipantRole.SPECTATOR
+                : ParticipantRole.PLAYER;
+    }
+
+    private void assertMaxPlayers() {
+        if (getAmountPlayers() >= 2) {
+            throw new RoomFullException();
+        }
+    }
+
+    private void assertMaxPlayersExcluding(String userId) {
+        long players = participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .filter(p -> !p.getUserId().equals(userId))
+                .count();
+
+        if (players >= 2) {
+            throw new RoomFullException();
+        }
+    }
+
+    private int nextAvailablePosition() {
+        for (int i = 0; i < 7; i++) {
+            if (!positions.containsKey(i)) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("no_available_positions");
     }
 }

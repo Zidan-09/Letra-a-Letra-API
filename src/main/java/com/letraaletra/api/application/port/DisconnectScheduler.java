@@ -1,4 +1,4 @@
-package com.letraaletra.api.application.usecase.participant;
+package com.letraaletra.api.application.port;
 
 public interface DisconnectScheduler {
     void start(String userId, String gameId);

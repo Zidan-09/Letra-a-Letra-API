@@ -15,10 +15,8 @@ public class InMemoryGameRepository implements GameRepository {
 
     @Override
     public void save(Game game) {
-        if (!codeToId.containsKey(game.getCode())) {
-            this.games.put(game.getId(), game);
-            this.codeToId.put(game.getCode(), game.getId());
-        }
+        games.put(game.getId(), game);
+        indexByCode(game);
     }
 
     @Override
@@ -55,5 +53,9 @@ public class InMemoryGameRepository implements GameRepository {
         String id = codeToId.get(code);
         codeToId.remove(code);
         games.remove(id);
+    }
+
+    private void indexByCode(Game game) {
+        codeToId.put(game.getCode(), game.getId());
     }
 }

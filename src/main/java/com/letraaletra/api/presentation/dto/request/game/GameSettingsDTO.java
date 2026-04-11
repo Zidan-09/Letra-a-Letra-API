@@ -2,12 +2,13 @@ package com.letraaletra.api.presentation.dto.request.game;
 
 import com.letraaletra.api.domain.game.GameMode;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record GameSettingsDTO(
         @NotBlank
         String themeId,
 
-        @NotBlank
+        @NotNull
         GameMode gameMode
 ) {
 }

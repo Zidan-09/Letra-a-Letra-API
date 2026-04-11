@@ -1,41 +1,81 @@
 package com.letraaletra.api.infrastructure.config;
 
-import com.letraaletra.api.application.context.PlayerGameContextFactory;
 import com.letraaletra.api.application.context.ModerationContextFactory;
+import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.application.service.LeaveGameService;
 import com.letraaletra.api.application.usecase.participant.*;
 import com.letraaletra.api.domain.repository.GameRepository;
+import com.letraaletra.api.domain.repository.MatchmakingRepository;
+import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ParticipantUseCaseConfig {
     @Bean
-    public BanParticipantUseCase banParticipantUseCase(GameRepository gameRepository, ModerationContextFactory moderationContextFactory) {
-        return new BanParticipantUseCase(gameRepository, moderationContextFactory);
+    public BanParticipantUseCase banParticipantUseCase(
+            ModerationContextFactory moderationContextFactory,
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            GameActorManager gameActorManager
+    ) {
+        return new BanParticipantUseCase(
+                moderationContextFactory,
+                userRepository,
+                gameRepository,
+                gameActorManager
+        );
     }
 
     @Bean
-    public DisconnectUseCase disconnectUseCase(GameRepository gameRepository, PlayerGameContextFactory playerGameContextFactory, DisconnectScheduler disconnectScheduler) {
-        return new DisconnectUseCase(gameRepository, playerGameContextFactory, disconnectScheduler);
+    public DisconnectUseCase disconnectUseCase(
+            GameRepository gameRepository,
+            DisconnectScheduler disconnectScheduler,
+            MatchmakingRepository matchmakingRepository,
+            UserRepository userRepository
+    ) {
+        return new DisconnectUseCase(
+                gameRepository,
+                disconnectScheduler,
+                matchmakingRepository,
+                userRepository
+        );
     }
     @Bean
-    public KickParticipantUseCase kickParticipantUseCase(GameRepository gameRepository, ModerationContextFactory moderationContextFactory) {
-        return new KickParticipantUseCase(gameRepository, moderationContextFactory);
+    public KickParticipantUseCase kickParticipantUseCase(
+            ModerationContextFactory moderationContextFactory,
+            GameActorManager gameActorManager
+    ) {
+        return new KickParticipantUseCase(moderationContextFactory, gameActorManager);
     }
 
     @Bean
-    public ReconnectUseCase reconnectUseCase(GameRepository gameRepository, PlayerGameContextFactory playerGameContextFactory, DisconnectScheduler disconnectScheduler) {
-        return new ReconnectUseCase(gameRepository, playerGameContextFactory, disconnectScheduler);
+    public ReconnectUseCase reconnectUseCase(
+            GameRepository gameRepository,
+            DisconnectScheduler disconnectScheduler,
+            UserRepository userRepository
+            ) {
+        return new ReconnectUseCase(
+                gameRepository,
+                disconnectScheduler,
+                userRepository
+        );
     }
 
     @Bean
-    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameRepository gameRepository, TokenService tokenService) {
-        return new SwapRoomPositionUseCase(gameRepository, tokenService);
+    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameActorManager gameActorManager, TokenService tokenService) {
+        return new SwapRoomPositionUseCase(gameActorManager, tokenService);
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(GameRepository gameRepository, TokenService tokenService) {
-        return new UnbanUserUseCase(gameRepository, tokenService);
+    public UnbanUserUseCase unbanUserUseCase(TokenService tokenService, GameActorManager gameActorManager) {
+        return new UnbanUserUseCase(tokenService, gameActorManager);
+    }
+
+    @Bean
+    public LeaveGameService leaveGameService(GameRepository gameRepository, UserRepository userRepository) {
+        return new LeaveGameService(gameRepository, userRepository);
     }
 }

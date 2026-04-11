@@ -1,73 +1,51 @@
 package com.letraaletra.api.application.usecase.game;
 
+import com.letraaletra.api.application.command.actor.LeftGameActorCommand;
 import com.letraaletra.api.application.command.game.LeftGameCommand;
+import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
+import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.domain.repository.GameRepository;
+import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.domain.game.exception.UserNotInGameException;
-import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
+
+import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase {
-    private final GameRepository gameRepository;
-    private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final GameActorManager gameActorManager;
+    private final UserRepository userRepository;
+    private final GameRepository gameRepository;
 
-    public LeftGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
-        this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
+    public LeftGameUseCase(TokenService tokenService, GameActorManager gameActorManager, UserRepository userRepository, GameRepository gameRepository) {
         this.tokenService = tokenService;
+        this.gameActorManager = gameActorManager;
+        this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
+        Actor actor = gameActorManager.getOrCreate(gameId);
 
-        Game game = gameRepository.find(gameId);
+        CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
 
-        validateGame(game);
+        LeftGameResult result = future.join();
 
-        Participant participant = game.getParticipant(command.session());
-
-        validateParticipant(participant);
-
-        User user = userRepository.find(participant.getUserId());
-
-        validateUser(user);
-
+        User user = userRepository.find(result.user());
         user.leaveGame();
-        game.remove(participant.getUserId());
-
-        if (game.getParticipants().isEmpty()) {
-            gameRepository.removeByCode(game.getCode());
-        } else {
-            gameRepository.save(game);
-        }
-
         userRepository.save(user);
 
-        return buildReturn(game, command.token());
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
+        if (result.isEmpty()) {
+            gameRepository.removeByCode(result.game().getCode());
+        } else {
+            gameRepository.save(result.game());
         }
-    }
 
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
-    }
-
-    private void validateParticipant(Participant participant) {
-        if (participant == null) {
-            throw new UserNotInGameException();
-        }
+        return buildReturn(result.game(), command.token());
     }
 
     private LeftGameOutput buildReturn(Game game, String token) {

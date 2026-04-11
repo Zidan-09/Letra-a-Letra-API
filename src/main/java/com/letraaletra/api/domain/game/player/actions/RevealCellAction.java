@@ -11,9 +11,7 @@ import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.board.position.Position;
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class RevealCellAction implements GameAction {
     private final Position position;
@@ -23,33 +21,33 @@ public class RevealCellAction implements GameAction {
     }
 
     @Override
-    public Optional<List<StateEvent>> execute(GameState state, String userId) {
+    public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
 
         boolean canContinue = activateEffect(cell, userId);
 
-        if (!canContinue) return Optional.empty();
+        if (!canContinue) return Collections.emptyList();
 
         PowerType drop = cell.reveal(userId);
         addPower(drop, state.getPlayerOrThrow(userId));
 
-        Optional<StateEvent> found = checkCompletedWords(cell, userId, state);
+        StateEvent found = checkCompletedWords(cell, userId, state);
 
         List<StateEvent> events = new ArrayList<>();
         events.add(StateEvent.CELL_REVEALED);
 
-        found.ifPresent(events::add);
+        if (found != null) events.add(found);
 
-        return Optional.of(events);
+        return events;
     }
 
-    private Optional<StateEvent> checkCompletedWords(Cell cell, String userId, GameState state) {
+    private StateEvent checkCompletedWords(Cell cell, String userId, GameState state) {
         List<Word> words = cell.getRelatedWords();
 
         if (words.isEmpty()) {
-            return Optional.empty();
+            return null;
         }
 
         Board board = state.getBoard();
@@ -71,10 +69,10 @@ public class RevealCellAction implements GameAction {
         }
 
         if (wordsFound > 0) {
-            return Optional.of(StateEvent.WORD_FOUNDED);
+            return StateEvent.WORD_FOUNDED;
         }
 
-        return Optional.empty();
+        return null;
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

@@ -1,11 +1,7 @@
 package com.letraaletra.api.infrastructure.websocket;
 
-import com.letraaletra.api.application.usecase.participant.DisconnectScheduler;
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
-import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.application.service.LeaveGameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +12,7 @@ import java.util.concurrent.*;
 public class DisconnectManager implements DisconnectScheduler {
 
     @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private LeaveGameService leaveGameService;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
@@ -51,21 +44,7 @@ public class DisconnectManager implements DisconnectScheduler {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
-        Game game = gameRepository.find(gameId);
-        User user = userRepository.find(userId);
-
-        if (game == null || user == null) return;
-
-        Participant participant = game.getParticipantByUserId(userId);
-        if (participant == null) return;
-
-        if (participant.isConnected()) return;
-
-        game.remove(userId);
-        user.leaveGame();
-
-        gameRepository.save(game);
-        userRepository.save(user);
+        leaveGameService.leave(gameId, userId);
     }
 
     private String buildKey(String userId, String gameId) {

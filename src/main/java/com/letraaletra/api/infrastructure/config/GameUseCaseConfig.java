@@ -1,6 +1,8 @@
 package com.letraaletra.api.infrastructure.config;
 
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
 import com.letraaletra.api.application.usecase.game.*;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
@@ -13,6 +15,7 @@ import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -52,38 +55,51 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public JoinGameUseCase joinGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
-        return new JoinGameUseCase(gameRepository, userRepository, tokenService);
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
+        return new JoinGameUseCase(userRepository, tokenService, actorManager);
     }
 
     @Bean
-    public LeftGameUseCase leftGameUseCase(GameRepository gameRepository, UserRepository userRepository, TokenService tokenService) {
-        return new LeftGameUseCase(gameRepository, userRepository, tokenService);
+    public LeftGameUseCase leftGameUseCase(
+            TokenService tokenService,
+            GameActorManager gameActorManager,
+            UserRepository userRepository,
+            GameRepository gameRepository
+    ) {
+        return new LeftGameUseCase(
+                tokenService,
+                gameActorManager,
+                userRepository,
+                gameRepository
+        );
     }
 
     @Bean
-    public StartGameUseCase startGameUseCase(GameRepository gameRepository,
-                                             GameStateGenerator gameStateGenerator,
-                                             ThemeRepository themeRepository,
-                                             GameTimeoutManager gameTimeoutManager,
-                                             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
-                                             BoardGenerator boardGenerator,
-                                             TokenService tokenService
+    public StartGameUseCase startGameUseCase(
+             GameStateGenerator gameStateGenerator,
+             ThemeRepository themeRepository,
+             GameTimeoutManager gameTimeoutManager,
+             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+             BoardGenerator boardGenerator,
+             TokenService tokenService,
+             TurnTimeoutManager turnTimeoutManager,
+             GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
-                gameRepository,
                 gameStateGenerator,
                 themeRepository,
                 gameTimeoutManager,
                 pickRandomThemeWordsUseCase,
                 boardGenerator,
-                tokenService
+                tokenService,
+                turnTimeoutManager,
+                gameActorManager
         );
     }
 
     @Bean
-    public ExpireTurnUseCase expireTurnUseCase(GameRepository gameRepository) {
-        return new ExpireTurnUseCase(gameRepository);
+    public ExpireTurnUseCase expireTurnUseCase(GameActorManager gameActorManager) {
+        return new ExpireTurnUseCase(gameActorManager);
     }
 
     @Bean
@@ -98,7 +114,9 @@ public class GameUseCaseConfig {
             GameRepository gameRepository,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
-            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase
+            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            GenerateRoomCode generateRoomCode,
+            TokenService tokenService
     ) {
         return new JoinMatchmakingQueueUseCase(
                 matchmakingRepository,
@@ -106,7 +124,9 @@ public class GameUseCaseConfig {
                 gameRepository,
                 defaultGameStateGenerator,
                 defaultGameGenerator,
-                pickRandomThemeWordsUseCase
+                pickRandomThemeWordsUseCase,
+                generateRoomCode,
+                tokenService
         );
     }
 }
