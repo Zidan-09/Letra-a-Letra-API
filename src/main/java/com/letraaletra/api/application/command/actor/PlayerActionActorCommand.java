@@ -7,9 +7,11 @@ import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.exception.GameNotRunningException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
+import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.service.GameOverResult;
@@ -32,6 +34,10 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
     @Override
     public PlayerActionResult execute(Game game) {
+        if (!(game.getGameStatus().equals(GameStatus.RUNNING))) {
+            throw new GameNotRunningException();
+        }
+
         validatePlayer(user, game);
 
         GameState state = game.getGameState();
@@ -51,6 +57,16 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         Instant now = Instant.now().plusSeconds(45);
 
         state.nextTurn(now);
+
+        Player current;
+
+        do {
+            current = state.getPlayerOrThrow(state.currentPlayerTurn());
+            if (current.canNotPlay()) {
+                event.add(StateEvent.TURN_PASSED);
+                state.nextTurn(now);
+            }
+        } while (current.canNotPlay());
 
         turnTimeoutManager.start(game);
 

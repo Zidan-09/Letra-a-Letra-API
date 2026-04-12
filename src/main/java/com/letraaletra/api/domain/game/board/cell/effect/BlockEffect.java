@@ -1,5 +1,6 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
+import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.actions.RevealCellAction;
@@ -23,7 +24,7 @@ public class BlockEffect implements CellEffect {
     }
 
     @Override
-    public boolean onInteract(GameAction action, String player, Cell cell) {
+    public InteractResult onInteract(GameAction action, String player, Cell cell) {
 
         if (player.equals(ownerId)) {
             throw new InvalidPlayerActionException();
@@ -36,10 +37,10 @@ public class BlockEffect implements CellEffect {
         registerAttempt();
 
         if (remainingAttempts > 0) {
-            return false;
+            return new InteractResult(false, StateEvent.CELL_STILL_BLOCKED);
         }
 
         cell.clearEffect();
-        return true;
+        return new InteractResult(true, StateEvent.CELL_UNBLOCKED);
     }
 }

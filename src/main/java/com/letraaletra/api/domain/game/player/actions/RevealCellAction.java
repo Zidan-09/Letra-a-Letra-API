@@ -6,6 +6,7 @@ import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.CellEffect;
+import com.letraaletra.api.domain.game.board.cell.effect.InteractResult;
 import com.letraaletra.api.domain.game.board.word.Word;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.board.position.Position;
@@ -26,7 +27,9 @@ public class RevealCellAction implements GameAction {
 
         Cell cell = state.getBoard().getCell(position);
 
-        boolean canContinue = activateEffect(cell, userId);
+        List<StateEvent> events = new ArrayList<>();
+
+        boolean canContinue = activateEffect(cell, userId, events);
 
         if (!canContinue) return Collections.emptyList();
 
@@ -35,7 +38,6 @@ public class RevealCellAction implements GameAction {
 
         StateEvent found = checkCompletedWords(cell, userId, state);
 
-        List<StateEvent> events = new ArrayList<>();
         events.add(StateEvent.CELL_REVEALED);
 
         if (found != null) events.add(found);
@@ -87,10 +89,14 @@ public class RevealCellAction implements GameAction {
         player.addToInventory(drop);
     }
 
-    private boolean activateEffect(Cell cell, String player) {
+    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
-            return effect.onInteract(this, player, cell);
+            InteractResult result = effect.onInteract(this, player, cell);
+
+            events.add(result.event());
+
+            return result.canContinue();
         }
 
         return true;

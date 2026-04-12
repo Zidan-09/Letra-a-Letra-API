@@ -5,6 +5,7 @@ import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.CellEffect;
+import com.letraaletra.api.domain.game.board.cell.effect.InteractResult;
 import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
 import com.letraaletra.api.domain.game.board.cell.exception.CellAlreadyRevealedException;
 import com.letraaletra.api.domain.game.board.position.Position;
@@ -13,6 +14,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrapCellAction implements GameAction {
@@ -36,7 +38,9 @@ public class TrapCellAction implements GameAction {
 
         validateCell(cell);
 
-        boolean canContinue = activateEffect(cell, userId);
+        List<StateEvent> events = new ArrayList<>();
+
+        boolean canContinue = activateEffect(cell, userId, events);
 
         if (!canContinue) return null;
 
@@ -44,9 +48,11 @@ public class TrapCellAction implements GameAction {
                 new TrapEffect(userId)
         );
 
+        events.add(StateEvent.CELL_TRAPPED);
+
         state.getPlayerOrThrow(userId).removeFromInventory(powerId);
 
-        return List.of(StateEvent.CELL_TRAPPED);
+        return events;
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
@@ -79,13 +85,17 @@ public class TrapCellAction implements GameAction {
         }
     }
 
-    private boolean activateEffect(Cell cell, String player) {
+    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
 
             if (!(effect instanceof TrapEffect))  return true;
 
-            return effect.onInteract(this, player, cell);
+            InteractResult result = effect.onInteract(this, player, cell);
+
+            events.add(result.event());
+
+            return result.canContinue();
         }
 
         return true;

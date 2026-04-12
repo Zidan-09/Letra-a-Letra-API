@@ -6,12 +6,14 @@ import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
 import com.letraaletra.api.domain.game.board.cell.effect.CellEffect;
+import com.letraaletra.api.domain.game.board.cell.effect.InteractResult;
 import com.letraaletra.api.domain.game.board.cell.exception.CellAlreadyRevealedException;
 import com.letraaletra.api.domain.game.board.position.Position;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlockCellAction implements GameAction {
@@ -33,17 +35,20 @@ public class BlockCellAction implements GameAction {
 
         validateCell(cell);
 
-        boolean canContinue = activateEffect(cell, userId);
+        List<StateEvent> events = new ArrayList<>();
+
+        boolean canContinue = activateEffect(cell, userId, events);
 
         if (!canContinue) return null;
 
         cell.setEffect(
                 new BlockEffect(userId)
         );
+        events.add(StateEvent.CELL_BLOCKED);
 
         state.getPlayerOrThrow(userId).removeFromInventory(powerId);
 
-        return List.of(StateEvent.CELL_BLOCKED);
+        return events;
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
@@ -70,10 +75,15 @@ public class BlockCellAction implements GameAction {
         }
     }
 
-    private boolean activateEffect(Cell cell, String player) {
+    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
-            return effect.onInteract(this, player, cell);
+
+            InteractResult result = effect.onInteract(this, player, cell);
+
+            events.add(result.event());
+
+            return result.canContinue();
         }
 
         return true;
