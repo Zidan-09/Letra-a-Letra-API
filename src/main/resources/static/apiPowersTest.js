@@ -14,6 +14,13 @@ class User {
     this.id = data.id;
     this.token = data.token;
   }
+
+  updateState(state) {
+    const player = state.players.find(p => p.id === this.id);
+    if (player) {
+      this.playerState = player;
+    }
+  }
 }
 
 const users = [
@@ -22,10 +29,6 @@ const users = [
 ];
 
 const events = [];
-
-/* =========================
-   HTTP HELPERS
-========================= */
 
 async function http(method, path, body) {
   const res = await fetch(`${endpoint}${path}`, {
@@ -38,10 +41,6 @@ async function http(method, path, body) {
 
   return res;
 }
-
-/* =========================
-   AUTH FLOW
-========================= */
 
 async function registerAndLogin(user) {
   console.log(`\n👤 Criando usuário: ${user.nickname}`);
@@ -62,10 +61,6 @@ async function registerAndLogin(user) {
   user.setAuth(login.data);
 }
 
-/* =========================
-   WEBSOCKET
-========================= */
-
 function connect(user) {
   return new Promise((resolve) => {
     const ws = new WebSocket(`${wspoint}?token=${user.token}`);
@@ -76,21 +71,27 @@ function connect(user) {
     });
 
     ws.on("message", (data) => {
-      const msg = JSON.parse(data);
+        const msg = JSON.parse(data);
 
-      console.log(`📩 [${user.nickname}]`, msg);
+        if (msg.data && msg.data.players) {
+            user.updateState(msg.data);
+        }
 
-      if (msg.data && msg.data.board) {
-        const board = msg.data.board;
+        if (user.nickname == "Zidan") {
+            console.log(`📩 [${user.nickname}]`, msg);
 
-        const lettersBoard = board.map(row =>
-          row.map(cell => cell.letter)
-        );
+            if (msg.data && msg.data.board) {
+                const board = msg.data.board;
 
-        console.table(lettersBoard);
-      }
+                const lettersBoard = board.map(row =>
+                row.map(cell => cell.letter)
+                );
 
-      events.push({ ...msg, user: user.nickname });
+                console.table(lettersBoard);
+            }
+
+            events.push({ ...msg, user: user.nickname });
+        }
     });
 
     ws.on("close", () => {
@@ -102,10 +103,6 @@ function connect(user) {
 function send(ws, payload) {
   ws.send(JSON.stringify(payload));
 }
-
-/* =========================
-   EVENT WAIT
-========================= */
 
 function waitForEvent(predicate, timeout = 5000) {
   return new Promise((resolve, reject) => {
@@ -128,25 +125,42 @@ function waitForEvent(predicate, timeout = 5000) {
   });
 }
 
-/* =========================
-   GAME FLOW
-========================= */
-
 async function runGameFlow(ws1, ws2) {
-  console.log("\n🎮 Buscando jogo...");
+  console.log("\n🎮 Criando jogo...");
 
   send(ws1, {
-    type: "MATCHMAKING_GAME",
-    gameMode: "NORMAL"
+    type: "CREATE_GAME",
+    name: "Sala Teste",
+    settings: {
+      allowSpectators: true,
+      privateGame: false
+    }
   });
+
+  await waitForEvent(e => e.event === "GAME_CREATED");
+
+  const games = await http("GET", "/game");
+
+  const tokenGameId = games.data.games[0]?.tokenGameId;
 
   send(ws2, {
-    type: "MATCHMAKING_GAME",
-    gameMode: "NORMAL"
+    type: "JOIN_GAME",
+    tokenGameId
   });
 
-  const started = await waitForEvent(e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"));
-  const tokenGameId = started.tokenGameId;
+  await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
+
+
+  send(ws1, {
+    type: "START_GAME",
+    tokenGameId,
+    settings: {
+      themeId: "tech",
+      gameMode: "NORMAL"
+    }
+  });
+
+  const started = await waitForEvent(e => e.event === "GAME_STARTED");
 
   let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -157,14 +171,7 @@ async function runGameFlow(ws1, ws2) {
     }
   }
 
-  let gameRunning = true;
-
-  while (gameRunning) {
-    if (positions.length === 0) {
-      console.log("⚠️ Sem mais posições disponíveis");
-      break;
-    }
-
+  while (positions.length > 0) {
     const pos = positions.splice(Math.floor(Math.random() * positions.length), 1)[0];
 
     const currentWs =
@@ -181,36 +188,100 @@ async function runGameFlow(ws1, ws2) {
 
     const result = await waitForEvent(
       e => e.event === "GAME_OVER" ||
-      (
-        e.event === "PLAYER_ACTION_RESULT" &&
-        e.data.currentTurnPlayerId !== currentPlayer
-      ) 
+      e.event === "PLAYER_ACTION_RESULT" &&
+      e.data.currentTurnPlayerId !== currentPlayer
     );
 
     if (result.event === "GAME_OVER") {
       console.log("🏁 Fim do jogo!");
-      gameRunning = false;
       break;
     }
-
+    
     currentPlayer = result.data.currentTurnPlayerId;
+    const player = currentPlayer === users[0].id ? users[0] : users[1];
 
-    await sleep(300);
+    if (player.playerState?.inventory?.length > 0) {
+        console.log("🎒 Poderes:", player.playerState.inventory);
+    }
+
+    await sleep(5000);
   }
+
+  console.log("\n✅ Teste finalizado com sucesso");
+}
+
+function usePower(ws, tokenGameId, power) {
+  console.log(`⚡ Usando poder: ${power.name}`);
+
+  let action = null;
+
+  switch (power.name) {
+    case "BLOCK":
+      action = {
+        type: "BLOCK",
+        actionId: power.id,
+        position: randomPosition()
+      };
+      break;
+
+    case "UNBLOCK":
+      action = {
+        type: "UNBLOCK",
+        actionId: power.id,
+        position: randomPosition()
+      };
+      break;
+
+    case "TRAP":
+      action = {
+        type: "TRAP",
+        actionId: power.id,
+        position: randomPosition()
+      };
+      break;
+    
+    case "DETECT_TRAPS":
+        action = {
+            actionId: power.id,
+            type: "DETECT_TRAPS",
+        };
+        break;
+
+    case "SPY":
+      action = {
+        type: "SPY",
+        actionId: power.id,
+        position: randomPosition()
+      };
+      break;
+
+    case "FREEZE":
+      action = {
+        type: "FREEZE",
+        actionId: power.id,
+        targetPlayerId: null
+      };
+      break;
+
+    default:
+      console.log("❓ Poder desconhecido:", power);
+      return;
+  }
+
+  send(ws, {
+    type: "PLAYER_ACTION",
+    tokenGameId,
+    action
+  });
 }
 
 async function main() {
   console.log("🚀 Iniciando testes...");
 
-  // auth
   for (const user of users) {
     await registerAndLogin(user);
   }
 
-  // buscar user (testa GET)
-  await http("GET", `/user/${users[0].id}`);
-
-  // sockets
   const ws1 = await connect(users[0]);
   const ws2 = await connect(users[1]);
 

@@ -1,5 +1,6 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
+import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.actions.RevealCellAction;
@@ -7,11 +8,9 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 
 public class TrapEffect implements CellEffect {
     private final String ownerId;
-    private boolean detected;
 
     public TrapEffect(String ownerId) {
         this.ownerId = ownerId;
-        this.detected = false;
     }
 
     @Override
@@ -20,7 +19,7 @@ public class TrapEffect implements CellEffect {
     }
 
     @Override
-    public boolean onInteract(GameAction action, String player, Cell cell) {
+    public InteractResult onInteract(GameAction action, String player, Cell cell) {
         boolean isOwner = player.equals(ownerId);
 
         if (isOwner && !(action instanceof RevealCellAction)) {
@@ -29,6 +28,6 @@ public class TrapEffect implements CellEffect {
 
         cell.clearEffect();
 
-        return isOwner;
+        return new InteractResult(isOwner, StateEvent.TRAP_TRIGGERED);
     }
 }

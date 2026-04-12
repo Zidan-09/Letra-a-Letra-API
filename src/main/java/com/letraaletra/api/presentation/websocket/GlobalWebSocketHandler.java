@@ -2,6 +2,7 @@ package com.letraaletra.api.presentation.websocket;
 
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.port.SessionRepository;
+import com.letraaletra.api.domain.DomainException;
 import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponseDTO;
 import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;
@@ -82,7 +83,21 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private void sendError(Exception ex, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        ErrorResponseDTO json = new ErrorResponseDTO(ex.getMessage());
+        Throwable cause = ex;
+
+        if (ex instanceof java.util.concurrent.CompletionException && ex.getCause() != null) {
+            cause = ex.getCause();
+        }
+
+        String message;
+
+        if (cause instanceof DomainException appEx) {
+            message = appEx.getMessage();
+        } else {
+            message = ex.getMessage();
+        }
+
+        ErrorResponseDTO json = new ErrorResponseDTO(message);
 
         gameNotifier.notifierOne(userId, json);
     }

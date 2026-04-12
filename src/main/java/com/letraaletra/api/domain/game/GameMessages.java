@@ -14,6 +14,7 @@ public enum GameMessages implements MessageCode {
     INVALID_MODERATE_ACTION("invalid_moderate_action"),
 
     GAME_IS_RUNNING("game_is_running"),
+    GAME_NOT_RUNNING("game_not_running"),
     INSUFFICIENT_PLAYERS("insufficient_players"),
     ROOM_FULL("room_full"),
 

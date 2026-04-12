@@ -1,6 +1,7 @@
 package com.letraaletra.api.domain.game.player;
 
 import com.letraaletra.api.domain.game.board.cell.PowerType;
+import com.letraaletra.api.domain.game.player.effect.FreezeEffect;
 import com.letraaletra.api.domain.game.player.effect.PlayerEffect;
 import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
 
@@ -63,5 +64,9 @@ public class Player {
 
     public void removeEffect(Class<? extends PlayerEffect> type) {
         effects.removeIf(type::isInstance);
+    }
+
+    public boolean canNotPlay() {
+        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect);
     }
 }

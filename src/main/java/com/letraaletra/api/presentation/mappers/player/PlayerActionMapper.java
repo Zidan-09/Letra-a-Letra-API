@@ -23,6 +23,7 @@ public class PlayerActionMapper {
 
     public PlayerActionResponseDTO toResponseDTO(PlayerActionOutput output) {
         return new PlayerActionResponseDTO(
+                output.game().getGameState().getCurrentTurnEnds(),
                 output.event(),
                 gameStateDTOMapper.toDTO(output.game())
         );
