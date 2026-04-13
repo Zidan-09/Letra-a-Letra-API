@@ -27,8 +27,9 @@ public class JoinMatchmakingMapper {
 
         return new JoinMatchmakingResponseDTO(
                 game != null ? MatchmakingStatus.FOUNDED : MatchmakingStatus.SEARCHING,
+                game != null ? game.getGameState().getCurrentTurnEnds() : null,
                 token,
-                game != null ? gameStateDTOMapper.toDTO(game) : null
+                game != null ? gameStateDTOMapper.toAllDTO(game) : null
         );
     }
 }

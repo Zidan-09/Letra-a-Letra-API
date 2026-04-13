@@ -4,7 +4,7 @@ public class FreezeEffect implements PlayerEffect {
     private int duration;
 
     public FreezeEffect() {
-        this.duration = 5;
+        this.duration = 6;
     }
 
     @Override

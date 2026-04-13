@@ -1,9 +1,11 @@
 package com.letraaletra.api.presentation.mappers.board;
 
+import com.letraaletra.api.presentation.dto.response.game.board.cell.BlockView;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.cell.Cell;
+import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
 import com.letraaletra.api.domain.game.board.position.Position;
-import com.letraaletra.api.presentation.dto.response.game.BoardDTO;
+import com.letraaletra.api.presentation.dto.response.game.board.BoardDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,10 +31,20 @@ public class BoardDTOMapper {
             return new BoardDTO(
                     true,
                     cell.getLetter(),
-                    cell.getRevealedById()
+                    cell.getRevealedById(),
+                    null
             );
         }
 
-        return new BoardDTO(false, null, null);
+        return new BoardDTO(
+                false,
+                null,
+                null,
+                cell.getEffect() instanceof BlockEffect block ?
+                        new BlockView(
+                                block.getOwnerId(),
+                                block.getRemainingAttempts()
+                        ) : null
+        );
     }
 }

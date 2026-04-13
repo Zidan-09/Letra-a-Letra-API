@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UnfreezeAction implements GameAction {
@@ -31,7 +32,7 @@ public class UnfreezeAction implements GameAction {
 
         player.removeEffect(FreezeEffect.class);
 
-        return List.of(StateEvent.PLAYER_UNFREEZE);
+        return new ArrayList<>(List.of(StateEvent.PLAYER_UNFREEZE));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

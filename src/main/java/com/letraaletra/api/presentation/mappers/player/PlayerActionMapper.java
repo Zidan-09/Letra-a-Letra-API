@@ -21,11 +21,19 @@ public class PlayerActionMapper {
         );
     }
 
-    public PlayerActionResponseDTO toResponseDTO(PlayerActionOutput output) {
+    public PlayerActionResponseDTO toResponseDTO(PlayerActionOutput output, String viewer) {
         return new PlayerActionResponseDTO(
                 output.game().getGameState().getCurrentTurnEnds(),
                 output.event(),
-                gameStateDTOMapper.toDTO(output.game())
+                gameStateDTOMapper.toDTO(output.game(), viewer)
+        );
+    }
+
+    public PlayerActionResponseDTO toAllResponseDTO(PlayerActionOutput output) {
+        return new PlayerActionResponseDTO(
+                output.game().getGameState().getCurrentTurnEnds(),
+                output.event(),
+                gameStateDTOMapper.toAllDTO(output.game())
         );
     }
 }

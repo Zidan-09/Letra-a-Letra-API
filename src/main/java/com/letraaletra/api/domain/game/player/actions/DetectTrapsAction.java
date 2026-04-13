@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DetectTrapsAction implements GameAction {
@@ -33,7 +34,7 @@ public class DetectTrapsAction implements GameAction {
 
         player.applyEffect(effect);
 
-        return List.of(StateEvent.TRAPS_DETECTED);
+        return new ArrayList<>(List.of(StateEvent.TRAPS_DETECTED));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

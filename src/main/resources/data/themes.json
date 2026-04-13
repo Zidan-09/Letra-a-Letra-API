@@ -4,7 +4,6 @@
     "name": "Tecnologia",
     "words": [
       "python",
-      "typescript",
       "flutter",
       "spring",
       "java",
@@ -12,7 +11,8 @@
       "frontend",
       "database",
       "software",
-      "hardware"
+      "hardware",
+      "codigo"
     ]
   },
   {
@@ -33,7 +33,7 @@
       "morango",
       "melancia",
       "kiwi",
-      "limão"
+      "limao"
     ]
   },
   {
@@ -50,11 +50,11 @@
       "toronto",
       "oslo",
       "madrid",
-      "amsterdã",
       "dubai",
       "sydney",
-      "buenosaires",
-      "nova york"
+      "veneza",
+      "pequim",
+      "seul"
     ]
   },
   {
@@ -71,7 +71,7 @@
       "raposa",
       "cobra",
       "foca",
-      "leão",
+      "leao",
       "elefante",
       "girafa",
       "lobo",
@@ -114,7 +114,7 @@
       "skate",
       "judo",
       "corrida",
-      "natação",
+      "natacao",
       "handebol",
       "esgrima",
       "ciclismo"
@@ -134,11 +134,11 @@
       "pao",
       "bolo",
       "batata",
-      "hamburguer",
       "sushi",
       "lasanha",
-      "chocolate",
-      "salada"
+      "pudim",
+      "salada",
+      "nuggets"
     ]
   },
   {
@@ -150,16 +150,16 @@
       "advogado",
       "piloto",
       "ator",
-      "engenheiro",
       "designer",
       "soldado",
       "chefe",
       "motorista",
-      "programador",
-      "enfermeiro",
+      "dev",
       "arquiteto",
       "policial",
-      "jornalista"
+      "ourives",
+      "dentista",
+      "juiz"
     ]
   },
   {
@@ -176,11 +176,11 @@
       "caverna",
       "vale",
       "gramado",
-      "cachoeira",
       "vulcão",
       "geleira",
-      "planície",
-      "penhasco"
+      "planicie",
+      "penhasco",
+      "bosque"
     ]
   },
   {
@@ -199,9 +199,9 @@
       "lua",
       "sol",
       "galaxia",
-      "asteroide",
       "cometa",
-      "universo"
+      "universo",
+      "cosmos"
     ]
   }
 ]

@@ -4,7 +4,7 @@ public class BlindEffect implements PlayerEffect {
     private int duration;
 
     public BlindEffect() {
-        this.duration = 5;
+        this.duration = 6;
     }
 
     @Override

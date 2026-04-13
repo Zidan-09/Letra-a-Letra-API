@@ -27,7 +27,7 @@ public class StartGameMapper {
 
     public StartGameResponseDTO toResponseDTO(StartGameOutput output) {
         return new StartGameResponseDTO(
-                gameStateDTOMapper.toDTO(output.game())
+                gameStateDTOMapper.toAllDTO(output.game())
         );
     }
 }

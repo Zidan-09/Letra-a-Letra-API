@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LanternAction implements GameAction {
@@ -30,7 +31,7 @@ public class LanternAction implements GameAction {
 
         player.removeEffect(BlindEffect.class);
 
-        return List.of(StateEvent.PLAYER_USE_LANTERN);
+        return new ArrayList<>(List.of(StateEvent.PLAYER_USE_LANTERN));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
