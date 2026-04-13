@@ -31,7 +31,7 @@ public class RevealCellAction implements GameAction {
 
         boolean canContinue = activateEffect(cell, userId, events);
 
-        if (!canContinue) return Collections.emptyList();
+        if (!canContinue) return events;
 
         PowerType drop = cell.reveal(userId);
         addPower(drop, state.getPlayerOrThrow(userId));

@@ -11,6 +11,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImmunityPlayerAction implements GameAction {
@@ -35,7 +36,7 @@ public class ImmunityPlayerAction implements GameAction {
 
         player.applyEffect(new ImmunityEffect());
 
-        return List.of(StateEvent.PLAYER_USE_IMMUNITY);
+        return new ArrayList<>(List.of(StateEvent.PLAYER_USE_IMMUNITY));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

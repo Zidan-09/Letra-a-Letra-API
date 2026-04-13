@@ -21,7 +21,7 @@ public class ReconnectParticipantMapper {
 
     public ReconnectParticipantResponseDTO toResponseDTO(ReconnectParticipantOutput output) {
         return new ReconnectParticipantResponseDTO(
-                gameStateDTOMapper.toDTO(output.game())
+                gameStateDTOMapper.toAllDTO(output.game())
         );
     }
 }

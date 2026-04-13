@@ -4,7 +4,7 @@ public class ImmunityEffect implements PlayerEffect {
     private int duration;
 
     public ImmunityEffect() {
-        this.duration = 7;
+        this.duration = 10;
     }
 
     @Override

@@ -17,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockCellAction implements GameAction {
-    private final Position position;
     private final String powerId;
+    private final Position position;
 
-    public BlockCellAction(Position position, String powerId) {
-        this.position = position;
+    public BlockCellAction(String powerId, Position position) {
         this.powerId = powerId;
+        this.position = position;
     }
 
     @Override

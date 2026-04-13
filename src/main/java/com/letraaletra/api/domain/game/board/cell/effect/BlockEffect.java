@@ -19,6 +19,10 @@ public class BlockEffect implements CellEffect {
         return ownerId;
     }
 
+    public int getRemainingAttempts() {
+        return remainingAttempts;
+    }
+
     public void registerAttempt() {
         remainingAttempts = Math.max(0, remainingAttempts - 1);
     }

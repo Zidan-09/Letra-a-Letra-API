@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrapCellAction implements GameAction {
-    private final Position position;
     private final String powerId;
+    private final Position position;
 
-    public TrapCellAction(Position position, String powerId) {
-        this.position = position;
+    public TrapCellAction(String powerId, Position position) {
         this.powerId = powerId;
+        this.position = position;
     }
 
     @Override

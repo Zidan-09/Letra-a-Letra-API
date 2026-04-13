@@ -10,15 +10,16 @@ import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UnblockCellAction implements GameAction {
-    private final Position position;
     private final String powerId;
+    private final Position position;
 
-    public UnblockCellAction(Position position, String powerId) {
-        this.position = position;
+    public UnblockCellAction(String powerId, Position position) {
         this.powerId = powerId;
+        this.position = position;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class UnblockCellAction implements GameAction {
 
         cell.clearEffect();
 
-        return List.of(StateEvent.CELL_UNBLOCKED);
+        return new ArrayList<>(List.of(StateEvent.CELL_UNBLOCKED));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
@@ -46,7 +47,7 @@ public class UnblockCellAction implements GameAction {
     private void validatePower(Player player) {
         PowerType power = player.getInventory().get(powerId);
 
-        if (power != PowerType.DETECT_TRAPS) {
+        if (power != PowerType.UNBLOCK) {
             throw new InvalidPlayerActionException();
         }
     }

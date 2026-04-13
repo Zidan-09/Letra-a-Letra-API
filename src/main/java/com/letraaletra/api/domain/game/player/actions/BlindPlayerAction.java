@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlindPlayerAction implements GameAction {
@@ -34,7 +35,7 @@ public class BlindPlayerAction implements GameAction {
         player.removeFromInventory(powerId);
         opponent.applyEffect(new BlindEffect());
 
-        return List.of(StateEvent.PLAYER_BLINDED);
+        return new ArrayList<>(List.of(StateEvent.PLAYER_BLINDED));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

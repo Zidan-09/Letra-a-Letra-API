@@ -12,6 +12,7 @@ import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionExcep
 import com.letraaletra.api.domain.game.player.exception.NotYourTurnException;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpyCellAction implements GameAction {
@@ -38,7 +39,7 @@ public class SpyCellAction implements GameAction {
 
         player.applyEffect(new SpyEffect(position));
 
-        return List.of(StateEvent.PLAYER_SPIED);
+        return new ArrayList<>(List.of(StateEvent.PLAYER_SPIED));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

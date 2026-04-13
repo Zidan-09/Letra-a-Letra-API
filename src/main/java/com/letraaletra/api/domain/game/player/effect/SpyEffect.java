@@ -7,7 +7,7 @@ public class SpyEffect implements PlayerEffect {
     private final Position position;
 
     public SpyEffect(Position position) {
-        this.duration = 3;
+        this.duration = 6;
         this.position = position;
     }
 

@@ -2,6 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.JoinMatchmakingCommand;
 import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
+import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -31,6 +32,7 @@ public class JoinMatchmakingQueueUseCase {
     private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
     private final GenerateRoomCode generateRoomCode;
     private final TokenService tokenService;
+    private final TurnTimeoutManager turnTimeoutManager;
 
     private final Map<GameMode, Object> locks = new ConcurrentHashMap<>();
 
@@ -42,7 +44,8 @@ public class JoinMatchmakingQueueUseCase {
             DefaultGameGenerator defaultGameGenerator,
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
             GenerateRoomCode generateRoomCode,
-            TokenService tokenService
+            TokenService tokenService,
+            TurnTimeoutManager turnTimeoutManager
     ) {
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
@@ -52,6 +55,7 @@ public class JoinMatchmakingQueueUseCase {
         this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
         this.generateRoomCode = generateRoomCode;
         this.tokenService = tokenService;
+        this.turnTimeoutManager = turnTimeoutManager;
     }
 
     public JoinMatchmakingOutput execute(JoinMatchmakingCommand command) {
@@ -82,7 +86,6 @@ public class JoinMatchmakingQueueUseCase {
 
             user.enterGame(result.game().getId());
 
-
             userRepository.save(user);
             userRepository.save(opponent);
 
@@ -106,6 +109,8 @@ public class JoinMatchmakingQueueUseCase {
         game.setGameStatus(GameStatus.RUNNING);
 
         game.updateGameState(state);
+
+        turnTimeoutManager.start(game);
 
         gameRepository.save(game);
     }
