@@ -40,21 +40,19 @@ public class RevealCellAction implements GameAction {
         PowerType drop = cell.reveal(userId);
         addPower(drop, player);
 
-        StateEvent found = checkCompletedWords(cell, userId, state);
+        List<StateEvent> found = checkCompletedWords(cell, userId, state);
 
         events.add(StateEvent.CELL_REVEALED);
 
-        if (found != null) events.add(found);
+        if (found != null) events.addAll(found);
 
         return events;
     }
 
-    private StateEvent checkCompletedWords(Cell cell, String userId, GameState state) {
+    private List<StateEvent> checkCompletedWords(Cell cell, String userId, GameState state) {
         List<Word> words = cell.getRelatedWords();
 
-        if (words.isEmpty()) {
-            return null;
-        }
+        if (words.isEmpty()) return null;
 
         Board board = state.getBoard();
 
@@ -65,17 +63,15 @@ public class RevealCellAction implements GameAction {
 
             boolean isComplete = positions.stream().allMatch(pos -> board.getCell(pos).isRevealed());
 
-            if (isComplete) {
+            if (isComplete && word.markAsFound(userId)) {
                 Player player = state.getPlayerOrThrow(userId);
-
-                word.markAsFound(userId);
                 player.incrementScore();
                 wordsFound++;
             }
         }
 
         if (wordsFound > 0) {
-            return StateEvent.WORD_FOUNDED;
+            return new ArrayList<>(Collections.nCopies(wordsFound, StateEvent.WORD_FOUNDED));
         }
 
         return null;

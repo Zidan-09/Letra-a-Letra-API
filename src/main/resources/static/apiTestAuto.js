@@ -245,20 +245,16 @@ async function runGameFlow(ws1, ws2, ws3) {
     );
 
     if (passTurn) {
-      await sleep(50000);
-
-      console.log("Passou o turno")
+      await sleep(47000);
 
       const result = await waitForEvent(
         e => e.event === "TURN_EXPIRED"
       );
 
       currentPlayer = result.data.currentTurnPlayerId;
-      console.log(result);
-      console.log(currentPlayer);
       passTurn = false;
 
-      await sleep(5000);
+      await sleep(3000);
 
       continue;
     }

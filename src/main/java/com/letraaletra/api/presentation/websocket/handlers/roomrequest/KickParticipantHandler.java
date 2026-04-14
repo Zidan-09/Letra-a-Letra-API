@@ -11,7 +11,6 @@ import com.letraaletra.api.presentation.mappers.participant.KickParticipantMappe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class KickParticipantHandler implements RoomRequestHandler<KickParticipantWsRequest> {
@@ -20,9 +19,6 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
 
     @Autowired
     private KickParticipantMapper kickParticipantMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private GameNotifier gameNotifier;
@@ -39,11 +35,9 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
 
         gameNotifier.notifierAll(output.game(), dto);
 
-        String json = objectMapper.writeValueAsString(
-                new ModerationResponseDTO("Kicked from game")
-        );
+        ModerationResponseDTO dtoForKicked = new ModerationResponseDTO("Kicked from game");
 
-        gameNotifier.notifierOne(request.participantId(), json);
+        gameNotifier.notifierOne(request.participantId(), dtoForKicked);
     }
 
     @Override

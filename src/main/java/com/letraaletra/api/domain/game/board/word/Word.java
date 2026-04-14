@@ -33,12 +33,13 @@ public class Word {
         return foundById;
     }
 
-    public void markAsFound(String playerId) {
+    public boolean markAsFound(String playerId) {
         if (found) {
-            return;
+            return false;
         }
 
         this.found = true;
         this.foundById = playerId;
+        return true;
     }
 }

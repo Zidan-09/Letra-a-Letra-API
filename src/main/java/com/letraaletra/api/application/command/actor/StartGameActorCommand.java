@@ -4,6 +4,8 @@ import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.board.Board;
+import com.letraaletra.api.domain.game.exception.GameIsRunningException;
+import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
@@ -26,11 +28,20 @@ public class StartGameActorCommand implements ActorCommand<Game> {
 
     @Override
     public Game execute(Game game) {
-        gameTimeoutManager.cancel(game);
 
         Participant participant = game.findBySession(session);
         validateParticipant(participant);
         validateHost(participant, game.getHostId());
+
+        if (game.getGameStatus().equals(GameStatus.RUNNING)) {
+            throw new GameIsRunningException();
+        }
+
+        if (game.getAmountPlayers() < 2) {
+            throw new InsufficientPlayersException();
+        }
+
+        gameTimeoutManager.cancel(game);
 
         game.start(board, gameStateGenerator);
 

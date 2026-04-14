@@ -1,12 +1,11 @@
 package com.letraaletra.api.domain.game.board;
 
 import com.letraaletra.api.domain.game.board.cell.Cell;
-import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
+import com.letraaletra.api.domain.game.board.exception.InvalidCellPositionException;
 import com.letraaletra.api.domain.game.board.position.Position;
 import com.letraaletra.api.domain.game.board.word.Word;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +13,14 @@ import java.util.Objects;
 public record Board(Cell[][] grid, Word[] words) {
 
     public Cell getCell(Position position) {
-        return grid[position.x()][position.y()];
+        int row = position.x();
+        int col = position.y();
+
+        if (row < 0 || row >= grid.length || col < 0 || col >= grid.length) {
+            throw new InvalidCellPositionException();
+        }
+
+        return grid[row][col];
     }
 
     @Override

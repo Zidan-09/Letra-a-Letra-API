@@ -14,6 +14,7 @@ import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException
 import com.letraaletra.api.domain.game.service.GameOverResult;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult> {
@@ -41,6 +42,10 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
         List<StateEvent> event = action.execute(state, user);
 
+        if (event == null) {
+            event = new ArrayList<>();
+        }
+
         GameOverResult gameOverResult = state.gameOverChecker();
 
         if (gameOverResult.finished()) {
@@ -52,17 +57,16 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             return new PlayerActionResult(event, gameOverResult, game);
         }
 
-        Instant now = Instant.now().plusSeconds(5);
-        state.nextTurn(now);
-
         Player current;
-
         do {
+            state.nextTurn(Instant.now());
+
             current = state.getPlayerOrThrow(state.currentPlayerTurn());
+
             if (current.canNotPlay()) {
                 event.add(StateEvent.TURN_PASSED);
-                state.nextTurn(now);
             }
+
         } while (current.canNotPlay());
 
         updateTurnEnds(state, event.size());
@@ -85,8 +89,8 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
     }
 
     private void updateTurnEnds(GameState state, int qtyEvents) {
-        Instant now = Instant.now().plusSeconds(45 + (qtyEvents * 2L));
+        Instant finalTime = Instant.now().plusSeconds(45 + (qtyEvents * 2L));
 
-        state.nextTurn(now);
+        state.setTurnEndsAt(finalTime);
     }
 }

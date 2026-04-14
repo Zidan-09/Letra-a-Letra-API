@@ -195,7 +195,7 @@ async function runGameFlow(ws1, ws2) {
 
     currentPlayer = result.data.currentTurnPlayerId;
 
-    await sleep(300);
+    await sleep(100);
   }
 }
 

@@ -18,13 +18,11 @@ public class ParticipantUseCaseConfig {
     public BanParticipantUseCase banParticipantUseCase(
             ModerationContextFactory moderationContextFactory,
             UserRepository userRepository,
-            GameRepository gameRepository,
             GameActorManager gameActorManager
     ) {
         return new BanParticipantUseCase(
                 moderationContextFactory,
                 userRepository,
-                gameRepository,
                 gameActorManager
         );
     }

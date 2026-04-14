@@ -5,6 +5,7 @@ import com.letraaletra.api.application.command.game.LeftGameCommand;
 import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
@@ -45,13 +46,14 @@ public class LeftGameUseCase {
             gameRepository.save(result.game());
         }
 
-        return buildReturn(result.game(), command.token());
+        return buildReturn(result.game(), command.token(), result.gameOverResult());
     }
 
-    private LeftGameOutput buildReturn(Game game, String token) {
+    private LeftGameOutput buildReturn(Game game, String token, GameOverResult gameOverResult) {
         return new LeftGameOutput(
                 token,
-                game
+                game,
+                gameOverResult
         );
     }
 }

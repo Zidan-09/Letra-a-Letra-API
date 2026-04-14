@@ -85,6 +85,7 @@ public class JoinMatchmakingQueueUseCase {
             DefaultGameResult result = defaultGameGenerator.generate(player1, player2, getCode());
 
             user.enterGame(result.game().getId());
+            opponent.enterGame(result.game().getId());
 
             userRepository.save(user);
             userRepository.save(opponent);

@@ -58,6 +58,10 @@ public class GameState {
         return version;
     }
 
+    public void setTurnEndsAt(Instant turnEndsAt) {
+        this.turnEndsAt = turnEndsAt;
+    }
+
     public String currentPlayerTurn() {
         return turnOrder.get(currentTurnIndex);
     }

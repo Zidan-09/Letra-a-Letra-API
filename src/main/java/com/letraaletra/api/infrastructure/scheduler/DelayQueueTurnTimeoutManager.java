@@ -6,6 +6,7 @@ import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.game.ExpireTurnUseCase;
 import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,8 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
             gameNotifier.notifierGameOver(result.game(), result.gameOverResult());
         }
 
-        start(result.game());
+        if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {
+            start(result.game());
+        }
     }
 }

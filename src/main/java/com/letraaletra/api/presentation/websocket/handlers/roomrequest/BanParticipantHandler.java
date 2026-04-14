@@ -11,7 +11,6 @@ import com.letraaletra.api.presentation.mappers.participant.BanParticipantMapper
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class BanParticipantHandler implements RoomRequestHandler<BanParticipantWsRequest> {
@@ -20,9 +19,6 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
 
     @Autowired
     private BanParticipantMapper banParticipantMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private GameNotifier gameNotifier;
@@ -39,11 +35,9 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
 
         gameNotifier.notifierAll(output.game(), dto);
 
-        String json = objectMapper.writeValueAsString(
-                new ModerationResponseDTO("Banned from game")
-        );
+        ModerationResponseDTO dtoForBanned = new ModerationResponseDTO("Banned from game");
 
-        gameNotifier.notifierOne(request.participantId(), json);
+        gameNotifier.notifierOne(request.participantId(), dtoForBanned);
 
     }
 
