@@ -6,8 +6,6 @@ import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 public class FindByTokenGameIdUseCase {
     private final TokenService tokenService;

@@ -33,7 +33,7 @@ public class ReconnectParticipantHandler {
         output.ifPresent(out -> {
             ReconnectParticipantResponseDTO dto = reconnectParticipantMapper.toResponseDTO(out);
 
-            gameNotifier.notifierOne(userId, dto);
+            gameNotifier.notifierAll(out.game(), dto);
         });
     }
 }

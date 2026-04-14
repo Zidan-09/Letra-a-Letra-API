@@ -3,6 +3,7 @@ package com.letraaletra.api.application.usecase.game;
 import com.letraaletra.api.application.command.actor.StartGameActorCommand;
 import com.letraaletra.api.application.command.game.StartGameCommand;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
@@ -13,7 +14,6 @@ import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.game.board.theme.Theme;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.List;
 import java.util.Random;
@@ -27,7 +27,7 @@ public class StartGameUseCase {
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
 
     public StartGameUseCase(
             GameStateGenerator gameStateGenerator,
@@ -37,7 +37,7 @@ public class StartGameUseCase {
             BoardGenerator boardGenerator,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
-            GameActorManager gameActorManager
+            ActorManager gameActorManager
     ) {
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;

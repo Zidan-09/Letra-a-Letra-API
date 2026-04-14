@@ -1,4 +1,4 @@
-package com.letraaletra.api.application.service;
+package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
@@ -8,24 +8,31 @@ import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
-public class LeaveGameService {
-    private final GameRepository gameRepository;
+public class RemoveParticipantActorCommand implements ActorCommand<Void> {
     private final UserRepository userRepository;
+    private final GameRepository gameRepository;
+    private final String userId;
 
-    public LeaveGameService(GameRepository gameRepository, UserRepository userRepository) {
-        this.gameRepository = gameRepository;
+    public RemoveParticipantActorCommand(
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            String userId
+    ) {
         this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
+        this.userId = userId;
     }
 
-    public void leave(String gameId, String userId) {
+    @Override
+    public Void execute(Game game) {
         User user = userRepository.find(userId);
         validateUser(user);
 
-        Game game = gameRepository.find(gameId);
         validateGame(game);
 
         Participant participant = game.getParticipantByUserId(userId);
-        if (participant == null || participant.isConnected()) return;
+
+        if (participant == null || participant.isConnected()) return null;
 
         user.leaveGame();
         game.remove(userId);
@@ -37,6 +44,8 @@ public class LeaveGameService {
         } else {
             gameRepository.save(game);
         }
+
+        return null;
     }
 
     private void validateUser(User user) {

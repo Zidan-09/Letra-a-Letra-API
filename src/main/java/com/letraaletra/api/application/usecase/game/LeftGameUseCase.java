@@ -5,23 +5,23 @@ import com.letraaletra.api.application.command.game.LeftGameCommand;
 import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase {
     private final TokenService tokenService;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public LeftGameUseCase(TokenService tokenService, GameActorManager gameActorManager, UserRepository userRepository, GameRepository gameRepository) {
+    public LeftGameUseCase(TokenService tokenService, ActorManager gameActorManager, UserRepository userRepository, GameRepository gameRepository) {
         this.tokenService = tokenService;
         this.gameActorManager = gameActorManager;
         this.userRepository = userRepository;

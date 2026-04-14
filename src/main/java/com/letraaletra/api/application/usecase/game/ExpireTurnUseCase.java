@@ -5,24 +5,24 @@ import com.letraaletra.api.application.command.game.ExpireTurnCommand;
 import com.letraaletra.api.application.output.actor.ExpireTurnResult;
 import com.letraaletra.api.application.output.game.ExpireTurnOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ExpireTurnUseCase {
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
     private final GameTimeoutManager gameTimeoutManager;
     private final UserRepository userRepository;
 
     public ExpireTurnUseCase(
-            GameActorManager gameActorManager,
+            ActorManager gameActorManager,
             GameTimeoutManager gameTimeoutManager,
             UserRepository userRepository
     ) {

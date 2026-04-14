@@ -6,16 +6,16 @@ import com.letraaletra.api.application.context.ModerationContext;
 import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.KickParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, GameActorManager gameActorManager) {
+    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.gameActorManager = gameActorManager;
     }

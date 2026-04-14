@@ -5,6 +5,7 @@ import com.letraaletra.api.application.command.player.PlayerActionCommand;
 import com.letraaletra.api.application.output.actor.PlayerActionResult;
 import com.letraaletra.api.application.output.player.PlayerActionOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
@@ -14,7 +15,6 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class PlayerActionUseCase {
     private final TokenService tokenService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
@@ -32,7 +32,7 @@ public class PlayerActionUseCase {
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
-            GameActorManager gameActorManager,
+            ActorManager gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {

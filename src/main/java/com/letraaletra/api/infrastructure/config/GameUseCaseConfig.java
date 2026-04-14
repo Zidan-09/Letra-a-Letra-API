@@ -5,7 +5,6 @@ import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
 import com.letraaletra.api.application.usecase.game.*;
-import com.letraaletra.api.presentation.dto.response.game.board.BoardViewBuilder;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
@@ -135,10 +134,5 @@ public class GameUseCaseConfig {
                 tokenService,
                 turnTimeoutManager
         );
-    }
-
-    @Bean
-    public BoardViewBuilder boardViewBuilder() {
-        return new BoardViewBuilder();
     }
 }

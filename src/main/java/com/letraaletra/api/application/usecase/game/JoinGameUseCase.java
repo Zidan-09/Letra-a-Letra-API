@@ -33,8 +33,6 @@ public class JoinGameUseCase {
         CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, command.session()));
 
         Game game = future.join();
-
-        user.enterGame(game.getId());
         userRepository.save(user);
 
         return buildReturn(command.token(), game);

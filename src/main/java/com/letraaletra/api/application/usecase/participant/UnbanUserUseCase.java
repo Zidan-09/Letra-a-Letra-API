@@ -4,17 +4,17 @@ import com.letraaletra.api.application.command.actor.UnbanParticipantActorComman
 import com.letraaletra.api.application.command.participant.UnbanParticipantCommand;
 import com.letraaletra.api.application.output.participant.UnbanParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.concurrent.CompletableFuture;
 
 public class UnbanUserUseCase {
     private final TokenService tokenService;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
 
-    public UnbanUserUseCase(TokenService tokenService, GameActorManager gameActorManager) {
+    public UnbanUserUseCase(TokenService tokenService, ActorManager gameActorManager) {
         this.tokenService = tokenService;
         this.gameActorManager = gameActorManager;
     }
