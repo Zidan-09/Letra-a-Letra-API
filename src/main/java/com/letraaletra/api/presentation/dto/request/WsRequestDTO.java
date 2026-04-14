@@ -18,5 +18,6 @@ public sealed interface WsRequestDTO
         KickParticipantWsRequest,
         BanParticipantWsRequest,
         UnbanParticipantWsRequest,
-        PlayerActionWsRequest
+        PlayerActionWsRequest,
+        DiscardPowerWsRequest
 {}

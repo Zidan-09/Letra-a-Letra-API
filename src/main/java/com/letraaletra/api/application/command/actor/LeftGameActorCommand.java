@@ -4,6 +4,7 @@ import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.UserNotInGameException;
 import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.domain.game.service.GameOverResult;
 
 public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
     private final String session;
@@ -18,6 +19,8 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         validateParticipant(participant);
 
         game.remove(participant.getUserId());
+
+        GameOverResult gameOverResult = game.getGameState().gameOverChecker();
 
         return new LeftGameResult(
                 game,

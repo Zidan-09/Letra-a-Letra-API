@@ -32,10 +32,12 @@ public class SpyCellAction implements GameAction {
         validatePlayer(player);
         validatePower(player);
 
+        player.resetPassedTurn();
+
         Cell cell = state.getBoard().getCell(position);
         validateCell(cell);
 
-        player.removeFromInventory(powerId);
+        player.removeFromInventoryOrThrow(powerId);
 
         player.applyEffect(new SpyEffect(position));
 

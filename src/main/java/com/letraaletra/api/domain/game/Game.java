@@ -22,20 +22,23 @@ public class Game {
     private final Map<Integer, String> positions = new HashMap<>();
     private final RoomSettings roomSettings;
     private final Set<String> blacklist = new HashSet<>();
+    private final GameType gameType;
     private String hostId;
     private GameStatus gameStatus;
     private GameState gameState;
 
-    public Game(String id, String code, String roomName, RoomSettings roomSettings, Participant host) {
+    public Game(String id, String code, String roomName, RoomSettings roomSettings, Participant host, GameType gameType) {
         this.id = id;
         this.code = code;
         this.roomName = roomName;
         host.changeRole(ParticipantRole.PLAYER);
         this.participants.put(host.getUserId(), host);
+        this.gameType = gameType;
         this.hostId = host.getUserId();
         this.positions.put(0, host.getUserId());
         this.gameStatus = GameStatus.WAITING;
         this.roomSettings = roomSettings;
+
     }
 
     public String getId() {
@@ -48,6 +51,10 @@ public class Game {
 
     public String getRoomName() {
         return roomName;
+    }
+
+    public GameType getGameType() {
+        return gameType;
     }
 
     public List<Participant> getParticipants() {
@@ -125,6 +132,10 @@ public class Game {
 
         participants.remove(userId);
         positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+
+        if (gameStatus.equals(GameStatus.RUNNING)) {
+            gameState.removePlayer(userId);
+        }
 
         if (participants.isEmpty()) {
             return;

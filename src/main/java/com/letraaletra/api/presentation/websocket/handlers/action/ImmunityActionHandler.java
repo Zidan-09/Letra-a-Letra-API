@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.websocket.handlers.playeraction;
+package com.letraaletra.api.presentation.websocket.handlers.action;
 
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.actions.ImmunityPlayerAction;

@@ -20,7 +20,7 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
     private StartGameMapper startGameMapper;
 
     @Autowired
-    private GameNotifier broadcastService;
+    private GameNotifier gameNotifier;
 
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
@@ -30,7 +30,7 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
 
         StartGameResponseDTO dto = startGameMapper.toResponseDTO(output);
 
-        broadcastService.notifierAll(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
     }
 
     @Override

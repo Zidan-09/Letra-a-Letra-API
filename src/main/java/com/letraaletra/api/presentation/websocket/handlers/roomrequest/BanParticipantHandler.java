@@ -25,7 +25,7 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
     private ObjectMapper objectMapper;
 
     @Autowired
-    private GameNotifier broadcastService;
+    private GameNotifier gameNotifier;
 
     @Override
     public void handle(BanParticipantWsRequest request, WebSocketSession session) {
@@ -37,13 +37,13 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
 
         BanParticipantResponseDTO dto = banParticipantMapper.toResponseDTO(output);
 
-        broadcastService.notifierAll(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
 
         String json = objectMapper.writeValueAsString(
                 new ModerationResponseDTO("Banned from game")
         );
 
-        broadcastService.notifierOne(request.participantId(), json);
+        gameNotifier.notifierOne(request.participantId(), json);
 
     }
 

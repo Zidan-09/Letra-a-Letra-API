@@ -1,10 +1,13 @@
-package com.letraaletra.api.infrastructure.websocket;
+package com.letraaletra.api.presentation.websocket;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.application.port.SessionRepository;
+import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.presentation.dto.response.websocket.GameOverResponseDTO;
+import com.letraaletra.api.presentation.mappers.game.GameOverMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,9 @@ public class BroadcastService implements GameNotifier {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private GameOverMapper gameOverMapper;
 
     private final Logger logger = LoggerFactory.getLogger(BroadcastService.class);
 
@@ -64,6 +70,13 @@ public class BroadcastService implements GameNotifier {
         } catch (Exception e) {
             logger.warn("Error serializing message for user {}: {}", userId, e.getMessage());
         }
+    }
+
+    @Override
+    public void notifierGameOver(Game game, GameOverResult gameOverResult) {
+        GameOverResponseDTO dto = gameOverMapper.toResponseDTO(gameOverResult, game);
+
+        notifierAll(game, dto);
     }
 
     private void send(WebSocketSession session, String json) {

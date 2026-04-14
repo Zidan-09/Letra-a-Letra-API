@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.websocket.handlers.playeraction;
+package com.letraaletra.api.presentation.websocket.handlers.action;
 
 import com.letraaletra.api.application.command.player.PlayerActionCommand;
 import com.letraaletra.api.application.output.player.PlayerActionOutput;

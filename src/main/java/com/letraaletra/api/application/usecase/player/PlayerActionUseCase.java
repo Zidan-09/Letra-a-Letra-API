@@ -10,7 +10,9 @@ import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.List;
@@ -22,17 +24,20 @@ public class PlayerActionUseCase {
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
     private final GameActorManager gameActorManager;
+    private final UserRepository userRepository;
 
     public PlayerActionUseCase(
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
-            GameActorManager gameActorManager
+            GameActorManager gameActorManager,
+            UserRepository userRepository
     ) {
         this.tokenService = tokenService;
         this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
+        this.userRepository = userRepository;
     }
 
     public PlayerActionOutput execute(PlayerActionCommand command) {
@@ -48,6 +53,8 @@ public class PlayerActionUseCase {
 
         if (result.gameOverResult().finished()) {
             gameActorManager.remove(gameId);
+
+            removeAllPlayersFromGame(result.game());
         }
 
         return buildOutput(result.game(), result.gameOverResult(), result.events());
@@ -59,5 +66,10 @@ public class PlayerActionUseCase {
                 event,
                 gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()
         );
+    }
+
+    private void removeAllPlayersFromGame(Game game) {
+        game.getParticipants().forEach(participant -> Optional.ofNullable(userRepository.find(participant.getUserId()))
+                .ifPresent(User::leaveGame));
     }
 }

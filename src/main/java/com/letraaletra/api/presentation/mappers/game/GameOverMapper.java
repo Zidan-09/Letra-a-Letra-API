@@ -20,8 +20,8 @@ public class GameOverMapper {
 
         return new GameOverResponseDTO(
                 new GameOverDTO(
-                        playerDTOMapper.toDTO(winner, game.getParticipantByUserId(winner.getUserId())),
-                        playerDTOMapper.toDTO(loser, game.getParticipantByUserId(loser.getUserId()))
+                        winner != null ? playerDTOMapper.toDTO(winner, game.getParticipantByUserId(winner.getUserId())) : null,
+                        loser != null ? playerDTOMapper.toDTO(loser, game.getParticipantByUserId(loser.getUserId())) : null
                 )
         );
     }

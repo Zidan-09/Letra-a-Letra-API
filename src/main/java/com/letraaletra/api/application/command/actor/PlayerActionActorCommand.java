@@ -3,10 +3,7 @@ package com.letraaletra.api.application.command.actor;
 import com.letraaletra.api.application.output.actor.PlayerActionResult;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.exception.GameNotRunningException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -47,15 +44,15 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         GameOverResult gameOverResult = state.gameOverChecker();
 
         if (gameOverResult.finished()) {
-            game.setGameStatus(GameStatus.WAITING);
-
-            gameTimeoutManager.start(game);
+            if (game.getGameType().equals(GameType.CUSTOM)) {
+                game.setGameStatus(GameStatus.WAITING);
+                gameTimeoutManager.start(game);
+            }
 
             return new PlayerActionResult(event, gameOverResult, game);
         }
 
-        Instant now = Instant.now().plusSeconds(45);
-
+        Instant now = Instant.now().plusSeconds(5);
         state.nextTurn(now);
 
         Player current;
@@ -67,6 +64,8 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
                 state.nextTurn(now);
             }
         } while (current.canNotPlay());
+
+        updateTurnEnds(state, event.size());
 
         turnTimeoutManager.start(game);
 
@@ -83,5 +82,11 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         if (participant.getRole().equals(ParticipantRole.SPECTATOR)) {
             throw new SpectatorCanNotPlayException();
         }
+    }
+
+    private void updateTurnEnds(GameState state, int qtyEvents) {
+        Instant now = Instant.now().plusSeconds(45 + (qtyEvents * 2L));
+
+        state.nextTurn(now);
     }
 }

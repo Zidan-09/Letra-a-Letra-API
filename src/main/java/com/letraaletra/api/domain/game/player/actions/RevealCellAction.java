@@ -29,12 +29,16 @@ public class RevealCellAction implements GameAction {
 
         List<StateEvent> events = new ArrayList<>();
 
-        boolean canContinue = activateEffect(cell, userId, events);
+        Player player = state.getPlayerOrThrow(userId);
+
+        player.resetPassedTurn();
+
+        boolean canContinue = activateEffect(cell, player.getUserId(), events);
 
         if (!canContinue) return events;
 
         PowerType drop = cell.reveal(userId);
-        addPower(drop, state.getPlayerOrThrow(userId));
+        addPower(drop, player);
 
         StateEvent found = checkCompletedWords(cell, userId, state);
 

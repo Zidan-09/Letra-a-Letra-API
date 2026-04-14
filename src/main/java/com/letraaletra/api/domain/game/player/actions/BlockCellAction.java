@@ -29,7 +29,10 @@ public class BlockCellAction implements GameAction {
     public List<StateEvent> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
-        validatePower(state.getPlayerOrThrow(userId));
+        Player player = state.getPlayerOrThrow(userId);
+        validatePower(player);
+
+        player.resetPassedTurn();
 
         Cell cell = state.getBoard().getCell(position);
 
@@ -46,7 +49,7 @@ public class BlockCellAction implements GameAction {
         );
         events.add(StateEvent.CELL_BLOCKED);
 
-        state.getPlayerOrThrow(userId).removeFromInventory(powerId);
+        state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
 
         return events;
     }

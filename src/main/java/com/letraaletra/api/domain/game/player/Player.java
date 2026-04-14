@@ -12,6 +12,7 @@ public class Player {
     private final LinkedHashMap<String, PowerType> inventory = new LinkedHashMap<>();
     private int score = 0;
     private final List<PlayerEffect> effects = new ArrayList<>();
+    private int passedTurn = 0;
 
     public Player(String userId) {
         this.userId = userId;
@@ -37,7 +38,11 @@ public class Player {
         return List.copyOf(effects);
     }
 
-    public void removeFromInventory(String id) {
+    public int getPassedTurn() {
+        return passedTurn;
+    }
+
+    public void removeFromInventoryOrThrow(String id) {
         if (!inventory.containsKey(id)) {
             throw new InvalidPlayerActionException();
         }
@@ -68,5 +73,13 @@ public class Player {
 
     public boolean canNotPlay() {
         return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect);
+    }
+
+    public void passedTurn() {
+        passedTurn++;
+    }
+
+    public void resetPassedTurn() {
+        passedTurn = 0;
     }
 }
