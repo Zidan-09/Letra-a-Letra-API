@@ -34,6 +34,8 @@ public class TrapCellAction implements GameAction {
         validatePlayer(player);
         validatePower(player);
 
+        player.resetPassedTurn();
+
         Cell cell = state.getBoard().getCell(position);
 
         validateCell(cell);
@@ -50,7 +52,7 @@ public class TrapCellAction implements GameAction {
 
         events.add(StateEvent.CELL_TRAPPED);
 
-        state.getPlayerOrThrow(userId).removeFromInventory(powerId);
+        state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
 
         return events;
     }

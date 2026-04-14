@@ -130,6 +130,19 @@
     color: #27ae60;
 }
 
+.slot.selected {
+    background-color: #2e80cc;
+}
+
+.discard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+}
+
 .footer {
     display: flex;
     justify-content: center;

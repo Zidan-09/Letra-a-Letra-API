@@ -99,8 +99,12 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public ExpireTurnUseCase expireTurnUseCase(GameActorManager gameActorManager) {
-        return new ExpireTurnUseCase(gameActorManager);
+    public ExpireTurnUseCase expireTurnUseCase(
+            GameActorManager gameActorManager,
+            GameTimeoutManager gameTimeoutManager,
+            UserRepository userRepository
+    ) {
+        return new ExpireTurnUseCase(gameActorManager, gameTimeoutManager, userRepository);
     }
 
     @Bean

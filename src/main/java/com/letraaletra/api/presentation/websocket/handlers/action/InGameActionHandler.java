@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.websocket.handlers.playeraction;
+package com.letraaletra.api.presentation.websocket.handlers.action;
 
 import com.letraaletra.api.presentation.dto.request.player.PlayerActionDTO;
 import org.springframework.web.socket.WebSocketSession;

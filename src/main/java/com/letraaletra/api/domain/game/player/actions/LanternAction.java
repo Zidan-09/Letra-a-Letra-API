@@ -27,7 +27,9 @@ public class LanternAction implements GameAction {
         validatePlayer(player);
         validatePower(player);
 
-        player.removeFromInventory(powerId);
+        player.resetPassedTurn();
+
+        player.removeFromInventoryOrThrow(powerId);
 
         player.removeEffect(BlindEffect.class);
 

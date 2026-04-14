@@ -2,7 +2,9 @@ package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.application.usecase.player.DiscardPowerUseCase;
 import com.letraaletra.api.application.usecase.player.PlayerActionUseCase;
+import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;
@@ -15,13 +17,20 @@ public class PlayerUseCaseConfig {
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
-            GameActorManager gameActorManager
+            GameActorManager gameActorManager,
+            UserRepository userRepository
             ) {
         return new PlayerActionUseCase(
                 tokenService,
                 gameTimeoutManager,
                 turnTimeoutManager,
-                gameActorManager
+                gameActorManager,
+                userRepository
         );
+    }
+
+    @Bean
+    public DiscardPowerUseCase discardPowerUseCase(TokenService tokenService, GameActorManager gameActorManager) {
+        return new DiscardPowerUseCase(tokenService, gameActorManager);
     }
 }

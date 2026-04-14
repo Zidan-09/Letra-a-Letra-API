@@ -27,6 +27,7 @@ public sealed interface WsResponseDTO
         ReconnectParticipantResponseDTO,
 
         PlayerActionResponseDTO,
+        DiscardPowerResponseDTO,
 
         ErrorResponseDTO
 {}

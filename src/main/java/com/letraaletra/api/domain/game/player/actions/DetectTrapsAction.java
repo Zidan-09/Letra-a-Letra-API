@@ -26,8 +26,10 @@ public class DetectTrapsAction implements GameAction {
         Player player = state.getPlayerOrThrow(userId);
         validatePlayer(player);
 
+        player.resetPassedTurn();
+
         validatePower(player);
-        player.removeFromInventory(powerId);
+        player.removeFromInventoryOrThrow(powerId);
 
         DetectTrapsEffect effect = new DetectTrapsEffect();
         effect.setTraps(state.getBoard().getOpponentTraps(userId));

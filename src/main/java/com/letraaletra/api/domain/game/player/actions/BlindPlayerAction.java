@@ -29,10 +29,12 @@ public class BlindPlayerAction implements GameAction {
         validatePlayer(player);
         validatePower(player);
 
+        player.resetPassedTurn();
+
         Player opponent = state.getPlayerOrThrow(target);
         validatePlayer(opponent);
 
-        player.removeFromInventory(powerId);
+        player.removeFromInventoryOrThrow(powerId);
         opponent.applyEffect(new BlindEffect());
 
         return new ArrayList<>(List.of(StateEvent.PLAYER_BLINDED));

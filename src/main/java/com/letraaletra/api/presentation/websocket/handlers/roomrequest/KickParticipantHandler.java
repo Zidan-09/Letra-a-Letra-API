@@ -25,7 +25,7 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
     private ObjectMapper objectMapper;
 
     @Autowired
-    private GameNotifier broadcastService;
+    private GameNotifier gameNotifier;
 
     @Override
     public void handle(KickParticipantWsRequest request, WebSocketSession session) {
@@ -37,13 +37,13 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
 
         KickParticipantResponseDTO dto = kickParticipantMapper.toResponseDTO(output);
 
-        broadcastService.notifierAll(output.game(), dto);
+        gameNotifier.notifierAll(output.game(), dto);
 
         String json = objectMapper.writeValueAsString(
                 new ModerationResponseDTO("Kicked from game")
         );
 
-        broadcastService.notifierOne(request.participantId(), json);
+        gameNotifier.notifierOne(request.participantId(), json);
     }
 
     @Override

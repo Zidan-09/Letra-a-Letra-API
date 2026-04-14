@@ -2,6 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.CreateGameCommand;
 import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.output.game.CreateGameOutput;
 import com.letraaletra.api.domain.security.TokenService;
@@ -41,7 +42,7 @@ public class CreateGameUseCase {
 
         String code = getCode();
 
-        Game game = new Game(gameId, code, command.name(), command.settings(), host);
+        Game game = new Game(gameId, code, command.name(), command.settings(), host, GameType.CUSTOM);
 
         user.enterGame(gameId);
 

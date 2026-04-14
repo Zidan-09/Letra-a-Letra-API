@@ -28,7 +28,9 @@ public class UnfreezeAction implements GameAction {
         validatePlayer(player);
         validatePower(player);
 
-        player.removeFromInventory(powerId);
+        player.resetPassedTurn();
+
+        player.removeFromInventoryOrThrow(powerId);
 
         player.removeEffect(FreezeEffect.class);
 

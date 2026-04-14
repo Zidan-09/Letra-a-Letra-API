@@ -13,6 +13,10 @@ const startButton = document.getElementById("start");
 const nicknameInput = document.getElementById("nickname");
 const turnDisplay = document.getElementById("turn");
 const wordsContainer = document.getElementById("words");
+const discardButton = document.getElementById("discard");
+discardButton.classList.add("hide");
+
+discardButton.addEventListener("click", () => discardPower());
 
 let gameWs = null;
 let currentUser = null;
@@ -23,6 +27,7 @@ let selectedPower = null;
 function clearPowerSelection() {
     selectedPower = null;
     document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+    discardButton.classList.add("hide");
 }
 
 function updateInventory(players, myNickname) {
@@ -52,6 +57,7 @@ function updateInventory(players, myNickname) {
 
             if (selectedPower && selectedPower.id === power.id) {
                 slot.classList.add("selected");
+                discardButton.classList.remove("hide");
             }
         }
     });
@@ -73,6 +79,10 @@ async function registerAndLogin(nickname, email, password) {
     return new User(login.data.id, nickname, login.data.token);
 }
 
+function discardPower() {
+    gameWs.send(JSON.stringify({ type: "DISCARD_POWER", tokenGameId: currentTokenGameId,  powerId: selectedPower.id }));
+}
+
 function updateBoard(board) {
     board.forEach((row, x) => {
         row.forEach((cell, y) => {
@@ -82,7 +92,7 @@ function updateBoard(board) {
                 cellDiv.className = "cell";
                 if (cell.revealed) {
                     cellDiv.classList.add("revealed");
-                    cellDiv.style.backgroundColor = cell.revealedBy === currentUser.id ? "#e0ffe0" : "#eee";
+                    cellDiv.style.backgroundColor = cell.revealedBy === currentUser.id ? "#1587f1ff" : "#eeb807ff";
                 }
             }
         });
@@ -153,6 +163,7 @@ document.querySelectorAll(".slot").forEach((slot, index) => {
             clearPowerSelection();
             selectedPower = { id: powerId, name: powerName, slotIndex: index + 1 };
             slot.classList.add("selected");
+            discardButton.classList.remove("hide");
         }
     });
 });
@@ -177,8 +188,18 @@ startButton.addEventListener("click", async () => {
         const msg = JSON.parse(event.data);
         console.log("Evento:", msg);
 
+        if (msg.event === "REMOVED_BECAUSE_INACTIVITY") {
+            turnDisplay.innerText = "REMOVIDO POR INATIVIDADE!";
+            turnDisplay.style.color = "gray";
+        }
+
         if (msg.event === "MATCHMAKING_GAME" && msg.status === "FOUNDED") {
             currentTokenGameId = msg.tokenGameId;
+        }
+
+        if (msg.event === "POWER_DISCARDED") {
+            updateInventory(msg.data.players, nick);
+            clearPowerSelection();
         }
 
         if (msg.event === "TURN_EXPIRED") {
@@ -200,6 +221,7 @@ startButton.addEventListener("click", async () => {
         if (msg.event === "GAME_OVER") {
             const winner = msg.data.winner.id === currentUser.id ? "VOCÊ VENCEU!" : "VOCÊ PERDEU!";
             turnDisplay.innerText = `FIM DE JOGO: ${winner}`;
+            turnDisplay.style.color = msg.data.winner.id === currentUser.id ? "green" : "red";
             currentTokenGameId = null;
         }
     };

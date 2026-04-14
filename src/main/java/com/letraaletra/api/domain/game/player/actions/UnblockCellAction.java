@@ -31,7 +31,10 @@ public class UnblockCellAction implements GameAction {
 
         Player player = state.getPlayerOrThrow(userId);
         validatePower(player);
-        player.removeFromInventory(powerId);
+
+        player.resetPassedTurn();
+
+        player.removeFromInventoryOrThrow(powerId);
 
         cell.clearEffect();
 

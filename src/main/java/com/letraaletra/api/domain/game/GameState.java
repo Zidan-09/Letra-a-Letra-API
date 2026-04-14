@@ -98,4 +98,8 @@ public class GameState {
 
         return new GameOverResult(false, null, null);
     }
+
+    public void removePlayer(String playerId) {
+        players.remove(playerId);
+    }
 }
