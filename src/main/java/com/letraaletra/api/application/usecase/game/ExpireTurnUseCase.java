@@ -7,6 +7,7 @@ import com.letraaletra.api.application.output.game.ExpireTurnOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
@@ -52,9 +53,23 @@ public class ExpireTurnUseCase {
     private void removeUserRoomId(ExpireTurnResult expireTurn) {
         if (expireTurn == null) return;
 
-        User user = userRepository.find(expireTurn.whoPassed());
+        if (expireTurn.removedBecauseAfk()) {
+            User user = userRepository.find(expireTurn.whoPassed());
+            if (user != null) {
+                user.leaveGame();
+                userRepository.save(user);
+            }
+        }
 
-        user.leaveGame();
+        if (expireTurn.gameOverResult().finished()) {
+            for (Participant participant : expireTurn.game().getParticipants()) {
+                User pUser = userRepository.find(participant.getUserId());
+                if (pUser != null) {
+                    pUser.leaveGame();
+                    userRepository.save(pUser);
+                }
+            }
+        }
     }
 
     private Optional<ExpireTurnOutput> buildOutput(String whoPassed, Game game, GameOverResult gameOverResult, boolean removedBecauseAfk) {

@@ -4,6 +4,7 @@ import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.player.DiscardPowerUseCase;
 import com.letraaletra.api.application.usecase.player.PlayerActionUseCase;
+import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.infrastructure.manager.GameActorManager;
@@ -18,14 +19,16 @@ public class PlayerUseCaseConfig {
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             GameActorManager gameActorManager,
-            UserRepository userRepository
+            UserRepository userRepository,
+            GameRepository gameRepository
             ) {
         return new PlayerActionUseCase(
                 tokenService,
                 gameTimeoutManager,
                 turnTimeoutManager,
                 gameActorManager,
-                userRepository
+                userRepository,
+                gameRepository
         );
     }
 

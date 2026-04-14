@@ -1,6 +1,7 @@
 package com.letraaletra.api.domain.game;
 
 import com.letraaletra.api.domain.game.board.Board;
+import com.letraaletra.api.domain.game.exception.GameIsRunningException;
 import com.letraaletra.api.domain.game.exception.RoomFullException;
 import com.letraaletra.api.domain.game.exception.UserBannedException;
 import com.letraaletra.api.domain.game.participant.exception.InvalidRoomPositionException;
@@ -157,6 +158,14 @@ public class Game {
     }
 
     public void changePosition(String userId, int position) {
+        if (gameStatus.equals(GameStatus.RUNNING)) {
+            throw new GameIsRunningException();
+        }
+
+        if (position < 0 || position > 6) {
+            throw new InvalidRoomPositionException();
+        }
+
         Participant participant = participants.get(userId);
 
         if (participant == null) {

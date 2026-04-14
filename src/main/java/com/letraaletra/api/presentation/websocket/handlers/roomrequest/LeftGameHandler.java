@@ -31,6 +31,10 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
         LeftGameResponseDTO dto = leftGameMapper.toResponseDTO(output);
 
         gameNotifier.notifierAll(output.game(), dto);
+
+        if (output.gameOverResult() != null) {
+            gameNotifier.notifierGameOver(output.game(), output.gameOverResult());
+        }
     }
 
     @Override

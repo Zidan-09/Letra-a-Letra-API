@@ -10,6 +10,7 @@ import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
@@ -25,19 +26,22 @@ public class PlayerActionUseCase {
     private final TurnTimeoutManager turnTimeoutManager;
     private final GameActorManager gameActorManager;
     private final UserRepository userRepository;
+    private final GameRepository gameRepository;
 
     public PlayerActionUseCase(
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             GameActorManager gameActorManager,
-            UserRepository userRepository
+            UserRepository userRepository,
+            GameRepository gameRepository
     ) {
         this.tokenService = tokenService;
         this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
         this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     public PlayerActionOutput execute(PlayerActionCommand command) {
@@ -55,6 +59,8 @@ public class PlayerActionUseCase {
             gameActorManager.remove(gameId);
 
             removeAllPlayersFromGame(result.game());
+
+            gameRepository.removeByCode(result.game().getCode());
         }
 
         return buildOutput(result.game(), result.gameOverResult(), result.events());
