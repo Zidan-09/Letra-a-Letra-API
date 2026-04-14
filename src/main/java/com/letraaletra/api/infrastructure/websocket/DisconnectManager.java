@@ -1,7 +1,8 @@
 package com.letraaletra.api.infrastructure.websocket;
 
+import com.letraaletra.api.application.command.participant.RemoveParticipantCommand;
 import com.letraaletra.api.application.port.DisconnectScheduler;
-import com.letraaletra.api.application.service.LeaveGameService;
+import com.letraaletra.api.application.usecase.participant.RemoveParticipantUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.*;
 public class DisconnectManager implements DisconnectScheduler {
 
     @Autowired
-    private LeaveGameService leaveGameService;
+    private RemoveParticipantUseCase removeParticipantUseCase;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
@@ -24,7 +25,7 @@ public class DisconnectManager implements DisconnectScheduler {
 
         cancel(userId, gameId);
 
-        ScheduledFuture<?> future = scheduler.schedule(() -> handleTimeout(userId, gameId), 45, TimeUnit.SECONDS);
+        ScheduledFuture<?> future = scheduler.schedule(() -> handleTimeout(userId, gameId), 60, TimeUnit.SECONDS);
 
         timers.put(key, future);
     }
@@ -44,7 +45,9 @@ public class DisconnectManager implements DisconnectScheduler {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
-        leaveGameService.leave(gameId, userId);
+        removeParticipantUseCase.execute(new RemoveParticipantCommand(
+                gameId, userId
+        ));
     }
 
     private String buildKey(String userId, String gameId) {

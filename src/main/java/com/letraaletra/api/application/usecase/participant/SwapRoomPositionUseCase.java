@@ -4,18 +4,18 @@ import com.letraaletra.api.application.command.actor.SwapPositionActorCommand;
 import com.letraaletra.api.application.command.participant.SwapPositionCommand;
 import com.letraaletra.api.application.output.participant.SwapPositionOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase {
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
     private final TokenService tokenService;
 
-    public SwapRoomPositionUseCase(GameActorManager gameActorManager, TokenService tokenService) {
+    public SwapRoomPositionUseCase(ActorManager gameActorManager, TokenService tokenService) {
         this.gameActorManager = gameActorManager;
         this.tokenService = tokenService;
     }

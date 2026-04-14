@@ -2,7 +2,6 @@ package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.port.DisconnectScheduler;
-import com.letraaletra.api.application.service.LeaveGameService;
 import com.letraaletra.api.application.usecase.participant.*;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
@@ -29,13 +28,13 @@ public class ParticipantUseCaseConfig {
 
     @Bean
     public DisconnectUseCase disconnectUseCase(
-            GameRepository gameRepository,
+            GameActorManager gameActorManager,
             DisconnectScheduler disconnectScheduler,
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository
     ) {
         return new DisconnectUseCase(
-                gameRepository,
+                gameActorManager,
                 disconnectScheduler,
                 matchmakingRepository,
                 userRepository
@@ -73,7 +72,11 @@ public class ParticipantUseCaseConfig {
     }
 
     @Bean
-    public LeaveGameService leaveGameService(GameRepository gameRepository, UserRepository userRepository) {
-        return new LeaveGameService(gameRepository, userRepository);
+    public RemoveParticipantUseCase removeParticipantUseCase(
+            GameActorManager gameActorManager,
+            GameRepository gameRepository,
+            UserRepository userRepository
+    ) {
+        return new RemoveParticipantUseCase(gameActorManager, gameRepository, userRepository);
     }
 }

@@ -22,6 +22,7 @@ public class JoinGameActorCommand implements ActorCommand<Game> {
         Participant participant = ParticipantFactory.fromUser(user, session);
 
         game.join(participant);
+        user.enterGame(game.getId());
 
         return game;
     }

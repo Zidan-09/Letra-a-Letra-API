@@ -54,7 +54,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionDTO>
                 .getPlayers().values()
                 .stream().toList();
 
-        List<Participant> participants = output.game().getParticipants().stream()
+        List<Participant> spectators = output.game().getParticipants().stream()
                 .filter(participant -> participant.getRole().equals(ParticipantRole.SPECTATOR))
                 .toList();
 
@@ -64,10 +64,10 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionDTO>
             gameNotifier.notifierOne(player.getUserId(), dto);
         }
 
-        for (Participant participant : participants) {
+        for (Participant spectator : spectators) {
             PlayerActionResponseDTO dto = playerActionMapper.toAllResponseDTO(output);
 
-            gameNotifier.notifierOne(participant.getUserId(), dto);
+            gameNotifier.notifierOne(spectator.getUserId(), dto);
         }
     }
 }

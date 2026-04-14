@@ -6,19 +6,19 @@ import com.letraaletra.api.application.context.ModerationContext;
 import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.BanParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
 
 import java.util.concurrent.CompletableFuture;
 
 public class BanParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
     private final UserRepository userRepository;
-    private final GameActorManager gameActorManager;
+    private final ActorManager gameActorManager;
 
-    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, GameActorManager gameActorManager) {
+    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.userRepository = userRepository;
         this.gameActorManager = gameActorManager;

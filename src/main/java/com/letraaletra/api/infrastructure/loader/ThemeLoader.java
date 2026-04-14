@@ -18,15 +18,18 @@ public class ThemeLoader {
 
     public Map<String, Theme> load() {
         try (InputStream inputStream = getClass().getResourceAsStream("/data/themes.json")) {
+            if (inputStream == null) {
+                throw new RuntimeException("File /data/themes.json not found!");
+            }
 
-            List<Theme> themes = objectMapper.readValue(
+            List<ThemeJson> themes = objectMapper.readValue(
                     inputStream,
-                    new TypeReference<>() {
+                    new TypeReference<  >() {
                     }
             );
 
             return themes.stream()
-                    .collect(Collectors.toMap(Theme::getThemeId, theme -> theme));
+                    .collect(Collectors.toMap(ThemeJson::id, theme -> new Theme(theme.id(), theme.name(), theme.words())));
 
         } catch (Exception ex) {
             throw new RuntimeException(
