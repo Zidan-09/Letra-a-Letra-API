@@ -5,7 +5,7 @@ import com.letraaletra.api.application.command.game.LeftGameCommand;
 import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -17,20 +17,20 @@ import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase {
     private final TokenService tokenService;
-    private final ActorManager gameActorManager;
+    private final ActorRepository gameActorRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public LeftGameUseCase(TokenService tokenService, ActorManager gameActorManager, UserRepository userRepository, GameRepository gameRepository) {
+    public LeftGameUseCase(TokenService tokenService, ActorRepository gameActorRepository, UserRepository userRepository, GameRepository gameRepository) {
         this.tokenService = tokenService;
-        this.gameActorManager = gameActorManager;
+        this.gameActorRepository = gameActorRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
     }
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorRepository.getOrCreate(gameId);
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
 

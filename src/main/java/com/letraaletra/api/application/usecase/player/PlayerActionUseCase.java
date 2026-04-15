@@ -5,7 +5,7 @@ import com.letraaletra.api.application.command.player.PlayerActionCommand;
 import com.letraaletra.api.application.output.actor.PlayerActionResult;
 import com.letraaletra.api.application.output.player.PlayerActionOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
@@ -24,7 +24,7 @@ public class PlayerActionUseCase {
     private final TokenService tokenService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final ActorManager gameActorManager;
+    private final ActorRepository gameActorRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
@@ -32,14 +32,14 @@ public class PlayerActionUseCase {
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager gameActorManager,
+            ActorRepository gameActorRepository,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {
         this.tokenService = tokenService;
         this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
-        this.gameActorManager = gameActorManager;
+        this.gameActorRepository = gameActorRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
     }
@@ -47,7 +47,7 @@ public class PlayerActionUseCase {
     public PlayerActionOutput execute(PlayerActionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorRepository.getOrCreate(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
                 command.user(), command.action(), gameTimeoutManager, turnTimeoutManager
@@ -56,7 +56,7 @@ public class PlayerActionUseCase {
         PlayerActionResult result = future.join();
 
         if (result.gameOverResult().finished()) {
-            gameActorManager.remove(gameId);
+            gameActorRepository.remove(gameId);
 
             removeAllPlayersFromGame(result.game());
 

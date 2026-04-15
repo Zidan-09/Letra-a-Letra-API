@@ -1,7 +1,7 @@
 package com.letraaletra.api.infrastructure.manager;
 
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Component
-public class GameActorManager implements ActorManager {
+public class GameActorRepository implements ActorRepository {
     private final Map<String, Actor> actors = new ConcurrentHashMap<>();
     private final GameRepository gameRepository;
     private final ExecutorService executor;
 
-    public GameActorManager(GameRepository gameRepository, ExecutorService executor) {
+    public GameActorRepository(GameRepository gameRepository, ExecutorService executor) {
         this.gameRepository = gameRepository;
         this.executor = executor;
     }

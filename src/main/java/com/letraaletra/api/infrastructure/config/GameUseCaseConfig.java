@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.config;
 
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
@@ -15,7 +15,7 @@ import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.infrastructure.manager.GameActorManager;
+import com.letraaletra.api.infrastructure.manager.GameActorRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -55,14 +55,14 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
-        return new JoinGameUseCase(userRepository, tokenService, actorManager);
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorRepository actorRepository) {
+        return new JoinGameUseCase(userRepository, tokenService, actorRepository);
     }
 
     @Bean
     public LeftGameUseCase leftGameUseCase(
             TokenService tokenService,
-            GameActorManager gameActorManager,
+            GameActorRepository gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {
@@ -83,7 +83,7 @@ public class GameUseCaseConfig {
              BoardGenerator boardGenerator,
              TokenService tokenService,
              TurnTimeoutManager turnTimeoutManager,
-             GameActorManager gameActorManager
+             GameActorRepository gameActorManager
     ) {
         return new StartGameUseCase(
                 gameStateGenerator,
@@ -99,7 +99,7 @@ public class GameUseCaseConfig {
 
     @Bean
     public ExpireTurnUseCase expireTurnUseCase(
-            GameActorManager gameActorManager,
+            GameActorRepository gameActorManager,
             GameTimeoutManager gameTimeoutManager,
             UserRepository userRepository
     ) {

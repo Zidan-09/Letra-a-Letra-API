@@ -8,15 +8,15 @@ public class User {
     private final String nickname;
     private final String avatar;
     private final String email;
-    private final String password;
+    private final String hashPassword;
     private String currentGameId;
 
-    public User(String id, String nickname, String avatar, String email, String password) {
+    public User(String id, String nickname, String avatar, String email, String hashPassword) {
         this.id = id;
         this.nickname = nickname;
         this.avatar = avatar;
         this.email = email;
-        this.password = password;
+        this.hashPassword = hashPassword;
     }
 
     public String getId() {
@@ -35,8 +35,8 @@ public class User {
         return email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getHashPassword() {
+        return hashPassword;
     }
 
     public boolean isInGame() {
