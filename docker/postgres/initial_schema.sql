@@ -1,0 +1,48 @@
+
+CREATE TYPE status AS ENUM ('WAITING', 'RUNNING', 'CLOSED', 'CANCELED');
+CREATE TYPE game_mode AS ENUM ('EASY', 'NORMAL', 'HARD', 'INSANE', 'CATACLYSM');
+
+CREATE TABLE "user" (
+                        "user_id" uuid PRIMARY KEY NOT NULL,
+                        "username" varchar(15) UNIQUE NOT NULL,
+                        "email" varchar(50) UNIQUE NOT NULL,
+                        "password_hash" varchar(100) NOT NULL,
+                        "avatar_id" varchar(30),
+                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "user_stats" (
+                              "user_id" uuid PRIMARY KEY REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                              "total_matches" integer DEFAULT 0,
+                              "total_wins" integer DEFAULT 0,
+                              "win_streak" integer DEFAULT 0
+);
+
+CREATE TABLE "game" (
+                        "game_id" uuid PRIMARY KEY NOT NULL,
+                        "host_id" uuid REFERENCES "user" ("user_id"),
+                        "created_by_id" uuid REFERENCES "user" ("user_id"),
+                        "room_code" varchar(10) NOT NULL,
+                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "status" status DEFAULT 'WAITING'
+);
+
+CREATE TABLE "matches" (
+                           "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                           "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
+                           "game_mode" game_mode NOT NULL,
+                           "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                           "ended_at" timestamp
+);
+
+CREATE TABLE "match_players" (
+                                 "match_id" uuid REFERENCES "matches" ("match_id") ON DELETE CASCADE,
+                                 "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                                 "score" integer DEFAULT 0,
+                                 "is_winner" boolean DEFAULT false,
+                                 PRIMARY KEY ("match_id", "user_id")
+);
+
+CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
+CREATE INDEX idx_user_stats_wins ON "user_stats" ("total_wins" DESC);
+CREATE INDEX idx_match_players_user ON "match_players" ("user_id");

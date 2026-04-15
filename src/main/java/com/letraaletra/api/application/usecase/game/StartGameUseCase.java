@@ -3,7 +3,7 @@ package com.letraaletra.api.application.usecase.game;
 import com.letraaletra.api.application.command.actor.StartGameActorCommand;
 import com.letraaletra.api.application.command.game.StartGameCommand;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
@@ -27,7 +27,7 @@ public class StartGameUseCase {
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final ActorManager gameActorManager;
+    private final ActorRepository gameActorRepository;
 
     public StartGameUseCase(
             GameStateGenerator gameStateGenerator,
@@ -37,7 +37,7 @@ public class StartGameUseCase {
             BoardGenerator boardGenerator,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager gameActorManager
+            ActorRepository gameActorRepository
     ) {
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;
@@ -46,7 +46,7 @@ public class StartGameUseCase {
         this.boardGenerator = boardGenerator;
         this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
-        this.gameActorManager = gameActorManager;
+        this.gameActorRepository = gameActorRepository;
     }
 
     public StartGameOutput execute(StartGameCommand command) {
@@ -60,7 +60,7 @@ public class StartGameUseCase {
 
         Board board = boardGenerator.generate(words, command.settings().getGameMode());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorRepository.getOrCreate(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateGenerator, gameTimeoutManager, turnTimeoutManager));
 

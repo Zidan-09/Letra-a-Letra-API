@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.actor.DisconnectParticipantActorC
 import com.letraaletra.api.application.command.participant.DisconnectParticipantCommand;
 import com.letraaletra.api.application.output.participant.DisconnectParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.ActorRepository;
 import com.letraaletra.api.application.port.DisconnectScheduler;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
@@ -15,18 +15,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class DisconnectUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorRepository gameActorRepository;
     private final DisconnectScheduler disconnectScheduler;
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
 
     public DisconnectUseCase(
-            ActorManager gameActorManager,
+            ActorRepository gameActorRepository,
             DisconnectScheduler disconnectScheduler,
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository
     ) {
-        this.gameActorManager = gameActorManager;
+        this.gameActorRepository = gameActorRepository;
         this.disconnectScheduler = disconnectScheduler;
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
@@ -44,7 +44,7 @@ public class DisconnectUseCase {
         if (user == null || !user.isInGame()) return Optional.empty();
 
 
-        Actor actor = gameActorManager.getOrCreate(user.getCurrentGameId());
+        Actor actor = gameActorRepository.getOrCreate(user.getCurrentGameId());
 
         CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
                 new DisconnectParticipantActorCommand(userId, disconnectScheduler)

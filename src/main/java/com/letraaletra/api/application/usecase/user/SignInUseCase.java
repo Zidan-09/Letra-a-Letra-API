@@ -25,7 +25,7 @@ public class SignInUseCase {
 
         validateUser(user);
 
-        checkMatch(command.password(), user.getPassword());
+        checkMatch(command.password(), user.getHashPassword());
 
         String token = tokenService.generateToken(user.getId());
 
