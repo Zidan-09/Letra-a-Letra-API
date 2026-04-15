@@ -87,12 +87,31 @@ function updateBoard(board) {
     board.forEach((row, x) => {
         row.forEach((cell, y) => {
             const cellDiv = document.getElementById(`${x}-${y}`);
+
             if (cellDiv) {
                 cellDiv.innerText = cell.letter || "";
                 cellDiv.className = "cell";
+
+                if (!cell.revealed && !cell.letter && !cell.revealedBy && !cell.effect) {
+                    cellDiv.style.backgroundColor = "#f5f5f5f5";
+                }
+
                 if (cell.revealed) {
                     cellDiv.classList.add("revealed");
                     cellDiv.style.backgroundColor = cell.revealedBy === currentUser.id ? "#1587f1ff" : "#eeb807ff";
+                }
+
+                if (cell.effect) {
+                    const areBlock = cell.effect.effect === "BLOCK";
+
+                    console.log(cell.effect);
+                    cellDiv.classList.add(areBlock ? "blocked" : "trapped");
+                    cellDiv.style.backgroundColor = areBlock ? cell.effect.ownerId === currentUser.id ? "#164b7cff" : "#977916ff" : cell.effect.ownerId === currentUser.id ? "#0400ffff" : "#ff6600f5";
+                    cellDiv.innerText = cell.effect.remainingClicks || "";
+                }
+
+                if (cell.revealed && !cell.letter && !cell.revealedBy) {
+                    cellDiv.style.backgroundColor = "#1a1a1af5";
                 }
             }
         });
@@ -180,7 +199,7 @@ startButton.addEventListener("click", async () => {
 
     gameWs.onopen = () => {
         console.log("Conectado!");
-        sendAction("MATCHMAKING_GAME", { gameMode: "NORMAL" });
+        sendAction("MATCHMAKING_GAME", { gameMode: "CATACLYSM" });
         turnDisplay.innerText = "Buscando partida...";
     };
 

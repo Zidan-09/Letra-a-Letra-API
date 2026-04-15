@@ -1,4 +1,4 @@
-package com.letraaletra.api.presentation.dto.response.game.board;
+package com.letraaletra.api.presentation.mappers.board;
 
 import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.board.cell.Cell;
@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.effect.BlindEffect;
 import com.letraaletra.api.domain.game.player.effect.DetectTrapsEffect;
 import com.letraaletra.api.domain.game.player.effect.SpyEffect;
+import com.letraaletra.api.presentation.dto.response.game.board.BoardView;
 import com.letraaletra.api.presentation.dto.response.game.board.cell.BlockView;
 import com.letraaletra.api.presentation.dto.response.game.board.cell.CellView;
 import com.letraaletra.api.presentation.dto.response.game.board.cell.TrapView;
@@ -103,15 +104,20 @@ public class BoardViewBuilder {
             );
         }
 
-        if (spyPositions.contains(cell.getPosition())) {
+        boolean revealed = cell.isRevealed();
+
+        if (spyPositions.contains(cell.getPosition()) && !revealed) {
             return new CellView(false, cell.getLetter(), null, null);
         }
 
         if (isBlind) {
-            return new CellView(false, null, null, null);
+            return new CellView(
+                    revealed,
+                    null,
+                    null,
+                    null
+            );
         }
-
-        boolean revealed = cell.isRevealed();
 
         return new CellView(
                 revealed,
