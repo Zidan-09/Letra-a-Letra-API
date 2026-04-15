@@ -72,7 +72,8 @@ public class Player {
     }
 
     public boolean canNotPlay() {
-        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect);
+        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect) &&
+                inventory.values().stream().noneMatch(power -> power == PowerType.UNFREEZE || power == PowerType.IMMUNITY);
     }
 
     public void passedTurn() {

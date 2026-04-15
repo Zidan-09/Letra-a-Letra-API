@@ -1,7 +1,7 @@
 package com.letraaletra.api.presentation.mappers.game;
 
 import com.letraaletra.api.presentation.dto.response.game.board.BoardView;
-import com.letraaletra.api.presentation.dto.response.game.board.BoardViewBuilder;
+import com.letraaletra.api.presentation.mappers.board.BoardViewBuilder;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
 import com.letraaletra.api.presentation.mappers.board.BoardDTOMapper;
