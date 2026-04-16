@@ -52,6 +52,9 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             if (game.getGameType().equals(GameType.CUSTOM)) {
                 game.setGameStatus(GameStatus.WAITING);
                 gameTimeoutManager.start(game);
+
+            } else {
+                game.setGameStatus(GameStatus.CLOSED);
             }
 
             return new PlayerActionResult(event, gameOverResult, game);

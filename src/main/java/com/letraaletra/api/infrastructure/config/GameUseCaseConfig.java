@@ -27,11 +27,13 @@ public class GameUseCaseConfig {
     @Bean
     public CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase(
             UserRepository userRepository,
-            ActorManager actorManager
+            ActorManager actorManager,
+            GameRepository gameRepository
     ) {
         return new CloseRoomDueToTimeoutUseCase(
                 userRepository,
-                actorManager
+                actorManager,
+                gameRepository
         );
     }
 

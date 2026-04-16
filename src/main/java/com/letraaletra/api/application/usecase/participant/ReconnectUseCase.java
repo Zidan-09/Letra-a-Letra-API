@@ -4,11 +4,13 @@ import com.letraaletra.api.application.command.participant.ReconnectParticipantC
 import com.letraaletra.api.application.output.participant.ReconnectParticipantOutput;
 import com.letraaletra.api.application.port.DisconnectScheduler;
 import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 
+import java.util.EnumSet;
 import java.util.Optional;
 
 public class ReconnectUseCase {
@@ -35,7 +37,8 @@ public class ReconnectUseCase {
 
         Game game = gameRepository.find(user.getCurrentGameId());
 
-        if (game == null) {
+        if (game == null || !EnumSet.of(GameStatus.RUNNING, GameStatus.WAITING)
+                .contains(game.getGameStatus())) {
             user.leaveGame();
             userRepository.save(user);
             return Optional.empty();

@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.manager;
+package com.letraaletra.api.infrastructure.scheduler;
 
 import com.letraaletra.api.application.command.game.CloseRoomCommand;
 import com.letraaletra.api.application.output.game.CloseRoomOutput;
