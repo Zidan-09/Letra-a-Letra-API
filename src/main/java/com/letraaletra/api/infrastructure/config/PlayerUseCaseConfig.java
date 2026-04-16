@@ -19,14 +19,16 @@ public class PlayerUseCaseConfig {
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             GameActorManager gameActorManager,
-            UserRepository userRepository
+            UserRepository userRepository,
+            GameRepository gameRepository
             ) {
         return new PlayerActionUseCase(
                 tokenService,
                 gameTimeoutManager,
                 turnTimeoutManager,
                 gameActorManager,
-                userRepository
+                userRepository,
+                gameRepository
         );
     }
 

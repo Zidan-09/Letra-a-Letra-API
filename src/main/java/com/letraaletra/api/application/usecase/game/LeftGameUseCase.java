@@ -6,6 +6,7 @@ import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -42,9 +43,11 @@ public class LeftGameUseCase {
 
         if (result.isEmpty()) {
             actorManager.remove(result.game().getId());
-        } else {
-            gameRepository.save(result.game());
+
+            result.game().setGameStatus(GameStatus.CLOSED);
         }
+
+        gameRepository.save(result.game());
 
         return buildReturn(result.game(), command.token(), result.gameOverResult());
     }
