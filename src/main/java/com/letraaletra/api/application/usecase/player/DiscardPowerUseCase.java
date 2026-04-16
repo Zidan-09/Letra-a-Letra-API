@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.actor.DiscardPowerActorCommand;
 import com.letraaletra.api.application.command.player.DiscardPowerCommand;
 import com.letraaletra.api.application.output.player.DiscardPowerOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.security.TokenService;
 
@@ -12,17 +12,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class DiscardPowerUseCase {
     private final TokenService tokenService;
-    private final ActorRepository gameActorRepository;
+    private final ActorManager gameActorManager;
 
-    public DiscardPowerUseCase(TokenService tokenService, ActorRepository gameActorRepository) {
+    public DiscardPowerUseCase(TokenService tokenService, ActorManager gameActorManager) {
         this.tokenService = tokenService;
-        this.gameActorRepository = gameActorRepository;
+        this.gameActorManager = gameActorManager;
     }
 
     public DiscardPowerOutput execute(DiscardPowerCommand command) {
         String gameId = tokenService.getTokenContent(command.tokenGameId());
 
-        Actor actor = gameActorRepository.getOrCreate(gameId);
+        Actor actor = gameActorManager.getOrCreate(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(
                 new DiscardPowerActorCommand(command.userId(), command.powerId())

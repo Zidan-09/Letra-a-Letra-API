@@ -3,7 +3,6 @@ package com.letraaletra.api.infrastructure.actor;
 import com.letraaletra.api.application.command.actor.ActorCommand;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.GameRepository;
 
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameActor implements Actor {
     private final Queue<CommandEnvelope<?>> mailbox = new ConcurrentLinkedQueue<>();
     private final ExecutorService executor;
-    private final GameRepository gameRepository;
     private final Game game;
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
@@ -23,10 +21,9 @@ public class GameActor implements Actor {
             CompletableFuture<T> future
     ) {}
 
-    public GameActor(ExecutorService executor, Game game, GameRepository gameRepository) {
+    public GameActor(ExecutorService executor, Game game) {
         this.game = game;
         this.executor = executor;
-        this.gameRepository = gameRepository;
     }
 
     @Override
@@ -62,12 +59,15 @@ public class GameActor implements Actor {
         try {
             T result = envelope.command().execute(game);
 
-            gameRepository.save(game);
-
             envelope.future().complete(result);
 
         } catch (Throwable t) {
             envelope.future().completeExceptionally(t);
         }
+    }
+
+    @Override
+    public Game getGame() {
+        return game;
     }
 }

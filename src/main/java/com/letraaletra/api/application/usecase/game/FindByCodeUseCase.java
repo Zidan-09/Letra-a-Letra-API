@@ -2,22 +2,22 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.FindByCodeCommand;
 import com.letraaletra.api.application.output.game.FindByCodeOutput;
+import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.GameRepository;
 
 public class FindByCodeUseCase {
-    private final GameRepository gameRepository;
+    private final GameQueryService gameQueryService;
     private final TokenService tokenService;
 
-    public FindByCodeUseCase(GameRepository gameRepository, TokenService tokenService) {
-        this.gameRepository = gameRepository;
+    public FindByCodeUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+        this.gameQueryService = gameQueryService;
         this.tokenService = tokenService;
     }
 
     public FindByCodeOutput execute(FindByCodeCommand command) {
-        Game game = gameRepository.findByCode(command.code());
+        Game game = gameQueryService.findByCode(command.code());
 
         validateGame(game);
 

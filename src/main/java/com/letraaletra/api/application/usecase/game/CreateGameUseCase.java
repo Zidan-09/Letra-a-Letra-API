@@ -1,6 +1,7 @@
 package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.CreateGameCommand;
+import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
@@ -19,14 +20,23 @@ import java.util.UUID;
 public class CreateGameUseCase {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final GameQueryService gameQueryService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TokenService tokenService;
     private final GenerateRoomCode generateRoomCode;
 
-    public CreateGameUseCase(UserRepository userRepository, GameRepository gameRepository, GameTimeoutManager gameTimeoutManager, TokenService tokenService, GenerateRoomCode generateRoomCode) {
+    public CreateGameUseCase(
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            GameTimeoutManager gameTimeoutManager,
+            GameQueryService gameQueryService,
+            TokenService tokenService,
+            GenerateRoomCode generateRoomCode
+    ) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameTimeoutManager = gameTimeoutManager;
+        this.gameQueryService = gameQueryService;
         this.tokenService = tokenService;
         this.generateRoomCode = generateRoomCode;
     }
@@ -68,7 +78,7 @@ public class CreateGameUseCase {
         do {
             code = generateRoomCode.execute();
 
-        } while (gameRepository.existsByCode(code));
+        } while (gameQueryService.existsByCode(code));
 
         return code;
     }

@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.actor.SwapPositionActorCommand;
 import com.letraaletra.api.application.command.participant.SwapPositionCommand;
 import com.letraaletra.api.application.output.participant.SwapPositionOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
@@ -12,18 +12,18 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase {
-    private final ActorRepository gameActorRepository;
+    private final ActorManager gameActorManager;
     private final TokenService tokenService;
 
-    public SwapRoomPositionUseCase(ActorRepository gameActorRepository, TokenService tokenService) {
-        this.gameActorRepository = gameActorRepository;
+    public SwapRoomPositionUseCase(ActorManager gameActorManager, TokenService tokenService) {
+        this.gameActorManager = gameActorManager;
         this.tokenService = tokenService;
     }
 
     public SwapPositionOutput execute(SwapPositionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorRepository.getOrCreate(gameId);
+        Actor actor = gameActorManager.getOrCreate(gameId);
         validateActor(actor);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(command.user(), command.position()));

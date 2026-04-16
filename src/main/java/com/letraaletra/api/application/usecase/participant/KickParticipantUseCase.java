@@ -6,18 +6,18 @@ import com.letraaletra.api.application.context.ModerationContext;
 import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.KickParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 
 import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
-    private final ActorRepository gameActorRepository;
+    private final ActorManager gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorRepository gameActorRepository) {
+    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
-        this.gameActorRepository = gameActorRepository;
+        this.gameActorManager = gameActorManager;
     }
 
     public KickParticipantOutput execute(KickParticipantCommand command) {
@@ -27,7 +27,7 @@ public class KickParticipantUseCase {
                 command.user()
         );
 
-        Actor actor = gameActorRepository.getOrCreate(context.game().getId());
+        Actor actor = gameActorManager.getOrCreate(context.game().getId());
 
         CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();

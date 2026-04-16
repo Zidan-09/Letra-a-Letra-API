@@ -5,7 +5,7 @@ import com.letraaletra.api.application.command.game.LeftGameCommand;
 import com.letraaletra.api.application.output.actor.LeftGameResult;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -17,20 +17,20 @@ import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase {
     private final TokenService tokenService;
-    private final ActorRepository gameActorRepository;
+    private final ActorManager actorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public LeftGameUseCase(TokenService tokenService, ActorRepository gameActorRepository, UserRepository userRepository, GameRepository gameRepository) {
+    public LeftGameUseCase(TokenService tokenService, ActorManager actorManager, UserRepository userRepository, GameRepository gameRepository) {
         this.tokenService = tokenService;
-        this.gameActorRepository = gameActorRepository;
+        this.actorManager = actorManager;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
     }
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-        Actor actor = gameActorRepository.getOrCreate(gameId);
+        Actor actor = actorManager.getOrCreate(gameId);
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
 
@@ -41,7 +41,7 @@ public class LeftGameUseCase {
         userRepository.save(user);
 
         if (result.isEmpty()) {
-            gameRepository.removeByCode(result.game().getCode());
+            actorManager.remove(result.game().getId());
         } else {
             gameRepository.save(result.game());
         }
