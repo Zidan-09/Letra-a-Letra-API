@@ -7,7 +7,7 @@ import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.infrastructure.manager.GameActorRepository;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +17,7 @@ public class ParticipantUseCaseConfig {
     public BanParticipantUseCase banParticipantUseCase(
             ModerationContextFactory moderationContextFactory,
             UserRepository userRepository,
-            GameActorRepository gameActorManager
+            GameActorManager gameActorManager
     ) {
         return new BanParticipantUseCase(
                 moderationContextFactory,
@@ -28,7 +28,7 @@ public class ParticipantUseCaseConfig {
 
     @Bean
     public DisconnectUseCase disconnectUseCase(
-            GameActorRepository gameActorManager,
+            GameActorManager gameActorManager,
             DisconnectScheduler disconnectScheduler,
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository
@@ -43,7 +43,7 @@ public class ParticipantUseCaseConfig {
     @Bean
     public KickParticipantUseCase kickParticipantUseCase(
             ModerationContextFactory moderationContextFactory,
-            GameActorRepository gameActorManager
+            GameActorManager gameActorManager
     ) {
         return new KickParticipantUseCase(moderationContextFactory, gameActorManager);
     }
@@ -62,18 +62,18 @@ public class ParticipantUseCaseConfig {
     }
 
     @Bean
-    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameActorRepository gameActorManager, TokenService tokenService) {
+    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameActorManager gameActorManager, TokenService tokenService) {
         return new SwapRoomPositionUseCase(gameActorManager, tokenService);
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(TokenService tokenService, GameActorRepository gameActorManager) {
+    public UnbanUserUseCase unbanUserUseCase(TokenService tokenService, GameActorManager gameActorManager) {
         return new UnbanUserUseCase(tokenService, gameActorManager);
     }
 
     @Bean
     public RemoveParticipantUseCase removeParticipantUseCase(
-            GameActorRepository gameActorManager,
+            GameActorManager gameActorManager,
             GameRepository gameRepository,
             UserRepository userRepository
     ) {

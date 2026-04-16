@@ -2,6 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.JoinMatchmakingCommand;
 import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
+import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
@@ -27,6 +28,7 @@ public class JoinMatchmakingQueueUseCase {
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final GameQueryService gameQueryService;
     private final DefaultGameStateGenerator defaultGameStateGenerator;
     private final DefaultGameGenerator defaultGameGenerator;
     private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
@@ -40,6 +42,7 @@ public class JoinMatchmakingQueueUseCase {
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository,
             GameRepository gameRepository,
+            GameQueryService gameQueryService,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
@@ -50,6 +53,7 @@ public class JoinMatchmakingQueueUseCase {
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
+        this.gameQueryService = gameQueryService;
         this.defaultGameStateGenerator = defaultGameStateGenerator;
         this.defaultGameGenerator = defaultGameGenerator;
         this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
@@ -122,7 +126,7 @@ public class JoinMatchmakingQueueUseCase {
         do {
             code = generateRoomCode.execute();
 
-        } while (gameRepository.existsByCode(code));
+        } while (gameQueryService.existsByCode(code));
 
         return code;
     }

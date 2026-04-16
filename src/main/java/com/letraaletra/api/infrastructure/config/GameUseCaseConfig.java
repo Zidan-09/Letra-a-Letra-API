@@ -1,6 +1,7 @@
 package com.letraaletra.api.infrastructure.config;
 
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
@@ -15,7 +16,7 @@ import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.ThemeRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.infrastructure.manager.GameActorRepository;
+import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,8 +25,14 @@ import java.util.Random;
 @Configuration
 public class GameUseCaseConfig {
     @Bean
-    public CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase(GameRepository gameRepository, UserRepository userRepository) {
-        return new CloseRoomDueToTimeoutUseCase(gameRepository, userRepository);
+    public CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase(
+            UserRepository userRepository,
+            ActorManager actorManager
+    ) {
+        return new CloseRoomDueToTimeoutUseCase(
+                userRepository,
+                actorManager
+        );
     }
 
     @Bean
@@ -33,15 +40,23 @@ public class GameUseCaseConfig {
             UserRepository userRepository,
             GameRepository gameRepository,
             GameTimeoutManager gameTimeoutManager,
+            GameQueryService gameQueryService,
             TokenService tokenService,
             GenerateRoomCode generateRoomCode
     ) {
-        return new CreateGameUseCase(userRepository, gameRepository, gameTimeoutManager, tokenService, generateRoomCode);
+        return new CreateGameUseCase(
+                userRepository,
+                gameRepository,
+                gameTimeoutManager,
+                gameQueryService,
+                tokenService,
+                generateRoomCode
+        );
     }
 
     @Bean
-    public FindByCodeUseCase findByCodeUseCase(GameRepository gameRepository, TokenService tokenService) {
-        return new FindByCodeUseCase(gameRepository, tokenService);
+    public FindByCodeUseCase findByCodeUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+        return new FindByCodeUseCase( gameQueryService, tokenService);
     }
 
     @Bean
@@ -50,19 +65,19 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public GetPublicGamesUseCase getPublicGamesUseCase(GameRepository gameRepository, TokenService tokenService) {
-        return new GetPublicGamesUseCase(gameRepository, tokenService);
+    public GetPublicGamesUseCase getPublicGamesUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+        return new GetPublicGamesUseCase(gameQueryService, tokenService);
     }
 
     @Bean
-    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorRepository actorRepository) {
-        return new JoinGameUseCase(userRepository, tokenService, actorRepository);
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
+        return new JoinGameUseCase(userRepository, tokenService, actorManager);
     }
 
     @Bean
     public LeftGameUseCase leftGameUseCase(
             TokenService tokenService,
-            GameActorRepository gameActorManager,
+            GameActorManager gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {
@@ -83,7 +98,7 @@ public class GameUseCaseConfig {
              BoardGenerator boardGenerator,
              TokenService tokenService,
              TurnTimeoutManager turnTimeoutManager,
-             GameActorRepository gameActorManager
+             GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
                 gameStateGenerator,
@@ -99,7 +114,7 @@ public class GameUseCaseConfig {
 
     @Bean
     public ExpireTurnUseCase expireTurnUseCase(
-            GameActorRepository gameActorManager,
+            GameActorManager gameActorManager,
             GameTimeoutManager gameTimeoutManager,
             UserRepository userRepository
     ) {
@@ -116,6 +131,7 @@ public class GameUseCaseConfig {
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository,
             GameRepository gameRepository,
+            GameQueryService gameQueryService,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
@@ -127,6 +143,7 @@ public class GameUseCaseConfig {
                 matchmakingRepository,
                 userRepository,
                 gameRepository,
+                gameQueryService,
                 defaultGameStateGenerator,
                 defaultGameGenerator,
                 pickRandomThemeWordsUseCase,

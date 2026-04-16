@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.actor.JoinGameActorCommand;
 import com.letraaletra.api.application.command.game.JoinGameCommand;
 import com.letraaletra.api.application.output.game.JoinGameOutput;
 import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorRepository;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -16,12 +16,12 @@ import java.util.concurrent.CompletableFuture;
 public class JoinGameUseCase {
     private final UserRepository userRepository;
     private final TokenService tokenService;
-    private final ActorRepository actorRepository;
+    private final ActorManager actorManager;
 
-    public JoinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorRepository actorRepository) {
+    public JoinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
-        this.actorRepository = actorRepository;
+        this.actorManager = actorManager;
     }
 
     public JoinGameOutput execute(JoinGameCommand command) {
@@ -29,7 +29,7 @@ public class JoinGameUseCase {
         User user = userRepository.find(command.user());
         validateUser(user);
 
-        Actor actor = actorRepository.getOrCreate(gameId);
+        Actor actor = actorManager.getOrCreate(gameId);
         CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, command.session()));
 
         Game game = future.join();

@@ -1,5 +1,6 @@
 package com.letraaletra.api.application.command.actor;
 
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -11,15 +12,18 @@ import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 public class RemoveParticipantActorCommand implements ActorCommand<Void> {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final ActorManager actorManager;
     private final String userId;
 
     public RemoveParticipantActorCommand(
             UserRepository userRepository,
             GameRepository gameRepository,
+            ActorManager actorManager,
             String userId
     ) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
+        this.actorManager = actorManager;
         this.userId = userId;
     }
 
@@ -40,7 +44,7 @@ public class RemoveParticipantActorCommand implements ActorCommand<Void> {
         userRepository.save(user);
 
         if (game.getParticipants().isEmpty()) {
-            gameRepository.removeByCode(game.getCode());
+            actorManager.remove(game.getId());
         } else {
             gameRepository.save(game);
         }
