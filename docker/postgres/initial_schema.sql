@@ -4,11 +4,14 @@ CREATE TYPE game_mode AS ENUM ('EASY', 'NORMAL', 'HARD', 'INSANE', 'CATACLYSM');
 
 CREATE TABLE "user" (
                         "user_id" uuid PRIMARY KEY NOT NULL,
-                        "username" varchar(15) UNIQUE NOT NULL,
+                        "username" varchar(15) UNIQUE,
                         "email" varchar(50) UNIQUE NOT NULL,
-                        "password_hash" varchar(100) NOT NULL,
+                        "password_hash" varchar(100),
+                        "google_id" varchar(100) UNIQUE,
                         "avatar_id" varchar(30),
-                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP
+                        "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT check_auth_method
+                            CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
 
 CREATE TABLE "user_stats" (

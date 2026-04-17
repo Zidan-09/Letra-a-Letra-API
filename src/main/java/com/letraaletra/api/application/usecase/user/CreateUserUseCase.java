@@ -33,10 +33,11 @@ public class CreateUserUseCase {
 
         User user = new User(
                 userId,
-                nickname,
-                "avatar id inventado",
+                null,
+                null,
                 email,
-                passwordService.hash(password)
+                passwordService.hash(password),
+                null
         );
 
         userRepository.save(user);

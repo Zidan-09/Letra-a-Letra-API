@@ -21,21 +21,14 @@ public class SignInUseCase {
     }
 
     public SignInOutput login(SignInCommand command) {
-        User user = userRepository.findByEmail(command.email());
-
-        validateUser(user);
+        User user = userRepository.findByEmail(command.email())
+                .orElseThrow(UserNotFoundException::new);
 
         checkMatch(command.password(), user.getHashPassword());
 
         String token = tokenService.generateToken(user.getId());
 
         return buildReturn(user.getId(), token);
-    }
-
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
     }
 
     private void checkMatch(String password, String hash) {
