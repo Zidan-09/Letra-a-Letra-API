@@ -15,7 +15,8 @@ public class UserMapper {
                 entity.getUsername(),
                 entity.getAvatarId(),
                 entity.getEmail(),
-                entity.getPasswordHash()
+                entity.getPasswordHash(),
+                entity.getGoogleId()
         );
     }
 
@@ -27,6 +28,7 @@ public class UserMapper {
         entity.setUsername(user.getNickname());
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getHashPassword());
+        entity.setGoogleId(user.getGoogleId());
         entity.setAvatarId(user.getAvatar());
         entity.setCreatedAt(LocalDateTime.now());
 

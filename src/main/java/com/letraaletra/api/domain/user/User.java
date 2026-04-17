@@ -9,14 +9,16 @@ public class User {
     private final String avatar;
     private final String email;
     private final String hashPassword;
+    private final String googleId;
     private String currentGameId;
 
-    public User(String id, String nickname, String avatar, String email, String hashPassword) {
+    public User(String id, String nickname, String avatar, String email, String hashPassword, String googleId) {
         this.id = id;
         this.nickname = nickname;
         this.avatar = avatar;
         this.email = email;
         this.hashPassword = hashPassword;
+        this.googleId = googleId;
     }
 
     public String getId() {
@@ -37,6 +39,10 @@ public class User {
 
     public String getHashPassword() {
         return hashPassword;
+    }
+
+    public String getGoogleId() {
+        return googleId;
     }
 
     public boolean isInGame() {

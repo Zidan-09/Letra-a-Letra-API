@@ -6,6 +6,7 @@ import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataUse
 import com.letraaletra.api.infrastructure.persistence.postgres.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -22,15 +23,21 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public User find(String id) {
+    public Optional<User> find(String id) {
         return repository.findById(UUID.fromString(id))
-                .map(UserMapper::toDomain)
-                .orElse(null);
+                .map(UserMapper::toDomain);
     }
 
     @Override
-    public User findByEmail(String email) {
-        return UserMapper.toDomain(repository.findByEmail(email).orElse(null));
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(UserMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByGoogleId(String googleId) {
+        return repository.findByGoogleId(googleId)
+                .map(UserMapper::toDomain);
     }
 
     @Override

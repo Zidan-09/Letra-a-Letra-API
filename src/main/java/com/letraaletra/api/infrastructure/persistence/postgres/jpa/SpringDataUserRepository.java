@@ -10,5 +10,6 @@ public interface SpringDataUserRepository extends JpaRepository<UserJpaEntity, U
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Optional<UserJpaEntity> findByEmail(String email);
+    Optional<UserJpaEntity> findByGoogleId(String googleId);
     <S extends UserJpaEntity> S save(S entity);
 }

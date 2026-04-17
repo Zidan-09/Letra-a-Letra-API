@@ -34,4 +34,6 @@ public class UserJpaEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "google_id")
+    private String googleId;
 }
