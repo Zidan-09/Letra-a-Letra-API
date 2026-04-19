@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class CreateUserMapper {
     public CreateUserCommand toCommand(CreateUserRequestDTO dto) {
         return new CreateUserCommand(
-                dto.nickname(),
                 dto.email(),
                 dto.password()
         );
@@ -19,7 +18,6 @@ public class CreateUserMapper {
     public CreateUserResponseDTO toResponseDTO(CreateUserOutput output) {
         return new CreateUserResponseDTO(
               output.id(),
-              output.nickname(),
               output.avatar(),
               output.email()
         );

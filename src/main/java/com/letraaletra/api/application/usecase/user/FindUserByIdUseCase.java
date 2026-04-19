@@ -5,8 +5,6 @@ import com.letraaletra.api.application.output.user.FindUserOutput;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 public class FindUserByIdUseCase {
     private final UserRepository userRepository;
@@ -16,8 +14,7 @@ public class FindUserByIdUseCase {
     }
 
     public FindUserOutput execute(FindUserCommand command) {
-        User user = userRepository.find(command.id());
-
+        User user = userRepository.find(command.id()).orElse(null);
         validateUser(user);
 
         return buildReturn(user);

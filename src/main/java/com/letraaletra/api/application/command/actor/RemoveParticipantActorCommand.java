@@ -29,7 +29,7 @@ public class RemoveParticipantActorCommand implements ActorCommand<Void> {
 
     @Override
     public Void execute(Game game) {
-        User user = userRepository.find(userId);
+        User user = userRepository.find(userId).orElse(null);
         validateUser(user);
 
         validateGame(game);

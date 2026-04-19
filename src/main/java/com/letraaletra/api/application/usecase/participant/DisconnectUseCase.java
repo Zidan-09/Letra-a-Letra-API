@@ -40,8 +40,8 @@ public class DisconnectUseCase {
             matchmakingRepository.removeById(userId);
         }
 
-        User user = userRepository.find(userId);
-        if (user == null || !user.isInGame()) return Optional.empty();
+        User user = userRepository.find(userId).orElse(null);
+        if (user == null || user.isNotInGame()) return Optional.empty();
 
 
         Actor actor = gameActorManager.getOrCreate(user.getCurrentGameId());

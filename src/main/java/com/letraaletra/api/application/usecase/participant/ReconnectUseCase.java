@@ -28,10 +28,10 @@ public class ReconnectUseCase {
         String userId = command.user();
         if (userId == null) return Optional.empty();
 
-        User user = userRepository.find(userId);
+        User user = userRepository.find(userId).orElse(null);
         if (user == null) return Optional.empty();
 
-        if (!user.isInGame()) {
+        if (user.isNotInGame()) {
             return Optional.empty();
         }
 

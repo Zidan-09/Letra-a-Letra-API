@@ -44,7 +44,7 @@ public class CreateGameUseCase {
     public CreateGameOutput execute(CreateGameCommand command) {
         String gameId = UUID.randomUUID().toString();
 
-        User user = userRepository.find(command.user());
+        User user = userRepository.find(command.user()).orElse(null);
 
         validateUser(user);
 

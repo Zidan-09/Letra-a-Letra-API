@@ -65,7 +65,7 @@ public class JoinMatchmakingQueueUseCase {
     public JoinMatchmakingOutput execute(JoinMatchmakingCommand command) {
         MatchmakingUser matchmakingUser = command.matchmakingUser();
 
-        User user = userRepository.find(matchmakingUser.user());
+        User user = userRepository.find(matchmakingUser.user()).orElse(null);
         validateUser(user);
 
         Object lock = locks.computeIfAbsent(command.gameMode(), k -> new Object());
@@ -78,7 +78,7 @@ public class JoinMatchmakingQueueUseCase {
                 return buildOutput(new DefaultGameResult(null));
             }
 
-            User opponent = userRepository.find(matchmakingOpponent.user());
+            User opponent = userRepository.find(matchmakingOpponent.user()).orElse(null);
 
             validateUser(opponent);
 

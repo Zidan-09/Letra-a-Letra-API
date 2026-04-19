@@ -75,7 +75,9 @@ public class PlayerActionUseCase {
     }
 
     private void removeAllPlayersFromGame(Game game) {
-        game.getParticipants().forEach(participant -> Optional.ofNullable(userRepository.find(participant.getUserId()))
-                .ifPresent(User::leaveGame));
+        game.getParticipants().forEach(participant ->
+                userRepository.find(participant.getUserId())
+                        .ifPresent(User::leaveGame)
+        );
     }
 }
