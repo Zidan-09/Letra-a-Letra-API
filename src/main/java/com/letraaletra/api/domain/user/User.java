@@ -5,7 +5,7 @@ import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
 public class User {
     private final String id;
-    private final String nickname;
+    private String nickname;
     private final String avatar;
     private final String email;
     private final String hashPassword;
@@ -29,6 +29,10 @@ public class User {
         return nickname;
     }
 
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public String getAvatar() {
         return avatar;
     }
@@ -45,8 +49,8 @@ public class User {
         return googleId;
     }
 
-    public boolean isInGame() {
-        return currentGameId != null;
+    public boolean isNotInGame() {
+        return currentGameId == null;
     }
 
     public String getCurrentGameId() {

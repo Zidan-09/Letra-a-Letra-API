@@ -10,6 +10,7 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -31,12 +32,20 @@ public class BanParticipantUseCase {
         CompletableFuture<Game> future = actor.enqueueCommand(new BanParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();
 
-        User user = userRepository.find(command.target());
+        User user = userRepository.find(command.target()).orElse(null);
+        validateUser(user);
+
         user.leaveGame();
 
         userRepository.save(user);
 
         return buildReturn(game, command.token());
+    }
+
+    private void validateUser(User user) {
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
     }
 
     private BanParticipantOutput buildReturn(Game game, String token) {

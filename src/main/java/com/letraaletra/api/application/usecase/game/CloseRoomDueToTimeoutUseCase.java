@@ -9,6 +9,7 @@ import com.letraaletra.api.domain.game.RoomCloseReasons;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 public class CloseRoomDueToTimeoutUseCase {
     private final UserRepository userRepository;
@@ -31,7 +32,8 @@ public class CloseRoomDueToTimeoutUseCase {
         game.getParticipants().forEach(p -> {
             String userId = p.getUserId();
 
-            User user = userRepository.find(userId);
+            User user = userRepository.find(userId).orElse(null);
+            validateUser(user);
 
             user.leaveGame();
 
@@ -44,6 +46,12 @@ public class CloseRoomDueToTimeoutUseCase {
         gameRepository.save(game);
 
         return buildReturn(game);
+    }
+
+    private void validateUser(User user) {
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
     }
 
     private CloseRoomOutput buildReturn(Game game) {

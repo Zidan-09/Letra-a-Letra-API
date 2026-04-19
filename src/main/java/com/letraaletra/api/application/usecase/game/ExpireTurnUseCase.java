@@ -54,7 +54,8 @@ public class ExpireTurnUseCase {
         if (expireTurn == null) return;
 
         if (expireTurn.removedBecauseAfk()) {
-            User user = userRepository.find(expireTurn.whoPassed());
+            User user = userRepository.find(expireTurn.whoPassed()).orElse(null);
+
             if (user != null) {
                 user.leaveGame();
                 userRepository.save(user);
@@ -63,7 +64,8 @@ public class ExpireTurnUseCase {
 
         if (expireTurn.gameOverResult().finished()) {
             for (Participant participant : expireTurn.game().getParticipants()) {
-                User pUser = userRepository.find(participant.getUserId());
+                User pUser = userRepository.find(participant.getUserId()).orElse(null);
+
                 if (pUser != null) {
                     pUser.leaveGame();
                     userRepository.save(pUser);

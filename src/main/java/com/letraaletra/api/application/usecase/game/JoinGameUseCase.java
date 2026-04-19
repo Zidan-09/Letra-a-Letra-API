@@ -26,7 +26,7 @@ public class JoinGameUseCase {
 
     public JoinGameOutput execute(JoinGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-        User user = userRepository.find(command.user());
+        User user = userRepository.find(command.user()).orElse(null);
         validateUser(user);
 
         Actor actor = actorManager.getOrCreate(gameId);

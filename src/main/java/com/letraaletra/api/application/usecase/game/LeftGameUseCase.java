@@ -13,6 +13,7 @@ import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +38,9 @@ public class LeftGameUseCase {
 
         LeftGameResult result = future.join();
 
-        User user = userRepository.find(result.user());
+        User user = userRepository.find(result.user()).orElse(null);
+        validateUser(user);
+
         user.leaveGame();
         userRepository.save(user);
 
@@ -50,6 +53,12 @@ public class LeftGameUseCase {
         gameRepository.save(result.game());
 
         return buildReturn(result.game(), command.token(), result.gameOverResult());
+    }
+
+    private void validateUser(User user) {
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
     }
 
     private LeftGameOutput buildReturn(Game game, String token, GameOverResult gameOverResult) {

@@ -6,7 +6,6 @@ import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
-import com.letraaletra.api.domain.user.exceptions.NicknameAlreadyInUseException;
 
 import java.util.UUID;
 
@@ -21,11 +20,8 @@ public class CreateUserUseCase {
 
     public CreateUserOutput execute(CreateUserCommand command) {
 
-        String nickname = command.nickname();
         String email = command.email();
         String password = command.password();
-
-        validateNickname(nickname);
 
         validateEmail(email);
 
@@ -43,14 +39,6 @@ public class CreateUserUseCase {
         userRepository.save(user);
 
         return buildResult(user);
-    }
-
-    private void validateNickname(String nickname) {
-        boolean existsNickname = userRepository.existsByNickname(nickname);
-
-        if (existsNickname) {
-            throw new NicknameAlreadyInUseException();
-        }
     }
 
     private void validateEmail(String email) {

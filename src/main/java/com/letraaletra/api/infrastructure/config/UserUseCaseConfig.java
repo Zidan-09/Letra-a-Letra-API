@@ -2,6 +2,7 @@ package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
 import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
+import com.letraaletra.api.application.usecase.user.SetNicknameUseCase;
 import com.letraaletra.api.application.usecase.user.SignInUseCase;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.PasswordService;
@@ -24,5 +25,10 @@ public class UserUseCaseConfig {
     @Bean
     public SignInUseCase signInUseCase(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
         return new SignInUseCase(userRepository, passwordService, tokenService);
+    }
+
+    @Bean
+    public SetNicknameUseCase setNicknameUseCase(UserRepository userRepository) {
+        return new SetNicknameUseCase(userRepository);
     }
 }
