@@ -32,7 +32,7 @@ public class LeftGameUseCase {
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-        Actor actor = actorManager.getOrCreate(gameId);
+        Actor actor = actorManager.get(gameId);
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
 

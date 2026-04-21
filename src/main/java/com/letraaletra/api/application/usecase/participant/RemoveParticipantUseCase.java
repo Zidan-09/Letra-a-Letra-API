@@ -21,7 +21,7 @@ public class RemoveParticipantUseCase {
     }
 
     public void execute(RemoveParticipantCommand command) {
-        Actor actor = gameActorManager.getOrCreate(command.gameId());
+        Actor actor = gameActorManager.get(command.gameId());
 
         CompletableFuture<Void> future = actor.enqueueCommand(new RemoveParticipantActorCommand(
                 userRepository, gameRepository, gameActorManager, command.userId()

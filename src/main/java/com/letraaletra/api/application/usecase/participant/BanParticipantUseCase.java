@@ -28,7 +28,7 @@ public class BanParticipantUseCase {
     public BanParticipantOutput execute(BanParticipantCommand command) {
         ModerationContext context = moderationContextFactory.resolve(command.token(), command.target(), command.user());
 
-        Actor actor = gameActorManager.getOrCreate(context.game().getId());
+        Actor actor = gameActorManager.get(context.game().getId());
         CompletableFuture<Game> future = actor.enqueueCommand(new BanParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();
 

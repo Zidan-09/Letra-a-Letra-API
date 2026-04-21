@@ -29,7 +29,7 @@ public class JoinGameUseCase {
         User user = userRepository.find(command.user()).orElse(null);
         validateUser(user);
 
-        Actor actor = actorManager.getOrCreate(gameId);
+        Actor actor = actorManager.get(gameId);
         CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, command.session()));
 
         Game game = future.join();

@@ -21,7 +21,7 @@ public class ModerationContextFactory {
     public ModerationContext resolve(String tokenGameId, String targetId, String hostId) {
         String gameId = tokenService.getTokenContent(tokenGameId);
 
-        Game game = gameRepository.find(gameId);
+        Game game = gameRepository.find(gameId).orElse(null);
 
         validateGame(game);
         validateUser(hostId, game);

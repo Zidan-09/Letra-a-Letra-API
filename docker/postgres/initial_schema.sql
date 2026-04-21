@@ -1,4 +1,5 @@
 
+CREATE TYPE game_type AS ENUM ('CUSTOM', 'MATCHMAKING');
 CREATE TYPE status AS ENUM ('WAITING', 'RUNNING', 'CLOSED', 'CANCELED');
 CREATE TYPE game_mode AS ENUM ('EASY', 'NORMAL', 'HARD', 'INSANE', 'CATACLYSM');
 
@@ -26,6 +27,7 @@ CREATE TABLE "game" (
                         "host_id" uuid REFERENCES "user" ("user_id"),
                         "created_by_id" uuid REFERENCES "user" ("user_id"),
                         "room_code" varchar(10) NOT NULL,
+                        "game_type" game_type NOT NULL,
                         "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                         "status" status DEFAULT 'WAITING'
 );

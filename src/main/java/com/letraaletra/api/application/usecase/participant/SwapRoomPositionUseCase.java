@@ -23,7 +23,7 @@ public class SwapRoomPositionUseCase {
     public SwapPositionOutput execute(SwapPositionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
         validateActor(actor);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(command.user(), command.position()));

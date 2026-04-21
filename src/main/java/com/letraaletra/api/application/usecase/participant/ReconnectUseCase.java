@@ -35,7 +35,7 @@ public class ReconnectUseCase {
             return Optional.empty();
         }
 
-        Game game = gameRepository.find(user.getCurrentGameId());
+        Game game = gameRepository.find(user.getCurrentGameId()).orElse(null);
 
         if (game == null || !EnumSet.of(GameStatus.RUNNING, GameStatus.WAITING)
                 .contains(game.getGameStatus())) {

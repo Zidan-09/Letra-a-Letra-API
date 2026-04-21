@@ -22,7 +22,7 @@ public class DiscardPowerUseCase {
     public DiscardPowerOutput execute(DiscardPowerCommand command) {
         String gameId = tokenService.getTokenContent(command.tokenGameId());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(
                 new DiscardPowerActorCommand(command.userId(), command.powerId())

@@ -47,7 +47,7 @@ public class PlayerActionUseCase {
     public PlayerActionOutput execute(PlayerActionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
                 command.user(), command.action(), gameTimeoutManager, turnTimeoutManager

@@ -22,7 +22,7 @@ public class UnbanUserUseCase {
     public UnbanParticipantOutput execute(UnbanParticipantCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new UnbanParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();

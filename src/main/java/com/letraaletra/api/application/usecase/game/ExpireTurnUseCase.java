@@ -32,7 +32,7 @@ public class ExpireTurnUseCase {
     }
 
     public Optional<ExpireTurnOutput> execute(ExpireTurnCommand command) {
-        Actor actor = gameActorManager.getOrCreate(command.gameId());
+        Actor actor = gameActorManager.get(command.gameId());
 
         CompletableFuture<Optional<ExpireTurnResult>> future = actor.enqueueCommand(
                 new ExpireTurnActorCommand(command.version(), gameTimeoutManager)

@@ -41,6 +41,7 @@ public class GameUseCaseConfig {
     public CreateGameUseCase createGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
+            ActorManager actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
             TokenService tokenService,
@@ -49,6 +50,7 @@ public class GameUseCaseConfig {
         return new CreateGameUseCase(
                 userRepository,
                 gameRepository,
+                actorManager,
                 gameTimeoutManager,
                 gameQueryService,
                 tokenService,
@@ -62,8 +64,8 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, GameRepository gameRepository) {
-        return new FindByTokenGameIdUseCase(tokenService, gameRepository);
+    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, ActorManager actorManager) {
+        return new FindByTokenGameIdUseCase(tokenService, actorManager);
     }
 
     @Bean
@@ -139,7 +141,8 @@ public class GameUseCaseConfig {
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
-            TurnTimeoutManager turnTimeoutManager
+            TurnTimeoutManager turnTimeoutManager,
+            ActorManager actorManager
     ) {
         return new JoinMatchmakingQueueUseCase(
                 matchmakingRepository,
@@ -151,7 +154,8 @@ public class GameUseCaseConfig {
                 pickRandomThemeWordsUseCase,
                 generateRoomCode,
                 tokenService,
-                turnTimeoutManager
+                turnTimeoutManager,
+                actorManager
         );
     }
 }

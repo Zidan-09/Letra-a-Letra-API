@@ -27,7 +27,7 @@ public class KickParticipantUseCase {
                 command.user()
         );
 
-        Actor actor = gameActorManager.getOrCreate(context.game().getId());
+        Actor actor = gameActorManager.get(context.game().getId());
 
         CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();
