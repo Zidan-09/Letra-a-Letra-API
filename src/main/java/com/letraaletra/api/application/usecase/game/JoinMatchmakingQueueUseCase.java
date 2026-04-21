@@ -36,7 +36,7 @@ public class JoinMatchmakingQueueUseCase {
     private final GenerateRoomCode generateRoomCode;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
 
     private final Map<GameMode, Object> locks = new ConcurrentHashMap<>();
 
@@ -51,7 +51,7 @@ public class JoinMatchmakingQueueUseCase {
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager actorManager
+            ActorManager<Game> actorManager
     ) {
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
@@ -92,7 +92,9 @@ public class JoinMatchmakingQueueUseCase {
 
             DefaultGameResult result = defaultGameGenerator.generate(player1, player2, getCode());
 
-            actorManager.create(result.game().getId());
+            gameRepository.save(result.game());
+
+            actorManager.create(result.game().getId(), result.game());
 
             user.enterGame(result.game().getId());
             opponent.enterGame(result.game().getId());

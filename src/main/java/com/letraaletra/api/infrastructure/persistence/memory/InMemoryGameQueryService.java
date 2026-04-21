@@ -11,9 +11,9 @@ import java.util.stream.Stream;
 
 @Service
 public class InMemoryGameQueryService implements GameQueryService {
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
 
-    public InMemoryGameQueryService(ActorManager actorManager) {
+    public InMemoryGameQueryService(ActorManager<Game> actorManager) {
         this.actorManager = actorManager;
     }
 

@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager gameActorManager) {
+    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager<Game> gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.gameActorManager = gameActorManager;
     }

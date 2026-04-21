@@ -17,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 public class BanParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
     private final UserRepository userRepository;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager gameActorManager) {
+    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager<Game> gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.userRepository = userRepository;
         this.gameActorManager = gameActorManager;

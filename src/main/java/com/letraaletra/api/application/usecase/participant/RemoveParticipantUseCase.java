@@ -4,17 +4,20 @@ import com.letraaletra.api.application.command.actor.RemoveParticipantActorComma
 import com.letraaletra.api.application.command.participant.RemoveParticipantCommand;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class RemoveParticipantUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
-    public RemoveParticipantUseCase(ActorManager gameActorManager, GameRepository gameRepository, UserRepository userRepository) {
+    public RemoveParticipantUseCase(ActorManager<Game> gameActorManager, GameRepository gameRepository, UserRepository userRepository) {
         this.gameActorManager = gameActorManager;
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
@@ -23,10 +26,18 @@ public class RemoveParticipantUseCase {
     public void execute(RemoveParticipantCommand command) {
         Actor actor = gameActorManager.get(command.gameId());
 
-        CompletableFuture<Void> future = actor.enqueueCommand(new RemoveParticipantActorCommand(
-                userRepository, gameRepository, gameActorManager, command.userId()
+        CompletableFuture<Optional<Game>> future = actor.enqueueCommand(new RemoveParticipantActorCommand(
+                userRepository, command.userId()
         ));
 
-        future.join();
+        Optional<Game> game = future.join();
+
+        game.ifPresent(g -> {
+            if (g.getParticipants().isEmpty()) {
+                g.setGameStatus(GameStatus.CLOSED);
+
+                gameRepository.save(g);
+            }
+        });
     }
 }

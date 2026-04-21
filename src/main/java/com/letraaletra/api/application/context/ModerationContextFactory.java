@@ -1,29 +1,30 @@
 package com.letraaletra.api.application.context;
 
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.exception.*;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.exception.InvalidModerateActionException;
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
-import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.security.TokenService;
 
 public class ModerationContextFactory {
-    private final GameRepository gameRepository;
+    private final ActorManager<Game> actorManager;
     private final TokenService tokenService;
 
-    public ModerationContextFactory(GameRepository gameRepository, TokenService tokenService) {
-        this.gameRepository = gameRepository;
+    public ModerationContextFactory(
+            ActorManager<Game> actorManager,
+            TokenService tokenService
+    ) {
+        this.actorManager = actorManager;
         this.tokenService = tokenService;
     }
 
     public ModerationContext resolve(String tokenGameId, String targetId, String hostId) {
         String gameId = tokenService.getTokenContent(tokenGameId);
 
-        Game game = gameRepository.find(gameId).orElse(null);
+        Game game = actorManager.get(gameId).getGame();
 
-        validateGame(game);
         validateUser(hostId, game);
         validateAction(targetId, hostId);
 
@@ -40,16 +41,6 @@ public class ModerationContextFactory {
     private void validateAction(String targetId, String hostId) {
         if (targetId.equals(hostId)) {
             throw new InvalidModerateActionException();
-        }
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
-        }
-
-        if (game.getGameStatus().equals(GameStatus.RUNNING)) {
-            throw new GameIsRunningException();
         }
     }
 

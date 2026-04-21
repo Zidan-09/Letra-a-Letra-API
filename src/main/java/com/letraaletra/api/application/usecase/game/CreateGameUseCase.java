@@ -21,7 +21,7 @@ import java.util.UUID;
 public class CreateGameUseCase {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
     private final GameQueryService gameQueryService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TokenService tokenService;
@@ -30,7 +30,7 @@ public class CreateGameUseCase {
     public CreateGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
-            ActorManager actorManager,
+            ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
             TokenService tokenService,
@@ -63,7 +63,7 @@ public class CreateGameUseCase {
         userRepository.save(user);
         gameRepository.save(game);
 
-        actorManager.create(gameId);
+        actorManager.create(gameId, game);
 
         String tokenGameId = tokenService.generateToken(gameId);
 

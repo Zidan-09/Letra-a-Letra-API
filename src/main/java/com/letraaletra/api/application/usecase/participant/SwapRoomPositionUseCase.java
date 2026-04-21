@@ -12,10 +12,10 @@ import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final TokenService tokenService;
 
-    public SwapRoomPositionUseCase(ActorManager gameActorManager, TokenService tokenService) {
+    public SwapRoomPositionUseCase(ActorManager<Game> gameActorManager, TokenService tokenService) {
         this.gameActorManager = gameActorManager;
         this.tokenService = tokenService;
     }

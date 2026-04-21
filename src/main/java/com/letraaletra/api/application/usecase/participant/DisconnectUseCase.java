@@ -15,13 +15,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class DisconnectUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final DisconnectScheduler disconnectScheduler;
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
 
     public DisconnectUseCase(
-            ActorManager gameActorManager,
+            ActorManager<Game> gameActorManager,
             DisconnectScheduler disconnectScheduler,
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository

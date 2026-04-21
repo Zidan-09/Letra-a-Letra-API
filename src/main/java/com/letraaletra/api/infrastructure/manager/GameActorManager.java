@@ -4,7 +4,6 @@ import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
-import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.infrastructure.actor.GameActor;
 import org.springframework.stereotype.Component;
 
@@ -14,20 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Component
-public class GameActorManager implements ActorManager {
+public class GameActorManager implements ActorManager<Game> {
     private final Map<String, Actor> actors = new ConcurrentHashMap<>();
-    private final GameRepository gameRepository;
     private final ExecutorService executor;
 
-    public GameActorManager(GameRepository gameRepository, ExecutorService executor) {
-        this.gameRepository = gameRepository;
+    public GameActorManager(ExecutorService executor) {
         this.executor = executor;
     }
 
     @Override
-    public void create(String id) {
-        Game game = gameRepository.find(id).orElse(null);
-
+    public void create(String id, Game game) {
         if (game == null) {
             throw new GameNotFoundException();
         }

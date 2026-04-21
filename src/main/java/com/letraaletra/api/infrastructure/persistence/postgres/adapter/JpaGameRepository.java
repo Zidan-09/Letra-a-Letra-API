@@ -22,10 +22,4 @@ public class JpaGameRepository implements GameRepository {
         repository.save(GameMapper.toEntity(game));
         return game;
     }
-
-    @Override
-    public Optional<Game> find(String id) {
-        return repository.findById(UUID.fromString(id))
-                .map(GameMapper::toDomain);
-    }
 }
