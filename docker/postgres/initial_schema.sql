@@ -1,7 +1,4 @@
 
-CREATE TYPE status AS ENUM ('WAITING', 'RUNNING', 'CLOSED', 'CANCELED');
-CREATE TYPE game_mode AS ENUM ('EASY', 'NORMAL', 'HARD', 'INSANE', 'CATACLYSM');
-
 CREATE TABLE "user" (
                         "user_id" uuid PRIMARY KEY NOT NULL,
                         "username" varchar(15) UNIQUE,
@@ -25,15 +22,16 @@ CREATE TABLE "game" (
                         "game_id" uuid PRIMARY KEY NOT NULL,
                         "host_id" uuid REFERENCES "user" ("user_id"),
                         "created_by_id" uuid REFERENCES "user" ("user_id"),
-                        "room_code" varchar(10) NOT NULL,
+                        "room_code" varchar(50) NOT NULL,
+                        "game_type" varchar(50) NOT NULL,
                         "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-                        "status" status DEFAULT 'WAITING'
+                        "status" varchar(50)
 );
 
 CREATE TABLE "matches" (
                            "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                            "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
-                           "game_mode" game_mode NOT NULL,
+                           "game_mode" varchar(50) NOT NULL,
                            "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                            "ended_at" timestamp
 );

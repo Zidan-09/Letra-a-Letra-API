@@ -10,11 +10,13 @@ import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Random;
+
 @Configuration
 public class UserUseCaseConfig {
     @Bean
-    public CreateUserUseCase createUserUseCase(UserRepository userRepository, PasswordService passwordService) {
-        return new CreateUserUseCase(userRepository, passwordService);
+    public CreateUserUseCase createUserUseCase(UserRepository userRepository, PasswordService passwordService, Random random) {
+        return new CreateUserUseCase(userRepository, passwordService, random);
     }
 
     @Bean

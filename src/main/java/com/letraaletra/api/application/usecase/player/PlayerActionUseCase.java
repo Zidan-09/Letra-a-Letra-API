@@ -9,6 +9,7 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.StateEvent;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
@@ -24,7 +25,7 @@ public class PlayerActionUseCase {
     private final TokenService tokenService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
@@ -32,7 +33,7 @@ public class PlayerActionUseCase {
             TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager gameActorManager,
+            ActorManager<Game> gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {
@@ -47,7 +48,7 @@ public class PlayerActionUseCase {
     public PlayerActionOutput execute(PlayerActionCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
                 command.user(), command.action(), gameTimeoutManager, turnTimeoutManager
@@ -56,9 +57,11 @@ public class PlayerActionUseCase {
         PlayerActionResult result = future.join();
 
         if (result.gameOverResult().finished()) {
-            gameActorManager.remove(gameId);
+            if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
+                gameActorManager.remove(gameId);
 
-            removeAllPlayersFromGame(result.game());
+                removeAllPlayersFromGame(result.game());
+            }
 
             gameRepository.save(result.game());
         }
@@ -75,9 +78,15 @@ public class PlayerActionUseCase {
     }
 
     private void removeAllPlayersFromGame(Game game) {
-        game.getParticipants().forEach(participant ->
-                userRepository.find(participant.getUserId())
-                        .ifPresent(User::leaveGame)
+        game.getParticipants().forEach(participant -> {
+                Optional<User> user = userRepository.find(participant.getUserId());
+
+                if (user.isPresent()) {
+                    user.get().leaveGame();
+
+                    userRepository.save(user.get());
+                }
+            }
         );
     }
 }

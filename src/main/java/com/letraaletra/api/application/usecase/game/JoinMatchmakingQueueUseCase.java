@@ -2,6 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.JoinMatchmakingCommand;
 import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.*;
@@ -35,6 +36,7 @@ public class JoinMatchmakingQueueUseCase {
     private final GenerateRoomCode generateRoomCode;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
+    private final ActorManager<Game> actorManager;
 
     private final Map<GameMode, Object> locks = new ConcurrentHashMap<>();
 
@@ -48,7 +50,8 @@ public class JoinMatchmakingQueueUseCase {
             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
-            TurnTimeoutManager turnTimeoutManager
+            TurnTimeoutManager turnTimeoutManager,
+            ActorManager<Game> actorManager
     ) {
         this.matchmakingRepository = matchmakingRepository;
         this.userRepository = userRepository;
@@ -60,6 +63,7 @@ public class JoinMatchmakingQueueUseCase {
         this.generateRoomCode = generateRoomCode;
         this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
+        this.actorManager = actorManager;
     }
 
     public JoinMatchmakingOutput execute(JoinMatchmakingCommand command) {
@@ -87,6 +91,10 @@ public class JoinMatchmakingQueueUseCase {
             Participant player2 = ParticipantFactory.fromUser(user, matchmakingUser.session());
 
             DefaultGameResult result = defaultGameGenerator.generate(player1, player2, getCode());
+
+            gameRepository.save(result.game());
+
+            actorManager.create(result.game().getId(), result.game());
 
             user.enterGame(result.game().getId());
             opponent.enterGame(result.game().getId());

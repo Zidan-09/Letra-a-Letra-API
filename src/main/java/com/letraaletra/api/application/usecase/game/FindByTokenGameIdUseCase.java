@@ -2,34 +2,26 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.FindByTokenCommand;
 import com.letraaletra.api.application.output.game.FindByTokenOutput;
+import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 
 public class FindByTokenGameIdUseCase {
     private final TokenService tokenService;
-    private final GameRepository gameRepository;
+    private final ActorManager actorManager;
 
-    public FindByTokenGameIdUseCase(TokenService tokenService, GameRepository gameRepository) {
+    public FindByTokenGameIdUseCase(TokenService tokenService, ActorManager actorManager) {
         this.tokenService = tokenService;
-        this.gameRepository = gameRepository;
+        this.actorManager = actorManager;
     }
 
     public FindByTokenOutput execute(FindByTokenCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
 
-        Game game = gameRepository.find(gameId);
+        Actor actor = actorManager.get(gameId);
 
-        validateGame(game);
-
-        return buildReturn(game, command.token());
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
-        }
+        return buildReturn(actor.getGame(), command.token());
     }
 
     private FindByTokenOutput buildReturn(Game game, String token) {

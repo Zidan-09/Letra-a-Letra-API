@@ -28,7 +28,7 @@ public enum GameMode {
     CATACLYSM(
             new int[][]{{0, 1}, {1, 0}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}},
             1,
-            Map.of(PowerRarity.COMMON, 0.03, PowerRarity.RARE, 0.47, PowerRarity.EPIC, 0.3, PowerRarity.LEGENDARY, 0.2)
+            Map.of(PowerRarity.COMMON, 0.03, PowerRarity.RARE, 0.47, PowerRarity.EPIC, 0.3, PowerRarity.LEGENDARY, 0.0)
     );
 
     private final int[][] directions;

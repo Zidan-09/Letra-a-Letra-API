@@ -19,11 +19,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase {
     private final TokenService tokenService;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public LeftGameUseCase(TokenService tokenService, ActorManager actorManager, UserRepository userRepository, GameRepository gameRepository) {
+    public LeftGameUseCase(TokenService tokenService, ActorManager<Game> actorManager, UserRepository userRepository, GameRepository gameRepository) {
         this.tokenService = tokenService;
         this.actorManager = actorManager;
         this.userRepository = userRepository;
@@ -32,7 +32,7 @@ public class LeftGameUseCase {
 
     public LeftGameOutput execute(LeftGameCommand command) {
         String gameId = tokenService.getTokenContent(command.token());
-        Actor actor = actorManager.getOrCreate(gameId);
+        Actor actor = actorManager.get(gameId);
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
 
@@ -48,9 +48,9 @@ public class LeftGameUseCase {
             actorManager.remove(result.game().getId());
 
             result.game().setGameStatus(GameStatus.CLOSED);
-        }
 
-        gameRepository.save(result.game());
+            gameRepository.save(result.game());
+        }
 
         return buildReturn(result.game(), command.token(), result.gameOverResult());
     }

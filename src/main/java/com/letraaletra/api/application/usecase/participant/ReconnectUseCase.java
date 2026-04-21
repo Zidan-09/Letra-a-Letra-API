@@ -2,24 +2,27 @@ package com.letraaletra.api.application.usecase.participant;
 
 import com.letraaletra.api.application.command.participant.ReconnectParticipantCommand;
 import com.letraaletra.api.application.output.participant.ReconnectParticipantOutput;
+import com.letraaletra.api.application.port.Actor;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.DisconnectScheduler;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 
-import java.util.EnumSet;
 import java.util.Optional;
 
 public class ReconnectUseCase {
-    private final GameRepository gameRepository;
+    private final ActorManager<Game> actorManager;
     private final DisconnectScheduler disconnectScheduler;
     private final UserRepository userRepository;
 
-    public ReconnectUseCase(GameRepository gameRepository, DisconnectScheduler disconnectScheduler, UserRepository userRepository) {
-        this.gameRepository = gameRepository;
+    public ReconnectUseCase(
+            ActorManager<Game> actorManager,
+            DisconnectScheduler disconnectScheduler,
+            UserRepository userRepository
+    ) {
+        this.actorManager = actorManager;
         this.disconnectScheduler = disconnectScheduler;
         this.userRepository = userRepository;
     }
@@ -35,25 +38,25 @@ public class ReconnectUseCase {
             return Optional.empty();
         }
 
-        Game game = gameRepository.find(user.getCurrentGameId());
+        try {
+            Actor actor = actorManager.get(user.getCurrentGameId());
 
-        if (game == null || !EnumSet.of(GameStatus.RUNNING, GameStatus.WAITING)
-                .contains(game.getGameStatus())) {
+            Game game = actor.getGame();
+
+            Participant participant = game.getParticipantByUserId(userId);
+            if (participant == null) return Optional.empty();
+
+            disconnectScheduler.cancel(userId, game.getId());
+
+            game.reconnect(userId, command.session());
+
+            return buildReturn(game);
+
+        } catch (Exception e) {
             user.leaveGame();
             userRepository.save(user);
             return Optional.empty();
         }
-
-        Participant participant = game.getParticipantByUserId(userId);
-        if (participant == null) return Optional.empty();
-
-        disconnectScheduler.cancel(userId, game.getId());
-
-        game.reconnect(userId, command.session());
-
-        gameRepository.save(game);
-
-        return buildReturn(game);
     }
 
     private Optional<ReconnectParticipantOutput> buildReturn(Game game) {

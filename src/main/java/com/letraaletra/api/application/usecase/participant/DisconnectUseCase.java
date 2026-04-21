@@ -15,13 +15,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class DisconnectUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final DisconnectScheduler disconnectScheduler;
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
 
     public DisconnectUseCase(
-            ActorManager gameActorManager,
+            ActorManager<Game> gameActorManager,
             DisconnectScheduler disconnectScheduler,
             MatchmakingRepository matchmakingRepository,
             UserRepository userRepository
@@ -44,7 +44,7 @@ public class DisconnectUseCase {
         if (user == null || user.isNotInGame()) return Optional.empty();
 
 
-        Actor actor = gameActorManager.getOrCreate(user.getCurrentGameId());
+        Actor actor = gameActorManager.get(user.getCurrentGameId());
 
         CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
                 new DisconnectParticipantActorCommand(userId, disconnectScheduler)

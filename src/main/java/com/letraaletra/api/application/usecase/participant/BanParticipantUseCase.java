@@ -17,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 public class BanParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
     private final UserRepository userRepository;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager gameActorManager) {
+    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager<Game> gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.userRepository = userRepository;
         this.gameActorManager = gameActorManager;
@@ -28,7 +28,7 @@ public class BanParticipantUseCase {
     public BanParticipantOutput execute(BanParticipantCommand command) {
         ModerationContext context = moderationContextFactory.resolve(command.token(), command.target(), command.user());
 
-        Actor actor = gameActorManager.getOrCreate(context.game().getId());
+        Actor actor = gameActorManager.get(context.game().getId());
         CompletableFuture<Game> future = actor.enqueueCommand(new BanParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();
 

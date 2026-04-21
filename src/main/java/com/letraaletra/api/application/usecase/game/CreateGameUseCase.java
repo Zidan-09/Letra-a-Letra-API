@@ -1,6 +1,7 @@
 package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.command.game.CreateGameCommand;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.GameType;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class CreateGameUseCase {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final ActorManager<Game> actorManager;
     private final GameQueryService gameQueryService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TokenService tokenService;
@@ -28,6 +30,7 @@ public class CreateGameUseCase {
     public CreateGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
+            ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
             TokenService tokenService,
@@ -35,6 +38,7 @@ public class CreateGameUseCase {
     ) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
+        this.actorManager = actorManager;
         this.gameTimeoutManager = gameTimeoutManager;
         this.gameQueryService = gameQueryService;
         this.tokenService = tokenService;
@@ -58,6 +62,8 @@ public class CreateGameUseCase {
 
         userRepository.save(user);
         gameRepository.save(game);
+
+        actorManager.create(gameId, game);
 
         String tokenGameId = tokenService.generateToken(gameId);
 

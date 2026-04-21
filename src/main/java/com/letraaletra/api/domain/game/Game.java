@@ -24,6 +24,7 @@ public class Game {
     private final RoomSettings roomSettings;
     private final Set<String> blacklist = new HashSet<>();
     private final GameType gameType;
+    private final String createdById;
     private String hostId;
     private GameStatus gameStatus;
     private GameState gameState;
@@ -35,6 +36,7 @@ public class Game {
         host.changeRole(ParticipantRole.PLAYER);
         this.participants.put(host.getUserId(), host);
         this.gameType = gameType;
+        this.createdById = host.getUserId();
         this.hostId = host.getUserId();
         this.positions.put(0, host.getUserId());
         this.gameStatus = GameStatus.WAITING;
@@ -60,6 +62,10 @@ public class Game {
 
     public List<Participant> getParticipants() {
         return List.copyOf(participants.values());
+    }
+
+    public String getCreatedById() {
+        return createdById;
     }
 
     public String getHostId() {

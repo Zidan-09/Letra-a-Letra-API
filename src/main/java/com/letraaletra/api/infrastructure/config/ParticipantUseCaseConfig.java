@@ -1,8 +1,10 @@
 package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.context.ModerationContextFactory;
+import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.DisconnectScheduler;
 import com.letraaletra.api.application.usecase.participant.*;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
@@ -50,12 +52,12 @@ public class ParticipantUseCaseConfig {
 
     @Bean
     public ReconnectUseCase reconnectUseCase(
-            GameRepository gameRepository,
+            ActorManager<Game> actorManager,
             DisconnectScheduler disconnectScheduler,
             UserRepository userRepository
             ) {
         return new ReconnectUseCase(
-                gameRepository,
+                actorManager,
                 disconnectScheduler,
                 userRepository
         );

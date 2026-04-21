@@ -60,7 +60,7 @@ public class StartGameUseCase {
 
         Board board = boardGenerator.generate(words, command.settings().getGameMode());
 
-        Actor actor = gameActorManager.getOrCreate(gameId);
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateGenerator, gameTimeoutManager, turnTimeoutManager));
 

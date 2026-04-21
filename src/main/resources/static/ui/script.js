@@ -30,9 +30,9 @@ function clearPowerSelection() {
     discardButton.classList.add("hide");
 }
 
-function updateInventory(players, myNickname) {
-    const me = players.find(p => p.nickname === myNickname);
-    const opponent = players.find(p => p.nickname !== myNickname);
+function updateInventory(players, id) {
+    const me = players.find(p => p.id === id);
+    const opponent = players.find(p => p.id !== id);
     
     if (opponent) opponentId = opponent.id;
     if (!me) return;
@@ -205,7 +205,7 @@ startButton.addEventListener("click", async () => {
 
     gameWs.onmessage = (event) => {
         const msg = JSON.parse(event.data);
-        console.log("Evento:", msg);
+        console.log("Evento DEBUG:", msg);
 
         if (msg.event === "REMOVED_BECAUSE_INACTIVITY") {
             turnDisplay.innerText = "REMOVIDO POR INATIVIDADE!";
@@ -230,7 +230,7 @@ startButton.addEventListener("click", async () => {
         if (msg.data && msg.data.board) {
             updateBoard(msg.data.board);
             updateWords(msg.data.words);
-            updateInventory(msg.data.players, nick);
+            updateInventory(msg.data.players, currentUser.id);
             
             const isMyTurn = msg.data.currentTurnPlayerId === currentUser.id;
             turnDisplay.innerText = isMyTurn ? "SEU TURNO" : "Turno do oponente";

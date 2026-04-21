@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase {
     private final ModerationContextFactory moderationContextFactory;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager gameActorManager) {
+    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager<Game> gameActorManager) {
         this.moderationContextFactory = moderationContextFactory;
         this.gameActorManager = gameActorManager;
     }
@@ -27,7 +27,7 @@ public class KickParticipantUseCase {
                 command.user()
         );
 
-        Actor actor = gameActorManager.getOrCreate(context.game().getId());
+        Actor actor = gameActorManager.get(context.game().getId());
 
         CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(command.target(), command.user()));
         Game game = future.join();
