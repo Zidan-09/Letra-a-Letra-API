@@ -16,9 +16,9 @@ import java.util.concurrent.CompletableFuture;
 public class JoinGameUseCase {
     private final UserRepository userRepository;
     private final TokenService tokenService;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
 
-    public JoinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
+    public JoinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager<Game> actorManager) {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
         this.actorManager = actorManager;

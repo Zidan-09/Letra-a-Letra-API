@@ -9,9 +9,9 @@ import com.letraaletra.api.domain.game.Game;
 
 public class FindByTokenGameIdUseCase {
     private final TokenService tokenService;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
 
-    public FindByTokenGameIdUseCase(TokenService tokenService, ActorManager actorManager) {
+    public FindByTokenGameIdUseCase(TokenService tokenService, ActorManager<Game> actorManager) {
         this.tokenService = tokenService;
         this.actorManager = actorManager;
     }

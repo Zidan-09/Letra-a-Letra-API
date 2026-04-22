@@ -27,7 +27,7 @@ public class StartGameUseCase {
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
     public StartGameUseCase(
             GameStateGenerator gameStateGenerator,
@@ -37,7 +37,7 @@ public class StartGameUseCase {
             BoardGenerator boardGenerator,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager gameActorManager
+            ActorManager<Game> gameActorManager
     ) {
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;
