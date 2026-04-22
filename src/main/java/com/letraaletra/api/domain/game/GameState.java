@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.*;
 
 public class GameState {
+    private final String matchId;
     private final Map<String, Player> players;
     private final Board board;
     private final List<String> turnOrder;
@@ -16,7 +17,8 @@ public class GameState {
     private Instant turnEndsAt;
     private int version;
 
-    public GameState(Map<String, Player> players, Board board, Instant turnEnds) {
+    public GameState(String matchId, Map<String, Player> players, Board board, Instant turnEnds) {
+        this.matchId = matchId;
         this.players = players;
         this.board = board;
 
@@ -30,6 +32,10 @@ public class GameState {
         this.currentTurnIndex = 0;
         this.turnEndsAt = turnEnds;
         this.version = 1;
+    }
+
+    public String getMatchId() {
+        return matchId;
     }
 
     public Map<String, Player> getPlayers() {

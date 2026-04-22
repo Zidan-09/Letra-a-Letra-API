@@ -47,7 +47,7 @@ public class BoardGenerator {
         fillEmptySpaces(grid, gameMode);
         bindCellsToWords(grid, placedWords);
 
-        return new Board(grid, placedWords.toArray(new Word[0]));
+        return new Board(grid, placedWords.toArray(new Word[0]), gameMode);
     }
 
     private boolean canPlaceWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
