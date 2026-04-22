@@ -8,21 +8,24 @@ import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ExpireTurnUseCase {
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
     private final GameTimeoutManager gameTimeoutManager;
     private final UserRepository userRepository;
 
     public ExpireTurnUseCase(
-            ActorManager gameActorManager,
+            ActorManager<Game> gameActorManager,
             GameTimeoutManager gameTimeoutManager,
             UserRepository userRepository
     ) {
@@ -53,24 +56,12 @@ public class ExpireTurnUseCase {
     private void removeUserRoomId(ExpireTurnResult expireTurn) {
         if (expireTurn == null) return;
 
-        if (expireTurn.removedBecauseAfk()) {
-            User user = userRepository.find(expireTurn.whoPassed()).orElse(null);
-
-            if (user != null) {
-                user.leaveGame();
-                userRepository.save(user);
-            }
+        if (expireTurn.gameOverResult().finished()) {
+            handleGameOver(expireTurn);
         }
 
-        if (expireTurn.gameOverResult().finished()) {
-            for (Participant participant : expireTurn.game().getParticipants()) {
-                User pUser = userRepository.find(participant.getUserId()).orElse(null);
-
-                if (pUser != null) {
-                    pUser.leaveGame();
-                    userRepository.save(pUser);
-                }
-            }
+        if (expireTurn.removedBecauseAfk()) {
+            handleAfkRemoval(expireTurn);
         }
     }
 
@@ -85,5 +76,43 @@ public class ExpireTurnUseCase {
                         removedBecauseAfk
                 )
         );
+    }
+
+    private void updateStats(Player player, boolean isWinner) {
+        User user = userRepository.find(player.getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.registerMatchResult(isWinner);
+
+        userRepository.save(user);
+    }
+
+    private User getUserOrThrow(String userId) {
+        return userRepository.find(userId)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void handleAfkRemoval(ExpireTurnResult expireTurn) {
+        User user = getUserOrThrow(expireTurn.whoPassed());
+
+        user.leaveGame();
+        userRepository.save(user);
+    }
+
+    private void handleGameOver(ExpireTurnResult expireTurn) {
+        for (Participant participant : expireTurn.game().getParticipants()) {
+            User user = getUserOrThrow(participant.getUserId());
+
+            if (!expireTurn.game().getGameStatus().equals(GameStatus.WAITING)) {
+                user.leaveGame();
+            }
+
+            userRepository.save(user);
+        }
+
+        GameOverResult result = expireTurn.gameOverResult();
+
+        updateStats(result.winner(), true);
+        updateStats(result.loser(), false);
     }
 }

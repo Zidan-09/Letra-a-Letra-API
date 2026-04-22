@@ -6,9 +6,6 @@ import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataGam
 import com.letraaletra.api.infrastructure.persistence.postgres.mapper.GameMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @Repository
 public class JpaGameRepository implements GameRepository {
     private final SpringDataGameRepository repository;

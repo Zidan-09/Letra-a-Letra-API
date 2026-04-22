@@ -2,12 +2,13 @@ package com.letraaletra.api.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.UserJpaEntity;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.infrastructure.persistence.postgres.entities.UserStatsJpaEntity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class UserMapper {
-    public static User toDomain(UserJpaEntity entity) {
+    public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa) {
         if (entity == null) return null;
 
         return new User(
@@ -16,7 +17,8 @@ public class UserMapper {
                 entity.getAvatarId(),
                 entity.getEmail(),
                 entity.getPasswordHash(),
-                entity.getGoogleId()
+                entity.getGoogleId(),
+                UserStatsMapper.toDomain(statsJpa)
         );
     }
 

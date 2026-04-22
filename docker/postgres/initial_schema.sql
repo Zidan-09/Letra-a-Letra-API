@@ -12,10 +12,11 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE "user_stats" (
-                              "user_id" uuid PRIMARY KEY REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                              "total_matches" integer DEFAULT 0,
-                              "total_wins" integer DEFAULT 0,
-                              "win_streak" integer DEFAULT 0
+                        "user_id" uuid PRIMARY KEY REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "total_matches" integer DEFAULT 0,
+                        "total_wins" integer DEFAULT 0,
+                        "win_streak" integer DEFAULT 0,
+                        "points" integer DEFAULT 0
 );
 
 CREATE TABLE "game" (
