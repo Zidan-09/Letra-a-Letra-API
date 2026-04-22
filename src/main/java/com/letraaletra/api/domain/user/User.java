@@ -2,6 +2,7 @@ package com.letraaletra.api.domain.user;
 
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.domain.user.stats.UserStats;
 
 public class User {
     private final String id;
@@ -11,14 +12,24 @@ public class User {
     private final String hashPassword;
     private final String googleId;
     private String currentGameId;
+    private final UserStats stats;
 
-    public User(String id, String nickname, String avatar, String email, String hashPassword, String googleId) {
+    public User(
+            String id,
+            String nickname,
+            String avatar,
+            String email,
+            String hashPassword,
+            String googleId,
+            UserStats stats
+    ) {
         this.id = id;
         this.nickname = nickname;
         this.avatar = avatar;
         this.email = email;
         this.hashPassword = hashPassword;
         this.googleId = googleId;
+        this.stats = stats;
     }
 
     public String getId() {
@@ -49,6 +60,10 @@ public class User {
         return googleId;
     }
 
+    public UserStats getStats() {
+        return stats;
+    }
+
     public boolean isNotInGame() {
         return currentGameId == null;
     }
@@ -71,5 +86,13 @@ public class User {
 
     public void leaveGame() {
         this.currentGameId = null;
+    }
+
+    public void registerMatchResult(boolean isWinner) {
+        if (isWinner) {
+            stats.registerWin();
+        } else {
+            stats.registerLose();
+        }
     }
 }

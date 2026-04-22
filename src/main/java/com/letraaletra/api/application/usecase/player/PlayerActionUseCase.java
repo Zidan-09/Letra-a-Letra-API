@@ -11,11 +11,13 @@ import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +65,11 @@ public class PlayerActionUseCase {
                 removeAllPlayersFromGame(result.game());
             }
 
+            GameOverResult gameOverResult = result.gameOverResult();
+
+            updateStats(gameOverResult.winner(), true);
+            updateStats(gameOverResult.loser(), false);
+
             gameRepository.save(result.game());
         }
 
@@ -88,5 +95,14 @@ public class PlayerActionUseCase {
                 }
             }
         );
+    }
+
+    private void updateStats(Player player, boolean isWinner) {
+        User user = userRepository.find(player.getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.registerMatchResult(isWinner);
+
+        userRepository.save(user);
     }
 }

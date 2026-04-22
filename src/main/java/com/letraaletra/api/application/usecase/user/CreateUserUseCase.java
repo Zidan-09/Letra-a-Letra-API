@@ -6,6 +6,7 @@ import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
+import com.letraaletra.api.domain.user.stats.UserStats;
 
 import java.util.Random;
 import java.util.UUID;
@@ -58,7 +59,8 @@ public class CreateUserUseCase {
                 null,
                 email,
                 passwordService.hash(password),
-                null
+                null,
+                new UserStats(0, 0, 0, 0)
         );
 
         try {

@@ -7,6 +7,7 @@ import com.letraaletra.api.application.port.GoogleTokenService;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.domain.user.stats.UserStats;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,13 +30,14 @@ public class GoogleAuthUseCase {
 
         User user = userOpt.orElseGet(() ->
                 userRepository.save(
-                        new User(
-                            UUID.randomUUID().toString(),
+                    new User(
+                    UUID.randomUUID().toString(),
                     null,
                     null,
-                            payload.email(),
-                            null,
-                            payload.googleId()
+                    payload.email(),
+                    null,
+                    payload.googleId(),
+                    new UserStats(0, 0, 0, 0)
                     )
                 )
         );
