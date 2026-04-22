@@ -1,5 +1,6 @@
 package com.letraaletra.api.domain.game.board;
 
+import com.letraaletra.api.domain.game.GameMode;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
 import com.letraaletra.api.domain.game.board.exception.InvalidCellPositionException;
@@ -10,7 +11,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public record Board(Cell[][] grid, Word[] words) {
+public record Board(
+        Cell[][] grid,
+        Word[] words,
+        GameMode gameMode
+) {
 
     public Cell getCell(Position position) {
         int row = position.x();
@@ -28,11 +33,11 @@ public record Board(Cell[][] grid, Word[] words) {
         return words.clone();
     }
 
-    public List<Position> getOpponentTraps(String user) {
+    public List<Position> getOpponentTraps(String userId) {
         return Arrays.stream(grid)
                 .flatMap(Arrays::stream)
                 .filter(cell -> cell.getEffect() instanceof TrapEffect)
-                .filter(cell -> !Objects.equals(cell.getEffect().getOwnerId(), user))
+                .filter(cell -> !Objects.equals(cell.getEffect().getOwnerId(), userId))
                 .map(Cell::getPosition)
                 .toList();
     }

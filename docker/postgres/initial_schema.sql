@@ -30,19 +30,19 @@ CREATE TABLE "game" (
 );
 
 CREATE TABLE "matches" (
-                           "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                           "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
-                           "game_mode" varchar(50) NOT NULL,
-                           "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-                           "ended_at" timestamp
+                        "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                        "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
+                        "game_mode" varchar(50) NOT NULL,
+                        "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "ended_at" timestamp
 );
 
 CREATE TABLE "match_players" (
-                                 "match_id" uuid REFERENCES "matches" ("match_id") ON DELETE CASCADE,
-                                 "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                                 "score" integer DEFAULT 0,
-                                 "is_winner" boolean DEFAULT false,
-                                 PRIMARY KEY ("match_id", "user_id")
+                        "match_id" uuid REFERENCES "matches" ("match_id") ON DELETE CASCADE,
+                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "score" integer DEFAULT 0,
+                        "is_winner" boolean DEFAULT false,
+                        PRIMARY KEY ("match_id", "user_id")
 );
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';

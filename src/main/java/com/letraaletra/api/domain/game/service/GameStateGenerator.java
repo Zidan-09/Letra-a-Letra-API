@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class GameStateGenerator {
     public GameState generate(List<Participant> participants, Board board) {
@@ -25,7 +26,10 @@ public class GameStateGenerator {
                     players.put(p.getUserId(), player);
                 });
 
+        String matchId = UUID.randomUUID().toString();
+
         return new GameState(
+                matchId,
                 players,
                 board,
                 Instant.now().plusSeconds(45)
