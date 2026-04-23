@@ -4,8 +4,11 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.application.service.GameOverHandler;
+import com.letraaletra.api.application.service.UpdateStatsService;
 import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
 import com.letraaletra.api.application.usecase.game.*;
+import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
@@ -27,7 +30,7 @@ public class GameUseCaseConfig {
     @Bean
     public CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase(
             UserRepository userRepository,
-            ActorManager actorManager,
+            ActorManager<Game> actorManager,
             GameRepository gameRepository
     ) {
         return new CloseRoomDueToTimeoutUseCase(
@@ -41,7 +44,7 @@ public class GameUseCaseConfig {
     public CreateGameUseCase createGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
-            ActorManager actorManager,
+            ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
             TokenService tokenService,
@@ -64,7 +67,7 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, ActorManager actorManager) {
+    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, ActorManager<Game> actorManager) {
         return new FindByTokenGameIdUseCase(tokenService, actorManager);
     }
 
@@ -74,7 +77,7 @@ public class GameUseCaseConfig {
     }
 
     @Bean
-    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager actorManager) {
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager<Game> actorManager) {
         return new JoinGameUseCase(userRepository, tokenService, actorManager);
     }
 
@@ -119,10 +122,10 @@ public class GameUseCaseConfig {
     @Bean
     public ExpireTurnUseCase expireTurnUseCase(
             GameActorManager gameActorManager,
-            GameTimeoutManager gameTimeoutManager,
+            GameOverHandler gameOverHandler,
             UserRepository userRepository
     ) {
-        return new ExpireTurnUseCase(gameActorManager, gameTimeoutManager, userRepository);
+        return new ExpireTurnUseCase(gameActorManager, gameOverHandler, userRepository);
     }
 
     @Bean
@@ -142,7 +145,7 @@ public class GameUseCaseConfig {
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
-            ActorManager actorManager
+            ActorManager<Game> actorManager
     ) {
         return new JoinMatchmakingQueueUseCase(
                 matchmakingRepository,
@@ -157,5 +160,27 @@ public class GameUseCaseConfig {
                 turnTimeoutManager,
                 actorManager
         );
+    }
+
+    @Bean
+    public GameOverHandler gameOverHandler(
+            GameRepository gameRepository,
+            UserRepository userRepository,
+            ActorManager<Game> actorManager,
+            GameTimeoutManager gameTimeoutManager,
+            UpdateStatsService updateStatsService
+    ) {
+        return new GameOverHandler(
+                gameRepository,
+                userRepository,
+                actorManager,
+                gameTimeoutManager,
+                updateStatsService
+        );
+    }
+
+    @Bean
+    public UpdateStatsService updateStatsService(UserRepository userRepository) {
+        return new UpdateStatsService(userRepository);
     }
 }

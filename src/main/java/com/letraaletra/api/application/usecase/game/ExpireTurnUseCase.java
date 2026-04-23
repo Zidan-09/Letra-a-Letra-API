@@ -6,12 +6,8 @@ import com.letraaletra.api.application.output.actor.ExpireTurnResult;
 import com.letraaletra.api.application.output.game.ExpireTurnOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.application.service.GameOverHandler;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.player.Player;
-import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
@@ -21,16 +17,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class ExpireTurnUseCase {
     private final ActorManager<Game> gameActorManager;
-    private final GameTimeoutManager gameTimeoutManager;
+    private final GameOverHandler gameOverHandler;
     private final UserRepository userRepository;
 
     public ExpireTurnUseCase(
             ActorManager<Game> gameActorManager,
-            GameTimeoutManager gameTimeoutManager,
+            GameOverHandler gameOverHandler,
             UserRepository userRepository
     ) {
         this.gameActorManager = gameActorManager;
-        this.gameTimeoutManager = gameTimeoutManager;
+        this.gameOverHandler = gameOverHandler;
         this.userRepository = userRepository;
     }
 
@@ -38,26 +34,21 @@ public class ExpireTurnUseCase {
         Actor actor = gameActorManager.get(command.gameId());
 
         CompletableFuture<Optional<ExpireTurnResult>> future = actor.enqueueCommand(
-                new ExpireTurnActorCommand(command.version(), gameTimeoutManager)
+                new ExpireTurnActorCommand(command.version())
         );
 
         Optional<ExpireTurnResult> result = future.join();
 
         removeUserRoomId(result.orElse(null));
 
-        return result.flatMap(expireTurnResult -> buildOutput(
-                expireTurnResult.whoPassed(),
-                expireTurnResult.game(),
-                expireTurnResult.gameOverResult(),
-                expireTurnResult.removedBecauseAfk()
-        ));
+        return result.flatMap(this::buildOutput);
     }
 
     private void removeUserRoomId(ExpireTurnResult expireTurn) {
         if (expireTurn == null) return;
 
         if (expireTurn.gameOverResult().finished()) {
-            handleGameOver(expireTurn);
+            gameOverHandler.handle(expireTurn.game(), expireTurn.gameOverResult());
         }
 
         if (expireTurn.removedBecauseAfk()) {
@@ -65,26 +56,17 @@ public class ExpireTurnUseCase {
         }
     }
 
-    private Optional<ExpireTurnOutput> buildOutput(String whoPassed, Game game, GameOverResult gameOverResult, boolean removedBecauseAfk) {
+    private Optional<ExpireTurnOutput> buildOutput(ExpireTurnResult result) {
         return Optional.of(
                 new ExpireTurnOutput(
                         "TURN_EXPIRED",
-                        whoPassed,
-                        game.getGameState().currentPlayerTurn(),
-                        game,
-                        gameOverResult,
-                        removedBecauseAfk
+                        result.whoPassed(),
+                        result.game().getGameState().currentPlayerTurn(),
+                        result.game(),
+                        result.gameOverResult(),
+                        result.removedBecauseAfk()
                 )
         );
-    }
-
-    private void updateStats(Player player, boolean isWinner) {
-        User user = userRepository.find(player.getUserId())
-                .orElseThrow(UserNotFoundException::new);
-
-        user.registerMatchResult(isWinner);
-
-        userRepository.save(user);
     }
 
     private User getUserOrThrow(String userId) {
@@ -97,22 +79,5 @@ public class ExpireTurnUseCase {
 
         user.leaveGame();
         userRepository.save(user);
-    }
-
-    private void handleGameOver(ExpireTurnResult expireTurn) {
-        for (Participant participant : expireTurn.game().getParticipants()) {
-            User user = getUserOrThrow(participant.getUserId());
-
-            if (!expireTurn.game().getGameStatus().equals(GameStatus.WAITING)) {
-                user.leaveGame();
-            }
-
-            userRepository.save(user);
-        }
-
-        GameOverResult result = expireTurn.gameOverResult();
-
-        updateStats(result.winner(), true);
-        updateStats(result.loser(), false);
     }
 }
