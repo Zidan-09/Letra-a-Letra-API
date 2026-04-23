@@ -6,7 +6,7 @@ import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
-import com.letraaletra.api.domain.user.stats.UserStats;
+import com.letraaletra.api.domain.user.service.UserFactory;
 
 import java.util.Random;
 import java.util.UUID;
@@ -14,6 +14,7 @@ import java.util.UUID;
 public class CreateUserUseCase {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
+    private final UserFactory userFactory;
     private final Random random;
 
     private static final String[] firstPart = {
@@ -36,9 +37,15 @@ public class CreateUserUseCase {
             "Executioner", "Avenger", "Dominator", "Overlord", "Vanquisher"
     };
 
-    public CreateUserUseCase(UserRepository userRepository, PasswordService passwordService, Random random) {
+    public CreateUserUseCase(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            UserFactory userFactory,
+            Random random
+    ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
+        this.userFactory = userFactory;
         this.random = random;
     }
 
@@ -53,15 +60,7 @@ public class CreateUserUseCase {
 
         String nickname = randomNicknameSelector();
 
-        User user = new User(
-                userId,
-                nickname,
-                null,
-                email,
-                passwordService.hash(password),
-                null,
-                new UserStats(0, 0, 0, 0)
-        );
+        User user = userFactory.createLocal(userId, nickname, email, passwordService.hash(password));
 
         try {
             userRepository.save(user);

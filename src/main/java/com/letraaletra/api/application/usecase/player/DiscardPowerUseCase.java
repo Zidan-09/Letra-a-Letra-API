@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class DiscardPowerUseCase {
     private final TokenService tokenService;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public DiscardPowerUseCase(TokenService tokenService, ActorManager gameActorManager) {
+    public DiscardPowerUseCase(TokenService tokenService, ActorManager<Game> gameActorManager) {
         this.tokenService = tokenService;
         this.gameActorManager = gameActorManager;
     }

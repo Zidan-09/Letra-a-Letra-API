@@ -7,6 +7,7 @@ import com.letraaletra.api.application.usecase.user.SignInUseCase;
 import com.letraaletra.api.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.domain.user.service.UserFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +16,13 @@ import java.util.Random;
 @Configuration
 public class UserUseCaseConfig {
     @Bean
-    public CreateUserUseCase createUserUseCase(UserRepository userRepository, PasswordService passwordService, Random random) {
-        return new CreateUserUseCase(userRepository, passwordService, random);
+    public CreateUserUseCase createUserUseCase(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            UserFactory userFactory,
+            Random random
+    ) {
+        return new CreateUserUseCase(userRepository, passwordService, userFactory, random);
     }
 
     @Bean

@@ -1,11 +1,9 @@
 package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.application.output.actor.ExpireTurnResult;
-import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 
@@ -14,11 +12,11 @@ import java.util.Optional;
 
 public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnResult>> {
     private final int version;
-    private final GameTimeoutManager gameTimeoutManager;
 
-    public ExpireTurnActorCommand(int version, GameTimeoutManager gameTimeoutManager) {
+    public ExpireTurnActorCommand(
+            int version
+    ) {
         this.version = version;
-        this.gameTimeoutManager = gameTimeoutManager;
     }
 
     @Override
@@ -46,49 +44,19 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
 
         boolean shouldRemove = player.getPassedTurn() >= 3;
 
-        GameOverResult gameOverResultBefore = state.gameOverChecker();
-
         if (shouldRemove) {
             game.remove(whoPassed);
-
-            GameOverResult gameOverResultAfter = state.gameOverChecker();
-
-            if (gameOverResultAfter.finished()) {
-                if (game.getGameType().equals(GameType.CUSTOM)) {
-                    game.setGameStatus(GameStatus.WAITING);
-                    gameTimeoutManager.start(game);
-                }
-            }
-
-            return Optional.of(new ExpireTurnResult(
-                    whoPassed,
-                    game,
-                    gameOverResultAfter,
-                    true
-            ));
+        } else {
+            state.nextTurn(now.plusSeconds(45));
         }
 
-        if (gameOverResultBefore.finished()) {
-            if (game.getGameType().equals(GameType.CUSTOM)) {
-                game.setGameStatus(GameStatus.WAITING);
-                gameTimeoutManager.start(game);
-            }
-
-            return Optional.of(new ExpireTurnResult(
-                    whoPassed,
-                    game,
-                    gameOverResultBefore,
-                    false
-            ));
-        }
-
-        state.nextTurn(now.plusSeconds(45));
+        GameOverResult gameOverResult = state.gameOverChecker();
 
         return Optional.of(new ExpireTurnResult(
                 whoPassed,
                 game,
-                gameOverResultBefore,
-                false
+                gameOverResult,
+                shouldRemove
         ));
     }
 }

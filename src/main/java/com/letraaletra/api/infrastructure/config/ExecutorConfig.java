@@ -15,8 +15,8 @@ public class ExecutorConfig {
                 Runtime.getRuntime().availableProcessors() * 2,
                 60L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(10_000), // 🔥 limite!
-                new ThreadPoolExecutor.CallerRunsPolicy() // fallback
+                new LinkedBlockingQueue<>(10_000),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }
 }

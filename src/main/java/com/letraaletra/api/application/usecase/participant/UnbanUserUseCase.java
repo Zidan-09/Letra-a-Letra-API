@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class UnbanUserUseCase {
     private final TokenService tokenService;
-    private final ActorManager gameActorManager;
+    private final ActorManager<Game> gameActorManager;
 
-    public UnbanUserUseCase(TokenService tokenService, ActorManager gameActorManager) {
+    public UnbanUserUseCase(TokenService tokenService, ActorManager<Game> gameActorManager) {
         this.tokenService = tokenService;
         this.gameActorManager = gameActorManager;
     }

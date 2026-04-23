@@ -13,12 +13,12 @@ import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 public class CloseRoomDueToTimeoutUseCase {
     private final UserRepository userRepository;
-    private final ActorManager actorManager;
+    private final ActorManager<Game> actorManager;
     private final GameRepository gameRepository;
 
     public CloseRoomDueToTimeoutUseCase(
             UserRepository userRepository,
-            ActorManager actorManager,
+            ActorManager<Game> actorManager,
             GameRepository gameRepository
     ) {
         this.userRepository = userRepository;
