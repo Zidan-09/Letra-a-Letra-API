@@ -1,125 +1,160 @@
+# 📘 Documentação da API
 
-# 📘 API Documentation
+## 🔗 Visão Geral
 
-## 🔗 Overview
+- URL base HTTP: `http://<host>:8080`
+- URL base WebSocket: `ws://<host>:8080/ws/game?token=<USER_JWT>`
+- O projeto expõe uma API HTTP pública e um endpoint WebSocket puro para ações em tempo real (salas e gameplay).
+- Existem dois tipos de tokens no sistema:
+  - `token`: JWT do usuário retornado por `POST /user/login` ou `POST /auth/google`
+  - `tokenGameId`: JWT do jogo retornado pelos endpoints de jogo/WebSocket e usado para identificar a sala
 
-* **Base HTTP URL:** `http://<host>:8080`
-* **WebSocket URL:** `ws://<host>:8080/ws/game?token=<JWT>`
+---
 
-### 🔐 Autenticação
+## 🔐 Autenticação
 
-* HTTP: não requer autenticação
-* WebSocket: requer `token` (JWT) obtido em `/user/login`
+- HTTP: atualmente nenhum endpoint é protegido (`SecurityConfig` permite todas as requisições).
+- WebSocket: exige o parâmetro `token` na query.
+- O servidor extrai o `userId` a partir do JWT antes de aceitar a conexão.
+- Tempo de vida do JWT: 6 horas.
+- Token inválido ou ausente → conexão rejeitada.
 
 ---
 
 ## 📦 Padrões de Resposta
 
-### HTTP Success
+### HTTP Sucesso
 
-```json
+```
 {
-  "success": true,
-  "message": "ok",
-  "data": {}
+"success": true,
+"message": "user_logged",
+"data": {
+"id": "uuid",
+"token": "<JWT>"
+}
 }
 ```
 
-### HTTP Error
+### HTTP Erro
 
-```json
+```
 {
-  "success": false,
-  "message": "error_code"
+"success": false,
+"message": "invalid_credentials"
 }
 ```
 
-### WebSocket Success
+Erros de validação:
 
-```json
-{
-  "event": "EVENT_NAME",
-  "data": {}
-}
 ```
-
-### WebSocket Error
-
-```json
 {
-  "event": "ERROR",
-  "message": "error_code"
+"success": false,
+"message": "email: deve ser um email válido"
 }
 ```
 
 ---
 
-# 🌐 HTTP Endpoints
+### WebSocket Sucesso
+
+```
+{
+"event": "EVENT_NAME",
+"data": {}
+}
+```
+
+Observação: pode conter campos como `warning`, `status`, `turnEndsAt`.
+
+---
+
+### WebSocket Erro
+
+```
+{
+"event": "ERROR",
+"message": "error_code"
+}
+```
+
+---
+
+# 🌐 Endpoints HTTP
 
 ## 👤 Usuário
 
-### Criar usuário
+### POST `/user`
 
-**POST** `/user`
+Cria um usuário local.
 
-```json
+```
 {
-  "nickname": "Zidan",
-  "email": "zidan@email.com",
-  "password": "12345678"
+"email": "player@example.com",
+"password": "12345678"
 }
 ```
+
+Regras:
+- email obrigatório e válido
+- senha entre 8 e 16 caracteres
+- nickname gerado automaticamente
 
 ---
 
-### Login
+### GET `/user/{userId}`
 
-**POST** `/user/login`
-
-```json
-{
-  "email": "zidan@email.com",
-  "password": "12345678"
-}
-```
-
-Resposta:
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "user-id",
-    "token": "jwt-token"
-  }
-}
-```
+Busca usuário por ID.
 
 ---
 
-### Buscar usuário
+### POST `/user/login`
 
-**GET** `/user/{userId}`
+Autentica usuário e retorna JWT.
+
+---
+
+### PATCH `/user/nickname/{userId}`
+
+Define nickname do usuário.
+
+```
+{
+"nickname": "Zidan"
+}
+```
+
+Regras:
+- obrigatório
+- entre 5 e 10 caracteres
+- deve ser único
+- usuário não pode já ter nickname
+
+---
+
+### POST `/auth/google`
+
+Autenticação via Google.
 
 ---
 
 ## 🎮 Game
 
-### Listar jogos públicos
+### GET `/game`
 
-**GET** `/game`
-
----
-
-### Buscar jogo por token
-
-**GET** `/game/{tokenGameId}`
+Lista jogos públicos ativos.
 
 ---
 
-### Buscar token por código
+### GET `/game/{tokenGameId}`
 
-**GET** `/game/code/{code}`
+Retorna snapshot da sala.
+
+---
+
+### GET `/game/code/{code}`
+
+Resolve código para `tokenGameId`.
 
 ---
 
@@ -127,31 +162,42 @@ Resposta:
 
 ## 🔑 Conexão
 
-```
-ws://<host>:8080/ws/game?token=<JWT>
-```
-
-* Token obrigatório
-* Se usuário já estiver em jogo → recebe `PARTICIPANT_RECONNECTED`
+- URL: `ws://<host>:8080/ws/game?token=<USER_JWT>`
+- Token obrigatório
+- Reconexão:
+  - envia `PARTICIPANT_RECONNECTED`
+- Origem liberada (`*`)
 
 ---
 
-## 📡 Formato das mensagens
+## 📡 Formato das Mensagens
 
-### Padrão geral
+### Simples
 
-```json
+```
 {
-  "type": "ACTION_NAME"
+"type": "MATCHMAKING_GAME"
 }
 ```
 
 ### Com payload
 
-```json
+```
 {
-  "type": "ACTION_NAME",
-  "tokenGameId": "game-token"
+"type": "START_GAME",
+"tokenGameId": "<GAME_JWT>"
+}
+```
+
+### Gameplay
+
+```
+{
+"type": "PLAYER_ACTION",
+"tokenGameId": "<GAME_JWT>",
+"action": {
+"type": "REVEAL"
+}
 }
 ```
 
@@ -159,217 +205,181 @@ ws://<host>:8080/ws/game?token=<JWT>
 
 # 🎮 Ações WebSocket
 
-## 🆕 CREATE_GAME
+## CREATE_GAME
 
-```json
-{
-  "type": "CREATE_GAME",
-  "name": "Minha Sala",
-  "settings": {
-    "allowSpectators": true,
-    "privateGame": false
-  }
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "GAME_CREATED"
-}
-```
+- Cria sala (`WAITING`)
+- Criador vira host
+- Timeout de 5 minutos
 
 ---
 
-## 🚪 JOIN_GAME
+## JOIN_GAME
 
-```json
-{
-  "type": "JOIN_GAME",
-  "tokenGameId": "game-token"
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "PARTICIPANT_JOIN"
-}
-```
+- Adiciona usuário à sala
+- 2 primeiros = jogadores
+- Restante = espectadores
+- Limite:
+  - 2 sem espectadores
+  - 7 com espectadores
 
 ---
 
-## 🔄 SWAP_POSITION
+## MATCHMAKING_GAME
 
-```json
-{
-  "type": "SWAP_POSITION",
-  "tokenGameId": "game-token",
-  "position": 3
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "POSITIONS_UPDATED"
-}
-```
+- Busca partida automática
+- Estados:
+  - `SEARCHING`
+  - `FOUNDED`
+- Inicia automaticamente
 
 ---
 
-## ▶️ START_GAME
+## SWAP_POSITION
 
-```json
-{
-  "type": "START_GAME",
-  "tokenGameId": "game-token",
-  "settings": {
-    "themeId": "tech",
-    "gameMode": "NORMAL"
-  }
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "GAME_STARTED"
-}
-```
+- Troca posição
+- Permitido antes do jogo iniciar
+- Posições:
+  - 0–1: jogadores
+  - 2–6: espectadores
 
 ---
 
-## 🚶 LEFT_GAME
+## START_GAME
 
-```json
-{
-  "type": "LEFT_GAME",
-  "tokenGameId": "game-token"
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "PARTICIPANT_LEAVE"
-}
-```
+- Apenas host
+- Mínimo 2 jogadores
+- Inicia timers de turno
 
 ---
 
-## ❌ KICK_PARTICIPANT
+## LEFT_GAME
 
-```json
-{
-  "type": "KICK_PARTICIPANT",
-  "tokenGameId": "game-token",
-  "participantId": "user-id"
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "PARTICIPANT_KICKED"
-}
-```
+- Remove participante
+- Pode gerar `GAME_OVER`
 
 ---
 
-## ⛔ BAN_PARTICIPANT
+## KICK_PARTICIPANT
 
-```json
-{
-  "type": "BAN_PARTICIPANT",
-  "tokenGameId": "game-token",
-  "participantId": "user-id"
-}
-```
-
-Evento:
-
-```json
-{
-  "event": "PARTICIPANT_BANNED"
-}
-```
+- Apenas host
+- Remove sem banir
 
 ---
 
-## ✅ UNBAN_PARTICIPANT
+## BAN_PARTICIPANT
 
-```json
+- Remove e adiciona à blacklist
+
+---
+
+## UNBAN_PARTICIPANT
+
+- Remove da blacklist
+
+---
+
+## DISCARD_POWER
+
+- Remove poder do inventário
+
+---
+
+## PLAYER_ACTION
+
+Tipos suportados:
+
+- REVEAL
+- BLOCK
+- UNBLOCK
+- TRAP
+- DETECT_TRAPS
+- SPY
+- FREEZE
+- UNFREEZE
+- BLIND
+- LANTERN
+- IMMUNITY
+
+---
+
+### Resultado de ação
+
+```
 {
-  "type": "UNBAN_PARTICIPANT",
-  "tokenGameId": "game-token",
-  "userId": "user-id"
+"event": "PLAYER_ACTION_RESULT",
+"turnEndsAt": "...",
+"events": [],
+"data": {}
 }
 ```
 
-Evento:
-
-```json
-{
-  "event": "PARTICIPANT_UNBANNED"
-}
-```
+Regras:
+- Apenas durante `RUNNING`
+- Espectadores não jogam
+- Geralmente requer turno
+- Ação válida avança turno
 
 ---
 
-## 🎯 PLAYER_ACTION (REVEAL)
+# 📡 Eventos
 
-```json
-{
-  "type": "PLAYER_ACTION",
-  "tokenGameId": "game-token",
-  "action": {
-    "type": "REVEAL",
-    "position": { "x": 0, "y": 1 }
-  }
-}
-```
+## Principais
 
-Evento:
-
-```json
-{
-  "event": "PLAYER_ACTION_RESULT"
-}
-```
+- GAME_CREATED
+- PARTICIPANT_JOIN
+- GAME_STARTED
+- PLAYER_ACTION_RESULT
+- GAME_OVER
+- TURN_EXPIRED
+- ROOM_CLOSED
+- ERROR
 
 ---
 
-# ⚙️ Eventos Automáticos
+## Eventos internos
 
-## 🔁 PARTICIPANT_RECONNECTED
-
-Recebido ao reconectar no jogo
-
----
-
-## 🔌 PARTICIPANT_DISCONNECTED
-
-Enviado quando usuário desconecta
-
----
-
-## ⏳ INACTIVITY
-
-Sala fechada após 5 minutos sem iniciar
+- CELL_REVEALED
+- WORD_FOUNDED
+- CELL_BLOCKED
+- TRAP_TRIGGERED
+- PLAYER_FROZEN
+- PLAYER_BLINDED
+- TURN_PASSED
+- etc.
 
 ---
 
-# ⚠️ Observações importantes
+# ⚠️ Observações Importantes
 
-* WebSocket usa **dispatcher baseado em `type`**
-* Apenas ação `REVEAL` está implementada no jogo
-* Outras ações existem no DTO mas retornam erro
-* `privateGame` só afeta listagem
-* IDs de jogo são **JWTs**, não IDs reais
+- `tokenGameId` é um JWT (não é ID direto)
+- Salas privadas não aparecem em `/game`
+- Máximo de participantes: 7
+- Matchmaking usa nome padrão
+---
+
+## ⏱️ Sistema de Turnos
+
+- Turno inicial: 45s
+- Após ação: `45 + 2 * eventos`
+- 3 timeouts → jogador removido
+
+---
+
+## 🔌 Conexão
+
+- Desconectou → `PARTICIPANT_DISCONNECTED`
+- Reconectou em até 60s → `PARTICIPANT_RECONNECTED`
+- Não voltou → removido silenciosamente
+
+---
+
+## ⏳ Timeout de Sala
+
+- 5 minutos sem iniciar → `ROOM_CLOSED`
+
+---
+
+## 🔁 Reuso de Sala
+
+- Jogo finalizado volta para `WAITING`
+- Pode ser reutilizado

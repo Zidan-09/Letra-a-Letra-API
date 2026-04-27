@@ -20,6 +20,7 @@ public class SetNicknameUseCase {
         validateNickname(command.nickname(), user);
 
         user.setNickname(command.nickname());
+        user.setCanChangeNickname(false);
 
         userRepository.save(user);
 
@@ -35,7 +36,7 @@ public class SetNicknameUseCase {
     private void validateNickname(String nickname, User user) {
         boolean existsNickname = userRepository.existsByNickname(nickname);
 
-        if (existsNickname || user.getNickname() != null) {
+        if (existsNickname || !user.canChangeNickname()) {
             throw new NicknameAlreadyInUseException();
         }
     }

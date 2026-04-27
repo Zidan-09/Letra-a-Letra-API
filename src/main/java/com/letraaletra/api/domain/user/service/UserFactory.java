@@ -12,6 +12,7 @@ public class UserFactory {
                 email,
                 passwordHash,
                 null,
+                true,
                 getInitial()
         );
     }
@@ -24,6 +25,7 @@ public class UserFactory {
                 email,
                 null,
                 googleId,
+                true,
                 getInitial()
         );
     }
