@@ -6,6 +6,7 @@ CREATE TABLE "user" (
                         "password_hash" varchar(100),
                         "google_id" varchar(100) UNIQUE,
                         "avatar_id" varchar(30),
+                        "can_change_nickname" boolean DEFAULT TRUE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)

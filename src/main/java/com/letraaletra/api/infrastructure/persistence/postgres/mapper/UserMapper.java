@@ -18,6 +18,7 @@ public class UserMapper {
                 entity.getEmail(),
                 entity.getPasswordHash(),
                 entity.getGoogleId(),
+                entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa)
         );
     }
@@ -32,6 +33,7 @@ public class UserMapper {
         entity.setPasswordHash(user.getHashPassword());
         entity.setGoogleId(user.getGoogleId());
         entity.setAvatarId(user.getAvatar());
+        entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCreatedAt(LocalDateTime.now());
 
         return entity;

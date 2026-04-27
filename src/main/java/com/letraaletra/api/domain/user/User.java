@@ -12,6 +12,7 @@ public class User {
     private final String hashPassword;
     private final String googleId;
     private String currentGameId;
+    private boolean canChangeNickname;
     private final UserStats stats;
 
     public User(
@@ -21,6 +22,7 @@ public class User {
             String email,
             String hashPassword,
             String googleId,
+            boolean canChangeNickname,
             UserStats stats
     ) {
         this.id = id;
@@ -29,6 +31,7 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.googleId = googleId;
+        this.canChangeNickname = canChangeNickname;
         this.stats = stats;
     }
 
@@ -58,6 +61,10 @@ public class User {
 
     public String getGoogleId() {
         return googleId;
+    }
+
+    public boolean canChangeNickname() {
+        return canChangeNickname;
     }
 
     public UserStats getStats() {
@@ -94,5 +101,9 @@ public class User {
         } else {
             stats.registerLose();
         }
+    }
+
+    public void setCanChangeNickname(boolean canChangeNickname) {
+        this.canChangeNickname = canChangeNickname;
     }
 }
