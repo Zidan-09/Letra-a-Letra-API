@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.PlayerUseLanternEvent;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.effect.BlindEffect;
@@ -20,7 +22,7 @@ public class LanternAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -33,7 +35,10 @@ public class LanternAction implements GameAction {
 
         player.removeEffect(BlindEffect.class);
 
-        return new ArrayList<>(List.of(StateEvent.PLAYER_USE_LANTERN));
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.PLAYER_USE_LANTERN,
+                new PlayerUseLanternEvent(userId)
+        )));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

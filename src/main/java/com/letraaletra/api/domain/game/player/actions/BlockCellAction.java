@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.CellBlockedEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
@@ -26,7 +28,7 @@ public class BlockCellAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -38,7 +40,7 @@ public class BlockCellAction implements GameAction {
 
         validateCell(cell);
 
-        List<StateEvent> events = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
         boolean canContinue = activateEffect(cell, userId, events);
 
@@ -47,7 +49,10 @@ public class BlockCellAction implements GameAction {
         cell.setEffect(
                 new BlockEffect(userId)
         );
-        events.add(StateEvent.CELL_BLOCKED);
+        events.add(new Event(
+                StateEvent.CELL_BLOCKED,
+                new CellBlockedEvent(position, userId)
+        ));
 
         state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
 
@@ -78,7 +83,7 @@ public class BlockCellAction implements GameAction {
         }
     }
 
-    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
+    private boolean activateEffect(Cell cell, String player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
 

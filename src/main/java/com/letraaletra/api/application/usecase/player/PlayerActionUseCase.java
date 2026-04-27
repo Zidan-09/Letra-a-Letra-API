@@ -10,7 +10,8 @@ import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.service.GameOverHandler;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.security.TokenService;
 
@@ -55,10 +56,10 @@ public class PlayerActionUseCase {
         return buildOutput(result.game(), result.gameOverResult(), result.events());
     }
 
-    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult, List<StateEvent> event) {
+    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult, List<Event> events) {
         return new PlayerActionOutput(
                 game,
-                event,
+                events,
                 gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()
         );
     }

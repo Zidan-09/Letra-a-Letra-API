@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.PlayerSpiedEvent;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.exception.CellAlreadyRevealedException;
@@ -25,7 +27,7 @@ public class SpyCellAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -41,7 +43,12 @@ public class SpyCellAction implements GameAction {
 
         player.applyEffect(new SpyEffect(position));
 
-        return new ArrayList<>(List.of(StateEvent.PLAYER_SPIED));
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.PLAYER_SPIED,
+                new PlayerSpiedEvent(
+                        userId
+                )
+        )));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

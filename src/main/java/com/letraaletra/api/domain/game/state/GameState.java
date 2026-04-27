@@ -1,4 +1,4 @@
-package com.letraaletra.api.domain.game;
+package com.letraaletra.api.domain.game.state;
 
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.player.Player;

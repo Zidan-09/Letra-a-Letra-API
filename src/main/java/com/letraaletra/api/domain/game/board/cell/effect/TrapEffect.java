@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
+import com.letraaletra.api.domain.game.event.TrapTriggeredEvent;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.actions.RevealCellAction;
 import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
@@ -28,6 +30,12 @@ public class TrapEffect implements CellEffect {
 
         cell.clearEffect();
 
-        return new InteractResult(isOwner, StateEvent.TRAP_TRIGGERED);
+        return new InteractResult(isOwner, new Event(
+                StateEvent.TRAP_TRIGGERED,
+                new TrapTriggeredEvent(
+                        cell.getPosition(),
+                        player
+                )
+        ));
     }
 }

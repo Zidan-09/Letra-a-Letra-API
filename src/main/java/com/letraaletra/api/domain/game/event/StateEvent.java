@@ -1,4 +1,4 @@
-package com.letraaletra.api.domain.game;
+package com.letraaletra.api.domain.game.event;
 
 public enum StateEvent {
     CELL_REVEALED,

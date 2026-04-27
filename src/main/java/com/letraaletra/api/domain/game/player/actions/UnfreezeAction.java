@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.PlayerUnfreezeEvent;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.effect.FreezeEffect;
@@ -20,7 +22,7 @@ public class UnfreezeAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -34,7 +36,12 @@ public class UnfreezeAction implements GameAction {
 
         player.removeEffect(FreezeEffect.class);
 
-        return new ArrayList<>(List.of(StateEvent.PLAYER_UNFREEZE));
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.PLAYER_UNFREEZE,
+                new PlayerUnfreezeEvent(
+                        userId
+                )
+        )));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.TrapsDetectedEvent;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.effect.DetectTrapsEffect;
@@ -20,7 +22,7 @@ public class DetectTrapsAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -36,7 +38,10 @@ public class DetectTrapsAction implements GameAction {
 
         player.applyEffect(effect);
 
-        return new ArrayList<>(List.of(StateEvent.TRAPS_DETECTED));
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.TRAPS_DETECTED,
+                new TrapsDetectedEvent(userId)
+        )));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

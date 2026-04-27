@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.game.service;
 
-import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;

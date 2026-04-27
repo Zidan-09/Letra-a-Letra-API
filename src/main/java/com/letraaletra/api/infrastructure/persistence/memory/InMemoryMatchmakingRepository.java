@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.memory;
 
-import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import org.springframework.stereotype.Repository;
