@@ -13,6 +13,8 @@ import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameResult;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
+import com.letraaletra.api.domain.game.state.GameMode;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.repository.GameRepository;
 import com.letraaletra.api.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.UserRepository;

@@ -1,6 +1,9 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.CellStillBlockedEvent;
+import com.letraaletra.api.domain.game.event.CellUnblockedEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.actions.RevealCellAction;
@@ -41,10 +44,23 @@ public class BlockEffect implements CellEffect {
         registerAttempt();
 
         if (remainingAttempts > 0) {
-            return new InteractResult(false, StateEvent.CELL_STILL_BLOCKED);
+            return new InteractResult(false, new Event(
+                    StateEvent.CELL_STILL_BLOCKED,
+                    new CellStillBlockedEvent(
+                            cell.getPosition(),
+                            ownerId,
+                            remainingAttempts
+                    )
+            ));
         }
 
         cell.clearEffect();
-        return new InteractResult(true, StateEvent.CELL_UNBLOCKED);
+        return new InteractResult(true, new Event(
+                StateEvent.CELL_UNBLOCKED,
+                new CellUnblockedEvent(
+                        cell.getPosition(),
+                        player
+                )
+        ));
     }
 }

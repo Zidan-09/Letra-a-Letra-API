@@ -1,7 +1,7 @@
 
 CREATE TABLE "user" (
                         "user_id" uuid PRIMARY KEY NOT NULL,
-                        "username" varchar(15) UNIQUE,
+                        "username" varchar(15) UNIQUE NOT NULL,
                         "email" varchar(50) UNIQUE NOT NULL,
                         "password_hash" varchar(100),
                         "google_id" varchar(100) UNIQUE,

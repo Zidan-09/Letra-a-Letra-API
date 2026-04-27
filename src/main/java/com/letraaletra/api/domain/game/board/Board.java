@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.game.board;
 
-import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
 import com.letraaletra.api.domain.game.board.exception.InvalidCellPositionException;

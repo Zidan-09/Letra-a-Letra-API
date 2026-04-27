@@ -1,4 +1,4 @@
-package com.letraaletra.api.domain.game;
+package com.letraaletra.api.domain.game.state;
 
 public class GameSettings {
     private final String themeId;

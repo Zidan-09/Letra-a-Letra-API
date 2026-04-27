@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.postgres.entities;
 
-import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.state.GameMode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

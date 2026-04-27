@@ -1,7 +1,10 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.CellRevealedEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.WordFoundedEvent;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
@@ -22,12 +25,12 @@ public class RevealCellAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
 
-        List<StateEvent> events = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
         Player player = state.getPlayerOrThrow(userId);
 
@@ -40,23 +43,29 @@ public class RevealCellAction implements GameAction {
         PowerType drop = cell.reveal(userId);
         addPower(drop, player);
 
-        List<StateEvent> found = checkCompletedWords(cell, userId, state);
+        List<Event> found = checkCompletedWords(cell, userId, state);
 
-        events.add(StateEvent.CELL_REVEALED);
+        events.add(new Event(
+                StateEvent.CELL_REVEALED,
+                new CellRevealedEvent(
+                        position,
+                        userId
+                )
+        ));
 
         if (found != null) events.addAll(found);
 
         return events;
     }
 
-    private List<StateEvent> checkCompletedWords(Cell cell, String userId, GameState state) {
+    private List<Event> checkCompletedWords(Cell cell, String userId, GameState state) {
         List<Word> words = cell.getRelatedWords();
 
         if (words.isEmpty()) return null;
 
         Board board = state.getBoard();
 
-        int wordsFound = 0;
+        List<Event> wordsFoundEvent = new ArrayList<>();
 
         for (Word word : words) {
             List<Position> positions = word.getPositions();
@@ -66,15 +75,17 @@ public class RevealCellAction implements GameAction {
             if (isComplete && word.markAsFound(userId)) {
                 Player player = state.getPlayerOrThrow(userId);
                 player.incrementScore();
-                wordsFound++;
+                wordsFoundEvent.add(new Event(
+                        StateEvent.WORD_FOUNDED,
+                        new WordFoundedEvent(
+                                positions.toArray(Position[]::new),
+                                userId
+                        )
+                ));
             }
         }
 
-        if (wordsFound > 0) {
-            return new ArrayList<>(Collections.nCopies(wordsFound, StateEvent.WORD_FOUNDED));
-        }
-
-        return null;
+        return !wordsFoundEvent.isEmpty() ? wordsFoundEvent : null;
     }
 
     private void validatePlayerTurn(GameState state, String userId) {
@@ -89,7 +100,7 @@ public class RevealCellAction implements GameAction {
         player.addToInventory(drop);
     }
 
-    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
+    private boolean activateEffect(Cell cell, String player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
             InteractResult result = effect.onInteract(this, player, cell);

@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.mappers.board;
 
-import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
 import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;

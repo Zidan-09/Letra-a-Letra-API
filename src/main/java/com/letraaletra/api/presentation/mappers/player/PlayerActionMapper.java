@@ -24,7 +24,7 @@ public class PlayerActionMapper {
     public PlayerActionResponseDTO toResponseDTO(PlayerActionOutput output, String viewer) {
         return new PlayerActionResponseDTO(
                 output.game().getGameState().getCurrentTurnEnds(),
-                output.event(),
+                output.events(),
                 gameStateDTOMapper.toDTO(output.game(), viewer)
         );
     }
@@ -32,7 +32,7 @@ public class PlayerActionMapper {
     public PlayerActionResponseDTO toAllResponseDTO(PlayerActionOutput output) {
         return new PlayerActionResponseDTO(
                 output.game().getGameState().getCurrentTurnEnds(),
-                output.event(),
+                output.events(),
                 gameStateDTOMapper.toAllDTO(output.game())
         );
     }

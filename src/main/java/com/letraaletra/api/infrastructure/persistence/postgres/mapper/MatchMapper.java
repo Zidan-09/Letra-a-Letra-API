@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.MatchJpaEntity;
 
 import java.time.LocalDateTime;

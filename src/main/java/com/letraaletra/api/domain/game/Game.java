@@ -11,6 +11,7 @@ import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
 import com.letraaletra.api.domain.game.exception.UserNotInGameException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.user.exceptions.UserAlreadyInGameException;
 
 import java.util.*;

@@ -1,8 +1,8 @@
 package com.letraaletra.api.domain.game.service;
 
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameMode;
-import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.state.GameMode;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 

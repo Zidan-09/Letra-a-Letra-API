@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.repository;
 
-import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 
 public interface MatchmakingRepository {

@@ -1,5 +1,6 @@
 package com.letraaletra.api.infrastructure.config;
 
+import com.letraaletra.api.application.service.SelectNicknameService;
 import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
 import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
 import com.letraaletra.api.application.usecase.user.SetNicknameUseCase;
@@ -20,9 +21,9 @@ public class UserUseCaseConfig {
             UserRepository userRepository,
             PasswordService passwordService,
             UserFactory userFactory,
-            Random random
+            SelectNicknameService selectNicknameService
     ) {
-        return new CreateUserUseCase(userRepository, passwordService, userFactory, random);
+        return new CreateUserUseCase(userRepository, passwordService, userFactory, selectNicknameService);
     }
 
     @Bean
@@ -38,5 +39,10 @@ public class UserUseCaseConfig {
     @Bean
     public SetNicknameUseCase setNicknameUseCase(UserRepository userRepository) {
         return new SetNicknameUseCase(userRepository);
+    }
+
+    @Bean
+    public SelectNicknameService selectNicknameService(UserRepository userRepository, Random random) {
+        return new SelectNicknameService(userRepository, random);
     }
 }

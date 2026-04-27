@@ -4,6 +4,9 @@ import com.letraaletra.api.application.output.actor.PlayerActionResult;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.domain.game.*;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.StateEvent;
+import com.letraaletra.api.domain.game.event.TurnPassedEvent;
 import com.letraaletra.api.domain.game.exception.GameNotRunningException;
 import com.letraaletra.api.domain.game.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -12,6 +15,7 @@ import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.player.actions.GameAction;
 import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.domain.game.state.GameState;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,10 +44,10 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
         GameState state = game.getGameState();
 
-        List<StateEvent> event = action.execute(state, user);
+        List<Event> events = action.execute(state, user);
 
-        if (event == null) {
-            event = new ArrayList<>();
+        if (events == null) {
+            events = new ArrayList<>();
         }
 
         GameOverResult gameOverResult = state.gameOverChecker();
@@ -57,7 +61,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
                 game.setGameStatus(GameStatus.CLOSED);
             }
 
-            return new PlayerActionResult(event, gameOverResult, game);
+            return new PlayerActionResult(events, gameOverResult, game);
         }
 
         Player current;
@@ -67,16 +71,16 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             current = state.getPlayerOrThrow(state.currentPlayerTurn());
 
             if (current.canNotPlay()) {
-                event.add(StateEvent.TURN_PASSED);
+                events.add(new Event(StateEvent.TURN_PASSED, new TurnPassedEvent(current.getUserId())));
             }
 
         } while (current.canNotPlay());
 
-        updateTurnEnds(state, event.size());
+        updateTurnEnds(state, events.size());
 
         turnTimeoutManager.start(game);
 
-        return new PlayerActionResult(event, gameOverResult, game);
+        return new PlayerActionResult(events, gameOverResult, game);
     }
 
     private void validatePlayer(String userId, Game game) {

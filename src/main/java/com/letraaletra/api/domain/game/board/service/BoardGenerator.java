@@ -3,7 +3,7 @@ package com.letraaletra.api.domain.game.board.service;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.word.Word;
-import com.letraaletra.api.domain.game.GameMode;
+import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.board.position.Position;
 
 import java.util.ArrayList;

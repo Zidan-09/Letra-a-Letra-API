@@ -1,9 +1,9 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.Event;
 
 public record InteractResult(
         boolean canContinue,
-        StateEvent event
+        Event event
 ) {
 }

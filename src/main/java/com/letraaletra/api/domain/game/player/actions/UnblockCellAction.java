@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.CellUnblockedEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.exception.CellAlreadyRevealedException;
@@ -23,7 +25,7 @@ public class UnblockCellAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
@@ -38,7 +40,13 @@ public class UnblockCellAction implements GameAction {
 
         cell.clearEffect();
 
-        return new ArrayList<>(List.of(StateEvent.CELL_UNBLOCKED));
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.CELL_UNBLOCKED,
+                new CellUnblockedEvent(
+                        position,
+                        userId
+                )
+        )));
     }
 
     private void validatePlayerTurn(GameState state, String userId) {

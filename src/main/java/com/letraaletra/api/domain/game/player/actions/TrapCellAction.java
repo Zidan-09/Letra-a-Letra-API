@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
-import com.letraaletra.api.domain.game.GameState;
-import com.letraaletra.api.domain.game.StateEvent;
+import com.letraaletra.api.domain.game.event.CellTrappedEvent;
+import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.state.GameState;
+import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
 import com.letraaletra.api.domain.game.board.cell.effect.CellEffect;
@@ -27,7 +29,7 @@ public class TrapCellAction implements GameAction {
     }
 
     @Override
-    public List<StateEvent> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, String userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -40,7 +42,7 @@ public class TrapCellAction implements GameAction {
 
         validateCell(cell);
 
-        List<StateEvent> events = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
         boolean canContinue = activateEffect(cell, userId, events);
 
@@ -50,7 +52,13 @@ public class TrapCellAction implements GameAction {
                 new TrapEffect(userId)
         );
 
-        events.add(StateEvent.CELL_TRAPPED);
+        events.add(new Event(
+                StateEvent.CELL_TRAPPED,
+                new CellTrappedEvent(
+                        position,
+                        userId
+                )
+        ));
 
         state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
 
@@ -87,7 +95,7 @@ public class TrapCellAction implements GameAction {
         }
     }
 
-    private boolean activateEffect(Cell cell, String player, List<StateEvent> events) {
+    private boolean activateEffect(Cell cell, String player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
 

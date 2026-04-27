@@ -2,7 +2,7 @@ package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.application.output.actor.ExpireTurnResult;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameState;
+import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.player.Player;
 import com.letraaletra.api.domain.game.service.GameOverResult;
