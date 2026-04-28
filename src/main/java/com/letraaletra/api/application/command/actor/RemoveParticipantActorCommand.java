@@ -3,7 +3,7 @@ package com.letraaletra.api.application.command.actor;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 

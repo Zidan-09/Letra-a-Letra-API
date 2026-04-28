@@ -7,15 +7,16 @@ import com.letraaletra.api.application.output.game.ExpireTurnOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.service.GameOverHandler;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class ExpireTurnUseCase {
+public class ExpireTurnUseCase implements UseCase<ExpireTurnCommand, Optional<ExpireTurnOutput>> {
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
     private final UserRepository userRepository;

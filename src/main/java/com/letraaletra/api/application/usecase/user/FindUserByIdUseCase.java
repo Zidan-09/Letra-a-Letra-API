@@ -2,11 +2,12 @@ package com.letraaletra.api.application.usecase.user;
 
 import com.letraaletra.api.application.command.user.FindUserCommand;
 import com.letraaletra.api.application.output.user.FindUserOutput;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
-public class FindUserByIdUseCase {
+public class FindUserByIdUseCase implements UseCase<FindUserCommand, FindUserOutput> {
     private final UserRepository userRepository;
 
     public FindUserByIdUseCase(UserRepository userRepository) {

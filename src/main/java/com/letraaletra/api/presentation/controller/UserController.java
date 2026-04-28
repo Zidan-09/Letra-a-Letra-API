@@ -88,7 +88,7 @@ public class UserController {
     public ResponseEntity<SuccessResponseDTO<SignInResponseDTO>> login(@Valid @RequestBody SignInRequestDTO request) {
         SignInCommand command = signInMapper.toCommand(request);
 
-        SignInOutput output = signInUseCase.login(command);
+        SignInOutput output = signInUseCase.execute(command);
 
         SignInResponseDTO dto = signInMapper.toResponseDTO(output);
 

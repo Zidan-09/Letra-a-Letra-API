@@ -4,7 +4,8 @@ import com.letraaletra.api.application.command.auth.AuthCommand;
 import com.letraaletra.api.application.context.GoogleAuthData;
 import com.letraaletra.api.application.output.user.SignInOutput;
 import com.letraaletra.api.application.port.GoogleTokenService;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.service.UserFactory;
@@ -12,7 +13,7 @@ import com.letraaletra.api.domain.user.service.UserFactory;
 import java.util.Optional;
 import java.util.UUID;
 
-public class GoogleAuthUseCase {
+public class GoogleAuthUseCase implements UseCase<AuthCommand, SignInOutput> {
     private final TokenService tokenService;
     private final UserRepository userRepository;
     private final GoogleTokenService googleTokenService;

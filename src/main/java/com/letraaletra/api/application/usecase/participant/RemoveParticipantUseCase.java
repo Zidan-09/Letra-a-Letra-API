@@ -4,15 +4,16 @@ import com.letraaletra.api.application.command.actor.RemoveParticipantActorComma
 import com.letraaletra.api.application.command.participant.RemoveParticipantCommand;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.usecase.UseCaseWithoutOutput;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.game.GameRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class RemoveParticipantUseCase {
+public class RemoveParticipantUseCase implements UseCaseWithoutOutput<RemoveParticipantCommand> {
     private final ActorManager<Game> gameActorManager;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;

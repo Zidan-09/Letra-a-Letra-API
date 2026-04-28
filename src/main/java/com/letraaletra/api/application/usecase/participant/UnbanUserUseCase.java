@@ -5,12 +5,13 @@ import com.letraaletra.api.application.command.participant.UnbanParticipantComma
 import com.letraaletra.api.application.output.participant.UnbanParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.security.TokenService;
 
 import java.util.concurrent.CompletableFuture;
 
-public class UnbanUserUseCase {
+public class UnbanUserUseCase implements UseCase<UnbanParticipantCommand, UnbanParticipantOutput> {
     private final TokenService tokenService;
     private final ActorManager<Game> gameActorManager;
 

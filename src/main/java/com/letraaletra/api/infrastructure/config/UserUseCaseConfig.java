@@ -5,7 +5,7 @@ import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
 import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
 import com.letraaletra.api.application.usecase.user.SetNicknameUseCase;
 import com.letraaletra.api.application.usecase.user.SignInUseCase;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.service.UserFactory;

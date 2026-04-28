@@ -2,14 +2,15 @@ package com.letraaletra.api.application.usecase.user;
 
 import com.letraaletra.api.application.command.user.SignInCommand;
 import com.letraaletra.api.application.output.user.SignInOutput;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 
-public class SignInUseCase {
+public class SignInUseCase implements UseCase<SignInCommand, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final TokenService tokenService;
@@ -20,7 +21,7 @@ public class SignInUseCase {
         this.tokenService = tokenService;
     }
 
-    public SignInOutput login(SignInCommand command) {
+    public SignInOutput execute(SignInCommand command) {
         User user = userRepository.findByEmail(command.email())
                 .orElseThrow(UserNotFoundException::new);
 

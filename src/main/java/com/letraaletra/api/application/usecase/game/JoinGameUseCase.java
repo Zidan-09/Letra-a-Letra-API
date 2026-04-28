@@ -5,15 +5,16 @@ import com.letraaletra.api.application.command.game.JoinGameCommand;
 import com.letraaletra.api.application.output.game.JoinGameOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.concurrent.CompletableFuture;
 
-public class JoinGameUseCase {
+public class JoinGameUseCase implements UseCase<JoinGameCommand, JoinGameOutput> {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final ActorManager<Game> actorManager;

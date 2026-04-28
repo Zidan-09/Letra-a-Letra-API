@@ -6,15 +6,16 @@ import com.letraaletra.api.application.output.participant.DisconnectParticipantO
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.matchmaking.MatchmakingRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class DisconnectUseCase {
+public class DisconnectUseCase implements UseCase<DisconnectParticipantCommand, Optional<DisconnectParticipantOutput>> {
     private final ActorManager<Game> gameActorManager;
     private final DisconnectScheduler disconnectScheduler;
     private final MatchmakingRepository matchmakingRepository;
