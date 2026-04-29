@@ -5,6 +5,7 @@ import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 import com.letraaletra.api.domain.game.participant.Participant;
@@ -15,9 +16,9 @@ import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.state.GameState;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.game.GameRepository;
+import com.letraaletra.api.domain.repository.matchmaking.MatchmakingRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class JoinMatchmakingQueueUseCase {
+public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingCommand, JoinMatchmakingOutput> {
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;

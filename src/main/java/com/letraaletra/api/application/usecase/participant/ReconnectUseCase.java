@@ -5,14 +5,15 @@ import com.letraaletra.api.application.output.participant.ReconnectParticipantOu
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 
 import java.util.Optional;
 
-public class ReconnectUseCase {
+public class ReconnectUseCase implements UseCase<ReconnectParticipantCommand, Optional<ReconnectParticipantOutput>> {
     private final ActorManager<Game> actorManager;
     private final DisconnectScheduler disconnectScheduler;
     private final UserRepository userRepository;

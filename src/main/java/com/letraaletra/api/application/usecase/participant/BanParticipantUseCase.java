@@ -7,14 +7,15 @@ import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.BanParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.concurrent.CompletableFuture;
 
-public class BanParticipantUseCase {
+public class BanParticipantUseCase implements UseCase<BanParticipantCommand, BanParticipantOutput> {
     private final ModerationContextFactory moderationContextFactory;
     private final UserRepository userRepository;
     private final ActorManager<Game> gameActorManager;

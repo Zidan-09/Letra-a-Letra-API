@@ -3,7 +3,7 @@ package com.letraaletra.api.infrastructure.persistence.postgres.adapter;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.player.Player;
-import com.letraaletra.api.domain.repository.GameRepository;
+import com.letraaletra.api.domain.repository.game.GameRepository;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataGameRepository;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataMatchPlayerRepository;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataMatchRepository;

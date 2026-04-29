@@ -6,8 +6,8 @@ import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.service.GameOverResult;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.game.GameRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 
 import java.util.Optional;

@@ -9,9 +9,9 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
 import com.letraaletra.api.application.service.GameOverHandler;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.event.Event;
-import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 import com.letraaletra.api.domain.security.TokenService;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class PlayerActionUseCase {
+public class PlayerActionUseCase implements UseCase<PlayerActionCommand, PlayerActionOutput> {
     private final TokenService tokenService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;

@@ -4,6 +4,7 @@ import com.letraaletra.api.application.command.game.CreateGameCommand;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameQueryService;
 import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.application.output.game.CreateGameOutput;
@@ -11,14 +12,14 @@ import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
-import com.letraaletra.api.domain.repository.GameRepository;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.game.GameRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
 import java.util.UUID;
 
-public class CreateGameUseCase {
+public class CreateGameUseCase implements UseCase<CreateGameCommand, CreateGameOutput> {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final ActorManager<Game> actorManager;

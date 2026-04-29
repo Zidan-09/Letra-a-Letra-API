@@ -7,11 +7,12 @@ import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.application.output.participant.KickParticipantOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
 
 import java.util.concurrent.CompletableFuture;
 
-public class KickParticipantUseCase {
+public class KickParticipantUseCase implements UseCase<KickParticipantCommand, KickParticipantOutput> {
     private final ModerationContextFactory moderationContextFactory;
     private final ActorManager<Game> gameActorManager;
 

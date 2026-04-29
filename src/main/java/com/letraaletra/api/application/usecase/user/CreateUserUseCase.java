@@ -3,15 +3,16 @@ package com.letraaletra.api.application.usecase.user;
 import com.letraaletra.api.application.command.user.CreateUserCommand;
 import com.letraaletra.api.application.output.user.CreateUserOutput;
 import com.letraaletra.api.application.service.SelectNicknameService;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.PasswordService;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.domain.user.service.UserFactory;
 
 import java.util.UUID;
 
-public class CreateUserUseCase {
+public class CreateUserUseCase implements UseCase<CreateUserCommand, CreateUserOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final UserFactory userFactory;

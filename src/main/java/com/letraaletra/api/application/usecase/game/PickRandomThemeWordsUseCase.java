@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.domain.game.board.theme.Theme;
-import com.letraaletra.api.domain.repository.ThemeRepository;
+import com.letraaletra.api.domain.repository.theme.ThemeRepository;
 
 import java.util.List;
 import java.util.Random;

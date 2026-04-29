@@ -7,19 +7,20 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
-import com.letraaletra.api.domain.repository.ThemeRepository;
+import com.letraaletra.api.domain.repository.theme.ThemeRepository;
 import com.letraaletra.api.domain.game.board.theme.Theme;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-public class StartGameUseCase {
+public class StartGameUseCase implements UseCase<StartGameCommand, StartGameOutput> {
     private final GameStateGenerator gameStateGenerator;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.domain.repository;
+package com.letraaletra.api.domain.repository.game;
 
 import com.letraaletra.api.domain.game.Game;
 

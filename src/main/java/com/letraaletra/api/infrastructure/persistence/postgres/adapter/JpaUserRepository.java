@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.UserStatsJpaEntity;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;

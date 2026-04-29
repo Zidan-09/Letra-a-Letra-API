@@ -2,12 +2,13 @@ package com.letraaletra.api.application.usecase.user;
 
 import com.letraaletra.api.application.command.user.SetNicknameCommand;
 import com.letraaletra.api.application.output.user.SetNicknameOutput;
-import com.letraaletra.api.domain.repository.UserRepository;
+import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.exceptions.NicknameAlreadyInUseException;
 import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
 
-public class SetNicknameUseCase {
+public class SetNicknameUseCase implements UseCase<SetNicknameCommand, SetNicknameOutput> {
     private final UserRepository userRepository;
 
     public SetNicknameUseCase(UserRepository userRepository) {
