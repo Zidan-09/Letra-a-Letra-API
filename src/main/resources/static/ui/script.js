@@ -104,7 +104,6 @@ function updateBoard(board) {
                 if (cell.effect) {
                     const areBlock = cell.effect.effect === "BLOCK";
 
-                    console.log(cell.effect);
                     cellDiv.classList.add(areBlock ? "blocked" : "trapped");
                     cellDiv.style.backgroundColor = areBlock ? cell.effect.ownerId === currentUser.id ? "#164b7cff" : "#977916ff" : cell.effect.ownerId === currentUser.id ? "#0400ffff" : "#ff6600f5";
                     cellDiv.innerText = cell.effect.remainingClicks || "";

@@ -1,14 +1,16 @@
-package com.letraaletra.api.domain.user.service;
+package com.letraaletra.api.domain.user.factory;
 
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.domain.user.stats.UserStats;
 
 public class UserFactory {
+    private static final String defaultAvatar = "old-man";
+
     public User createLocal(String id, String nickname, String email, String passwordHash) {
         return new User(
                 id,
                 nickname,
-                null,
+                defaultAvatar,
                 email,
                 passwordHash,
                 null,
@@ -21,7 +23,7 @@ public class UserFactory {
         return new User(
                 id,
                 null,
-                null,
+                defaultAvatar,
                 email,
                 null,
                 googleId,

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class UserStatsMapper {
     public static UserStats toDomain(UserStatsJpaEntity entity) {
         return new UserStats(
-                entity.getTotalMatchs(),
+                entity.getTotalMatches(),
                 entity.getTotalWins(),
                 entity.getWinStreak(),
                 entity.getPoints()
@@ -19,7 +19,7 @@ public class UserStatsMapper {
         UserStatsJpaEntity entity = new UserStatsJpaEntity();
 
         entity.setUserId(UUID.fromString(userId));
-        entity.setTotalMatchs(domain.getTotalMatchs());
+        entity.setTotalMatches(domain.getTotalMatchs());
         entity.setTotalWins(domain.getTotalWins());
         entity.setWinStreak(domain.getWinStreak());
         entity.setPoints(domain.getPoints());

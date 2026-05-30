@@ -6,7 +6,7 @@ import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
-import com.letraaletra.api.domain.user.service.UserFactory;
+import com.letraaletra.api.domain.user.factory.UserFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

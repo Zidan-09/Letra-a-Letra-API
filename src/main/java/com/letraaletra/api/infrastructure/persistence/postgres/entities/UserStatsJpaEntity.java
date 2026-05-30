@@ -19,7 +19,7 @@ public class UserStatsJpaEntity {
     private UUID userId;
 
     @Column(name = "total_matches")
-    private int totalMatchs;
+    private int totalMatches;
 
     @Column(name = "total_wins")
     private int totalWins;

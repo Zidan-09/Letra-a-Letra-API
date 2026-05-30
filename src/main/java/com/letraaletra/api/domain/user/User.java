@@ -7,7 +7,7 @@ import com.letraaletra.api.domain.user.stats.UserStats;
 public class User {
     private final String id;
     private String nickname;
-    private final String avatar;
+    private String avatar;
     private final String email;
     private final String hashPassword;
     private final String googleId;
@@ -49,6 +49,10 @@ public class User {
 
     public String getAvatar() {
         return avatar;
+    }
+
+    public void setAvatar(String avatarId) {
+        this.avatar = avatarId;
     }
 
     public String getEmail() {

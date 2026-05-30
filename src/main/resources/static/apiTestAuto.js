@@ -245,7 +245,7 @@ async function runGameFlow(ws1, ws2, ws3) {
     );
 
     if (passTurn) {
-      await sleep(47000);
+      await sleep(50000);
 
       const result = await waitForEvent(
         e => e.event === "TURN_EXPIRED"

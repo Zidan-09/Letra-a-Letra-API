@@ -1,14 +1,18 @@
 package com.letraaletra.api.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.domain.avatar.Avatar;
 import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.user.User;
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.UserStatsJpaEntity;
+import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataUserAvatarRepository;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
+import com.letraaletra.api.infrastructure.persistence.postgres.mapper.AvatarMapper;
 import com.letraaletra.api.infrastructure.persistence.postgres.mapper.UserMapper;
 import com.letraaletra.api.infrastructure.persistence.postgres.mapper.UserStatsMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,10 +20,16 @@ import java.util.UUID;
 public class JpaUserRepository implements UserRepository {
     private final SpringDataUserRepository repository;
     private final SpringDataUserStatsRepository statsRepository;
+    private final SpringDataUserAvatarRepository userAvatarRepository;
 
-    public JpaUserRepository(SpringDataUserRepository repository, SpringDataUserStatsRepository statsRepository) {
+    public JpaUserRepository(
+            SpringDataUserRepository repository,
+            SpringDataUserStatsRepository statsRepository,
+            SpringDataUserAvatarRepository userAvatarRepository
+    ) {
         this.repository = repository;
         this.statsRepository = statsRepository;
+        this.userAvatarRepository = userAvatarRepository;
     }
 
     @Override
@@ -72,5 +82,10 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public boolean existsByNickname(String nickname) {
         return repository.existsByUsername(nickname);
+    }
+
+    @Override
+    public List<Avatar> getAvatars(String userId) {
+        return userAvatarRepository.findByUserAvatarId_UserId(UUID.fromString(userId)).stream().map(AvatarMapper::toDomain).toList();
     }
 }
