@@ -8,7 +8,7 @@ import com.letraaletra.api.application.usecase.UseCase;
 import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.domain.user.service.UserFactory;
+import com.letraaletra.api.domain.user.factory.UserFactory;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -47,7 +47,6 @@ async function registerAndLogin(user) {
   console.log(`\n👤 Criando usuário: ${user.nickname}`);
 
   await http("POST", "/user", {
-    nickname: user.nickname,
     email: user.email,
     password: user.password
   });

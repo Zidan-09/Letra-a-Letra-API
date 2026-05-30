@@ -32,11 +32,6 @@ public class BlockEffect implements CellEffect {
 
     @Override
     public InteractResult onInteract(GameAction action, String player, Cell cell) {
-
-        if (player.equals(ownerId)) {
-            throw new InvalidPlayerActionException();
-        }
-
         if (!(action instanceof RevealCellAction)) {
             throw new InvalidPlayerActionException();
         }

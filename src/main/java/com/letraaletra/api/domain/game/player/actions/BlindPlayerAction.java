@@ -1,7 +1,9 @@
 package com.letraaletra.api.domain.game.player.actions;
 
 import com.letraaletra.api.domain.game.event.Event;
+import com.letraaletra.api.domain.game.event.PlayerAreImmuneEvent;
 import com.letraaletra.api.domain.game.event.PlayerBlindedEvent;
+import com.letraaletra.api.domain.game.player.effect.ImmunityEffect;
 import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.PowerType;
@@ -37,6 +39,14 @@ public class BlindPlayerAction implements GameAction {
         validatePlayer(opponent);
 
         player.removeFromInventoryOrThrow(powerId);
+
+        if (isImmune(opponent)) {
+            return new ArrayList<>(List.of(new Event(
+                    StateEvent.PLAYER_ARE_IMMUNE,
+                    new PlayerAreImmuneEvent(target)
+            )));
+        }
+
         opponent.applyEffect(new BlindEffect());
 
         return new ArrayList<>(List.of(new Event(
@@ -63,5 +73,10 @@ public class BlindPlayerAction implements GameAction {
         if (player == null) {
             throw new PlayerNotInGameException();
         }
+    }
+
+    private boolean isImmune(Player player) {
+        return player.getEffects().stream()
+                .anyMatch(effect -> effect instanceof ImmunityEffect);
     }
 }

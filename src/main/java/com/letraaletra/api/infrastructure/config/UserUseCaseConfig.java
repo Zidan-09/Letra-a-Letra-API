@@ -1,14 +1,11 @@
 package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.service.SelectNicknameService;
-import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
-import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
-import com.letraaletra.api.application.usecase.user.SetNicknameUseCase;
-import com.letraaletra.api.application.usecase.user.SignInUseCase;
+import com.letraaletra.api.application.usecase.user.*;
 import com.letraaletra.api.domain.repository.user.UserRepository;
 import com.letraaletra.api.domain.security.PasswordService;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.domain.user.service.UserFactory;
+import com.letraaletra.api.domain.user.factory.UserFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -44,5 +41,10 @@ public class UserUseCaseConfig {
     @Bean
     public SelectNicknameService selectNicknameService(UserRepository userRepository, Random random) {
         return new SelectNicknameService(userRepository, random);
+    }
+
+    @Bean
+    public SetAvatarUseCase setAvatarUseCase(UserRepository userRepository) {
+        return new SetAvatarUseCase(userRepository);
     }
 }

@@ -21,6 +21,10 @@ public enum UserMessages implements MessageCode {
     NICKNAME_SETTER("nickname_setter"),
     NICKNAME_ALREADY_IN_USE("nickname_already_in_use"),
 
+    AVATAR_SETTER("avatar_setter"),
+    AVATAR_UNLOCKED("avatar_unlocked"),
+    INVALID_AVATAR("invalid_avatar"),
+
     INVALID_CREDENTIALS("invalid_credentials"),
     USER_DISABLED("user_disabled"),
     USER_BLOCKED("user_blocked"),

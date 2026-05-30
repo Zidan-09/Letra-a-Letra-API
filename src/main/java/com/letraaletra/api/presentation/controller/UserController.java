@@ -1,30 +1,16 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.application.command.user.CreateUserCommand;
-import com.letraaletra.api.application.command.user.FindUserCommand;
-import com.letraaletra.api.application.command.user.SetNicknameCommand;
-import com.letraaletra.api.application.command.user.SignInCommand;
-import com.letraaletra.api.application.output.user.CreateUserOutput;
-import com.letraaletra.api.application.output.user.FindUserOutput;
-import com.letraaletra.api.application.output.user.SetNicknameOutput;
-import com.letraaletra.api.application.output.user.SignInOutput;
-import com.letraaletra.api.application.usecase.user.FindUserByIdUseCase;
-import com.letraaletra.api.application.usecase.user.CreateUserUseCase;
-import com.letraaletra.api.application.usecase.user.SetNicknameUseCase;
+import com.letraaletra.api.application.command.user.*;
+import com.letraaletra.api.application.output.user.*;
+import com.letraaletra.api.application.usecase.user.*;
 import com.letraaletra.api.presentation.dto.request.user.CreateUserRequestDTO;
+import com.letraaletra.api.presentation.dto.request.user.SetAvatarRequestDTO;
 import com.letraaletra.api.presentation.dto.request.user.SetNicknameRequestDTO;
 import com.letraaletra.api.presentation.dto.request.user.SignInRequestDTO;
 import com.letraaletra.api.presentation.dto.response.http.SuccessResponseDTO;
-import com.letraaletra.api.presentation.dto.response.user.CreateUserResponseDTO;
-import com.letraaletra.api.presentation.dto.response.user.FindUserResponseDTO;
-import com.letraaletra.api.presentation.dto.response.user.SetNicknameResponseDTO;
-import com.letraaletra.api.presentation.dto.response.user.SignInResponseDTO;
+import com.letraaletra.api.presentation.dto.response.user.*;
 import com.letraaletra.api.domain.user.UserMessages;
-import com.letraaletra.api.application.usecase.user.SignInUseCase;
-import com.letraaletra.api.presentation.mappers.user.CreateUserMapper;
-import com.letraaletra.api.presentation.mappers.user.FindUserMapper;
-import com.letraaletra.api.presentation.mappers.user.SetNicknameMapper;
-import com.letraaletra.api.presentation.mappers.user.SignInMapper;
+import com.letraaletra.api.presentation.mappers.user.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +40,9 @@ public class UserController {
     private SetNicknameMapper setNicknameMapper;
 
     @Autowired
+    private SetAvatarMapper setAvatarMapper;
+
+    @Autowired
     private FindUserByIdUseCase findUserById;
 
     @Autowired
@@ -61,6 +50,9 @@ public class UserController {
 
     @Autowired
     private SetNicknameUseCase setNicknameUseCase;
+
+    @Autowired
+    private SetAvatarUseCase setAvatarUseCase;
 
     @PostMapping
     public ResponseEntity<SuccessResponseDTO<CreateUserResponseDTO>> register(@Valid @RequestBody CreateUserRequestDTO request) {
@@ -104,5 +96,16 @@ public class UserController {
         SetNicknameResponseDTO dto = setNicknameMapper.toResponseDTO(output);
 
         return ApiResponse.success(dto, UserMessages.NICKNAME_SETTER.getMessage());
+    }
+
+    @PatchMapping("/avatar/{userId}")
+    public ResponseEntity<SuccessResponseDTO<SetAvatarResponseDTO>> setAvatar(@Valid @RequestBody SetAvatarRequestDTO request, @PathVariable @NotBlank String userId) {
+        SetAvatarCommand command = setAvatarMapper.toCommand(request, userId);
+
+        SetAvatarOutput output = setAvatarUseCase.execute(command);
+
+        SetAvatarResponseDTO dto = setAvatarMapper.toResponseDTO(output);
+
+        return ApiResponse.success(dto, UserMessages.AVATAR_SETTER.getMessage());
     }
 }
