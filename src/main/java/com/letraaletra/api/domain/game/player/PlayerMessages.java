@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.game.player;
 
-import com.letraaletra.api.domain.MessageCode;
+import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum PlayerMessages implements MessageCode {
     PLAYER_NOT_FOUND("player_not_found"),

@@ -5,7 +5,7 @@ import com.letraaletra.api.application.command.participant.SwapPositionCommand;
 import com.letraaletra.api.application.output.participant.SwapPositionOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;

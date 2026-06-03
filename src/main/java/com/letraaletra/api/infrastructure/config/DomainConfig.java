@@ -6,7 +6,7 @@ import com.letraaletra.api.domain.game.service.DefaultGameGenerator;
 import com.letraaletra.api.domain.game.service.DefaultGameStateGenerator;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.domain.game.service.GenerateRoomCode;
-import com.letraaletra.api.domain.user.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,10 +43,5 @@ public class DomainConfig {
     @Bean
     public DefaultGameGenerator defaultGameGenerator() {
         return new DefaultGameGenerator();
-    }
-
-    @Bean
-    public UserFactory userFactory() {
-        return new UserFactory();
     }
 }

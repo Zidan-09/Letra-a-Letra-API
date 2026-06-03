@@ -1,9 +1,9 @@
 package com.letraaletra.api.application.service;
 
 import com.letraaletra.api.domain.game.player.Player;
-import com.letraaletra.api.domain.repository.user.UserRepository;
-import com.letraaletra.api.domain.user.User;
-import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 public class UpdateStatsService {
     private final UserRepository userRepository;
