@@ -2,7 +2,7 @@ package com.letraaletra.api.application.usecase.game;
 
 import com.letraaletra.api.application.output.game.GetGamesOutput;
 import com.letraaletra.api.application.port.GameQueryService;
-import com.letraaletra.api.application.usecase.UseCaseWithoutInput;
+import com.letraaletra.api.shared.application.usecase.UseCaseWithoutInput;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.security.TokenService;
 

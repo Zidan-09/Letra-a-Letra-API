@@ -4,11 +4,11 @@ import com.letraaletra.api.application.command.actor.RemoveParticipantActorComma
 import com.letraaletra.api.application.command.participant.RemoveParticipantCommand;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.application.usecase.UseCaseWithoutOutput;
+import com.letraaletra.api.shared.application.usecase.UseCaseWithoutOutput;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameStatus;
 import com.letraaletra.api.domain.repository.game.GameRepository;
-import com.letraaletra.api.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

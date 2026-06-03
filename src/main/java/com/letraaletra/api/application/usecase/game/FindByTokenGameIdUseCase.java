@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.game.FindByTokenCommand;
 import com.letraaletra.api.application.output.game.FindByTokenOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 

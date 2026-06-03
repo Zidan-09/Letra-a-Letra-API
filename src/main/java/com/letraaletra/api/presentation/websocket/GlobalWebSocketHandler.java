@@ -2,7 +2,7 @@ package com.letraaletra.api.presentation.websocket;
 
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.port.SessionRepository;
-import com.letraaletra.api.domain.DomainException;
+import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponseDTO;
 import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;

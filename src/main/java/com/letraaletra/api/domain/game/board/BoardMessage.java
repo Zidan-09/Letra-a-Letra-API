@@ -1,6 +1,6 @@
 package com.letraaletra.api.domain.game.board;
 
-import com.letraaletra.api.domain.MessageCode;
+import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum BoardMessage implements MessageCode {
     INVALID_CELL_POSITION("invalid_cell_position");

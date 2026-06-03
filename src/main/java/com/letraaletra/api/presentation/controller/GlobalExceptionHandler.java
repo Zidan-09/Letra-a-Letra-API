@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.domain.DomainException;
+import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.presentation.dto.response.http.ErrorResponse;
 import com.letraaletra.api.presentation.dto.response.http.ServerMessages;
 import jakarta.validation.ConstraintViolationException;

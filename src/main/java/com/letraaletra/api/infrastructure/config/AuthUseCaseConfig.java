@@ -2,9 +2,9 @@ package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.port.GoogleTokenService;
 import com.letraaletra.api.application.usecase.auth.GoogleAuthUseCase;
-import com.letraaletra.api.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.domain.user.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

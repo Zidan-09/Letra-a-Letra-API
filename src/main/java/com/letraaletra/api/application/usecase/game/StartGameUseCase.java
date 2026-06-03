@@ -7,7 +7,7 @@ import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
-import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.board.Board;
