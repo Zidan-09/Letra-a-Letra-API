@@ -27,12 +27,12 @@
 
 ```
 {
-"success": true,
-"message": "user_logged",
-"data": {
-"id": "uuid",
-"token": "<JWT>"
-}
+  "success": true,
+  "message": "user_logged",
+  "data": {
+    "id": "uuid",
+    "token": "<JWT>"
+  }
 }
 ```
 
@@ -40,8 +40,8 @@
 
 ```
 {
-"success": false,
-"message": "invalid_credentials"
+  "success": false,
+  "message": "invalid_credentials"
 }
 ```
 
@@ -49,8 +49,8 @@ Erros de validação:
 
 ```
 {
-"success": false,
-"message": "email: deve ser um email válido"
+  "success": false,
+  "message": "email: deve ser um email válido"
 }
 ```
 
@@ -60,8 +60,8 @@ Erros de validação:
 
 ```
 {
-"event": "EVENT_NAME",
-"data": {}
+  "event": "EVENT_NAME",
+  "data": {}
 }
 ```
 
@@ -73,8 +73,8 @@ Observação: pode conter campos como `warning`, `status`, `turnEndsAt`.
 
 ```
 {
-"event": "ERROR",
-"message": "error_code"
+  "event": "ERROR",
+  "message": "error_code"
 }
 ```
 
@@ -90,8 +90,8 @@ Cria um usuário local.
 
 ```
 {
-"email": "player@example.com",
-"password": "12345678"
+  "email": "player@example.com",
+  "password": "12345678"
 }
 ```
 
@@ -184,8 +184,8 @@ Resolve código para `tokenGameId`.
 
 ```
 {
-"type": "START_GAME",
-"tokenGameId": "<GAME_JWT>"
+  "type": "START_GAME",
+  "tokenGameId": "<GAME_JWT>"
 }
 ```
 
@@ -193,11 +193,11 @@ Resolve código para `tokenGameId`.
 
 ```
 {
-"type": "PLAYER_ACTION",
-"tokenGameId": "<GAME_JWT>",
-"action": {
-"type": "REVEAL"
-}
+  "type": "PLAYER_ACTION",
+  "tokenGameId": "<GAME_JWT>",
+  "action": {
+    "type": "REVEAL"
+  }
 }
 ```
 
@@ -306,10 +306,10 @@ Tipos suportados:
 
 ```
 {
-"event": "PLAYER_ACTION_RESULT",
-"turnEndsAt": "...",
-"events": [],
-"data": {}
+  "event": "PLAYER_ACTION_RESULT",
+  "turnEndsAt": "...",
+  "events": [],
+  "data": {}
 }
 ```
 

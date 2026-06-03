@@ -9,7 +9,7 @@ import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
-import com.letraaletra.api.domain.user.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 public class StartGameActorCommand implements ActorCommand<Game> {
     private final String session;

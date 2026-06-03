@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.service;
 
-import com.letraaletra.api.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.util.Random;
 import java.util.UUID;

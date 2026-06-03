@@ -1,14 +1,14 @@
 package com.letraaletra.api.presentation.controller;
 
 import com.letraaletra.api.application.command.auth.AuthCommand;
-import com.letraaletra.api.application.output.user.SignInOutput;
+import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.application.usecase.auth.GoogleAuthUseCase;
-import com.letraaletra.api.domain.user.UserMessages;
+import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.presentation.dto.request.user.GoogleAuthRequestDTO;
 import com.letraaletra.api.presentation.dto.response.http.SuccessResponseDTO;
-import com.letraaletra.api.presentation.dto.response.user.SignInResponseDTO;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
 import com.letraaletra.api.presentation.mappers.user.GoogleAuthMapper;
-import com.letraaletra.api.presentation.mappers.user.SignInMapper;
+import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SignInMapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +31,12 @@ public class GoogleAuthController {
     private SignInMapper signInMapper;
 
     @PostMapping("/google")
-    public ResponseEntity<SuccessResponseDTO<SignInResponseDTO>> googleLogin(@Valid @RequestBody GoogleAuthRequestDTO request) {
+    public ResponseEntity<SuccessResponseDTO<SignInResponse>> googleLogin(@Valid @RequestBody GoogleAuthRequestDTO request) {
         AuthCommand command = googleAuthMapper.toCommand(request);
 
         SignInOutput output = googleAuthUseCase.execute(command);
 
-        SignInResponseDTO dto = signInMapper.toResponseDTO(output);
+        SignInResponse dto = signInMapper.toResponse(output);
 
         return ApiResponse.success(dto, UserMessages.USER_LOGGED.getMessage());
     }

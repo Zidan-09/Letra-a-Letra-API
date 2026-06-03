@@ -5,7 +5,7 @@ import com.letraaletra.api.application.command.player.DiscardPowerCommand;
 import com.letraaletra.api.application.output.player.DiscardPowerOutput;
 import com.letraaletra.api.application.port.Actor;
 import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.application.usecase.UseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.security.TokenService;
 

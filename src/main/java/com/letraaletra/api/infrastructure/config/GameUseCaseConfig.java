@@ -17,7 +17,7 @@ import com.letraaletra.api.domain.game.service.GenerateRoomCode;
 import com.letraaletra.api.domain.repository.game.GameRepository;
 import com.letraaletra.api.domain.repository.matchmaking.MatchmakingRepository;
 import com.letraaletra.api.domain.repository.theme.ThemeRepository;
-import com.letraaletra.api.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.domain.security.TokenService;
 import com.letraaletra.api.infrastructure.manager.GameActorManager;
 import org.springframework.context.annotation.Bean;

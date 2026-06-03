@@ -4,7 +4,7 @@ import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.UserBannedException;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
-import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.features.user.domain.User;
 
 public class JoinGameActorCommand implements ActorCommand<Game> {
     private final User user;

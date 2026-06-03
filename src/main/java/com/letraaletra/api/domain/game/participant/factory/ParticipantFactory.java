@@ -1,7 +1,7 @@
 package com.letraaletra.api.domain.game.participant.factory;
 
 import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.user.User;
+import com.letraaletra.api.features.user.domain.User;
 
 public class ParticipantFactory {
     public static Participant fromUser(User user, String sessionId) {
