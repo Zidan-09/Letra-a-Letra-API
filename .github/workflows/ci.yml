@@ -1,0 +1,26 @@
+name: "CI pipeline"
+
+on:
+  push:
+    branches:
+      - "develop"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout of Code
+        uses: actions/checkout@v4
+
+      - name: Configure JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile and Test
+        env:
+          JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
+          CLIENT_ID: "google-client-id-ficticio-para-o-teste"
+        run: mvn clean test
