@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.presentation.mappers.user.SetAvatarMapper;
 import com.letraaletra.api.presentation.controller.ApiResponse;
 import com.letraaletra.api.presentation.dto.request.user.SetAvatarRequestDTO;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponseDTO;
+import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.user.*;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class UserController {
 
 
     @PatchMapping("/avatar/{userId}")
-    public ResponseEntity<SuccessResponseDTO<SetAvatarResponseDTO>> setAvatar(@Valid @RequestBody SetAvatarRequestDTO request, @PathVariable @NotBlank String userId) {
+    public ResponseEntity<SuccessResponse<SetAvatarResponseDTO>> setAvatar(@Valid @RequestBody SetAvatarRequestDTO request, @PathVariable @NotBlank String userId) {
         SetAvatarInput command = setAvatarMapper.toCommand(request, userId);
 
         SetAvatarOutput output = setAvatarUseCase.execute(command);

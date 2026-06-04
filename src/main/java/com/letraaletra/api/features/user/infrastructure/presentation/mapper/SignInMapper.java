@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SignInMapper {
-    public SignInInput toInput(SignInRequest dto) {
+    public static SignInInput toInput(SignInRequest dto) {
         return new SignInInput(
                 dto.email(),
                 dto.password()
         );
     }
 
-    public SignInResponse toResponse(SignInOutput output) {
+    public static SignInResponse toResponse(SignInOutput output) {
         return new SignInResponse(
                 output.id(),
                 output.token()
