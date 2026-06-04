@@ -30,10 +30,10 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
         this.selectNicknameService = selectNicknameService;
     }
 
-    public CreateUserOutput execute(CreateUserInput command) {
+    public CreateUserOutput execute(CreateUserInput input) {
 
-        String email = command.email();
-        String password = command.password();
+        String email = input.email();
+        String password = input.password();
 
         validateEmail(email);
 

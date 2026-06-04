@@ -1,8 +1,8 @@
 package com.letraaletra.api.domain.game.state;
 
 import com.letraaletra.api.domain.game.board.Board;
-import com.letraaletra.api.domain.game.player.Player;
-import com.letraaletra.api.domain.game.player.exception.PlayerNotInGameException;
+import com.letraaletra.api.features.player.domain.Player;
+import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 
 import java.time.Instant;

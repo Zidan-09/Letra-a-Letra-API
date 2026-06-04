@@ -8,11 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UserUseCaseConfig {
     @Bean
-    public FindUserByIdUseCase findUserByIdUseCase(UserRepository userRepository) {
-        return new FindUserByIdUseCase(userRepository);
-    }
-
-    @Bean
     public SetAvatarUseCase setAvatarUseCase(UserRepository userRepository) {
         return new SetAvatarUseCase(userRepository);
     }

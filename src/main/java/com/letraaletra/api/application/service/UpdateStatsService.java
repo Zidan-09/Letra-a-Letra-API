@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.service;
 
-import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;

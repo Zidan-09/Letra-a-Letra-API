@@ -1,21 +1,21 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.user.application.input.SetNicknameInput;
-import com.letraaletra.api.features.user.application.output.SetNicknameOutput;
+import com.letraaletra.api.features.user.application.input.UpdateNicknameInput;
+import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.UpdateNicknameRequest;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SetNicknameResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.UpdateNicknameResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SetNicknameMapper {
-    public SetNicknameInput toInput(UpdateNicknameRequest request, String userId) {
-        return new SetNicknameInput(
+    public static UpdateNicknameInput toInput(UpdateNicknameRequest request, String userId) {
+        return new UpdateNicknameInput(
                 userId,
                 request.nickname()
         );
     }
 
-    public SetNicknameResponse toResponse(SetNicknameOutput output) {
-        return new SetNicknameResponse(output.nickname());
+    public static UpdateNicknameResponse toResponse(UpdateNicknameOutput output) {
+        return new UpdateNicknameResponse(output.nickname());
     }
 }

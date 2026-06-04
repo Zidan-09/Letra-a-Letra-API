@@ -1,7 +1,7 @@
 package com.letraaletra.api.domain.game.board.cell.effect;
 
 import com.letraaletra.api.domain.game.board.cell.Cell;
-import com.letraaletra.api.domain.game.player.actions.GameAction;
+import com.letraaletra.api.features.player.domain.actions.GameAction;
 
 public interface CellEffect {
     String getOwnerId();

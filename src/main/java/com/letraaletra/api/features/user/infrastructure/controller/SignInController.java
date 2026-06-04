@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.SignInUseCase;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.presentation.controller.ApiResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.SignInRequest;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponseDTO;
+import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SignInMapper;
 import jakarta.validation.Valid;
@@ -20,20 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/auth")
 public class SignInController {
     private final SignInUseCase signInUseCase;
-    private final SignInMapper signInMapper;
 
-    public SignInController(SignInUseCase signInUseCase, SignInMapper signInMapper) {
+    public SignInController(SignInUseCase signInUseCase) {
         this.signInUseCase = signInUseCase;
-        this.signInMapper = signInMapper;
     }
 
     @PostMapping
-    public ResponseEntity<SuccessResponseDTO<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request) {
-        SignInInput command = signInMapper.toInput(request);
+    public ResponseEntity<SuccessResponse<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request) {
+        SignInInput input = SignInMapper.toInput(request);
 
-        SignInOutput output = signInUseCase.execute(command);
+        SignInOutput output = signInUseCase.execute(input);
 
-        SignInResponse dto = signInMapper.toResponse(output);
+        SignInResponse dto = SignInMapper.toResponse(output);
 
         return ApiResponse.success(dto, UserMessages.USER_LOGGED.getMessage());
     }
