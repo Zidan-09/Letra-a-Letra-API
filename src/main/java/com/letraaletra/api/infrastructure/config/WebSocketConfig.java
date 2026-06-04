@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.config;
+package com.letraaletra.api.features.participant.infrastructure.config;
 
 import com.letraaletra.api.presentation.websocket.AuthHandshakeInterceptor;
 import com.letraaletra.api.presentation.websocket.GlobalWebSocketHandler;

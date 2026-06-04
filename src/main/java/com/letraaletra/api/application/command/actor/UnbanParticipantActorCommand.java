@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
+import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
 
 public class UnbanParticipantActorCommand implements ActorCommand<Game> {
     private final String user;

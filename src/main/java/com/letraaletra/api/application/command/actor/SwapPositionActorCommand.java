@@ -2,7 +2,7 @@ package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.UserNotInGameException;
-import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.features.participant.domain.Participant;
 
 public class SwapPositionActorCommand implements ActorCommand<Game> {
     private final String user;

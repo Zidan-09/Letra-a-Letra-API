@@ -6,7 +6,7 @@ import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.state.GameMode;
 import com.letraaletra.api.domain.game.matchmaking.MatchmakingUser;
 import com.letraaletra.api.presentation.dto.response.game.MatchmakingStatus;
-import com.letraaletra.api.presentation.dto.response.websocket.JoinMatchmakingResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.JoinMatchmakingResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,11 +21,11 @@ public class JoinMatchmakingMapper {
         return new JoinMatchmakingCommand(matchmakingUser, gameMode);
     }
 
-    public JoinMatchmakingResponseDTO toResponseDTO(JoinMatchmakingOutput output) {
+    public JoinMatchmakingResponse toResponseDTO(JoinMatchmakingOutput output) {
         Game game = output.game().orElse(null);
         String token = output.gameTokenId().orElse(null);
 
-        return new JoinMatchmakingResponseDTO(
+        return new JoinMatchmakingResponse(
                 game != null ? MatchmakingStatus.FOUNDED : MatchmakingStatus.SEARCHING,
                 game != null ? game.getGameState().getCurrentTurnEnds() : null,
                 token,

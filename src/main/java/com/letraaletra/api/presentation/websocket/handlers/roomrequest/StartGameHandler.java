@@ -5,7 +5,7 @@ import com.letraaletra.api.application.output.game.StartGameOutput;
 import com.letraaletra.api.application.usecase.game.StartGameUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.presentation.dto.request.StartGameWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.StartGameResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.StartGameResponse;
 import com.letraaletra.api.presentation.mappers.game.StartGameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
 
         StartGameOutput output = startGame.execute(command);
 
-        StartGameResponseDTO dto = startGameMapper.toResponseDTO(output);
+        StartGameResponse dto = startGameMapper.toResponseDTO(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

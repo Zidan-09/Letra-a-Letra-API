@@ -3,7 +3,7 @@ package com.letraaletra.api.presentation.mappers.game;
 import com.letraaletra.api.application.command.game.LeftGameCommand;
 import com.letraaletra.api.application.output.game.LeftGameOutput;
 import com.letraaletra.api.presentation.dto.request.LeftGameWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.LeftGameResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.LeftGameResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +19,8 @@ public class LeftGameMapper {
         );
     }
 
-    public LeftGameResponseDTO toResponseDTO(LeftGameOutput output) {
-        return new LeftGameResponseDTO(
+    public LeftGameResponse toResponseDTO(LeftGameOutput output) {
+        return new LeftGameResponse(
                 gameDTOMapper.toDTO(output.game(), output.token())
         );
     }

@@ -4,7 +4,7 @@ import com.letraaletra.api.application.command.game.CreateGameCommand;
 import com.letraaletra.api.application.output.game.CreateGameOutput;
 import com.letraaletra.api.domain.game.RoomSettings;
 import com.letraaletra.api.presentation.dto.request.CreateGameWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.CreateGameResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.CreateGameResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +25,8 @@ public class CreateGameMapper {
         );
     }
 
-    public CreateGameResponseDTO toResponseDTO(CreateGameOutput output) {
-        return new CreateGameResponseDTO(
+    public CreateGameResponse toResponseDTO(CreateGameOutput output) {
+        return new CreateGameResponse(
                gameDTOMapper.toDTO(output.game(), output.token())
         );
     }
