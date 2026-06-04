@@ -247,6 +247,10 @@ Sempre:
 9. Preferir soluções simples e legíveis.
 10. Não criar código morto ou não utilizado.
 11. Não modificar arquitetura sem solicitação explícita.
+12. Após finalizar tudo tente compilar o projeto.
 
+## Build e Testes
+
+mvnw clean package
 ```
 ```

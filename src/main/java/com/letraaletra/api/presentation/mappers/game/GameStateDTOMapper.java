@@ -7,7 +7,7 @@ import com.letraaletra.api.presentation.dto.response.game.GameStateDTO;
 import com.letraaletra.api.presentation.mappers.board.BoardDTOMapper;
 import com.letraaletra.api.presentation.mappers.board.BoardViewDTOMapper;
 import com.letraaletra.api.presentation.mappers.board.WordDTOMapper;
-import com.letraaletra.api.presentation.mappers.player.PlayerDTOMapper;
+import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

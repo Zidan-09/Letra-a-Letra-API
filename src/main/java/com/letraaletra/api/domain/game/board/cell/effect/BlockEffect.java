@@ -5,9 +5,9 @@ import com.letraaletra.api.domain.game.event.CellUnblockedEvent;
 import com.letraaletra.api.domain.game.event.Event;
 import com.letraaletra.api.domain.game.event.StateEvent;
 import com.letraaletra.api.domain.game.board.cell.Cell;
-import com.letraaletra.api.domain.game.player.actions.GameAction;
-import com.letraaletra.api.domain.game.player.actions.RevealCellAction;
-import com.letraaletra.api.domain.game.player.exception.InvalidPlayerActionException;
+import com.letraaletra.api.features.player.domain.actions.GameAction;
+import com.letraaletra.api.features.player.domain.actions.RevealCellAction;
+import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 
 public class BlockEffect implements CellEffect {
     private final String ownerId;

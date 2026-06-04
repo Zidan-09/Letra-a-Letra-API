@@ -4,7 +4,7 @@ import com.letraaletra.api.application.output.actor.ExpireTurnResult;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.domain.game.service.GameOverResult;
 
 import java.time.Instant;

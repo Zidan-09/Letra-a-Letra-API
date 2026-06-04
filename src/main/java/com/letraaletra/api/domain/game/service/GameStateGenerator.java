@@ -4,7 +4,7 @@ import com.letraaletra.api.domain.game.state.GameState;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.participant.Participant;
 import com.letraaletra.api.domain.game.participant.ParticipantRole;
-import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.features.player.domain.Player;
 
 import java.time.Instant;
 import java.util.HashMap;
