@@ -2,8 +2,8 @@ package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.UserBannedException;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.factory.ParticipantFactory;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.user.domain.User;
 
 public class JoinGameActorCommand implements ActorCommand<Game> {

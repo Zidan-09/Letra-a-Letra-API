@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.config;
+package com.letraaletra.api.features.participant.infrastructure.config;
 
 import com.letraaletra.api.application.port.GoogleTokenService;
 import com.letraaletra.api.application.usecase.auth.GoogleAuthUseCase;

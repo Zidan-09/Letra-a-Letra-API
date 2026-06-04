@@ -6,7 +6,7 @@ import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.usecase.game.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.presentation.dto.request.JoinMatchmakingGameWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.JoinMatchmakingResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.JoinMatchmakingResponse;
 import com.letraaletra.api.presentation.mappers.game.JoinMatchmakingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
 
         JoinMatchmakingOutput output = joinMatchmakingQueueUseCase.execute(command);
 
-        JoinMatchmakingResponseDTO dto = joinMatchmakingMapper.toResponseDTO(output);
+        JoinMatchmakingResponse dto = joinMatchmakingMapper.toResponseDTO(output);
 
         notifier(output.game().orElse(null), userId, dto);
     }
@@ -41,7 +41,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
         return JoinMatchmakingGameWsRequest.class;
     }
 
-    private void notifier(Game game, String user, JoinMatchmakingResponseDTO dto) {
+    private void notifier(Game game, String user, JoinMatchmakingResponse dto) {
         if (game == null) {
             gameNotifier.notifierOne(user, dto);
 

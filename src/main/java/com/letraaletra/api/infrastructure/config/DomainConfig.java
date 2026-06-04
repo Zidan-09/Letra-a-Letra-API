@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.config;
+package com.letraaletra.api.features.participant.infrastructure.config;
 
 import com.letraaletra.api.domain.game.board.service.BoardGenerator;
 import com.letraaletra.api.domain.game.board.service.CellFactory;

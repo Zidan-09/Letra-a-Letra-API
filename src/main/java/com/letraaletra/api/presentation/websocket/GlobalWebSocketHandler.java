@@ -1,13 +1,14 @@
 package com.letraaletra.api.presentation.websocket;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.port.SessionRepository;
 import com.letraaletra.api.shared.domain.DomainException;
-import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
-import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponseDTO;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
+import com.letraaletra.api.presentation.dto.response.websocket.ErrorResponse;
 import com.letraaletra.api.presentation.websocket.dispatcher.RoomRequestDispatcher;
-import com.letraaletra.api.presentation.websocket.handlers.participant.DisconnectParticipantHandler;
-import com.letraaletra.api.presentation.websocket.handlers.participant.ReconnectParticipantHandler;
+import com.letraaletra.api.features.participant.infrastructure.websocket.handlers.DisconnectParticipantHandler;
+import com.letraaletra.api.features.participant.infrastructure.websocket.handlers.ReconnectParticipantHandler;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Set;
 
@@ -40,7 +40,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private GameNotifier gameNotifier;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Autowired
     private Validator validator;
@@ -55,12 +55,12 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) {
         try {
-            WsRequestDTO request = objectMapper.readValue(
+            WsRequest request = jsonMapper.readValue(
                     message.getPayload(),
-                    WsRequestDTO.class
+                    WsRequest.class
             );
 
-            Set<ConstraintViolation<WsRequestDTO>> violations = validator.validate(request);
+            Set<ConstraintViolation<WsRequest>> violations = validator.validate(request);
 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
@@ -97,7 +97,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
             message = ex.getMessage();
         }
 
-        ErrorResponseDTO json = new ErrorResponseDTO(message);
+        ErrorResponse json = new ErrorResponse(message);
 
         gameNotifier.notifierOne(userId, json);
     }

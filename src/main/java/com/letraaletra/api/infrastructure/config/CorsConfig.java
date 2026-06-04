@@ -1,4 +1,4 @@
-package com.letraaletra.api.infrastructure.config;
+package com.letraaletra.api.features.participant.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

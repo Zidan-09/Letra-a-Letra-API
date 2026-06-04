@@ -6,8 +6,8 @@ import com.letraaletra.api.domain.game.*;
 import com.letraaletra.api.domain.game.board.Board;
 import com.letraaletra.api.domain.game.exception.GameIsRunningException;
 import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanStartException;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanStartException;
 import com.letraaletra.api.domain.game.service.GameStateGenerator;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 

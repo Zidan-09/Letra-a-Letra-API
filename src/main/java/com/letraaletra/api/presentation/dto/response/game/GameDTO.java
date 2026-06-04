@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.dto.response.game;
 
-import com.letraaletra.api.presentation.dto.response.participant.ParticipantDTO;
+import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ParticipantDTO;
 
 import java.util.List;
 import java.util.Map;

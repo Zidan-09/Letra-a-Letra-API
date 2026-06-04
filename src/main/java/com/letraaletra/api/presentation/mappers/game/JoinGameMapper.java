@@ -1,7 +1,7 @@
 package com.letraaletra.api.presentation.mappers.game;
 
 import com.letraaletra.api.application.command.game.JoinGameCommand;
-import com.letraaletra.api.presentation.dto.response.websocket.JoinGameResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.JoinGameResponse;
 import com.letraaletra.api.application.output.game.JoinGameOutput;
 import com.letraaletra.api.presentation.dto.request.JoinGameWsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,8 @@ public class JoinGameMapper {
         );
     }
 
-    public JoinGameResponseDTO toResponseDTO(JoinGameOutput output) {
-        return new JoinGameResponseDTO(
+    public JoinGameResponse toResponseDTO(JoinGameOutput output) {
+        return new JoinGameResponse(
                 gameDTOMapper.toDTO(output.game(), output.token())
         );
     }

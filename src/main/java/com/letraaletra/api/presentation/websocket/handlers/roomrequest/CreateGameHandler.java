@@ -5,7 +5,7 @@ import com.letraaletra.api.application.output.game.CreateGameOutput;
 import com.letraaletra.api.application.usecase.game.CreateGameUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.presentation.dto.request.CreateGameWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.CreateGameResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.CreateGameResponse;
 import com.letraaletra.api.presentation.mappers.game.CreateGameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest
 
         CreateGameOutput output = createGame.execute(command);
 
-        CreateGameResponseDTO dto = createGameMapper.toResponseDTO(output);
+        CreateGameResponse dto = createGameMapper.toResponseDTO(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

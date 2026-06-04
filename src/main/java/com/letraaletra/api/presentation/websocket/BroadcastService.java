@@ -2,11 +2,11 @@ package com.letraaletra.api.presentation.websocket;
 
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.domain.game.exception.GameNotFoundException;
 import com.letraaletra.api.application.port.SessionRepository;
 import com.letraaletra.api.domain.game.service.GameOverResult;
-import com.letraaletra.api.presentation.dto.response.websocket.GameOverResponseDTO;
+import com.letraaletra.api.presentation.dto.response.websocket.GameOverResponse;
 import com.letraaletra.api.presentation.mappers.game.GameOverMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class BroadcastService implements GameNotifier {
 
     @Override
     public void notifierGameOver(Game game, GameOverResult gameOverResult) {
-        GameOverResponseDTO dto = gameOverMapper.toResponseDTO(gameOverResult, game);
+        GameOverResponse dto = gameOverMapper.toResponseDTO(gameOverResult, game);
 
         notifierAll(game, dto);
     }

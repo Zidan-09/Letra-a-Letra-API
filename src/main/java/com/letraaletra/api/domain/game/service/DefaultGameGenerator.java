@@ -3,7 +3,7 @@ package com.letraaletra.api.domain.game.service;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.GameType;
 import com.letraaletra.api.domain.game.RoomSettings;
-import com.letraaletra.api.domain.game.participant.Participant;
+import com.letraaletra.api.features.participant.domain.Participant;
 
 import java.util.UUID;
 

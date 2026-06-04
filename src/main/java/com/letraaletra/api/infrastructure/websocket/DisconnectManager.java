@@ -1,8 +1,8 @@
 package com.letraaletra.api.infrastructure.websocket;
 
-import com.letraaletra.api.application.command.participant.RemoveParticipantCommand;
+import com.letraaletra.api.features.participant.application.input.RemoveParticipantInput;
 import com.letraaletra.api.application.port.DisconnectScheduler;
-import com.letraaletra.api.application.usecase.participant.RemoveParticipantUseCase;
+import com.letraaletra.api.features.participant.application.usecase.RemoveParticipantUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class DisconnectManager implements DisconnectScheduler {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
-        removeParticipantUseCase.execute(new RemoveParticipantCommand(
+        removeParticipantUseCase.execute(new RemoveParticipantInput(
                 gameId, userId
         ));
     }

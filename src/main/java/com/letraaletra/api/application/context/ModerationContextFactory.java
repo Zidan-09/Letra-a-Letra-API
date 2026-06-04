@@ -3,9 +3,9 @@ package com.letraaletra.api.application.context;
 import com.letraaletra.api.application.port.ActorManager;
 import com.letraaletra.api.domain.game.Game;
 import com.letraaletra.api.domain.game.exception.*;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.exception.InvalidModerateActionException;
-import com.letraaletra.api.domain.game.participant.exception.OnlyHostCanModerateException;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
+import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.domain.security.TokenService;
 
 public class ModerationContextFactory {

@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.websocket.dispatcher;
 
-import com.letraaletra.api.presentation.dto.request.WsRequestDTO;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 import com.letraaletra.api.presentation.websocket.handlers.roomrequest.RoomRequestHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +24,9 @@ public class RoomRequestDispatcher {
     }
 
     @SuppressWarnings("unchecked")
-    public void dispatch(WsRequestDTO request, WebSocketSession session) {
-        RoomRequestHandler<WsRequestDTO> handler =
-                (RoomRequestHandler<WsRequestDTO>) handlers.get(request.getClass());
+    public void dispatch(WsRequest request, WebSocketSession session) {
+        RoomRequestHandler<WsRequest> handler =
+                (RoomRequestHandler<WsRequest>) handlers.get(request.getClass());
 
         if (handler == null) {
             throw new InvalidPlayerActionException();
