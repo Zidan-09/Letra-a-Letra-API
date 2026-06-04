@@ -1,7 +1,7 @@
 package com.letraaletra.api.presentation.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.letraaletra.api.presentation.dto.request.player.PlayerActionDTO;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +13,6 @@ public record PlayerActionWsRequest(
 
         @Valid
         @NotNull
-        PlayerActionDTO action
+        PlayerActionRequest action
 ) implements WsRequestDTO {
 }

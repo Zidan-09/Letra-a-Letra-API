@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.features.player.domain.Player;
 
 public class DiscardPowerActorCommand implements ActorCommand<Game> {
     private final String userId;

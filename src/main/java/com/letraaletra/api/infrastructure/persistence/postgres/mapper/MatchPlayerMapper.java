@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.domain.game.player.Player;
+import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.MatchPlayerId;
 import com.letraaletra.api.infrastructure.persistence.postgres.entities.MatchPlayersJpaEntity;
 
