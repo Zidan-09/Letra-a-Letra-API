@@ -21,11 +21,11 @@ public class SignInUseCase implements UseCase<SignInInput, SignInOutput> {
         this.tokenService = tokenService;
     }
 
-    public SignInOutput execute(SignInInput command) {
-        User user = userRepository.findByEmail(command.email())
+    public SignInOutput execute(SignInInput input) {
+        User user = userRepository.findByEmail(input.email())
                 .orElseThrow(UserNotFoundException::new);
 
-        checkMatch(command.password(), user.getHashPassword());
+        checkMatch(input.password(), user.getHashPassword());
 
         String token = tokenService.generateToken(user.getId());
 
