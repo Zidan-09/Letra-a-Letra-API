@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.presentation.dto.request;
 
-import com.letraaletra.api.presentation.dto.request.game.PositionDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.PositionDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 

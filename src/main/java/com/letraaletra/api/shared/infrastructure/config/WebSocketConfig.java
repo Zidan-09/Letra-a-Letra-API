@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.config;
 
-import com.letraaletra.api.presentation.websocket.AuthHandshakeInterceptor;
-import com.letraaletra.api.presentation.websocket.GlobalWebSocketHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.AuthHandshakeInterceptor;
+import com.letraaletra.api.shared.infrastructure.websocket.GlobalWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;

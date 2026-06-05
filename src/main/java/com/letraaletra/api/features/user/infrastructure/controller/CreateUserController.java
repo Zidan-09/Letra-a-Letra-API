@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.presentation.controller.ApiResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.CreateUserMapper;
 import jakarta.validation.Valid;

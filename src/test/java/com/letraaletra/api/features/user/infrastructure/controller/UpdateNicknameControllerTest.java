@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.UpdateNicknameUseCa
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.UpdateNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.UpdateNicknameResponse;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

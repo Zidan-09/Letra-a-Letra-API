@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ParticipantDTOMapper {
-    public ParticipantDTO toDTO(Participant participant) {
+    public static ParticipantDTO toDTO(Participant participant) {
         return new ParticipantDTO(
                 participant.getUserId(),
                 participant.getNickname(),

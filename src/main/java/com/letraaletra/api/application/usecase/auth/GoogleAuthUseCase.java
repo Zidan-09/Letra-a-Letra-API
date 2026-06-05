@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.usecase.auth;
 
-import com.letraaletra.api.application.command.auth.AuthCommand;
+import com.letraaletra.api.application.command.auth.AuthInput;
 import com.letraaletra.api.application.context.GoogleAuthData;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.application.port.GoogleTokenService;
@@ -13,7 +13,7 @@ import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import java.util.Optional;
 import java.util.UUID;
 
-public class GoogleAuthUseCase implements UseCase<AuthCommand, SignInOutput> {
+public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
     private final UserRepository userRepository;
     private final GoogleTokenService googleTokenService;
@@ -31,7 +31,7 @@ public class GoogleAuthUseCase implements UseCase<AuthCommand, SignInOutput> {
         this.userFactory = userFactory;
     }
 
-    public SignInOutput execute(AuthCommand command) {
+    public SignInOutput execute(AuthInput command) {
         GoogleAuthData payload = googleTokenService.verify(command.token());
 
         Optional<User> userOpt = userRepository.findByGoogleId(payload.googleId());

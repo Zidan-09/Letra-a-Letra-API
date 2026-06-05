@@ -1,6 +1,6 @@
 package com.letraaletra.api.infrastructure.config;
 
-import com.letraaletra.api.presentation.mappers.board.BoardViewBuilder;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardViewBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.BanParticipant
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
 import com.letraaletra.api.features.participant.application.usecase.BanParticipantUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.presentation.websocket.handlers.roomrequest.RoomRequestHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.BanParticipantResponse;
 import com.letraaletra.api.presentation.dto.response.websocket.ModerationResponse;

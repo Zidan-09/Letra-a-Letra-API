@@ -1,11 +1,11 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.application.command.auth.AuthCommand;
+import com.letraaletra.api.application.command.auth.AuthInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.application.usecase.auth.GoogleAuthUseCase;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.presentation.dto.request.user.GoogleAuthRequestDTO;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
 import com.letraaletra.api.presentation.mappers.user.GoogleAuthMapper;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SignInMapper;
@@ -29,9 +29,9 @@ public class GoogleAuthController {
 
     @PostMapping("/google")
     public ResponseEntity<SuccessResponse<SignInResponse>> googleLogin(@Valid @RequestBody GoogleAuthRequestDTO request) {
-        AuthCommand command = googleAuthMapper.toCommand(request);
+        AuthInput input = googleAuthMapper.toCommand(request);
 
-        SignInOutput output = googleAuthUseCase.execute(command);
+        SignInOutput output = googleAuthUseCase.execute(input);
 
         SignInResponse dto = SignInMapper.toResponse(output);
 

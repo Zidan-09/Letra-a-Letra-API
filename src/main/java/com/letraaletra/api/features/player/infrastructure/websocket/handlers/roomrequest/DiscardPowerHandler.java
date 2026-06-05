@@ -5,10 +5,10 @@ import com.letraaletra.api.features.player.application.output.DiscardPowerOutput
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.presentation.dto.request.DiscardPowerWsRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.DiscardPowerResponse;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.DiscardPowerResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.DiscardPowerDTOMapper;
-import com.letraaletra.api.presentation.websocket.handlers.roomrequest.RoomRequestHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
