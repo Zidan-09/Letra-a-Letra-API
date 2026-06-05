@@ -3,10 +3,10 @@ package com.letraaletra.api.features.player.application.usecase;
 import com.letraaletra.api.application.command.actor.DiscardPowerActorCommand;
 import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
-import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
+import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.domain.security.TokenService;
 
 import java.util.concurrent.CompletableFuture;

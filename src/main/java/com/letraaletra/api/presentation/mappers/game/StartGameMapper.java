@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.mappers.game;
 
-import com.letraaletra.api.application.command.game.StartGameCommand;
-import com.letraaletra.api.application.output.game.StartGameOutput;
-import com.letraaletra.api.domain.game.state.GameSettings;
+import com.letraaletra.api.features.game.application.input.StartGameInput;
+import com.letraaletra.api.features.game.application.output.StartGameOutput;
+import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.presentation.dto.request.StartGameWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.StartGameResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,8 @@ public class StartGameMapper {
     @Autowired
     private GameStateDTOMapper gameStateDTOMapper;
 
-    public StartGameCommand toCommand(StartGameWsRequest request, String session) {
-        return new StartGameCommand(
+    public StartGameInput toCommand(StartGameWsRequest request, String session) {
+        return new StartGameInput(
                 request.tokenGameId(),
                 session,
                 new GameSettings(

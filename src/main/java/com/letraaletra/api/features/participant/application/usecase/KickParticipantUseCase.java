@@ -5,10 +5,10 @@ import com.letraaletra.api.features.participant.application.input.KickParticipan
 import com.letraaletra.api.application.context.ModerationContext;
 import com.letraaletra.api.application.context.ModerationContextFactory;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
-import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
+import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.concurrent.CompletableFuture;
 

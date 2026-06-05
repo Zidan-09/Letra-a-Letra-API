@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.command.game.StartGameCommand;
-import com.letraaletra.api.application.output.game.StartGameOutput;
-import com.letraaletra.api.application.usecase.game.StartGameUseCase;
+import com.letraaletra.api.features.game.application.input.StartGameInput;
+import com.letraaletra.api.features.game.application.output.StartGameOutput;
+import com.letraaletra.api.features.game.application.usecase.StartGameUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.presentation.dto.request.StartGameWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.StartGameResponse;
@@ -24,7 +24,7 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
 
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
-        StartGameCommand command = startGameMapper.toCommand(request, session.getId());
+        StartGameInput command = startGameMapper.toCommand(request, session.getId());
 
         StartGameOutput output = startGame.execute(command);
 

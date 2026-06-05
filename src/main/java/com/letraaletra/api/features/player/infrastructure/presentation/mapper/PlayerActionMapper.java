@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.player.domain.actions.GameAction;
+import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.presentation.dto.response.websocket.PlayerActionResponse;
 import com.letraaletra.api.presentation.mappers.game.GameStateDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;

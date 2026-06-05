@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.port;
 
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.service.GameOverResult;
 
 public interface GameNotifier {
     void notifierAll(Game game, Object dto);

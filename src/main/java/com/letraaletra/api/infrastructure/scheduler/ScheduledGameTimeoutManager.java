@@ -5,7 +5,7 @@ import com.letraaletra.api.application.output.game.CloseRoomOutput;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.usecase.game.CloseRoomDueToTimeoutUseCase;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,10 +1,10 @@
 package com.letraaletra.api.presentation.mappers.board;
 
 import com.letraaletra.api.presentation.dto.response.game.board.cell.BlockView;
-import com.letraaletra.api.domain.game.board.Board;
-import com.letraaletra.api.domain.game.board.cell.Cell;
-import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
-import com.letraaletra.api.domain.game.board.position.Position;
+import com.letraaletra.api.features.game.domain.board.Board;
+import com.letraaletra.api.features.game.domain.board.cell.Cell;
+import com.letraaletra.api.features.game.domain.board.cell.effect.BlockEffect;
+import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.presentation.dto.response.game.board.BoardDTO;
 import org.springframework.stereotype.Component;
 

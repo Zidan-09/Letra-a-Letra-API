@@ -1,7 +1,7 @@
 package com.letraaletra.api.application.command.actor;
 
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.exception.UserBannedException;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.exception.UserBannedException;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.user.domain.User;

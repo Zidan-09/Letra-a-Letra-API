@@ -2,13 +2,14 @@ package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.application.port.GameTimeoutManager;
 import com.letraaletra.api.application.port.TurnTimeoutManager;
-import com.letraaletra.api.domain.game.*;
-import com.letraaletra.api.domain.game.board.Board;
-import com.letraaletra.api.domain.game.exception.GameIsRunningException;
-import com.letraaletra.api.domain.game.exception.InsufficientPlayersException;
+import com.letraaletra.api.features.game.domain.board.Board;
+import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
+import com.letraaletra.api.features.game.domain.exception.InsufficientPlayersException;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanStartException;
-import com.letraaletra.api.domain.game.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 public class StartGameActorCommand implements ActorCommand<Game> {

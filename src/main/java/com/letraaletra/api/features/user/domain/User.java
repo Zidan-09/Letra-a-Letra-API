@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.domain;
 
-import com.letraaletra.api.domain.game.exception.GameNotFoundException;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 

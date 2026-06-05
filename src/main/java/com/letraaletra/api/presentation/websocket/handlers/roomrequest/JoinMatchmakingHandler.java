@@ -1,10 +1,10 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.command.game.JoinMatchmakingCommand;
-import com.letraaletra.api.application.output.game.JoinMatchmakingOutput;
+import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
+import com.letraaletra.api.features.matchmaking.application.output.JoinMatchmakingOutput;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.application.usecase.game.JoinMatchmakingQueueUseCase;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.presentation.dto.request.JoinMatchmakingGameWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.JoinMatchmakingResponse;
 import com.letraaletra.api.presentation.mappers.game.JoinMatchmakingMapper;
@@ -27,7 +27,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
     public void handle(JoinMatchmakingGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        JoinMatchmakingCommand command = joinMatchmakingMapper.toCommand(userId, session.getId(), request.gameMode());
+        JoinMatchmakingInput command = joinMatchmakingMapper.toCommand(userId, session.getId(), request.gameMode());
 
         JoinMatchmakingOutput output = joinMatchmakingQueueUseCase.execute(command);
 

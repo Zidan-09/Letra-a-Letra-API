@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.command.game.CreateGameCommand;
-import com.letraaletra.api.application.output.game.CreateGameOutput;
-import com.letraaletra.api.application.usecase.game.CreateGameUseCase;
+import com.letraaletra.api.features.game.application.input.CreateGameInput;
+import com.letraaletra.api.features.game.application.output.CreateGameOutput;
+import com.letraaletra.api.features.game.application.usecase.CreateGameUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.presentation.dto.request.CreateGameWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.CreateGameResponse;
@@ -26,7 +26,7 @@ public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest
     public void handle(CreateGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        CreateGameCommand command = createGameMapper.toCommand(request, session.getId(), userId);
+        CreateGameInput command = createGameMapper.toCommand(request, session.getId(), userId);
 
         CreateGameOutput output = createGame.execute(command);
 
