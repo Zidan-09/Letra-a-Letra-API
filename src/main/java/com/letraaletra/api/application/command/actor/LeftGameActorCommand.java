@@ -1,11 +1,11 @@
 package com.letraaletra.api.application.command.actor;
 
 import com.letraaletra.api.application.output.actor.LeftGameResult;
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.GameStatus;
-import com.letraaletra.api.domain.game.exception.UserNotInGameException;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameStatus;
+import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOverResult;
 
 public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
     private final String session;

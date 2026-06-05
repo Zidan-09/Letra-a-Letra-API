@@ -1,6 +1,6 @@
 package com.letraaletra.api.application.port;
 
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 
 public interface GameTimeoutManager {
     void start(Game game);

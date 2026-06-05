@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.participant.infrastructure.config;
+package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.application.usecase.*;

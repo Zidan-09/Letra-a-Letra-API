@@ -1,8 +1,8 @@
 package com.letraaletra.api.application.context;
 
-import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.exception.*;
+import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;

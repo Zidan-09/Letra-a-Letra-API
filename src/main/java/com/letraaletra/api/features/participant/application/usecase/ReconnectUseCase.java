@@ -2,11 +2,11 @@ package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
-import com.letraaletra.api.application.port.Actor;
-import com.letraaletra.api.application.port.ActorManager;
+import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
+import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
 import com.letraaletra.api.application.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;

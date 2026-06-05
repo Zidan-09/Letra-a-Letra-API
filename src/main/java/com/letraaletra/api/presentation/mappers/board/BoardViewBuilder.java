@@ -1,10 +1,10 @@
 package com.letraaletra.api.presentation.mappers.board;
 
-import com.letraaletra.api.domain.game.state.GameState;
-import com.letraaletra.api.domain.game.board.cell.Cell;
-import com.letraaletra.api.domain.game.board.cell.effect.BlockEffect;
-import com.letraaletra.api.domain.game.board.cell.effect.TrapEffect;
-import com.letraaletra.api.domain.game.board.position.Position;
+import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.game.domain.board.cell.Cell;
+import com.letraaletra.api.features.game.domain.board.cell.effect.BlockEffect;
+import com.letraaletra.api.features.game.domain.board.cell.effect.TrapEffect;
+import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.BlindEffect;
 import com.letraaletra.api.features.player.domain.effect.DetectTrapsEffect;

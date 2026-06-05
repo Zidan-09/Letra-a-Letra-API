@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.websocket.handlers.roomrequest;
 
-import com.letraaletra.api.application.command.game.LeftGameCommand;
-import com.letraaletra.api.application.output.game.LeftGameOutput;
-import com.letraaletra.api.application.usecase.game.LeftGameUseCase;
+import com.letraaletra.api.features.game.application.input.LeftGameInput;
+import com.letraaletra.api.features.game.application.output.LeftGameOutput;
+import com.letraaletra.api.features.game.application.usecase.LeftGameUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
 import com.letraaletra.api.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.presentation.dto.response.websocket.LeftGameResponse;
@@ -24,7 +24,7 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
 
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
-        LeftGameCommand command = leftGameMapper.toCommand(request, session.getId());
+        LeftGameInput command = leftGameMapper.toCommand(request, session.getId());
 
         LeftGameOutput output = leftGame.execute(command);
 

@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.dto.request.game;
 
-import com.letraaletra.api.domain.game.state.GameMode;
+import com.letraaletra.api.features.game.domain.state.GameMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

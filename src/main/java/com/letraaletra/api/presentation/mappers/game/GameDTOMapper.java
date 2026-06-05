@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.mappers.game;
 
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.MapParticipantsMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.letraaletra.api.infrastructure.loader;
 
 import com.letraaletra.api.domain.avatar.Avatar;
-import com.letraaletra.api.domain.avatar.AvatarMessages;
+import com.letraaletra.api.features.cosmetic.domain.CosmeticMessages;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ public class AvatarLoader {
                     .collect(Collectors.toMap(AvatarJson::avatar, avatar -> new Avatar(avatar.avatar())));
         } catch (Exception ex) {
             throw new RuntimeException(
-                    AvatarMessages.FAILED_TO_LOAD_AVATARS.getMessage(),
+                    CosmeticMessages.FAILED_TO_LOAD_AVATARS.getMessage(),
                     ex
             );
         }

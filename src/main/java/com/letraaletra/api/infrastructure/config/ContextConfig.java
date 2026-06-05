@@ -1,8 +1,8 @@
 package com.letraaletra.api.infrastructure.config;
 
 import com.letraaletra.api.application.context.ModerationContextFactory;
-import com.letraaletra.api.application.port.ActorManager;
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.domain.security.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

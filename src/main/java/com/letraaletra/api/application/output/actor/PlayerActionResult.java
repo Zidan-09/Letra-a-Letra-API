@@ -1,9 +1,8 @@
 package com.letraaletra.api.application.output.actor;
 
-import com.letraaletra.api.domain.game.Game;
-import com.letraaletra.api.domain.game.event.Event;
-import com.letraaletra.api.domain.game.event.StateEvent;
-import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.event.Event;
+import com.letraaletra.api.features.game.domain.service.GameOverResult;
 
 import java.util.List;
 

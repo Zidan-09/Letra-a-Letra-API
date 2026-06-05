@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.mappers.game;
 
-import com.letraaletra.api.domain.game.Game;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.domain.game.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOverResult;
 import com.letraaletra.api.presentation.dto.response.game.GameOverDTO;
 import com.letraaletra.api.presentation.dto.response.websocket.GameOverResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
