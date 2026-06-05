@@ -1,6 +1,6 @@
 package com.letraaletra.api.presentation.controller;
 
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

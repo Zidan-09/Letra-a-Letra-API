@@ -3,7 +3,7 @@ package com.letraaletra.api.features.participant.infrastructure.presentation.map
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
-import com.letraaletra.api.presentation.mappers.game.GameStateDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

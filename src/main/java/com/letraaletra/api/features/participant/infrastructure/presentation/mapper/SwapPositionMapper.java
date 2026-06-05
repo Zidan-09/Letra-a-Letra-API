@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.SwapPositionIn
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

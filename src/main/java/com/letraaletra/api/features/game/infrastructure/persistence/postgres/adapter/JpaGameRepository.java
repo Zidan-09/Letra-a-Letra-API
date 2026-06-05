@@ -5,11 +5,11 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataGameRepository;
-import com.letraaletra.api.infrastructure.persistence.postgres.jpa.SpringDataMatchPlayerRepository;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataMatchPlayerRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataMatchRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.GameMapper;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.MatchMapper;
-import com.letraaletra.api.infrastructure.persistence.postgres.mapper.MatchPlayerMapper;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.MatchPlayerMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

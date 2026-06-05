@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.SwapPositionIn
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
 import com.letraaletra.api.features.participant.application.usecase.SwapRoomPositionUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.presentation.websocket.handlers.roomrequest.RoomRequestHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.SwapPositionMapper;

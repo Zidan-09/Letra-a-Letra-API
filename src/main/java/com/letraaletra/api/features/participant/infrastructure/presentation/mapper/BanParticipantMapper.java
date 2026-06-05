@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.BanParticipant
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.BanParticipantResponse;
-import com.letraaletra.api.presentation.mappers.game.GameDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

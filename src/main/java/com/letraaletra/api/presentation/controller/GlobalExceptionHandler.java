@@ -1,8 +1,8 @@
 package com.letraaletra.api.presentation.controller;
 
 import com.letraaletra.api.shared.domain.DomainException;
-import com.letraaletra.api.presentation.dto.response.http.ErrorResponse;
-import com.letraaletra.api.presentation.dto.response.http.ServerMessages;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ServerMessages;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.KickParticipan
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
 import com.letraaletra.api.features.participant.application.usecase.KickParticipantUseCase;
 import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.presentation.websocket.handlers.roomrequest.RoomRequestHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.KickParticipantResponse;
 import com.letraaletra.api.presentation.dto.response.websocket.ModerationResponse;

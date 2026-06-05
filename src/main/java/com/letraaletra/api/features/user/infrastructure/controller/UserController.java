@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.presentation.mappers.user.SetAvatarMapper;
 import com.letraaletra.api.presentation.controller.ApiResponse;
 import com.letraaletra.api.presentation.dto.request.user.SetAvatarRequestDTO;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.user.*;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import jakarta.validation.Valid;
