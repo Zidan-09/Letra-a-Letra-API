@@ -19,7 +19,7 @@ public class UserStatsMapper {
         UserStatsJpaEntity entity = new UserStatsJpaEntity();
 
         entity.setUserId(UUID.fromString(userId));
-        entity.setTotalMatches(domain.getTotalMatchs());
+        entity.setTotalMatches(domain.getTotalMatches());
         entity.setTotalWins(domain.getTotalWins());
         entity.setWinStreak(domain.getWinStreak());
         entity.setPoints(domain.getPoints());

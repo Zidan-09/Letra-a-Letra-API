@@ -2,6 +2,7 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.UpdateNicknameInput;
 import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput;
+import com.letraaletra.api.features.user.domain.exceptions.UserCannotChangeNicknameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
@@ -18,7 +19,7 @@ public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, Updat
     public UpdateNicknameOutput execute(UpdateNicknameInput command) {
         User user = userRepository.find(command.user()).orElse(null);
         validateUser(user);
-        validateNickname(command.nickname(), user);
+        validateNickname(command.nickname());
 
         user.setNickname(command.nickname());
         user.setCanChangeNickname(false);
@@ -32,12 +33,16 @@ public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, Updat
         if (user == null) {
             throw new UserNotFoundException();
         }
+
+        if (!user.canChangeNickname()) {
+           throw new UserCannotChangeNicknameException();
+        }
     }
 
-    private void validateNickname(String nickname, User user) {
+    private void validateNickname(String nickname) {
         boolean existsNickname = userRepository.existsByNickname(nickname);
 
-        if (existsNickname || !user.canChangeNickname()) {
+        if (existsNickname) {
             throw new NicknameAlreadyInUseException();
         }
     }
