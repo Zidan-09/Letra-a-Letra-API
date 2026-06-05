@@ -1,20 +1,20 @@
 package com.letraaletra.api.features.user.domain.stats;
 
 public class UserStats {
-    private int totalMatchs;
+    private int totalMatches;
     private int totalWins;
     private int winStreak;
     private int points;
 
-    public UserStats(int totalMatchs, int totalWins, int winStreak, int points) {
-        this.totalMatchs = totalMatchs;
+    public UserStats(int totalMatches, int totalWins, int winStreak, int points) {
+        this.totalMatches = totalMatches;
         this.totalWins = totalWins;
         this.winStreak = winStreak;
         this.points = points;
     }
 
-    public int getTotalMatchs() {
-        return totalMatchs;
+    public int getTotalMatches() {
+        return totalMatches;
     }
 
     public int getTotalWins() {
@@ -30,13 +30,13 @@ public class UserStats {
     }
 
     public void registerWin() {
-        totalMatchs++;
+        totalMatches++;
         totalWins++;
         winStreak++;
     }
 
     public void registerLose() {
-        totalMatchs++;
+        totalMatches++;
         winStreak = 0;
     }
 
