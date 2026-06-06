@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.domain.repository;
 
-import com.letraaletra.api.domain.avatar.Avatar;
+import com.letraaletra.api.features.cosmetic.domain.Avatar;
 
 import java.util.List;
 

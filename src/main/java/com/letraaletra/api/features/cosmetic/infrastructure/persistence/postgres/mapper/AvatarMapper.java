@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.domain.avatar.Avatar;
+import com.letraaletra.api.features.cosmetic.domain.Avatar;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.AvatarJpaEntity;
 
 public class AvatarMapper {

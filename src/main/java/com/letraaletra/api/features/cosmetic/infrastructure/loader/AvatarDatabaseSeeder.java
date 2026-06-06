@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.loader;
 
-import com.letraaletra.api.domain.repository.avatar.AvatarRepository;
+import com.letraaletra.api.features.cosmetic.domain.repository.AvatarRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.domain.avatar.Avatar;
-import com.letraaletra.api.domain.repository.avatar.AvatarRepository;
+import com.letraaletra.api.features.cosmetic.domain.Avatar;
+import com.letraaletra.api.features.cosmetic.domain.repository.AvatarRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataAvatarRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.AvatarMapper;
 import org.springframework.stereotype.Repository;
