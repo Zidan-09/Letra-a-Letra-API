@@ -1,6 +1,6 @@
 package com.letraaletra.api.shared.infrastructure.persistence.memory;
 
-import com.letraaletra.api.application.port.SessionRepository;
+import com.letraaletra.api.features.user.application.port.SessionRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;

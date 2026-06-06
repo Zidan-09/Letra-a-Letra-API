@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
-import com.letraaletra.api.application.command.actor.ActorCommand;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
+import com.letraaletra.api.features.game.domain.actor.command.ActorCommand;
+import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.Queue;

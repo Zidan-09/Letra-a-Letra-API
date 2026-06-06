@@ -1,19 +1,19 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.application.command.actor.PlayerActionActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
-import com.letraaletra.api.application.output.actor.PlayerActionResult;
+import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.GameTimeoutManager;
-import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 
 import java.util.List;
 import java.util.Optional;

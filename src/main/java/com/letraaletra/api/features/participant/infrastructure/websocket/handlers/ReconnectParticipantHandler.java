@@ -2,7 +2,7 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.application.usecase.ReconnectUseCase;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.ReconnectParticipantMapper;

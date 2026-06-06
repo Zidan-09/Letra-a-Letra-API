@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import org.springframework.stereotype.Component;

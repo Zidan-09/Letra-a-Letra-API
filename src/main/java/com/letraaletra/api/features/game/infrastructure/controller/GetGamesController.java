@@ -3,9 +3,9 @@ package com.letraaletra.api.features.game.infrastructure.controller;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.application.usecase.GetPublicGamesUseCase;
 import com.letraaletra.api.features.game.domain.GameMessages;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponseDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetGamesMapper;
-import com.letraaletra.api.presentation.controller.ApiResponse;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +20,11 @@ public class GetGamesController {
     }
 
     @GetMapping(path = "/game")
-    public ResponseEntity<SuccessResponse<GetGamesResponseDTO>> getGames() {
+    public ResponseEntity<SuccessResponse<GetGamesResponse>> getGames() {
         GetGamesOutput output = getPublicGamesUseCase.execute();
 
-        GetGamesResponseDTO dto = GetGamesMapper.toResponseDTO(output);
+        GetGamesResponse dto = GetGamesMapper.toResponseDTO(output);
 
-        return ApiResponse.success(dto, GameMessages.GAMES_FOUND.getMessage());
+        return ApiResponseService.success(dto, GameMessages.GAMES_FOUND.getMessage());
     }
 }

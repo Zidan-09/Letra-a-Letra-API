@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.service.SelectNicknameService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.security.PasswordService;
+import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;

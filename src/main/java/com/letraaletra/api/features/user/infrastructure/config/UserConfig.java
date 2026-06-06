@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.config;
 
-import com.letraaletra.api.domain.security.PasswordService;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.PasswordService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.application.service.SelectNicknameService;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.application.usecase.SignInUseCase;

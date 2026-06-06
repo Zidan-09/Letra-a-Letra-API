@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.*;
 import com.letraaletra.api.features.user.application.output.*;
 import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.presentation.mappers.user.SetAvatarMapper;
-import com.letraaletra.api.presentation.controller.ApiResponse;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.presentation.dto.request.user.SetAvatarRequestDTO;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.presentation.dto.response.user.*;
@@ -36,6 +36,6 @@ public class UserController {
 
         SetAvatarResponseDTO dto = setAvatarMapper.toResponseDTO(output);
 
-        return ApiResponse.success(dto, UserMessages.AVATAR_SETTER.getMessage());
+        return ApiResponseService.success(dto, UserMessages.AVATAR_SETTER.getMessage());
     }
 }

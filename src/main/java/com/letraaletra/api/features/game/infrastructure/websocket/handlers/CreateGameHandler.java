@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
 import com.letraaletra.api.features.game.application.usecase.CreateGameUseCase;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.CreateGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.CreateGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.CreateGameMapper;

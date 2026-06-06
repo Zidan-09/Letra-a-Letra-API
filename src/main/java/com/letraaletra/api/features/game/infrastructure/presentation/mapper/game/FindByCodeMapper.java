@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 
 import com.letraaletra.api.features.game.application.input.FindByCodeInput;
 import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
-import com.letraaletra.api.presentation.dto.response.http.FindByCodeResponseDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.FindByCodeResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,8 +12,8 @@ public class FindByCodeMapper {
         return new FindByCodeInput(code);
     }
 
-    public static FindByCodeResponseDTO toResponseDTO(FindByCodeOutput output) {
-        return new FindByCodeResponseDTO(
+    public static FindByCodeResponse toResponseDTO(FindByCodeOutput output) {
+        return new FindByCodeResponse(
                 output.token()
         );
     }

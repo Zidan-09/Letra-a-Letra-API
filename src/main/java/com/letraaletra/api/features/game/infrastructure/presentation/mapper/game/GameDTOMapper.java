@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.presentation.mapper.game;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.MapParticipantsMapper;
 import org.springframework.stereotype.Component;
 

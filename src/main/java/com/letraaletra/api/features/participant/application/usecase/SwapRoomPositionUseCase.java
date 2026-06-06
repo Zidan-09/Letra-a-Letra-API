@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.application.command.actor.SwapPositionActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.SwapPositionActorCommand;
 import com.letraaletra.api.features.participant.application.input.SwapPositionInput;
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 

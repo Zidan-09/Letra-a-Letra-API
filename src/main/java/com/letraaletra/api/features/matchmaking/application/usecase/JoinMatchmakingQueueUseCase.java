@@ -2,10 +2,10 @@ package com.letraaletra.api.features.matchmaking.application.usecase;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.matchmaking.application.output.JoinMatchmakingOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.GameQueryService;
-import com.letraaletra.api.application.port.TurnTimeoutManager;
-import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -21,7 +21,7 @@ import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
@@ -37,7 +37,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
     private final GameQueryService gameQueryService;
     private final DefaultGameStateGenerator defaultGameStateGenerator;
     private final DefaultGameGenerator defaultGameGenerator;
-    private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
+    private final PickRandomThemeWordsService pickRandomThemeWordsService;
     private final GenerateRoomCode generateRoomCode;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
@@ -52,7 +52,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
             GameQueryService gameQueryService,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
-            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
@@ -64,7 +64,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
         this.gameQueryService = gameQueryService;
         this.defaultGameStateGenerator = defaultGameStateGenerator;
         this.defaultGameGenerator = defaultGameGenerator;
-        this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
+        this.pickRandomThemeWordsService = pickRandomThemeWordsService;
         this.generateRoomCode = generateRoomCode;
         this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
@@ -120,7 +120,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
     }
 
     private void startDefaultGame(Game game, GameMode gameMode) {
-        List<String> words = pickRandomThemeWordsUseCase.execute();
+        List<String> words = pickRandomThemeWordsService.execute();
 
         GameState state = defaultGameStateGenerator.generate(game, gameMode, words);
 

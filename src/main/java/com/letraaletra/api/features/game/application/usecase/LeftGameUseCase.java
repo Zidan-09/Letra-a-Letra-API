@@ -1,17 +1,17 @@
 package com.letraaletra.api.features.game.application.usecase;
 
-import com.letraaletra.api.application.command.actor.LeftGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
-import com.letraaletra.api.application.output.actor.LeftGameResult;
+import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
 import com.letraaletra.api.features.game.application.output.LeftGameOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;

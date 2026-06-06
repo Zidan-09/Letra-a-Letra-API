@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.matchmaking.application.output.JoinMatchmakingOutput;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;

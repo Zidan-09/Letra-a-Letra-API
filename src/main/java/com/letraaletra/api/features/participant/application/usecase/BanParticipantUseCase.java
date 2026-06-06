@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.application.command.actor.BanParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.BanParticipantActorCommand;
 import com.letraaletra.api.features.participant.application.input.BanParticipantInput;
-import com.letraaletra.api.application.context.ModerationContext;
-import com.letraaletra.api.application.context.ModerationContextFactory;
+import com.letraaletra.api.features.participant.application.output.ModerationContext;
+import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -16,18 +16,18 @@ import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException
 import java.util.concurrent.CompletableFuture;
 
 public class BanParticipantUseCase implements UseCase<BanParticipantInput, BanParticipantOutput> {
-    private final ModerationContextFactory moderationContextFactory;
+    private final ModerationContextService moderationContextService;
     private final UserRepository userRepository;
     private final ActorManager<Game> gameActorManager;
 
-    public BanParticipantUseCase(ModerationContextFactory moderationContextFactory, UserRepository userRepository, ActorManager<Game> gameActorManager) {
-        this.moderationContextFactory = moderationContextFactory;
+    public BanParticipantUseCase(ModerationContextService moderationContextService, UserRepository userRepository, ActorManager<Game> gameActorManager) {
+        this.moderationContextService = moderationContextService;
         this.userRepository = userRepository;
         this.gameActorManager = gameActorManager;
     }
 
     public BanParticipantOutput execute(BanParticipantInput command) {
-        ModerationContext context = moderationContextFactory.resolve(command.token(), command.target(), command.user());
+        ModerationContext context = moderationContextService.resolve(command.token(), command.target(), command.user());
 
         Actor actor = gameActorManager.get(context.game().getId());
         CompletableFuture<Game> future = actor.enqueueCommand(new BanParticipantActorCommand(command.target(), command.user()));

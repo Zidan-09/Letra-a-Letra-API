@@ -2,10 +2,10 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.FindByCodeInput;
 import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
-import com.letraaletra.api.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 
 public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOutput> {

@@ -3,11 +3,11 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 import com.letraaletra.api.features.participant.application.input.KickParticipantInput;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
 import com.letraaletra.api.features.participant.application.usecase.KickParticipantUseCase;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.KickParticipantResponse;
-import com.letraaletra.api.presentation.dto.response.websocket.ModerationResponse;
+import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ModerationResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.KickParticipantMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

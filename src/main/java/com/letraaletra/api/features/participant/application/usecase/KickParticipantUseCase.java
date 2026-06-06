@@ -1,28 +1,28 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.application.command.actor.KickParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.KickParticipantActorCommand;
 import com.letraaletra.api.features.participant.application.input.KickParticipantInput;
-import com.letraaletra.api.application.context.ModerationContext;
-import com.letraaletra.api.application.context.ModerationContextFactory;
+import com.letraaletra.api.features.participant.application.output.ModerationContext;
+import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase implements UseCase<KickParticipantInput, KickParticipantOutput> {
-    private final ModerationContextFactory moderationContextFactory;
+    private final ModerationContextService moderationContextService;
     private final ActorManager<Game> gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextFactory moderationContextFactory, ActorManager<Game> gameActorManager) {
-        this.moderationContextFactory = moderationContextFactory;
+    public KickParticipantUseCase(ModerationContextService moderationContextService, ActorManager<Game> gameActorManager) {
+        this.moderationContextService = moderationContextService;
         this.gameActorManager = gameActorManager;
     }
 
     public KickParticipantOutput execute(KickParticipantInput command) {
-        ModerationContext context = moderationContextFactory.resolve(
+        ModerationContext context = moderationContextService.resolve(
                 command.token(),
                 command.target(),
                 command.user()
