@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.domain.avatar.Avatar;
+import com.letraaletra.api.features.cosmetic.domain.Avatar;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;

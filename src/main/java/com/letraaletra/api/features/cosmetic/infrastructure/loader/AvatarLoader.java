@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.loader;
 
-import com.letraaletra.api.domain.avatar.Avatar;
+import com.letraaletra.api.features.cosmetic.domain.Avatar;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticMessages;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
