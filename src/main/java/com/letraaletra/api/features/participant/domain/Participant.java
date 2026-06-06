@@ -1,18 +1,22 @@
 package com.letraaletra.api.features.participant.domain;
 
+import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+
+import java.util.List;
+
 public class Participant {
     private final String userId;
     private final String nickname;
-    private final String avatar;
+    private final List<InventoryItem> cosmeticsEquipped;
     private String socketId;
     private ParticipantRole role;
     private boolean connected;
 
-    public Participant(String userId, String socketId, String nickname, String avatar) {
+    public Participant(String userId, String socketId, String nickname, List<InventoryItem> cosmeticsEquipped) {
         this.userId = userId;
         this.socketId = socketId;
         this.nickname = nickname;
-        this.avatar = avatar;
+        this.cosmeticsEquipped = cosmeticsEquipped;
         this.connected = true;
         this.role = ParticipantRole.SPECTATOR;
     }
@@ -29,8 +33,8 @@ public class Participant {
         return nickname;
     }
 
-    public String getAvatar() {
-        return avatar;
+    public List<InventoryItem> getCosmeticsEquipped() {
+        return cosmeticsEquipped;
     }
 
     public ParticipantRole getRole() {

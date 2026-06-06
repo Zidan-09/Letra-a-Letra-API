@@ -1,7 +1,8 @@
 package com.letraaletra.api.features.cosmetic.domain;
 
 public record Cosmetic(
-        String cosmeticId,
+        String id,
+        String name,
         CosmeticTypes type
 ) {
 }

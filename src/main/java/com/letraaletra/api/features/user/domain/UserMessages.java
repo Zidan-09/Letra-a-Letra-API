@@ -22,9 +22,9 @@ public enum UserMessages implements MessageCode {
     NICKNAME_ALREADY_IN_USE("nickname_already_in_use"),
     USER_CANNOT_CHANGE_NICKNAME("user_cannot_change_nickname"),
 
-    AVATAR_SETTER("avatar_setter"),
-    AVATAR_UNLOCKED("avatar_unlocked"),
-    INVALID_AVATAR("invalid_avatar"),
+    COSMETIC_EQUIPPED("cosmetic_equipped"),
+    COSMETIC_UNLOCKED("cosmetic_unlocked"),
+    INVALID_COSMETIC("invalid_cosmetic"),
 
     INVALID_CREDENTIALS("invalid_credentials"),
     USER_DISABLED("user_disabled"),
