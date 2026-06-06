@@ -65,7 +65,6 @@ class CreateUserUseCaseTest {
 
         when(user.getId()).thenReturn("user-id");
         when(user.getNickname()).thenReturn("john123");
-        when(user.getAvatar()).thenReturn("avatar.png");
         when(user.getEmail()).thenReturn("john@email.com");
 
         CreateUserOutput output = createUserUseCase.execute(input);
@@ -74,7 +73,6 @@ class CreateUserUseCaseTest {
 
         assertEquals("user-id", output.id());
         assertEquals("john123", output.nickname());
-        assertEquals("avatar.png", output.avatar());
         assertEquals("john@email.com", output.email());
 
         verify(userRepository).existsByEmail("john@email.com");

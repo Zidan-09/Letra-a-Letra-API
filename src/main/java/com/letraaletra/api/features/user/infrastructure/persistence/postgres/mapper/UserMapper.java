@@ -3,23 +3,24 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ma
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
+import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class UserMapper {
-    public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa) {
+    public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa, List<InventoryItem> inventoryDomain) {
         if (entity == null) return null;
 
         return new User(
                 entity.getId().toString(),
                 entity.getUsername(),
-                entity.getAvatarId(),
                 entity.getEmail(),
                 entity.getPasswordHash(),
                 entity.getGoogleId(),
                 entity.isCanChangeNickname(),
-                UserStatsMapper.toDomain(statsJpa)
+                UserStatsMapper.toDomain(statsJpa),
+                inventoryDomain
         );
     }
 
@@ -32,9 +33,7 @@ public class UserMapper {
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getHashPassword());
         entity.setGoogleId(user.getGoogleId());
-        entity.setAvatarId(user.getAvatar());
         entity.setCanChangeNickname(user.canChangeNickname());
-        entity.setCreatedAt(LocalDateTime.now());
 
         return entity;
     }

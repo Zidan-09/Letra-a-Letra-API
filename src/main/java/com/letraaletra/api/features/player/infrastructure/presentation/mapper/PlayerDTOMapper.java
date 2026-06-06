@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerResponse;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +11,11 @@ public class PlayerDTOMapper {
     @Autowired
     private InventoryDTOMapper inventoryDTOMapper;
 
-    public PlayerResponse toDTO(Player player, Participant participant) {
-        return new PlayerResponse(
+    public PlayerDTO toDTO(Player player, Participant participant) {
+        return new PlayerDTO(
                 participant.getUserId(),
                 participant.getNickname(),
-                participant.getAvatar(),
+                participant.getCosmeticsEquipped(),
                 player.getScore(),
                 player.getInventory().keySet().stream()
                         .map(key -> inventoryDTOMapper.toDTO(key, player.getInventory().get(key)))

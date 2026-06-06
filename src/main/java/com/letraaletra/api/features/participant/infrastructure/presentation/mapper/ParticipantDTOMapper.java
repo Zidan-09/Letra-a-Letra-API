@@ -10,7 +10,7 @@ public class ParticipantDTOMapper {
         return new ParticipantDTO(
                 participant.getUserId(),
                 participant.getNickname(),
-                participant.getAvatar(),
+                participant.getCosmeticsEquipped(),
                 participant.getRole()
         );
     }
