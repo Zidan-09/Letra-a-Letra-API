@@ -36,7 +36,7 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        CreateUserOutput output = new CreateUserOutput("id1", "random-nickname", "avatar-1", "teste@email.com");
+        CreateUserOutput output = new CreateUserOutput("id1", "random-nickname", "teste@email.com");
 
         when(createUserUseCase
                 .execute(any(CreateUserInput.class)))

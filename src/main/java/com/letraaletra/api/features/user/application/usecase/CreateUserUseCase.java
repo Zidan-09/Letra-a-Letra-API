@@ -60,7 +60,6 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
         return new CreateUserOutput(
                 user.getId(),
                 user.getNickname(),
-                user.getAvatar(),
                 user.getEmail()
         );
     }

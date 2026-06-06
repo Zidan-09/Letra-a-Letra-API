@@ -28,9 +28,6 @@ public class UserJpaEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
-    @Column(name = "avatar_id")
-    private String avatarId;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

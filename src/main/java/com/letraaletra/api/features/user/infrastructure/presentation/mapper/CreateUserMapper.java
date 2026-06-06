@@ -4,7 +4,6 @@ import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
-import org.springframework.stereotype.Component;
 
 public class CreateUserMapper {
     public static CreateUserInput toInput(CreateUserRequest dto) {
@@ -17,7 +16,7 @@ public class CreateUserMapper {
     public static CreateUserResponse toResponse(CreateUserOutput output) {
         return new CreateUserResponse(
               output.id(),
-              output.avatar(),
+              output.nickname(),
               output.email()
         );
     }

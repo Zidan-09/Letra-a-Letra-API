@@ -1,14 +1,9 @@
-CREATE TABLE "avatar" (
-                          "avatar_id" varchar(50) PRIMARY KEY NOT NULL
-);
-
 CREATE TABLE "user" (
                         "user_id" uuid PRIMARY KEY NOT NULL,
                         "username" varchar(15) UNIQUE NOT NULL,
                         "email" varchar(50) UNIQUE NOT NULL,
                         "password_hash" varchar(100),
                         "google_id" varchar(100) UNIQUE,
-                        "avatar_id" varchar(50) DEFAULT 'old-man' REFERENCES "avatar" ("avatar_id"),
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_auth_method
@@ -49,11 +44,18 @@ CREATE TABLE "match_players" (
                         PRIMARY KEY ("match_id", "user_id")
 );
 
-CREATE TABLE "user_avatars" (
+CREATE TABLE "cosmetic" (
+                            "cosmetic_id" varchar(50) PRIMARY KEY NOT NULL,
+                            "name" varchar(50) NOT NULL,
+                            "type" varchar(50) NOT NULL
+);
+
+CREATE TABLE "user_inventory" (
                         "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "avatar_id" varchar(50) REFERENCES "avatar" ("avatar_id") ON DELETE CASCADE,
+                        "cosmetic_id" varchar(50) REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
+                        "equipped" boolean DEFAULT false,
                         "unlocked_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-                        PRIMARY KEY ("user_id", "avatar_id")
+                        PRIMARY KEY ("user_id", "cosmetic_id")
 );
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
