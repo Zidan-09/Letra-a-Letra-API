@@ -1,15 +1,16 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
+import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
+import com.letraaletra.api.features.game.application.service.ExpireTurnService;
 import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.GameQueryService;
-import com.letraaletra.api.application.port.GameTimeoutManager;
-import com.letraaletra.api.application.port.TurnTimeoutManager;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.application.usecase.*;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
-import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
-import com.letraaletra.api.application.usecase.game.*;
+import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.service.DefaultGameGenerator;
@@ -21,7 +22,7 @@ import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRep
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,12 +32,12 @@ import java.util.Random;
 @Configuration
 public class GameConfig {
     @Bean
-    public CloseRoomDueToTimeoutUseCase closeRoomDueToTimeoutUseCase(
+    public CloseRoomDueToTimeoutService closeRoomDueToTimeoutUseCase(
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             GameRepository gameRepository
     ) {
-        return new CloseRoomDueToTimeoutUseCase(
+        return new CloseRoomDueToTimeoutService(
                 userRepository,
                 actorManager,
                 gameRepository
@@ -104,7 +105,7 @@ public class GameConfig {
              GameStateGenerator gameStateGenerator,
              ThemeRepository themeRepository,
              GameTimeoutManager gameTimeoutManager,
-             PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+             PickRandomThemeWordsService pickRandomThemeWordsService,
              BoardGenerator boardGenerator,
              TokenService tokenService,
              TurnTimeoutManager turnTimeoutManager,
@@ -114,7 +115,7 @@ public class GameConfig {
                 gameStateGenerator,
                 themeRepository,
                 gameTimeoutManager,
-                pickRandomThemeWordsUseCase,
+                pickRandomThemeWordsService,
                 boardGenerator,
                 tokenService,
                 turnTimeoutManager,
@@ -123,17 +124,17 @@ public class GameConfig {
     }
 
     @Bean
-    public ExpireTurnUseCase expireTurnUseCase(
+    public ExpireTurnService expireTurnUseCase(
             GameActorManager gameActorManager,
             GameOverHandler gameOverHandler,
             UserRepository userRepository
     ) {
-        return new ExpireTurnUseCase(gameActorManager, gameOverHandler, userRepository);
+        return new ExpireTurnService(gameActorManager, gameOverHandler, userRepository);
     }
 
     @Bean
-    public PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
-        return new PickRandomThemeWordsUseCase(themeRepository, new Random());
+    public PickRandomThemeWordsService pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
+        return new PickRandomThemeWordsService(themeRepository, new Random());
     }
 
     @Bean
@@ -144,7 +145,7 @@ public class GameConfig {
             GameQueryService gameQueryService,
             DefaultGameStateGenerator defaultGameStateGenerator,
             DefaultGameGenerator defaultGameGenerator,
-            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
@@ -157,7 +158,7 @@ public class GameConfig {
                 gameQueryService,
                 defaultGameStateGenerator,
                 defaultGameGenerator,
-                pickRandomThemeWordsUseCase,
+                pickRandomThemeWordsService,
                 generateRoomCode,
                 tokenService,
                 turnTimeoutManager,

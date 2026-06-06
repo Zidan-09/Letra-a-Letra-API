@@ -2,10 +2,10 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.FindByTokenInput;
 import com.letraaletra.api.features.game.application.output.FindByTokenOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 
 public class FindByTokenGameIdUseCase implements UseCase<FindByTokenInput, FindByTokenOutput> {

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 
 import com.letraaletra.api.features.game.application.input.FindByTokenInput;
 import com.letraaletra.api.features.game.application.output.FindByTokenOutput;
-import com.letraaletra.api.presentation.dto.response.http.FindByTokenResponseDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.FindByTokenResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,8 +11,8 @@ public class FindByTokenMapper {
         return new FindByTokenInput(token);
     }
 
-    public static FindByTokenResponseDTO toResponseDTO(FindByTokenOutput output) {
-        return new FindByTokenResponseDTO(
+    public static FindByTokenResponse toResponseDTO(FindByTokenOutput output) {
+        return new FindByTokenResponse(
                 GameDTOMapper.toDTO(output.game(), output.token())
         );
     }

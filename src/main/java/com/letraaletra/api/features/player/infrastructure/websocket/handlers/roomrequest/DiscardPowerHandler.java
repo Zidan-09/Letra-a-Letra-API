@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ro
 
 import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;

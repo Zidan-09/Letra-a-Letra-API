@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.participant.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ParticipantDTO;
+import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.participant.ParticipantDTO;
 import org.springframework.stereotype.Component;
 
 @Component

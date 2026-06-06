@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ac
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;

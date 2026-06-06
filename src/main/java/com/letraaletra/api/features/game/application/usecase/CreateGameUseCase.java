@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.GameQueryService;
-import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;

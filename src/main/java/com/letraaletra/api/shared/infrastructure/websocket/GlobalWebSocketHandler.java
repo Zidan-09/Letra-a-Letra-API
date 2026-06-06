@@ -1,8 +1,8 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.letraaletra.api.application.port.GameNotifier;
-import com.letraaletra.api.application.port.SessionRepository;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorWsResponse;

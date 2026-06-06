@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.security;
 
-import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;

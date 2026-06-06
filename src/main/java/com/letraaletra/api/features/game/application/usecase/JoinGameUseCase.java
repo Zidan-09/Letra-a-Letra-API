@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.game.application.usecase;
 
-import com.letraaletra.api.application.command.actor.JoinGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorCommand;
 import com.letraaletra.api.features.game.application.input.JoinGameInput;
 import com.letraaletra.api.features.game.application.output.JoinGameOutput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;

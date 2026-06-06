@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameOverDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;

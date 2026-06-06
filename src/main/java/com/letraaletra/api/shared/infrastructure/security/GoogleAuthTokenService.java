@@ -2,9 +2,9 @@ package com.letraaletra.api.shared.infrastructure.security;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.letraaletra.api.application.context.GoogleAuthData;
-import com.letraaletra.api.application.port.GoogleTokenService;
-import com.letraaletra.api.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.features.user.application.output.GoogleAuthData;
+import com.letraaletra.api.features.user.application.port.GoogleTokenService;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

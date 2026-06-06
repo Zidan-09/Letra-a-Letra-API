@@ -1,15 +1,15 @@
 package com.letraaletra.api.features.game.application.usecase;
 
-import com.letraaletra.api.application.command.actor.StartGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.StartGameActorCommand;
 import com.letraaletra.api.features.game.application.input.StartGameInput;
-import com.letraaletra.api.shared.infrastructure.concurrency.Actor;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.GameTimeoutManager;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.output.StartGameOutput;
-import com.letraaletra.api.application.port.TurnTimeoutManager;
-import com.letraaletra.api.application.usecase.game.PickRandomThemeWordsUseCase;
+import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
@@ -25,7 +25,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     private final GameStateGenerator gameStateGenerator;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;
-    private final PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase;
+    private final PickRandomThemeWordsService pickRandomThemeWordsService;
     private final BoardGenerator boardGenerator;
     private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
@@ -35,7 +35,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
             GameStateGenerator gameStateGenerator,
             ThemeRepository themeRepository,
             GameTimeoutManager gameTimeoutManager,
-            PickRandomThemeWordsUseCase pickRandomThemeWordsUseCase,
+            PickRandomThemeWordsService pickRandomThemeWordsService,
             BoardGenerator boardGenerator,
             TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
@@ -44,7 +44,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         this.gameStateGenerator = gameStateGenerator;
         this.themeRepository = themeRepository;
         this.gameTimeoutManager = gameTimeoutManager;
-        this.pickRandomThemeWordsUseCase = pickRandomThemeWordsUseCase;
+        this.pickRandomThemeWordsService = pickRandomThemeWordsService;
         this.boardGenerator = boardGenerator;
         this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
@@ -58,7 +58,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         List<String> words = (theme != null)
                 ? theme.pickRandomWords(5, new Random())
-                : pickRandomThemeWordsUseCase.execute();
+                : pickRandomThemeWordsService.execute();
 
         Board board = boardGenerator.generate(words, command.settings().getGameMode());
 

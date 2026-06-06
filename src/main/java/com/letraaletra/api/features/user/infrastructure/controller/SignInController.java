@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.usecase.SignInUseCase;
 import com.letraaletra.api.features.user.domain.UserMessages;
-import com.letraaletra.api.presentation.controller.ApiResponse;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.SignInRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
@@ -33,6 +33,6 @@ public class SignInController {
 
         SignInResponse dto = SignInMapper.toResponse(output);
 
-        return ApiResponse.success(dto, UserMessages.USER_LOGGED.getMessage());
+        return ApiResponseService.success(dto, UserMessages.USER_LOGGED.getMessage());
     }
 }

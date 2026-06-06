@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.domain.security.PasswordService;
-import com.letraaletra.api.domain.security.TokenService;
-import com.letraaletra.api.domain.security.exceptions.InvalidPasswordException;
+import com.letraaletra.api.shared.domain.security.PasswordService;
+import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.domain.User;

@@ -5,7 +5,7 @@ import com.letraaletra.api.features.matchmaking.application.output.JoinMatchmaki
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.matchmaking.MatchmakingUser;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.MatchmakingStatus;
+import com.letraaletra.api.features.matchmaking.domain.MatchmakingStatus;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

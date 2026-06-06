@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.features.participant.application.input.RemoveParticipantInput;
-import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.RemoveParticipantUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

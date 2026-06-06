@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.participant.infrastructure.config;
 
-import com.letraaletra.api.application.context.ModerationContextFactory;
-import com.letraaletra.api.shared.infrastructure.concurrency.ActorManager;
-import com.letraaletra.api.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.participant.application.service.ModerationContextService;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +17,12 @@ import org.springframework.context.annotation.Configuration;
 public class ParticipantConfig {
     @Bean
     public BanParticipantUseCase banParticipantUseCase(
-            ModerationContextFactory moderationContextFactory,
+            ModerationContextService moderationContextService,
             UserRepository userRepository,
             GameActorManager gameActorManager
     ) {
         return new BanParticipantUseCase(
-                moderationContextFactory,
+                moderationContextService,
                 userRepository,
                 gameActorManager
         );
@@ -44,10 +44,10 @@ public class ParticipantConfig {
     }
     @Bean
     public KickParticipantUseCase kickParticipantUseCase(
-            ModerationContextFactory moderationContextFactory,
+            ModerationContextService moderationContextService,
             GameActorManager gameActorManager
     ) {
-        return new KickParticipantUseCase(moderationContextFactory, gameActorManager);
+        return new KickParticipantUseCase(moderationContextService, gameActorManager);
     }
 
     @Bean

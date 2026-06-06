@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardView;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardViewBuilder;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameStateDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameStateDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardDTOMapper;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardViewDTOMapper;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.WordDTOMapper;
