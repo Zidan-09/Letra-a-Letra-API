@@ -7,8 +7,8 @@ import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.UpdateNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.UpdateNicknameResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SetNicknameMapper;
-import com.letraaletra.api.presentation.controller.ApiResponse;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,6 @@ public class UpdateNicknameController {
 
         UpdateNicknameResponse dto = SetNicknameMapper.toResponse(output);
 
-        return ApiResponse.success(dto, UserMessages.NICKNAME_SETTER.getMessage());
+        return ApiResponseService.success(dto, UserMessages.NICKNAME_SETTER.getMessage());
     }
 }

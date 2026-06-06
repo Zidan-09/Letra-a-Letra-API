@@ -20,6 +20,7 @@ public enum UserMessages implements MessageCode {
     EMAIL_ALREADY_IN_USE("email_already_in_use"),
     NICKNAME_SETTER("nickname_setter"),
     NICKNAME_ALREADY_IN_USE("nickname_already_in_use"),
+    USER_CANNOT_CHANGE_NICKNAME("user_cannot_change_nickname"),
 
     AVATAR_SETTER("avatar_setter"),
     AVATAR_UNLOCKED("avatar_unlocked"),

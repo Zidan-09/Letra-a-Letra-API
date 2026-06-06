@@ -1,13 +1,13 @@
 package com.letraaletra.api.features.user.infrastructure.controller;
 
-import com.letraaletra.api.features.user.application.input.*;
-import com.letraaletra.api.features.user.application.output.*;
-import com.letraaletra.api.features.user.application.usecase.*;
-import com.letraaletra.api.presentation.mappers.user.SetAvatarMapper;
-import com.letraaletra.api.presentation.controller.ApiResponse;
-import com.letraaletra.api.presentation.dto.request.user.SetAvatarRequestDTO;
-import com.letraaletra.api.presentation.dto.response.http.SuccessResponse;
-import com.letraaletra.api.presentation.dto.response.user.*;
+import com.letraaletra.api.features.cosmetic.application.input.ChangeCosmeticInput;
+import com.letraaletra.api.features.cosmetic.application.output.ChangeCosmeticOutput;
+import com.letraaletra.api.features.cosmetic.application.usecase.ChangeCosmeticUseCase;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.user.SetAvatarResponseDTO;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.SetAvatarMapper;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.user.SetAvatarRequestDTO;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -25,17 +25,17 @@ public class UserController {
     private SetAvatarMapper setAvatarMapper;
 
     @Autowired
-    private SetAvatarUseCase setAvatarUseCase;
+    private ChangeCosmeticUseCase changeCosmeticUseCase;
 
 
     @PatchMapping("/avatar/{userId}")
     public ResponseEntity<SuccessResponse<SetAvatarResponseDTO>> setAvatar(@Valid @RequestBody SetAvatarRequestDTO request, @PathVariable @NotBlank String userId) {
-        SetAvatarInput command = setAvatarMapper.toCommand(request, userId);
+        ChangeCosmeticInput command = setAvatarMapper.toCommand(request, userId);
 
-        SetAvatarOutput output = setAvatarUseCase.execute(command);
+        ChangeCosmeticOutput output = changeCosmeticUseCase.execute(command);
 
         SetAvatarResponseDTO dto = setAvatarMapper.toResponseDTO(output);
 
-        return ApiResponse.success(dto, UserMessages.AVATAR_SETTER.getMessage());
+        return ApiResponseService.success(dto, UserMessages.AVATAR_SETTER.getMessage());
     }
 }

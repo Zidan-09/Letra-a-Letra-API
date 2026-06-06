@@ -1,10 +1,10 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.domain.game.board.position.Position;
-import com.letraaletra.api.features.player.domain.actions.GameAction;
-import com.letraaletra.api.features.player.domain.actions.RevealCellAction;
-import com.letraaletra.api.features.player.domain.actions.UnblockAndRevealAction;
-import com.letraaletra.api.features.player.domain.actions.UnblockCellAction;
+import com.letraaletra.api.features.game.domain.board.position.Position;
+import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
+import com.letraaletra.api.features.power.domain.actions.UnblockAndRevealAction;
+import com.letraaletra.api.features.power.domain.actions.UnblockCellAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.UnblockActionRequest;
 import org.springframework.stereotype.Component;
 

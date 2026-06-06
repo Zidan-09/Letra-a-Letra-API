@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.domain.effect;
 
-import com.letraaletra.api.domain.game.board.position.Position;
+import com.letraaletra.api.features.game.domain.board.position.Position;
 
 public class SpyEffect implements PlayerEffect {
     private int duration;

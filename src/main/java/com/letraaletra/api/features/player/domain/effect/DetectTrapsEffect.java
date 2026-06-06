@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.domain.effect;
 
-import com.letraaletra.api.domain.game.board.position.Position;
+import com.letraaletra.api.features.game.domain.board.position.Position;
 
 import java.util.ArrayList;
 import java.util.List;

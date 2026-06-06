@@ -2,14 +2,14 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ac
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.application.port.GameNotifier;
+import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
-import com.letraaletra.api.domain.game.participant.Participant;
-import com.letraaletra.api.domain.game.participant.ParticipantRole;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.player.domain.actions.GameAction;
+import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
-import com.letraaletra.api.presentation.dto.response.websocket.PlayerActionResponseDTO;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
@@ -59,13 +59,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .toList();
 
         for (Player player : players) {
-            PlayerActionResponseDTO dto = playerActionMapper.toResponseDTO(output, player.getUserId());
+            PlayerActionResponse dto = playerActionMapper.toResponseDTO(output, player.getUserId());
 
             gameNotifier.notifierOne(player.getUserId(), dto);
         }
 
         for (Participant spectator : spectators) {
-            PlayerActionResponseDTO dto = playerActionMapper.toAllResponseDTO(output);
+            PlayerActionResponse dto = playerActionMapper.toAllResponseDTO(output);
 
             gameNotifier.notifierOne(spectator.getUserId(), dto);
         }

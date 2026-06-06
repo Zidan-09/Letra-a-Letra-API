@@ -1,0 +1,220 @@
+package com.letraaletra.api.features.game.infrastructure.config;
+
+import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
+import com.letraaletra.api.features.game.application.service.ExpireTurnService;
+import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.application.usecase.*;
+import com.letraaletra.api.features.user.application.service.UpdateStatsService;
+import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
+import com.letraaletra.api.features.game.domain.service.DefaultGameGenerator;
+import com.letraaletra.api.features.game.domain.service.DefaultGameStateGenerator;
+import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
+import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
+import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
+import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Random;
+
+@Configuration
+public class GameConfig {
+    @Bean
+    public CloseRoomDueToTimeoutService closeRoomDueToTimeoutUseCase(
+            UserRepository userRepository,
+            ActorManager<Game> actorManager,
+            GameRepository gameRepository
+    ) {
+        return new CloseRoomDueToTimeoutService(
+                userRepository,
+                actorManager,
+                gameRepository
+        );
+    }
+
+    @Bean
+    public CreateGameUseCase createGameUseCase(
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            ActorManager<Game> actorManager,
+            GameTimeoutManager gameTimeoutManager,
+            GameQueryService gameQueryService,
+            TokenService tokenService,
+            GenerateRoomCode generateRoomCode
+    ) {
+        return new CreateGameUseCase(
+                userRepository,
+                gameRepository,
+                actorManager,
+                gameTimeoutManager,
+                gameQueryService,
+                tokenService,
+                generateRoomCode
+        );
+    }
+
+    @Bean
+    public FindByCodeUseCase findByCodeUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+        return new FindByCodeUseCase( gameQueryService, tokenService);
+    }
+
+    @Bean
+    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, ActorManager<Game> actorManager) {
+        return new FindByTokenGameIdUseCase(tokenService, actorManager);
+    }
+
+    @Bean
+    public GetPublicGamesUseCase getPublicGamesUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+        return new GetPublicGamesUseCase(gameQueryService, tokenService);
+    }
+
+    @Bean
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager<Game> actorManager) {
+        return new JoinGameUseCase(userRepository, tokenService, actorManager);
+    }
+
+    @Bean
+    public LeftGameUseCase leftGameUseCase(
+            TokenService tokenService,
+            GameActorManager gameActorManager,
+            UserRepository userRepository,
+            GameRepository gameRepository
+    ) {
+        return new LeftGameUseCase(
+                tokenService,
+                gameActorManager,
+                userRepository,
+                gameRepository
+        );
+    }
+
+    @Bean
+    public StartGameUseCase startGameUseCase(
+             GameStateGenerator gameStateGenerator,
+             ThemeRepository themeRepository,
+             GameTimeoutManager gameTimeoutManager,
+             PickRandomThemeWordsService pickRandomThemeWordsService,
+             BoardGenerator boardGenerator,
+             TokenService tokenService,
+             TurnTimeoutManager turnTimeoutManager,
+             GameActorManager gameActorManager
+    ) {
+        return new StartGameUseCase(
+                gameStateGenerator,
+                themeRepository,
+                gameTimeoutManager,
+                pickRandomThemeWordsService,
+                boardGenerator,
+                tokenService,
+                turnTimeoutManager,
+                gameActorManager
+        );
+    }
+
+    @Bean
+    public ExpireTurnService expireTurnUseCase(
+            GameActorManager gameActorManager,
+            GameOverHandler gameOverHandler,
+            UserRepository userRepository
+    ) {
+        return new ExpireTurnService(gameActorManager, gameOverHandler, userRepository);
+    }
+
+    @Bean
+    public PickRandomThemeWordsService pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
+        return new PickRandomThemeWordsService(themeRepository, new Random());
+    }
+
+    @Bean
+    public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
+            MatchmakingRepository matchmakingRepository,
+            UserRepository userRepository,
+            GameRepository gameRepository,
+            GameQueryService gameQueryService,
+            DefaultGameStateGenerator defaultGameStateGenerator,
+            DefaultGameGenerator defaultGameGenerator,
+            PickRandomThemeWordsService pickRandomThemeWordsService,
+            GenerateRoomCode generateRoomCode,
+            TokenService tokenService,
+            TurnTimeoutManager turnTimeoutManager,
+            ActorManager<Game> actorManager
+    ) {
+        return new JoinMatchmakingQueueUseCase(
+                matchmakingRepository,
+                userRepository,
+                gameRepository,
+                gameQueryService,
+                defaultGameStateGenerator,
+                defaultGameGenerator,
+                pickRandomThemeWordsService,
+                generateRoomCode,
+                tokenService,
+                turnTimeoutManager,
+                actorManager
+        );
+    }
+
+    @Bean
+    public GameOverHandler gameOverHandler(
+            GameRepository gameRepository,
+            UserRepository userRepository,
+            ActorManager<Game> actorManager,
+            GameTimeoutManager gameTimeoutManager,
+            UpdateStatsService updateStatsService
+    ) {
+        return new GameOverHandler(
+                gameRepository,
+                userRepository,
+                actorManager,
+                gameTimeoutManager,
+                updateStatsService
+        );
+    }
+
+    @Bean
+    public UpdateStatsService updateStatsService(UserRepository userRepository) {
+        return new UpdateStatsService(userRepository);
+    }
+
+    @Bean
+    public BoardGenerator boardGenerator(CellFactory cellFactory) {
+        return new BoardGenerator(cellFactory);
+    }
+
+    @Bean
+    public CellFactory cellFactory() {
+        return new CellFactory(new Random());
+    }
+
+    @Bean
+    public GameStateGenerator gameStateGenerator() {
+        return new GameStateGenerator();
+    }
+
+    @Bean
+    public GenerateRoomCode generateRoomCode() {
+        return new GenerateRoomCode();
+    }
+
+    @Bean
+    public DefaultGameStateGenerator defaultGameStateGenerator(GameStateGenerator gameStateGenerator, BoardGenerator boardGenerator) {
+        return new DefaultGameStateGenerator(gameStateGenerator, boardGenerator);
+    }
+
+    @Bean
+    public DefaultGameGenerator defaultGameGenerator() {
+        return new DefaultGameGenerator();
+    }
+}
