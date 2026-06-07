@@ -3,13 +3,11 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.boa
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardView;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.cell.CellView;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardDTO;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 public class BoardViewDTOMapper {
-    public BoardDTO[][] toDTO(BoardView view) {
+    public static BoardDTO[][] toDTO(BoardView view) {
         int size = view.grid().size();
 
         BoardDTO[][] dto = new BoardDTO[size][size];

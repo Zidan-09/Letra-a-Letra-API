@@ -23,11 +23,7 @@ public class BroadcastService implements GameNotifier {
     @Autowired
     private SessionRepository sessionRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private GameOverMapper gameOverMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(BroadcastService.class);
 
@@ -74,7 +70,7 @@ public class BroadcastService implements GameNotifier {
 
     @Override
     public void notifierGameOver(Game game, GameOverResult gameOverResult) {
-        GameOverResponse dto = gameOverMapper.toResponseDTO(gameOverResult, game);
+        GameOverResponse dto = GameOverMapper.toResponse(gameOverResult, game);
 
         notifierAll(game, dto);
     }

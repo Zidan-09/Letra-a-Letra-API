@@ -23,9 +23,6 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
     protected PlayerActionUseCase playerActionUseCase;
 
     @Autowired
-    protected PlayerActionMapper playerActionMapper;
-
-    @Autowired
     protected GameNotifier gameNotifier;
 
     @Override
@@ -34,10 +31,10 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
 
         GameAction action = createAction(request);
 
-        PlayerActionInput command =
-                playerActionMapper.toCommand(gameTokenId, userId, action);
+        PlayerActionInput input =
+                PlayerActionMapper.toInput(gameTokenId, userId, action);
 
-        PlayerActionOutput output = playerActionUseCase.execute(command);
+        PlayerActionOutput output = playerActionUseCase.execute(input);
 
         send(output);
 
@@ -59,13 +56,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .toList();
 
         for (Player player : players) {
-            PlayerActionResponse dto = playerActionMapper.toResponseDTO(output, player.getUserId());
+            PlayerActionResponse dto = PlayerActionMapper.toResponse(output, player.getUserId());
 
             gameNotifier.notifierOne(player.getUserId(), dto);
         }
 
         for (Participant spectator : spectators) {
-            PlayerActionResponse dto = playerActionMapper.toAllResponseDTO(output);
+            PlayerActionResponse dto = PlayerActionMapper.toGlobalResponse(output);
 
             gameNotifier.notifierOne(spectator.getUserId(), dto);
         }
