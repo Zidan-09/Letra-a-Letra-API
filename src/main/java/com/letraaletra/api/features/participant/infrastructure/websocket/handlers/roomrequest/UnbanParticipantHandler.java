@@ -8,18 +8,21 @@ import com.letraaletra.api.features.participant.application.usecase.UnbanUserUse
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.UnbanParticipantMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticipantWsRequest> {
+    private final UnbanUserUseCase unbanUser;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private UnbanUserUseCase unbanUser;
-
-    @Autowired
-    private GameNotifier gameNotifier;
+    public UnbanParticipantHandler(
+            UnbanUserUseCase unbanUser,
+            GameNotifier gameNotifier
+    ) {
+        this.unbanUser = unbanUser;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(UnbanParticipantWsRequest request, WebSocketSession session) {
