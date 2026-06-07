@@ -13,7 +13,7 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
-import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
 
@@ -22,7 +22,7 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {
-    private final GameStateGenerator gameStateGenerator;
+    private final GameStateFactory gameStateFactory;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;
     private final PickRandomThemeWordsService pickRandomThemeWordsService;
@@ -32,7 +32,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     private final ActorManager<Game> gameActorManager;
 
     public StartGameUseCase(
-            GameStateGenerator gameStateGenerator,
+            GameStateFactory gameStateFactory,
             ThemeRepository themeRepository,
             GameTimeoutManager gameTimeoutManager,
             PickRandomThemeWordsService pickRandomThemeWordsService,
@@ -41,7 +41,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager
     ) {
-        this.gameStateGenerator = gameStateGenerator;
+        this.gameStateFactory = gameStateFactory;
         this.themeRepository = themeRepository;
         this.gameTimeoutManager = gameTimeoutManager;
         this.pickRandomThemeWordsService = pickRandomThemeWordsService;
@@ -64,7 +64,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         Actor actor = gameActorManager.get(gameId);
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateGenerator, gameTimeoutManager, turnTimeoutManager));
+        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
 
         Game game = future.join();
 
