@@ -18,20 +18,17 @@ public class JoinGameHandler implements RoomRequestHandler<JoinGameWsRequest> {
     private JoinGameUseCase joinGame;
 
     @Autowired
-    private JoinGameMapper joinGameMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(JoinGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        JoinGameInput command = joinGameMapper.toCommand(request, session.getId(), userId);
+        JoinGameInput command = JoinGameMapper.toInput(request, session.getId(), userId);
 
         JoinGameOutput output = joinGame.execute(command);
 
-        JoinGameResponse dto = joinGameMapper.toResponseDTO(output);
+        JoinGameResponse dto = JoinGameMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

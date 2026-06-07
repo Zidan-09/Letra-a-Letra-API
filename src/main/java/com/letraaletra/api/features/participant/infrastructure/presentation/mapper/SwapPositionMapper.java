@@ -5,14 +5,10 @@ import com.letraaletra.api.features.participant.application.output.SwapPositionO
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SwapPositionMapper {
-    @Autowired
-    private GameDTOMapper gameDTOMapper;
-
     public SwapPositionInput toCommand(SwapPositionWsRequest request, String userId) {
         return new SwapPositionInput(
                 request.tokenGameId(),
@@ -23,7 +19,7 @@ public class SwapPositionMapper {
 
     public SwapPositionResponse toResponseDTO(SwapPositionOutput output) {
         return new SwapPositionResponse(
-                gameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game(), output.token())
         );
     }
 }

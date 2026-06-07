@@ -5,11 +5,9 @@ import com.letraaletra.api.features.game.application.output.StartGameOutput;
 import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.StartGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.StartGameResponse;
-import org.springframework.stereotype.Component;
 
-@Component
 public class StartGameMapper {
-    public StartGameInput toCommand(StartGameWsRequest request, String session) {
+    public static StartGameInput toInput(StartGameWsRequest request, String session) {
         return new StartGameInput(
                 request.tokenGameId(),
                 session,
@@ -20,7 +18,7 @@ public class StartGameMapper {
         );
     }
 
-    public StartGameResponse toResponseDTO(StartGameOutput output) {
+    public static StartGameResponse toResponse(StartGameOutput output) {
         return new StartGameResponse(
                 GameStateDTOMapper.toGlobalDto(output.game())
         );

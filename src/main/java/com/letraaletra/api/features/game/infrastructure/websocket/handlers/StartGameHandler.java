@@ -18,18 +18,15 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
     private StartGameUseCase startGame;
 
     @Autowired
-    private StartGameMapper startGameMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
-        StartGameInput command = startGameMapper.toCommand(request, session.getId());
+        StartGameInput command = StartGameMapper.toInput(request, session.getId());
 
         StartGameOutput output = startGame.execute(command);
 
-        StartGameResponse dto = startGameMapper.toResponseDTO(output);
+        StartGameResponse dto = StartGameMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

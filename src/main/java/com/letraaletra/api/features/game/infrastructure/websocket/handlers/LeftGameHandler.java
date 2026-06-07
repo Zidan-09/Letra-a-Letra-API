@@ -18,18 +18,15 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     private LeftGameUseCase leftGame;
 
     @Autowired
-    private LeftGameMapper leftGameMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
-        LeftGameInput command = leftGameMapper.toCommand(request, session.getId());
+        LeftGameInput command = LeftGameMapper.toInput(request, session.getId());
 
         LeftGameOutput output = leftGame.execute(command);
 
-        LeftGameResponse dto = leftGameMapper.toResponseDTO(output);
+        LeftGameResponse dto = LeftGameMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
 

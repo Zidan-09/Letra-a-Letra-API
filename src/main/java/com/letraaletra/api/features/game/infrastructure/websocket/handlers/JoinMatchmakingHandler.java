@@ -19,20 +19,17 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
     private JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase;
 
     @Autowired
-    private JoinMatchmakingMapper joinMatchmakingMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(JoinMatchmakingGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        JoinMatchmakingInput command = joinMatchmakingMapper.toCommand(userId, session.getId(), request.gameMode());
+        JoinMatchmakingInput command = JoinMatchmakingMapper.toInput(userId, session.getId(), request.gameMode());
 
         JoinMatchmakingOutput output = joinMatchmakingQueueUseCase.execute(command);
 
-        JoinMatchmakingResponse dto = joinMatchmakingMapper.toResponseDTO(output);
+        JoinMatchmakingResponse dto = JoinMatchmakingMapper.toResponse(output);
 
         notifier(output.game().orElse(null), userId, dto);
     }

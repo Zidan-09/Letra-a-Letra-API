@@ -3,9 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.MapParticipantsMapper;
-import org.springframework.stereotype.Component;
 
-@Component
 public class GameDTOMapper {
     public static GameDTO toDTO(Game game, String tokenGameId) {
         return new GameDTO(

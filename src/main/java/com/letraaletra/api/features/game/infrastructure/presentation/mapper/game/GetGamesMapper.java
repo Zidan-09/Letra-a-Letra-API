@@ -5,21 +5,19 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.MapParticipantsMapper;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponse;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 public class GetGamesMapper {
-    public static GetGamesResponse toResponseDTO(GetGamesOutput output) {
+    public static GetGamesResponse toResponse(GetGamesOutput output) {
         List<GameDTO> games = output.games().stream()
-                .map(game -> toGameDTO(game, output))
+                .map(game -> toGameDto(game, output))
                 .toList();
 
         return new GetGamesResponse(games);
     }
 
-    private static GameDTO toGameDTO(Game game, GetGamesOutput output) {
+    private static GameDTO toGameDto(Game game, GetGamesOutput output) {
         return new GameDTO(
                 output.tokens().get(game.getId()),
                 game.getRoomName(),

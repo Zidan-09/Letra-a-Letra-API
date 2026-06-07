@@ -15,9 +15,6 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest> {
     @Autowired
-    private CreateGameMapper createGameMapper;
-
-    @Autowired
     private CreateGameUseCase createGame;
 
     @Autowired
@@ -27,11 +24,11 @@ public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest
     public void handle(CreateGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        CreateGameInput command = createGameMapper.toCommand(request, session.getId(), userId);
+        CreateGameInput command = CreateGameMapper.toInput(request, session.getId(), userId);
 
         CreateGameOutput output = createGame.execute(command);
 
-        CreateGameResponse dto = createGameMapper.toResponseDTO(output);
+        CreateGameResponse dto = CreateGameMapper.toResponseDTO(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

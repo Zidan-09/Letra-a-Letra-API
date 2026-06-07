@@ -6,11 +6,9 @@ import com.letraaletra.api.features.game.domain.service.GameOverResult;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameOverDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
-import org.springframework.stereotype.Component;
 
-@Component
 public class GameOverMapper {
-    public GameOverResponse toResponseDTO(GameOverResult gameOverResult, Game game) {
+    public static GameOverResponse toResponse(GameOverResult gameOverResult, Game game) {
         Player winner = gameOverResult.winner();
         Player loser = gameOverResult.loser();
 
