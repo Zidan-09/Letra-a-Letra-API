@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 public class BoardViewDTOMapper {
-    public BoardDTO[][] toDTO(BoardView view) {
+    public static BoardDTO[][] toDTO(BoardView view) {
         int size = view.grid().size();
 
         BoardDTO[][] dto = new BoardDTO[size][size];
