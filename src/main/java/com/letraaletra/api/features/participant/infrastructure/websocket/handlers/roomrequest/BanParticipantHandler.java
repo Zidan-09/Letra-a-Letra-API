@@ -19,20 +19,17 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
     private BanParticipantUseCase banParticipant;
 
     @Autowired
-    private BanParticipantMapper banParticipantMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(BanParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        BanParticipantInput command = banParticipantMapper.toCommand(request, userId);
+        BanParticipantInput command = BanParticipantMapper.toInput(request, userId);
 
         BanParticipantOutput output = banParticipant.execute(command);
 
-        BanParticipantResponse dto = banParticipantMapper.toResponseDTO(output);
+        BanParticipantResponse dto = BanParticipantMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
 

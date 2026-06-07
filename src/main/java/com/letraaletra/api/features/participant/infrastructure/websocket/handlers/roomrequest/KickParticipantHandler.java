@@ -19,20 +19,17 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
     private KickParticipantUseCase kickParticipant;
 
     @Autowired
-    private KickParticipantMapper kickParticipantMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(KickParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        KickParticipantInput command = kickParticipantMapper.toCommand(request, userId);
+        KickParticipantInput command = KickParticipantMapper.toInput(request, userId);
 
         KickParticipantOutput output = kickParticipant.execute(command);
 
-        KickParticipantResponse dto = kickParticipantMapper.toResponseDTO(output);
+        KickParticipantResponse dto = KickParticipantMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
 

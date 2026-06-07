@@ -19,20 +19,17 @@ public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticip
     private UnbanUserUseCase unbanUser;
 
     @Autowired
-    private UnbanParticipantMapper unbanParticipantMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(UnbanParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        UnbanParticipantInput command = unbanParticipantMapper.toCommand(request, userId);
+        UnbanParticipantInput command = UnbanParticipantMapper.toInput(request, userId);
 
         UnbanParticipantOutput output = unbanUser.execute(command);
 
-        UnbanParticipantResponse dto = unbanParticipantMapper.toResponseDTO(output);
+        UnbanParticipantResponse dto = UnbanParticipantMapper.toResponse(output);
 
         gameNotifier.notifierOne(userId, dto);
     }

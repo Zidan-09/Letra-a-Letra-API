@@ -15,9 +15,6 @@ import java.util.Optional;
 @Component
 public class ReconnectParticipantHandler {
     @Autowired
-    private ReconnectParticipantMapper reconnectParticipantMapper;
-
-    @Autowired
     private ReconnectUseCase reconnectUseCase;
 
     @Autowired
@@ -26,12 +23,12 @@ public class ReconnectParticipantHandler {
     public void handle(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        ReconnectParticipantInput command = reconnectParticipantMapper.toCommand(userId, session.getId());
+        ReconnectParticipantInput command = ReconnectParticipantMapper.toInput(userId, session.getId());
 
         Optional<ReconnectParticipantOutput> output = reconnectUseCase.execute(command);
 
         output.ifPresent(out -> {
-            ReconnectParticipantResponse dto = reconnectParticipantMapper.toResponseDTO(out);
+            ReconnectParticipantResponse dto = ReconnectParticipantMapper.toResponse(out);
 
             gameNotifier.notifierAll(out.game(), dto);
         });

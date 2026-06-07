@@ -4,11 +4,9 @@ import com.letraaletra.api.features.participant.application.input.UnbanParticipa
 import com.letraaletra.api.features.participant.application.output.UnbanParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UnbanParticipantMapper {
-    public UnbanParticipantInput toCommand(UnbanParticipantWsRequest request, String userId) {
+    public static UnbanParticipantInput toInput(UnbanParticipantWsRequest request, String userId) {
         return new UnbanParticipantInput(
                 request.tokenGameId(),
                 request.userId(),
@@ -16,7 +14,7 @@ public class UnbanParticipantMapper {
         );
     }
 
-    public UnbanParticipantResponse toResponseDTO(UnbanParticipantOutput output) {
+    public static UnbanParticipantResponse toResponse(UnbanParticipantOutput output) {
         return new UnbanParticipantResponse(
 
         );

@@ -15,9 +15,6 @@ import java.util.Optional;
 @Component
 public class DisconnectParticipantHandler {
     @Autowired
-    private DisconnectParticipantMapper disconnectParticipantMapper;
-
-    @Autowired
     private DisconnectUseCase disconnectUseCase;
 
     @Autowired
@@ -26,12 +23,12 @@ public class DisconnectParticipantHandler {
     public void handler(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        DisconnectParticipantInput command = disconnectParticipantMapper.toCommand(userId, session.getId());
+        DisconnectParticipantInput command = DisconnectParticipantMapper.toInput(userId, session.getId());
 
         Optional<DisconnectParticipantOutput> output = disconnectUseCase.execute(command);
 
         output.ifPresent(out -> {
-            DisconnectParticipantResponse dto = disconnectParticipantMapper.toResponseDTO(out);
+            DisconnectParticipantResponse dto = DisconnectParticipantMapper.toResponse(out);
 
             gameNotifier.notifierAll(out.game(), dto);
         });
