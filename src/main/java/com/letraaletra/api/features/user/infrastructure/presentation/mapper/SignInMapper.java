@@ -4,9 +4,7 @@ import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.SignInRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SignInMapper {
     public static SignInInput toInput(SignInRequest dto) {
         return new SignInInput(
