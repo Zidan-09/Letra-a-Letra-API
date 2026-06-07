@@ -6,7 +6,6 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.application.usecase.DisconnectUseCase;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.DisconnectParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.DisconnectParticipantMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -14,11 +13,16 @@ import java.util.Optional;
 
 @Component
 public class DisconnectParticipantHandler {
-    @Autowired
-    private DisconnectUseCase disconnectUseCase;
+    private final DisconnectUseCase disconnectUseCase;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private GameNotifier gameNotifier;
+    public DisconnectParticipantHandler(
+            DisconnectUseCase disconnectUseCase,
+            GameNotifier gameNotifier
+    ) {
+        this.disconnectUseCase = disconnectUseCase;
+        this.gameNotifier = gameNotifier;
+    }
 
     public void handler(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");

@@ -8,17 +8,21 @@ import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestH
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.SwapPositionMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRequest> {
-    @Autowired
-    private SwapRoomPositionUseCase swapRoomPosition;
+    private final SwapRoomPositionUseCase swapRoomPosition;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private GameNotifier gameNotifier;
+    private SwapRoomPlaceHandler(
+            SwapRoomPositionUseCase swapRoomPosition,
+            GameNotifier gameNotifier
+    ) {
+        this.swapRoomPosition = swapRoomPosition;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(SwapPositionWsRequest request, WebSocketSession session) {
