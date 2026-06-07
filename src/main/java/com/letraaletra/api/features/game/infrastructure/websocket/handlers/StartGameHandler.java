@@ -8,17 +8,21 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.request
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.StartGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.StartGameMapper;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> {
-    @Autowired
-    private StartGameUseCase startGame;
+    private final StartGameUseCase startGame;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private GameNotifier gameNotifier;
+    public StartGameHandler(
+            StartGameUseCase startGame,
+            GameNotifier gameNotifier
+    ) {
+        this.startGame = startGame;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
