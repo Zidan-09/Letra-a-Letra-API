@@ -6,7 +6,6 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
 import com.letraaletra.api.features.game.domain.Game;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -14,11 +13,16 @@ import java.util.concurrent.*;
 
 @Service
 public class ScheduledGameTimeoutManager implements GameTimeoutManager {
-    @Autowired
-    private CloseRoomDueToTimeoutService closeRoomDueToTimeoutService;
+    private final CloseRoomDueToTimeoutService closeRoomDueToTimeoutService;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private GameNotifier gameNotifier;
+    public ScheduledGameTimeoutManager(
+            CloseRoomDueToTimeoutService closeRoomDueToTimeoutService,
+            GameNotifier gameNotifier
+    ) {
+        this.closeRoomDueToTimeoutService = closeRoomDueToTimeoutService;
+        this.gameNotifier = gameNotifier;
+    }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
