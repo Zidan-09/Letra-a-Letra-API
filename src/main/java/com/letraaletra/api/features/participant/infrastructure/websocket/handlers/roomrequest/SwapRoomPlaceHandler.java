@@ -18,20 +18,17 @@ public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRe
     private SwapRoomPositionUseCase swapRoomPosition;
 
     @Autowired
-    private SwapPositionMapper swapPositionMapper;
-
-    @Autowired
     private GameNotifier gameNotifier;
 
     @Override
     public void handle(SwapPositionWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        SwapPositionInput command = swapPositionMapper.toCommand(request, userId);
+        SwapPositionInput command = SwapPositionMapper.toInput(request, userId);
 
         SwapPositionOutput output = swapRoomPosition.execute(command);
 
-        SwapPositionResponse dto = swapPositionMapper.toResponseDTO(output);
+        SwapPositionResponse dto = SwapPositionMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

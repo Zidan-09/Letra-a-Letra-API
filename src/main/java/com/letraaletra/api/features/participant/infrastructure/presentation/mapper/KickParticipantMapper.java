@@ -5,11 +5,9 @@ import com.letraaletra.api.features.participant.application.output.KickParticipa
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.KickParticipantResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
-import org.springframework.stereotype.Component;
 
-@Component
 public class KickParticipantMapper {
-    public KickParticipantInput toCommand(KickParticipantWsRequest request, String userId) {
+    public static KickParticipantInput toInput(KickParticipantWsRequest request, String userId) {
         return new KickParticipantInput(
                 request.tokenGameId(),
                 request.participantId(),
@@ -17,7 +15,7 @@ public class KickParticipantMapper {
         );
     }
 
-    public KickParticipantResponse toResponseDTO(KickParticipantOutput output) {
+    public static KickParticipantResponse toResponse(KickParticipantOutput output) {
         return new KickParticipantResponse(
                 GameDTOMapper.toDTO(output.game(), output.token())
         );

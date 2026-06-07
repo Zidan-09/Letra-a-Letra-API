@@ -5,11 +5,9 @@ import com.letraaletra.api.features.participant.application.output.BanParticipan
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.BanParticipantResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
-import org.springframework.stereotype.Component;
 
-@Component
 public class BanParticipantMapper {
-    public BanParticipantInput toCommand(BanParticipantWsRequest request, String user) {
+    public static BanParticipantInput toInput(BanParticipantWsRequest request, String user) {
         return new BanParticipantInput(
                 request.tokenGameId(),
                 request.participantId(),
@@ -17,7 +15,7 @@ public class BanParticipantMapper {
         );
     }
 
-    public BanParticipantResponse toResponseDTO(BanParticipantOutput output) {
+    public static BanParticipantResponse toResponse(BanParticipantOutput output) {
         return new BanParticipantResponse(
                GameDTOMapper.toDTO(output.game(), output.token())
         );
