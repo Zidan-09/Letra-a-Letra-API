@@ -13,9 +13,9 @@ import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
-import com.letraaletra.api.features.game.domain.service.DefaultGameGenerator;
-import com.letraaletra.api.features.game.domain.service.DefaultGameStateGenerator;
-import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
+import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
+import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
@@ -102,7 +102,7 @@ public class GameConfig {
 
     @Bean
     public StartGameUseCase startGameUseCase(
-             GameStateGenerator gameStateGenerator,
+             GameStateFactory gameStateFactory,
              ThemeRepository themeRepository,
              GameTimeoutManager gameTimeoutManager,
              PickRandomThemeWordsService pickRandomThemeWordsService,
@@ -112,7 +112,7 @@ public class GameConfig {
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
-                gameStateGenerator,
+                gameStateFactory,
                 themeRepository,
                 gameTimeoutManager,
                 pickRandomThemeWordsService,
@@ -143,8 +143,8 @@ public class GameConfig {
             UserRepository userRepository,
             GameRepository gameRepository,
             GameQueryService gameQueryService,
-            DefaultGameStateGenerator defaultGameStateGenerator,
-            DefaultGameGenerator defaultGameGenerator,
+            DefaultGameStateFactory defaultGameStateFactory,
+            DefaultGameFactory defaultGameFactory,
             PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
@@ -156,8 +156,8 @@ public class GameConfig {
                 userRepository,
                 gameRepository,
                 gameQueryService,
-                defaultGameStateGenerator,
-                defaultGameGenerator,
+                defaultGameStateFactory,
+                defaultGameFactory,
                 pickRandomThemeWordsService,
                 generateRoomCode,
                 tokenService,
@@ -199,8 +199,8 @@ public class GameConfig {
     }
 
     @Bean
-    public GameStateGenerator gameStateGenerator() {
-        return new GameStateGenerator();
+    public GameStateFactory gameStateGenerator() {
+        return new GameStateFactory();
     }
 
     @Bean
@@ -209,12 +209,12 @@ public class GameConfig {
     }
 
     @Bean
-    public DefaultGameStateGenerator defaultGameStateGenerator(GameStateGenerator gameStateGenerator, BoardGenerator boardGenerator) {
-        return new DefaultGameStateGenerator(gameStateGenerator, boardGenerator);
+    public DefaultGameStateFactory defaultGameStateGenerator(GameStateFactory gameStateFactory, BoardGenerator boardGenerator) {
+        return new DefaultGameStateFactory(gameStateFactory, boardGenerator);
     }
 
     @Bean
-    public DefaultGameGenerator defaultGameGenerator() {
-        return new DefaultGameGenerator();
+    public DefaultGameFactory defaultGameGenerator() {
+        return new DefaultGameFactory();
     }
 }

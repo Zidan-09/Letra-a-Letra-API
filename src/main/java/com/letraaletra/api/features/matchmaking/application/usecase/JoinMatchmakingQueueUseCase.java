@@ -12,9 +12,9 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.matchmaking.MatchmakingUser;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
-import com.letraaletra.api.features.game.domain.service.DefaultGameGenerator;
-import com.letraaletra.api.features.game.domain.service.DefaultGameResult;
-import com.letraaletra.api.features.game.domain.service.DefaultGameStateGenerator;
+import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
+import com.letraaletra.api.features.game.domain.factory.DefaultGameResult;
+import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameState;
@@ -35,8 +35,8 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameQueryService gameQueryService;
-    private final DefaultGameStateGenerator defaultGameStateGenerator;
-    private final DefaultGameGenerator defaultGameGenerator;
+    private final DefaultGameStateFactory defaultGameStateFactory;
+    private final DefaultGameFactory defaultGameFactory;
     private final PickRandomThemeWordsService pickRandomThemeWordsService;
     private final GenerateRoomCode generateRoomCode;
     private final TokenService tokenService;
@@ -50,8 +50,8 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
             UserRepository userRepository,
             GameRepository gameRepository,
             GameQueryService gameQueryService,
-            DefaultGameStateGenerator defaultGameStateGenerator,
-            DefaultGameGenerator defaultGameGenerator,
+            DefaultGameStateFactory defaultGameStateFactory,
+            DefaultGameFactory defaultGameFactory,
             PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
             TokenService tokenService,
@@ -62,8 +62,8 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameQueryService = gameQueryService;
-        this.defaultGameStateGenerator = defaultGameStateGenerator;
-        this.defaultGameGenerator = defaultGameGenerator;
+        this.defaultGameStateFactory = defaultGameStateFactory;
+        this.defaultGameFactory = defaultGameFactory;
         this.pickRandomThemeWordsService = pickRandomThemeWordsService;
         this.generateRoomCode = generateRoomCode;
         this.tokenService = tokenService;
@@ -95,7 +95,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
             Participant player2 = ParticipantFactory.fromUser(user, matchmakingUser.session());
 
-            DefaultGameResult result = defaultGameGenerator.generate(player1, player2, getCode());
+            DefaultGameResult result = defaultGameFactory.generate(player1, player2, getCode());
 
             gameRepository.save(result.game());
 
@@ -122,7 +122,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
     private void startDefaultGame(Game game, GameMode gameMode) {
         List<String> words = pickRandomThemeWordsService.execute();
 
-        GameState state = defaultGameStateGenerator.generate(game, gameMode, words);
+        GameState state = defaultGameStateFactory.generate(game, gameMode, words);
 
         game.setGameStatus(GameStatus.RUNNING);
 

@@ -10,7 +10,7 @@ import com.letraaletra.api.features.participant.domain.exception.ParticipantNotB
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
-import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 
@@ -93,7 +93,7 @@ public class Game {
         return Map.copyOf(positions);
     }
 
-    public void start(Board board, GameStateGenerator stateGenerator) {
+    public void start(Board board, GameStateFactory stateGenerator) {
         GameState state = stateGenerator.generate(participants.values().stream().toList(), board);
 
         this.gameStatus = GameStatus.RUNNING;

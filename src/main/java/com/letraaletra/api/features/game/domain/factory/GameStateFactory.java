@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.domain.service;
+package com.letraaletra.api.features.game.domain.factory;
 
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.board.Board;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class GameStateGenerator {
+public class GameStateFactory {
     public GameState generate(List<Participant> participants, Board board) {
         Map<String, Player> players = new HashMap<>();
 

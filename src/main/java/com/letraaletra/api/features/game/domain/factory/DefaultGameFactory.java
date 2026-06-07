@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.domain.service;
+package com.letraaletra.api.features.game.domain.factory;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameType;
@@ -7,7 +7,7 @@ import com.letraaletra.api.features.participant.domain.Participant;
 
 import java.util.UUID;
 
-public class DefaultGameGenerator {
+public class DefaultGameFactory {
     public DefaultGameResult generate(Participant player1, Participant player2, String code) {
         RoomSettings settings = new RoomSettings(true, true);
         String gameId = UUID.randomUUID().toString();

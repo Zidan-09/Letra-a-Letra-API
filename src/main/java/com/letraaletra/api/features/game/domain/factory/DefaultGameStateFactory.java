@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.domain.service;
+package com.letraaletra.api.features.game.domain.factory;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.state.GameMode;
@@ -8,17 +8,17 @@ import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 
 import java.util.List;
 
-public class DefaultGameStateGenerator {
-    private final GameStateGenerator gameStateGenerator;
+public class DefaultGameStateFactory {
+    private final GameStateFactory gameStateFactory;
     private final BoardGenerator boardGenerator;
 
-    public DefaultGameStateGenerator(GameStateGenerator gameStateGenerator, BoardGenerator boardGenerator) {
-        this.gameStateGenerator = gameStateGenerator;
+    public DefaultGameStateFactory(GameStateFactory gameStateFactory, BoardGenerator boardGenerator) {
+        this.gameStateFactory = gameStateFactory;
         this.boardGenerator = boardGenerator;
     }
 
     public GameState generate(Game game, GameMode gameMode, List<String> words) {
         Board board = boardGenerator.generate(words, gameMode);
-        return gameStateGenerator.generate(game.getParticipants(), board);
+        return gameStateFactory.generate(game.getParticipants(), board);
     }
 }

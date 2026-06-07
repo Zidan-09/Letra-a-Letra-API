@@ -9,20 +9,20 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanStartException;
-import com.letraaletra.api.features.game.domain.service.GameStateGenerator;
+import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 public class StartGameActorCommand implements ActorCommand<Game> {
     private final String session;
     private final Board board;
-    private final GameStateGenerator gameStateGenerator;
+    private final GameStateFactory gameStateFactory;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
 
-    public StartGameActorCommand(String session, Board board, GameStateGenerator gameStateGenerator, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
+    public StartGameActorCommand(String session, Board board, GameStateFactory gameStateFactory, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
         this.session = session;
         this.board = board;
-        this.gameStateGenerator = gameStateGenerator;
+        this.gameStateFactory = gameStateFactory;
         this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
     }
@@ -44,7 +44,7 @@ public class StartGameActorCommand implements ActorCommand<Game> {
 
         gameTimeoutManager.cancel(game);
 
-        game.start(board, gameStateGenerator);
+        game.start(board, gameStateFactory);
 
         turnTimeoutManager.start(game);
 
