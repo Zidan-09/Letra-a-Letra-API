@@ -8,28 +8,29 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.request
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.LeftGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.LeftGameMapper;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
-    @Autowired
-    private LeftGameUseCase leftGame;
+    private final LeftGameUseCase leftGame;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private LeftGameMapper leftGameMapper;
-
-    @Autowired
-    private GameNotifier gameNotifier;
+    public LeftGameHandler(
+            LeftGameUseCase leftGame,
+            GameNotifier gameNotifier
+    ) {
+        this.leftGame = leftGame;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
-        LeftGameInput command = leftGameMapper.toCommand(request, session.getId());
+        LeftGameInput command = LeftGameMapper.toInput(request, session.getId());
 
         LeftGameOutput output = leftGame.execute(command);
 
-        LeftGameResponse dto = leftGameMapper.toResponseDTO(output);
+        LeftGameResponse dto = LeftGameMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
 

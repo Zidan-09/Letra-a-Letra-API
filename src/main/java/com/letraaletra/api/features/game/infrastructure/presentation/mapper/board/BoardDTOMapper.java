@@ -6,11 +6,9 @@ import com.letraaletra.api.features.game.domain.board.cell.Cell;
 import com.letraaletra.api.features.game.domain.board.cell.effect.BlockEffect;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardDTO;
-import org.springframework.stereotype.Component;
 
-@Component
 public class BoardDTOMapper {
-    public BoardDTO[][] toDTO(Board board) {
+    public static BoardDTO[][] toDTO(Board board) {
         int range = board.grid().length;
 
         BoardDTO[][] dto = new BoardDTO[range][range];
@@ -26,7 +24,7 @@ public class BoardDTOMapper {
         return dto;
     }
 
-    private BoardDTO mapCellToView(Cell cell) {
+    private static BoardDTO mapCellToView(Cell cell) {
         if (cell.isRevealed()) {
             return new BoardDTO(
                     true,

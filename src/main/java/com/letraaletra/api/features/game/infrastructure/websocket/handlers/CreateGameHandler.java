@@ -8,30 +8,31 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.request
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.CreateGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.CreateGameMapper;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest> {
-    @Autowired
-    private CreateGameMapper createGameMapper;
+    private final CreateGameUseCase createGame;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private CreateGameUseCase createGame;
-
-    @Autowired
-    private GameNotifier gameNotifier;
+    public CreateGameHandler(
+            CreateGameUseCase createUserUseCase,
+            GameNotifier gameNotifier
+    ) {
+        this.createGame = createUserUseCase;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(CreateGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        CreateGameInput command = createGameMapper.toCommand(request, session.getId(), userId);
+        CreateGameInput command = CreateGameMapper.toInput(request, session.getId(), userId);
 
         CreateGameOutput output = createGame.execute(command);
 
-        CreateGameResponse dto = createGameMapper.toResponseDTO(output);
+        CreateGameResponse dto = CreateGameMapper.toResponseDTO(output);
 
         gameNotifier.notifierAll(output.game(), dto);
     }

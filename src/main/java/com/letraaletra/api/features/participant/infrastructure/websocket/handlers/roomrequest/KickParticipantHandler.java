@@ -9,30 +9,31 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.KickParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ModerationResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.KickParticipantMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class KickParticipantHandler implements RoomRequestHandler<KickParticipantWsRequest> {
-    @Autowired
-    private KickParticipantUseCase kickParticipant;
+    private final KickParticipantUseCase kickParticipant;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private KickParticipantMapper kickParticipantMapper;
-
-    @Autowired
-    private GameNotifier gameNotifier;
+    public KickParticipantHandler(
+            KickParticipantUseCase kickParticipant,
+            GameNotifier gameNotifier
+    ) {
+        this.kickParticipant = kickParticipant;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(KickParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        KickParticipantInput command = kickParticipantMapper.toCommand(request, userId);
+        KickParticipantInput command = KickParticipantMapper.toInput(request, userId);
 
         KickParticipantOutput output = kickParticipant.execute(command);
 
-        KickParticipantResponse dto = kickParticipantMapper.toResponseDTO(output);
+        KickParticipantResponse dto = KickParticipantMapper.toResponse(output);
 
         gameNotifier.notifierAll(output.game(), dto);
 

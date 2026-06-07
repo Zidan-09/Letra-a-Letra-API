@@ -28,7 +28,7 @@ public class GoogleAuthController {
 
     @PostMapping("/google")
     public ResponseEntity<SuccessResponse<SignInResponse>> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
-        AuthInput input = GoogleAuthMapper.toCommand(request);
+        AuthInput input = GoogleAuthMapper.toInput(request);
 
         SignInOutput output = googleAuthUseCase.execute(input);
 

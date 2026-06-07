@@ -23,7 +23,7 @@ public class GetGamesController {
     public ResponseEntity<SuccessResponse<GetGamesResponse>> getGames() {
         GetGamesOutput output = getPublicGamesUseCase.execute();
 
-        GetGamesResponse dto = GetGamesMapper.toResponseDTO(output);
+        GetGamesResponse dto = GetGamesMapper.toResponse(output);
 
         return ApiResponseService.success(dto, GameMessages.GAMES_FOUND.getMessage());
     }

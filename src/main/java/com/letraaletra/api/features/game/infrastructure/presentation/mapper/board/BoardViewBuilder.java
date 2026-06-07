@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BoardViewBuilder {
-    public BoardView build(GameState state, String viewerId) {
+    public static BoardView build(GameState state, String viewerId) {
 
         Player player = state.getPlayerOrThrow(viewerId);
 
@@ -30,7 +30,7 @@ public class BoardViewBuilder {
         return new BoardView(getBoardView(grid, player));
     }
 
-    private List<List<CellView>> getBoardView(Cell[][] grid, Player player) {
+    private static List<List<CellView>> getBoardView(Cell[][] grid, Player player) {
         List<List<CellView>> view = new ArrayList<>();
 
         boolean isBlind = player.getEffects()
@@ -57,7 +57,7 @@ public class BoardViewBuilder {
         return view;
     }
 
-    private List<CellView> getCellViews(
+    private static List<CellView> getCellViews(
             Cell[] rowCells,
             Set<Position> spyPositions,
             boolean isBlind,
@@ -73,7 +73,7 @@ public class BoardViewBuilder {
         return row;
     }
 
-    private CellView mapCell(
+    private static CellView mapCell(
             Cell cell,
             Set<Position> spyPositions,
             boolean isBlind,

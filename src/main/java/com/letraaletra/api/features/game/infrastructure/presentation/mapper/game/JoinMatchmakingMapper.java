@@ -7,21 +7,15 @@ import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.matchmaking.MatchmakingUser;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingStatus;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class JoinMatchmakingMapper {
-    @Autowired
-    private GameStateDTOMapper gameStateDTOMapper;
-
-    public JoinMatchmakingInput toCommand(String user, String session, GameMode gameMode) {
+    public static JoinMatchmakingInput toInput(String user, String session, GameMode gameMode) {
         MatchmakingUser matchmakingUser = new MatchmakingUser(user, session);
 
         return new JoinMatchmakingInput(matchmakingUser, gameMode);
     }
 
-    public JoinMatchmakingResponse toResponseDTO(JoinMatchmakingOutput output) {
+    public static JoinMatchmakingResponse toResponse(JoinMatchmakingOutput output) {
         Game game = output.game().orElse(null);
         String token = output.gameTokenId().orElse(null);
 
@@ -29,7 +23,7 @@ public class JoinMatchmakingMapper {
                 game != null ? MatchmakingStatus.FOUNDED : MatchmakingStatus.SEARCHING,
                 game != null ? game.getGameState().getCurrentTurnEnds() : null,
                 token,
-                game != null ? gameStateDTOMapper.toAllDTO(game) : null
+                game != null ? GameStateDTOMapper.toGlobalDto(game) : null
         );
     }
 }

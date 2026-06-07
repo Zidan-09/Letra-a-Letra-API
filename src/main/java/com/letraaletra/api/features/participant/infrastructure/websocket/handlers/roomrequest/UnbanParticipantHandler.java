@@ -8,31 +8,31 @@ import com.letraaletra.api.features.participant.application.usecase.UnbanUserUse
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.UnbanParticipantMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticipantWsRequest> {
+    private final UnbanUserUseCase unbanUser;
+    private final GameNotifier gameNotifier;
 
-    @Autowired
-    private UnbanUserUseCase unbanUser;
-
-    @Autowired
-    private UnbanParticipantMapper unbanParticipantMapper;
-
-    @Autowired
-    private GameNotifier gameNotifier;
+    public UnbanParticipantHandler(
+            UnbanUserUseCase unbanUser,
+            GameNotifier gameNotifier
+    ) {
+        this.unbanUser = unbanUser;
+        this.gameNotifier = gameNotifier;
+    }
 
     @Override
     public void handle(UnbanParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        UnbanParticipantInput command = unbanParticipantMapper.toCommand(request, userId);
+        UnbanParticipantInput command = UnbanParticipantMapper.toInput(request, userId);
 
         UnbanParticipantOutput output = unbanUser.execute(command);
 
-        UnbanParticipantResponse dto = unbanParticipantMapper.toResponseDTO(output);
+        UnbanParticipantResponse dto = UnbanParticipantMapper.toResponse(output);
 
         gameNotifier.notifierOne(userId, dto);
     }
