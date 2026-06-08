@@ -30,10 +30,10 @@ public class GetPublicGamesUseCase implements UseCaseWithoutInput<GetGamesOutput
             tokens.put(game.getId(), token);
         }
 
-        return buildReturn(games, tokens);
+        return buildOutput(games, tokens);
     }
 
-    private GetGamesOutput buildReturn(List<Game> games, Map<String, String> tokens) {
+    private GetGamesOutput buildOutput(List<Game> games, Map<String, String> tokens) {
         return new GetGamesOutput(
                 games,
                 tokens

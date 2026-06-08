@@ -31,11 +31,11 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
         this.gameRepository = gameRepository;
     }
 
-    public LeftGameOutput execute(LeftGameInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public LeftGameOutput execute(LeftGameInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
         Actor actor = actorManager.get(gameId);
 
-        CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(command.session()));
+        CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(input.session()));
 
         LeftGameResult result = future.join();
 
@@ -53,7 +53,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
             gameRepository.save(result.game());
         }
 
-        return buildReturn(result.game(), command.token(), result.gameOverResult());
+        return buildOutput(result.game(), input.token(), result.gameOverResult());
     }
 
     private void validateUser(User user) {
@@ -62,7 +62,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
         }
     }
 
-    private LeftGameOutput buildReturn(Game game, String token, GameOverResult gameOverResult) {
+    private LeftGameOutput buildOutput(Game game, String token, GameOverResult gameOverResult) {
         return new LeftGameOutput(
                 token,
                 game,

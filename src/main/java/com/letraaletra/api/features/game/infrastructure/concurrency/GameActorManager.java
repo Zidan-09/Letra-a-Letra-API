@@ -21,12 +21,12 @@ public class GameActorManager implements ActorManager<Game> {
     }
 
     @Override
-    public void create(String id, Game game) {
-        if (game == null) {
+    public void create(String id, Game actor) {
+        if (actor == null) {
             throw new GameNotFoundException();
         }
 
-        Actor newActor = new GameActor(executor, game);
+        Actor newActor = new GameActor(executor, actor);
         actors.putIfAbsent(id, newActor);
     }
 

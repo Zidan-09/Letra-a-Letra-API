@@ -17,9 +17,16 @@ public class PickRandomThemeWordsService {
 
     public List<String> execute() {
         List<Theme> themes = themeRepository.findAll();
+        validateThemes(themes);
 
         Theme randomTheme = themes.get(random.nextInt(themes.size()));
 
         return randomTheme.pickRandomWords(5, random);
+    }
+
+    private void validateThemes(List<Theme> themes) {
+        if (themes.isEmpty()) {
+            throw new IllegalStateException("No themes available");
+        }
     }
 }

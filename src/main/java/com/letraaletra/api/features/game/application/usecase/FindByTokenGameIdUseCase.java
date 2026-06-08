@@ -17,15 +17,15 @@ public class FindByTokenGameIdUseCase implements UseCase<FindByTokenInput, FindB
         this.actorManager = actorManager;
     }
 
-    public FindByTokenOutput execute(FindByTokenInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public FindByTokenOutput execute(FindByTokenInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
 
         Actor actor = actorManager.get(gameId);
 
-        return buildReturn(actor.getGame(), command.token());
+        return buildOutput(actor.getGame(), input.token());
     }
 
-    private FindByTokenOutput buildReturn(Game game, String token) {
+    private FindByTokenOutput buildOutput(Game game, String token) {
         return new FindByTokenOutput(
                 token,
                 game

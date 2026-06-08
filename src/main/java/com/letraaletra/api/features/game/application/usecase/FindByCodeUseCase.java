@@ -17,8 +17,8 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
         this.tokenService = tokenService;
     }
 
-    public FindByCodeOutput execute(FindByCodeInput command) {
-        Game game = gameQueryService.findByCode(command.code());
+    public FindByCodeOutput execute(FindByCodeInput input) {
+        Game game = gameQueryService.findByCode(input.code());
 
         validateGame(game);
 

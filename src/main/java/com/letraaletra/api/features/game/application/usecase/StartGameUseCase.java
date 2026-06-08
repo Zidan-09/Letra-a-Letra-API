@@ -51,20 +51,20 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         this.gameActorManager = gameActorManager;
     }
 
-    public StartGameOutput execute(StartGameInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public StartGameOutput execute(StartGameInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
 
-        Theme theme = themeRepository.findById(command.settings().getThemeId());
+        Theme theme = themeRepository.findById(input.settings().getThemeId());
 
         List<String> words = (theme != null)
                 ? theme.pickRandomWords(5, new Random())
                 : pickRandomThemeWordsService.execute();
 
-        Board board = boardGenerator.generate(words, command.settings().getGameMode());
+        Board board = boardGenerator.generate(words, input.settings().getGameMode());
 
         Actor actor = gameActorManager.get(gameId);
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(command.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
+        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(input.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
 
         Game game = future.join();
 
