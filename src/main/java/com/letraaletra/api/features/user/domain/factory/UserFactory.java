@@ -1,37 +1,51 @@
 package com.letraaletra.api.features.user.domain.factory;
 
+import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class UserFactory {
-    public User createLocal(String id, String nickname, String email, String passwordHash) {
+    public User createLocal(String nickname, String email, String passwordHash) {
         return new User(
-                id,
+                UUID.randomUUID().toString(),
                 nickname,
                 email,
                 passwordHash,
                 null,
                 true,
-                getInitial(),
-                List.of()
+                getInitialStats(),
+                getInitialCosmetics()
         );
     }
 
-    public User createGoogle(String id, String email, String googleId) {
+    public User createGoogle(String email, String googleId) {
         return new User(
-                id,
+                UUID.randomUUID().toString(),
                 null,
                 email,
                 null,
                 googleId,
                 true,
-                getInitial(),
-                List.of()
+                getInitialStats(),
+                getInitialCosmetics()
         );
     }
 
-    private UserStats getInitial() {
+    private UserStats getInitialStats() {
         return new UserStats(0, 0, 0, 0);
+    }
+
+    private List<InventoryItem> getInitialCosmetics() {
+        LocalDateTime now = LocalDateTime.now();
+
+        return List.of(
+                new InventoryItem("old-man-avatar-free", "old-man", CosmeticTypes.AVATAR, true, now),
+                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
+        );
     }
 }

@@ -2,6 +2,7 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ad
 
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
 import org.springframework.stereotype.Repository;
@@ -23,14 +24,8 @@ public class JpaUserInventoryRepository implements InventoryRepository {
     }
 
     @Override
-    public InventoryItem save(InventoryItem inventory, String userId) {
-        var entity = UserInventoryMapper.toEntity(userId, inventory);
+    public void save(InventoryItem inventory, String userId) {
+        UserInventoryJpaEntity entity = UserInventoryMapper.toEntity(userId, inventory);
         repository.save(entity);
-        return inventory;
-    }
-
-    @Override
-    public InventoryItem unlockCosmetic(String cosmeticId, String userId) {
-        return null;
     }
 }
