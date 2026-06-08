@@ -57,7 +57,6 @@ class CreateUserUseCaseTest {
         User user = mock(User.class);
 
         when(userFactory.createLocal(
-                anyString(),
                 eq("john123"),
                 eq(input.email()),
                 eq("hashed-password")
@@ -79,7 +78,6 @@ class CreateUserUseCaseTest {
         verify(selectNicknameService).execute();
         verify(passwordService).hash("123456");
         verify(userFactory).createLocal(
-                anyString(),
                 eq("john123"),
                 eq("john@email.com"),
                 eq("hashed-password")
@@ -191,7 +189,6 @@ class CreateUserUseCaseTest {
         when(userFactory.createLocal(
                 anyString(),
                 anyString(),
-                anyString(),
                 anyString()
         )).thenThrow(exception);
 
@@ -225,7 +222,6 @@ class CreateUserUseCaseTest {
         User user = mock(User.class);
 
         when(userFactory.createLocal(
-                anyString(),
                 anyString(),
                 anyString(),
                 anyString()

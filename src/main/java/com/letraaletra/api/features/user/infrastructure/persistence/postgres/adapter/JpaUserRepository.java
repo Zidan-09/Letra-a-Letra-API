@@ -39,12 +39,11 @@ public class JpaUserRepository implements UserRepository {
         repository.save(UserMapper.toEntity(user));
         statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
 
-        if (user.getInventory() != null) {
-            List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
-                    .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
-                    .toList();
-            inventoryRepository.saveAll(inventoryEntities);
-        }
+        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
+                .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
+                .toList();
+
+        inventoryRepository.saveAll(inventoryEntities);
 
         return user;
     }

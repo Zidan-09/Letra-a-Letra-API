@@ -6,6 +6,8 @@ import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class JpaCosmeticRepository implements CosmeticRepository {
     private final SpringDataCosmeticRepository repository;
@@ -19,5 +21,10 @@ public class JpaCosmeticRepository implements CosmeticRepository {
     @Override
     public void save(Cosmetic cosmetic) {
         repository.save(CosmeticMapper.toEntity(cosmetic));
+    }
+
+    @Override
+    public Optional<Cosmetic> find(String cosmeticId) {
+        return repository.findById(cosmeticId).map(CosmeticMapper::toDomain);
     }
 }

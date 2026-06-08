@@ -1,11 +1,14 @@
 package com.letraaletra.api.features.user.domain;
 
+import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 
 import java.util.List;
+import java.util.Objects;
 
 public class User {
     private final String id;
@@ -74,8 +77,32 @@ public class User {
         return List.copyOf(inventory);
     }
 
-    public void setInventory(List<InventoryItem> newInventory) {
-        inventory = newInventory;
+    public void addToInventory(InventoryItem item) {
+        if (item == null) {
+            throw new CosmeticNotFoundException();
+        }
+
+        if (inventory.stream().anyMatch(cosmetic -> cosmetic.cosmetic_id().equals(item.cosmetic_id()))) {
+            throw new InvalidCosmeticException();
+        }
+
+        inventory.add(item);
+    }
+
+    public void removeFromInventory(String cosmeticId) {
+        InventoryItem itemToBeRemoved = inventory.stream()
+                .filter(cosmetic -> cosmetic.cosmetic_id().equals(cosmeticId))
+                .findFirst().orElseThrow();
+
+        inventory.remove(itemToBeRemoved);
+
+        if (itemToBeRemoved.equipped()) {
+            InventoryItem newEquipped = inventory.stream()
+                    .filter(cosmetic -> cosmetic.type().equals(itemToBeRemoved.type()))
+                    .findFirst().orElseThrow();
+
+            this.equipCosmetic(newEquipped.cosmetic_id());
+        }
     }
 
     public boolean isNotInGame() {
