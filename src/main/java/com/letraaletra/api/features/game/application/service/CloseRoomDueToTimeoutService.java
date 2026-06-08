@@ -27,8 +27,8 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         this.gameRepository = gameRepository;
     }
 
-    public CloseRoomOutput execute(CloseRoomInput command) {
-        Game game = command.game();
+    public CloseRoomOutput execute(CloseRoomInput input) {
+        Game game = input.game();
 
         game.getParticipants().forEach(p -> {
             String userId = p.getUserId();
@@ -46,7 +46,7 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         actorManager.remove(game.getId());
         gameRepository.save(game);
 
-        return buildReturn(game);
+        return buildOutput(game);
     }
 
     private void validateUser(User user) {
@@ -55,7 +55,7 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         }
     }
 
-    private CloseRoomOutput buildReturn(Game game) {
+    private CloseRoomOutput buildOutput(Game game) {
         return new CloseRoomOutput(
                 game,
                 "ROOM_CLOSED",

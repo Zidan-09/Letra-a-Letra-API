@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
+import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -46,18 +47,18 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
         this.generateRoomCode = generateRoomCode;
     }
 
-    public CreateGameOutput execute(CreateGameInput command) {
+    public CreateGameOutput execute(CreateGameInput input) {
         String gameId = UUID.randomUUID().toString();
 
-        User user = userRepository.find(command.user()).orElse(null);
+        User user = userRepository.find(input.user()).orElse(null);
 
         validateUser(user);
 
-        Participant host = ParticipantFactory.fromUser(user, command.session());
+        Participant host = ParticipantFactory.fromUser(user, input.session());
 
         String code = getCode();
 
-        Game game = new Game(gameId, code, command.name(), command.settings(), host, GameType.CUSTOM);
+        Game game = new Game(gameId, code, input.name(), input.settings(), host, GameType.CUSTOM);
 
         user.enterGame(gameId);
 
@@ -76,6 +77,10 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
     private void validateUser(User user) {
         if (user == null) {
             throw new UserNotFoundException();
+        }
+
+        if (!user.isNotInGame()) {
+            throw new UserAlreadyInGameException();
         }
     }
 
