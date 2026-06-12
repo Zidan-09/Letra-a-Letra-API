@@ -4,6 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +20,8 @@ public class UserFactory {
                 null,
                 true,
                 getInitialStats(),
-                getInitialCosmetics()
+                getInitialCosmetics(),
+                getInitialWallet()
         );
     }
 
@@ -32,7 +34,8 @@ public class UserFactory {
                 googleId,
                 true,
                 getInitialStats(),
-                getInitialCosmetics()
+                getInitialCosmetics(),
+                getInitialWallet()
         );
     }
 
@@ -47,5 +50,9 @@ public class UserFactory {
                 new InventoryItem("old-man-avatar-free", "old-man", CosmeticTypes.AVATAR, true, now),
                 new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
         );
+    }
+
+    private Wallet getInitialWallet() {
+        return new Wallet(0, 0);
     }
 }

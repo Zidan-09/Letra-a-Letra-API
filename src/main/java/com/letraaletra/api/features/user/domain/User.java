@@ -6,6 +6,7 @@ import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class User {
     private boolean canChangeNickname;
     private final UserStats stats;
     private List<InventoryItem> inventory;
+    private final Wallet wallet;
 
     public User(
             String id,
@@ -29,7 +31,8 @@ public class User {
             String googleId,
             boolean canChangeNickname,
             UserStats stats,
-            List<InventoryItem> inventory
+            List<InventoryItem> inventory,
+            Wallet wallet
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -39,6 +42,7 @@ public class User {
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
+        this.wallet = wallet;
     }
 
     public String getId() {
@@ -75,6 +79,10 @@ public class User {
 
     public List<InventoryItem> getInventory() {
         return List.copyOf(inventory);
+    }
+
+    public Wallet getWallet() {
+        return wallet;
     }
 
     public void addToInventory(InventoryItem item) {

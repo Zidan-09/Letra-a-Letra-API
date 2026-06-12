@@ -4,12 +4,13 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.ent
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserWalletJpaEntity;
 
 import java.util.List;
 import java.util.UUID;
 
 public class UserMapper {
-    public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa, List<InventoryItem> inventoryDomain) {
+    public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa, List<InventoryItem> inventoryDomain, UserWalletJpaEntity walletJpaEntity) {
         if (entity == null) return null;
 
         return new User(
@@ -20,7 +21,8 @@ public class UserMapper {
                 entity.getGoogleId(),
                 entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa),
-                inventoryDomain
+                inventoryDomain,
+                UserWalletMapper.toDomain(walletJpaEntity)
         );
     }
 
