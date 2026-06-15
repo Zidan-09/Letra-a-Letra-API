@@ -33,8 +33,8 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         this.userRepository = userRepository;
     }
 
-    public Optional<DisconnectParticipantOutput> execute(DisconnectParticipantInput command) {
-        String userId = command.user();
+    public Optional<DisconnectParticipantOutput> execute(DisconnectParticipantInput input) {
+        String userId = input.user();
         if (userId == null) return Optional.empty();
 
         if (matchmakingRepository.onQueue(userId)) {

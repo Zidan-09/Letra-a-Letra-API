@@ -20,13 +20,13 @@ public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPo
         this.gameActorManager = gameActorManager;
     }
 
-    public DiscardPowerOutput execute(DiscardPowerInput command) {
-        String gameId = tokenService.getTokenContent(command.tokenGameId());
+    public DiscardPowerOutput execute(DiscardPowerInput input) {
+        String gameId = tokenService.getTokenContent(input.tokenGameId());
 
         Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Game> future = actor.enqueueCommand(
-                new DiscardPowerActorCommand(command.userId(), command.powerId())
+                new DiscardPowerActorCommand(input.userId(), input.powerId())
         );
 
         Game game = future.join();

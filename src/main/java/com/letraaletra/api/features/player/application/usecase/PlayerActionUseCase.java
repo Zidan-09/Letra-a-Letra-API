@@ -40,13 +40,13 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
         this.gameOverHandler = gameOverHandler;
     }
 
-    public PlayerActionOutput execute(PlayerActionInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public PlayerActionOutput execute(PlayerActionInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
 
         Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
-                command.user(), command.action(), gameTimeoutManager, turnTimeoutManager
+                input.user(), input.action(), gameTimeoutManager, turnTimeoutManager
         ));
 
         PlayerActionResult result = future.join();

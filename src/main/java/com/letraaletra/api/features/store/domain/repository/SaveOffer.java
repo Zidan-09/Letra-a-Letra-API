@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.store.domain.repository;
 
-import com.letraaletra.api.features.store.domain.offer.Offer;
+import com.letraaletra.api.features.store.domain.StoreOffer;
 
 public interface SaveOffer {
-    Offer saveOffer(Offer offer);
+    void save(StoreOffer storeOffer);
 }

@@ -20,12 +20,12 @@ public class UnbanUserUseCase implements UseCase<UnbanParticipantInput, UnbanPar
         this.gameActorManager = gameActorManager;
     }
 
-    public UnbanParticipantOutput execute(UnbanParticipantInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public UnbanParticipantOutput execute(UnbanParticipantInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
 
         Actor actor = gameActorManager.get(gameId);
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new UnbanParticipantActorCommand(command.target(), command.user()));
+        CompletableFuture<Game> future = actor.enqueueCommand(new UnbanParticipantActorCommand(input.target(), input.user()));
         Game game = future.join();
 
         return buildReturn(game);

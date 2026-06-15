@@ -71,19 +71,19 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
         this.actorManager = actorManager;
     }
 
-    public JoinMatchmakingOutput execute(JoinMatchmakingInput command) {
-        MatchmakingUser matchmakingUser = command.matchmakingUser();
+    public JoinMatchmakingOutput execute(JoinMatchmakingInput input) {
+        MatchmakingUser matchmakingUser = input.matchmakingUser();
 
         User user = userRepository.find(matchmakingUser.user()).orElse(null);
         validateUser(user);
 
-        Object lock = locks.computeIfAbsent(command.gameMode(), k -> new Object());
+        Object lock = locks.computeIfAbsent(input.gameMode(), k -> new Object());
 
         synchronized (lock) {
-            MatchmakingUser matchmakingOpponent = matchmakingRepository.poll(command.gameMode());
+            MatchmakingUser matchmakingOpponent = matchmakingRepository.poll(input.gameMode());
 
             if (matchmakingOpponent == null) {
-                matchmakingRepository.add(matchmakingUser, command.gameMode());
+                matchmakingRepository.add(matchmakingUser, input.gameMode());
                 return buildOutput(new DefaultGameResult(null));
             }
 
@@ -107,7 +107,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
             userRepository.save(user);
             userRepository.save(opponent);
 
-            startDefaultGame(result.game(), command.gameMode());
+            startDefaultGame(result.game(), input.gameMode());
 
             return buildOutput(result);
         }

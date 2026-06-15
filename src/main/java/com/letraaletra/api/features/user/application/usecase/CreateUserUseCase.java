@@ -10,6 +10,9 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;

@@ -16,12 +16,12 @@ public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, Updat
         this.userRepository = userRepository;
     }
 
-    public UpdateNicknameOutput execute(UpdateNicknameInput command) {
-        User user = userRepository.find(command.user()).orElse(null);
+    public UpdateNicknameOutput execute(UpdateNicknameInput input) {
+        User user = userRepository.find(input.user()).orElse(null);
         validateUser(user);
-        validateNickname(command.nickname());
+        validateNickname(input.nickname());
 
-        user.setNickname(command.nickname());
+        user.setNickname(input.nickname());
         user.setCanChangeNickname(false);
 
         userRepository.save(user);
