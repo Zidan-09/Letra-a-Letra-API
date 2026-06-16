@@ -19,8 +19,8 @@ public class UserWalletJpaEntity {
     private UUID userId;
 
     @Column(name = "soft_coins", nullable = false)
-    private int softCoins;
+    private long softCoins;
 
     @Column(name = "hard_gems", nullable = false)
-    private int hard_gems;
+    private long hard_gems;
 }
