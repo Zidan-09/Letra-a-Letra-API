@@ -5,24 +5,25 @@ import com.letraaletra.api.features.store.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusException;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
+import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-
-import java.time.LocalDateTime;
 
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
     private final StoreOfferRepository storeOfferRepository;
+    private final UnlockCosmeticService unlockCosmeticService;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
-            StoreOfferRepository storeOfferRepository
+            StoreOfferRepository storeOfferRepository,
+            UnlockCosmeticService unlockCosmeticService
     ) {
         this.userRepository = userRepository;
         this.storeOfferRepository = storeOfferRepository;
+        this.unlockCosmeticService = unlockCosmeticService;
     }
 
     @Override
@@ -35,7 +36,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         validateOffer(offer);
         processPayment(user, offer);
 
-        user.addToInventory(createInventoryItem(offer));
+        unlockCosmeticService.execute(offer.getCosmetic().id(), user.getId());
 
         userRepository.save(user);
 
@@ -50,15 +51,5 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
 
     private void processPayment(User user, StoreOffer offer) {
         user.getWallet().pay(offer.getCoinType(), offer.getPrice());
-    }
-
-    private InventoryItem createInventoryItem(StoreOffer offer) {
-        return new InventoryItem(
-                offer.getCosmetic().id(),
-                offer.getCosmetic().name(),
-                offer.getCosmetic().type(),
-                false,
-                LocalDateTime.now()
-        );
     }
 }
