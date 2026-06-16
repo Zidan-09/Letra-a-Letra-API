@@ -28,8 +28,8 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
         this.userRepository = userRepository;
     }
 
-    public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantInput command) {
-        String userId = command.user();
+    public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantInput input) {
+        String userId = input.user();
         if (userId == null) return Optional.empty();
 
         User user = userRepository.find(userId).orElse(null);
@@ -49,7 +49,7 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
 
             disconnectScheduler.cancel(userId, game.getId());
 
-            game.reconnect(userId, command.session());
+            game.reconnect(userId, input.session());
 
             return buildReturn(game);
 

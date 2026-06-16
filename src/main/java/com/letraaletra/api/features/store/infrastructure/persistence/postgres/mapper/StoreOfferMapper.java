@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.store.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.store.domain.offer.Offer;
+import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.infrastructure.persistence.postgres.entity.StoreOfferJpaEntity;
 
 import java.util.UUID;
 
 public class StoreOfferMapper {
-    public static Offer toDomain(StoreOfferJpaEntity entity, Cosmetic cosmetic) {
-        return new Offer(
+    public static StoreOffer toDomain(StoreOfferJpaEntity entity, Cosmetic cosmetic) {
+        return new StoreOffer(
                 entity.getId().toString(),
                 entity.getTitle(),
                 entity.getCoinType(),
@@ -21,18 +21,18 @@ public class StoreOfferMapper {
         );
     }
 
-    public static StoreOfferJpaEntity toEntity(Offer domain) {
+    public static StoreOfferJpaEntity toEntity(StoreOffer domain) {
         StoreOfferJpaEntity entity = new StoreOfferJpaEntity();
 
-        entity.setId(UUID.fromString(domain.offer_id()));
-        entity.setTitle(domain.title());
-        entity.setCoinType(domain.coinType());
-        entity.setPrice(domain.price());
-        entity.setCosmeticId(domain.cosmetic() != null ? UUID.fromString(domain.cosmetic().id()) : null);
-        entity.setRewardSoftCoins(domain.rewardSoftCoins());
-        entity.setRewardHardGems(domain.rewardHardGems());
-        entity.setActive(domain.active());
-        entity.setExpiresAt(domain.expiresAt());
+        entity.setId(UUID.fromString(domain.getOfferId()));
+        entity.setTitle(domain.getTitle());
+        entity.setCoinType(domain.getCoinType());
+        entity.setPrice(domain.getPrice());
+        entity.setCosmeticId(domain.getCosmetic() != null ? UUID.fromString(domain.getCosmetic().id()) : null);
+        entity.setRewardSoftCoins(domain.getRewardSoftCoins());
+        entity.setRewardHardGems(domain.getRewardHardGems());
+        entity.setActive(domain.isActive());
+        entity.setExpiresAt(domain.getExpiresAt());
 
         return entity;
     }

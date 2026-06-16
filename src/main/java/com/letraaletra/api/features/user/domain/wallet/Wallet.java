@@ -1,10 +1,12 @@
 package com.letraaletra.api.features.user.domain.wallet;
 
-public class Wallet {
-    private int softCoins;
-    private int hardGems;
+import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceException;
 
-    public Wallet(int softCoins, int hardGems) {
+public class Wallet {
+    private long softCoins;
+    private long hardGems;
+
+    public Wallet(long softCoins, long hardGems) {
         this.softCoins = softCoins;
         this.hardGems = hardGems;
     }
@@ -22,5 +24,30 @@ public class Wallet {
 
     public void addHard(int value) {
         hardGems += value;
+    }
+
+    private void removeSoft(long value) {
+        softCoins -= value;
+    }
+
+    private void removeHard(long value) {
+        hardGems -= value;
+    }
+
+    public void pay(CoinType coinType, long amount) {
+        switch (coinType) {
+            case SOFT -> {
+                if (softCoins < amount) {
+                    throw new InsufficientBalanceException();
+                }
+                removeSoft(amount);
+            }
+            case HARD -> {
+                if (hardGems < amount) {
+                    throw new InsufficientBalanceException();
+                }
+                removeHard(amount);
+            }
+        }
     }
 }

@@ -21,16 +21,16 @@ public class SwapRoomPositionUseCase implements UseCase<SwapPositionInput, SwapP
         this.tokenService = tokenService;
     }
 
-    public SwapPositionOutput execute(SwapPositionInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
+    public SwapPositionOutput execute(SwapPositionInput input) {
+        String gameId = tokenService.getTokenContent(input.token());
 
         Actor actor = gameActorManager.get(gameId);
         validateActor(actor);
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(command.user(), command.position()));
+        CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(input.user(), input.position()));
         Game game = future.join();
 
-        return buildReturn(game, command.token());
+        return buildReturn(game, input.token());
     }
 
     private void validateActor(Actor actor) {

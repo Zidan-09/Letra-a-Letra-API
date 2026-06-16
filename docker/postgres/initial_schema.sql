@@ -10,6 +10,7 @@ CREATE TABLE "user" (
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+                        "is_admin" boolean NOT NULL DEFAULT false,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
 );

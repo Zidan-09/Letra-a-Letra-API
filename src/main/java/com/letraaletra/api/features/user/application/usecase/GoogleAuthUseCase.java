@@ -30,8 +30,8 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
         this.userFactory = userFactory;
     }
 
-    public SignInOutput execute(AuthInput command) {
-        GoogleAuthData payload = googleTokenService.verify(command.token());
+    public SignInOutput execute(AuthInput input) {
+        GoogleAuthData payload = googleTokenService.verify(input.token());
 
         Optional<User> userOpt = userRepository.findByGoogleId(payload.googleId());
 
