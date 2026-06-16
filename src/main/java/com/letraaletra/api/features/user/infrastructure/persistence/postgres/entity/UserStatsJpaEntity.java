@@ -27,6 +27,12 @@ public class UserStatsJpaEntity {
     @Column(name = "win_streak")
     private int winStreak;
 
-    @Column(name = "points")
-    private int points;
+    @Column(name = "level")
+    private int level;
+
+    @Column(name = "experience")
+    private int experience;
+
+    @Column(name = "ranking_points")
+    private int rankingPoints;
 }

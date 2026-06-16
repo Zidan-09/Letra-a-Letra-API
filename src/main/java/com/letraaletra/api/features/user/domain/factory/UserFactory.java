@@ -42,7 +42,7 @@ public class UserFactory {
     }
 
     private UserStats getInitialStats() {
-        return new UserStats(0, 0, 0, 0);
+        return new UserStats(0, 0, 0, 1, 0, 0);
     }
 
     private List<InventoryItem> getInitialCosmetics() {

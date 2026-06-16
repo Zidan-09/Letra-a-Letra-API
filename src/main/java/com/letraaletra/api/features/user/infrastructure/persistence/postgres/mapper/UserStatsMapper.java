@@ -11,7 +11,9 @@ public class UserStatsMapper {
                 entity.getTotalMatches(),
                 entity.getTotalWins(),
                 entity.getWinStreak(),
-                entity.getPoints()
+                entity.getLevel(),
+                entity.getExperience(),
+                entity.getRankingPoints()
         );
     }
 
@@ -22,7 +24,9 @@ public class UserStatsMapper {
         entity.setTotalMatches(domain.getTotalMatches());
         entity.setTotalWins(domain.getTotalWins());
         entity.setWinStreak(domain.getWinStreak());
-        entity.setPoints(domain.getPoints());
+        entity.setLevel(domain.getLevel());
+        entity.setExperience(domain.getExperience());
+        entity.setRankingPoints(domain.getPoints());
 
         return entity;
     }
