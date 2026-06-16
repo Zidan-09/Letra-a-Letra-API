@@ -28,6 +28,7 @@ function clearPowerSelection() {
     selectedPower = null;
     document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
     discardButton.classList.add("hide");
+    console.log('Power not selected');
 }
 
 function updateInventory(players, id) {
