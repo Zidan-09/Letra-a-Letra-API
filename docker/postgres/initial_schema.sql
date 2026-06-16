@@ -20,7 +20,9 @@ CREATE TABLE "user_stats" (
                         "total_matches" integer DEFAULT 0,
                         "total_wins" integer DEFAULT 0,
                         "win_streak" integer DEFAULT 0,
-                        "points" integer DEFAULT 0
+                        "level" integer DEFAULT 1,
+                        "experience" integer DEFAULT 0,
+                        ranking_points integer DEFAULT 0
 );
 
 CREATE TABLE "user_wallet" (
