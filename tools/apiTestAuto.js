@@ -28,16 +28,24 @@ const events = [];
    HTTP HELPERS
 ========================= */
 
-async function http(method, path, body) {
-  const res = await fetch(`${endpoint}${path}`, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined
-  }).then(res => res.json());
+async function http(method, path, body, token=undefined) {
+  try {
+    const res = await fetch(`${endpoint}${path}`, {
+      method,
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(res => res.json());
 
-  console.log(res);
+      console.log(res);
 
-  return res;
+       return res;
+
+  } catch (err) {
+    console.error(err);
+  } 
 }
 
 /* =========================
@@ -148,7 +156,7 @@ async function runGameFlow(ws1, ws2, ws3) {
   const created = await waitForEvent(e => e.event === "GAME_CREATED");
 
   // pegar token via HTTP (testa endpoint)
-  const games = await http("GET", "/game");
+  const games = await http("GET", "/game", undefined, users[0].token);
 
   const tokenGameId = games.data.games[0]?.tokenGameId;
 
@@ -329,9 +337,6 @@ async function main() {
   for (const user of users) {
     await registerAndLogin(user);
   }
-
-  // buscar user (testa GET)
-  await http("GET", `/user/${users[0].id}`);
 
   // sockets
   const ws1 = await connect(users[0]);
