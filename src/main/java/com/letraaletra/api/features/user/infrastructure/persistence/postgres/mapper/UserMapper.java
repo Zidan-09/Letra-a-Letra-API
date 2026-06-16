@@ -19,6 +19,7 @@ public class UserMapper {
                 entity.getEmail(),
                 entity.getPasswordHash(),
                 entity.getGoogleId(),
+                entity.isAdmin(),
                 entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa),
                 inventoryDomain,
@@ -35,6 +36,7 @@ public class UserMapper {
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getHashPassword());
         entity.setGoogleId(user.getGoogleId());
+        entity.setAdmin(user.isAdmin());
         entity.setCanChangeNickname(user.canChangeNickname());
 
         return entity;

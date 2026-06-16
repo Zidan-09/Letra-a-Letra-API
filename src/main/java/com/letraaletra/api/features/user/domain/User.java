@@ -18,6 +18,7 @@ public class User {
     private final String hashPassword;
     private final String googleId;
     private String currentGameId;
+    private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
     private List<InventoryItem> inventory;
@@ -29,6 +30,7 @@ public class User {
             String email,
             String hashPassword,
             String googleId,
+            boolean isAdmin,
             boolean canChangeNickname,
             UserStats stats,
             List<InventoryItem> inventory,
@@ -165,5 +167,13 @@ public class User {
                     return item;
                 })
                 .toList();
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }
