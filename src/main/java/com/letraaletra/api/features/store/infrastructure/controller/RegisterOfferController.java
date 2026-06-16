@@ -6,10 +6,13 @@ import com.letraaletra.api.features.store.application.usecase.RegisterOfferUseCa
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.RegisterOfferResponse;
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.RegisterOfferMapper;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +28,12 @@ public class RegisterOfferController {
     }
 
     @PostMapping(path = "/store")
-    public ResponseEntity<SuccessResponse<RegisterOfferResponse>> registerOffer(@Valid @RequestBody RegisterOfferRequest request) {
+    public ResponseEntity<SuccessResponse<RegisterOfferResponse>> registerOffer(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody RegisterOfferRequest request
+    ) {
+        validateUser(user);
+
         RegisterOfferInput input = RegisterOfferMapper.toInput(request);
 
         RegisterOfferOutput output = useCase.execute(input);
@@ -33,5 +41,11 @@ public class RegisterOfferController {
         RegisterOfferResponse dto = RegisterOfferMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
+    }
+
+    private void validateUser(User user) {
+        if (!user.isAdmin()) {
+            throw new UserIsNotAdminException();
+        }
     }
 }
