@@ -11,6 +11,7 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class JpaUserRepository implements UserRepository {
     public User save(User user) {
         repository.save(UserMapper.toEntity(user));
         statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
+        walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
 
         List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
                 .map(item -> UserInventoryMapper.toEntity(user.getId(), item))

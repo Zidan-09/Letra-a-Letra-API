@@ -28,7 +28,7 @@ public class StoreOfferMapper {
         entity.setTitle(domain.getTitle());
         entity.setCoinType(domain.getCoinType());
         entity.setPrice(domain.getPrice());
-        entity.setCosmeticId(domain.getCosmetic() != null ? UUID.fromString(domain.getCosmetic().id()) : null);
+        entity.setCosmeticId(domain.getCosmetic() != null ? domain.getCosmetic().id() : null);
         entity.setRewardSoftCoins(domain.getRewardSoftCoins());
         entity.setRewardHardGems(domain.getRewardHardGems());
         entity.setActive(domain.isActive());

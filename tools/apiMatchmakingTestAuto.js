@@ -53,12 +53,17 @@ async function registerAndLogin(user) {
 
   console.log(`🔐 Logando: ${user.nickname}`);
 
-  const login = await http("POST", "/auth", {
-    email: user.email,
-    password: user.password
-  });
+  try {
+        const login = await http("POST", "/auth", {
+            email: user.email,
+            password: user.password
+        });
 
-  user.setAuth(login.data);
+         user.setAuth(login.data);
+
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /* =========================
@@ -205,9 +210,6 @@ async function main() {
   for (const user of users) {
     await registerAndLogin(user);
   }
-
-  // buscar user (testa GET)
-  await http("GET", `/user/${users[0].id}`);
 
   // sockets
   const ws1 = await connect(users[0]);

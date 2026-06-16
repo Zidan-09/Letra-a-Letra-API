@@ -52,6 +52,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        System.out.println(ex.getMessage());
+
         return ResponseEntity
                 .status(500)
                 .body(new ErrorResponse(false, ServerMessages.INTERNAL_ERROR.getMessage()));
