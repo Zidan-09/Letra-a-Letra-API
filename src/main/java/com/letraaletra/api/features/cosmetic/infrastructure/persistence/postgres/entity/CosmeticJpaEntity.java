@@ -20,7 +20,6 @@ public class CosmeticJpaEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "type", nullable = false, columnDefinition = "cosmetic_type_enum")
+    @Column(name = "type", nullable = false)
     private CosmeticTypes type;
 }
