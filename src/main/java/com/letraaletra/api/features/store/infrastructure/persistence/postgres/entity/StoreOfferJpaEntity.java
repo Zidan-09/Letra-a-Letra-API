@@ -28,7 +28,7 @@ public class StoreOfferJpaEntity {
     private int price;
 
     @Column(name = "target_cosmetic_id")
-    private UUID cosmeticId;
+    private String cosmeticId;
 
     @Column(name = "reward_soft_coins")
     private int rewardSoftCoins;

@@ -4,8 +4,8 @@ import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "\"cosmetic\"")
@@ -20,6 +20,7 @@ public class CosmeticJpaEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "type", nullable = false, columnDefinition = "cosmetic_type_enum")
     private CosmeticTypes type;
 }

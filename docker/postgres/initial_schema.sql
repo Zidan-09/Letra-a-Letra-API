@@ -27,8 +27,8 @@ CREATE TABLE "user_stats" (
 
 CREATE TABLE "user_wallet" (
                         "user_id" uuid PRIMARY KEY REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "soft_coins" integer NOT NULL DEFAULT 0 CHECK ("soft_coins" >= 0),
-                        "hard_gems" integer NOT NULL DEFAULT 0 CHECK ("hard_gems" >= 0)
+                        "soft_coins" bigint NOT NULL DEFAULT 0 CHECK ("soft_coins" >= 0),
+                        "hard_gems" bigint NOT NULL DEFAULT 0 CHECK ("hard_gems" >= 0)
 );
 
 CREATE TABLE "game" (
