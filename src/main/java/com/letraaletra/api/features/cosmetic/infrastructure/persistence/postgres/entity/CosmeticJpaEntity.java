@@ -22,4 +22,10 @@ public class CosmeticJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private CosmeticTypes type;
+
+    @Column(name = "asset_path")
+    private String assetPath;
+
+    @Column(name = "version")
+    private int version;
 }

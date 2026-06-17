@@ -10,7 +10,8 @@ public class RegisterCosmeticMapper {
         return new RegisterCosmeticInput(
                 request.id(),
                 request.name(),
-                request.cosmeticType()
+                request.cosmeticType(),
+                request.asset()
         );
     }
 
