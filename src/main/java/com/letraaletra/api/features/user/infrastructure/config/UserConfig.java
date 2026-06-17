@@ -2,6 +2,8 @@ package com.letraaletra.api.features.user.infrastructure.config;
 
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
+import com.letraaletra.api.features.user.application.usecase.GetUserInventoryUseCase;
+import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.application.service.SelectNicknameService;
@@ -77,6 +79,15 @@ public class UserConfig {
         return new UnlockCosmeticService(
                 userRepository,
                 cosmeticRepository
+        );
+    }
+
+    @Bean
+    public GetUserInventoryUseCase getUserInventoryUseCase(
+            InventoryRepository inventoryRepository
+    ) {
+        return new GetUserInventoryUseCase(
+                inventoryRepository
         );
     }
 }
