@@ -28,17 +28,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
     public RegisterOfferOutput execute(RegisterOfferInput input) {
         Cosmetic cosmetic = cosmeticRepository.find(input.cosmeticId()).orElseThrow(CosmeticNotFoundException::new);
 
-        StoreOffer storeOffer = new StoreOffer(
-                UUID.randomUUID().toString(),
-                input.title(),
-                input.coinType(),
-                input.price(),
-                cosmetic,
-                input.rewardSoftCoins(),
-                input.rewardHardGems(),
-                true,
-                LocalDateTime.now()
-        );
+        StoreOffer storeOffer = buildOffer(input, cosmetic);
 
         storeOfferRepository.save(storeOffer);
 
@@ -48,6 +38,20 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
     private RegisterOfferOutput buildOutput(StoreOffer storeOffer) {
         return new RegisterOfferOutput(
                 storeOffer
+        );
+    }
+
+    private StoreOffer buildOffer(RegisterOfferInput input, Cosmetic cosmetic) {
+        return new StoreOffer(
+            UUID.randomUUID().toString(),
+            input.title(),
+            input.coinType(),
+            input.price(),
+            cosmetic,
+            input.rewardSoftCoins(),
+            input.rewardHardGems(),
+            true,
+            LocalDateTime.now().plusHours(input.expiresIn())
         );
     }
 }

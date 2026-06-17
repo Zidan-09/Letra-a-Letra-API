@@ -8,6 +8,7 @@ public record RegisterOfferRequest(
         int price,
         String cosmeticId,
         int rewardSoftCoins,
-        int rewardHardGems
+        int rewardHardGems,
+        long expiresIn
 ) {
 }
