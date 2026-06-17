@@ -13,7 +13,8 @@ public class RegisterOfferMapper {
                 request.price(),
                 request.cosmeticId(),
                 request.rewardSoftCoins(),
-                request.rewardHardGems()
+                request.rewardHardGems(),
+                request.expiresIn()
         );
     }
 
