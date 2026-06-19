@@ -56,7 +56,9 @@ CREATE TABLE "match_players" (
 CREATE TABLE "cosmetic" (
                         "cosmetic_id" varchar(50) PRIMARY KEY NOT NULL,
                         "name" varchar(50) NOT NULL,
-                        "type" varchar(50) NOT NULL
+                        "type" varchar(50) NOT NULL,
+                        "asset_path" varchar(50) NOT NULL,
+                        "version" integer NOT NULL DEFAULT 1
 );
 
 CREATE TABLE "user_inventory" (

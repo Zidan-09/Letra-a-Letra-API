@@ -2,17 +2,25 @@ package com.letraaletra.api.features.cosmetic.application.usecase;
 
 import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
+import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
+import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
+    private final ImageConverter imageConverter;
+    private final AssetStorageGateway storageGateway;
 
     public RegisterCosmeticUseCase(
-            CosmeticRepository cosmeticRepository
+            CosmeticRepository cosmeticRepository,
+            AssetStorageGateway storageGateway,
+            ImageConverter imageConverter
     ) {
         this.cosmeticRepository = cosmeticRepository;
+        this.storageGateway = storageGateway;
+        this.imageConverter = imageConverter;
     }
 
     @Override
@@ -20,7 +28,11 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
         Cosmetic exists = cosmeticRepository.find(input.id()).orElse(null);
         validateIfExists(exists);
 
-        Cosmetic cosmetic = buildCosmetic(input);
+        byte[] image = imageConverter.convertToWebp(input.asset());
+
+        String assetPath = storageGateway.upload(image, input.name(), input.type());
+
+        Cosmetic cosmetic = buildCosmetic(input, assetPath);
 
         cosmeticRepository.save(cosmetic);
 
@@ -33,11 +45,13 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
         );
     }
 
-    private Cosmetic buildCosmetic(RegisterCosmeticInput input) {
+    private Cosmetic buildCosmetic(RegisterCosmeticInput input, String assetPath) {
         return new Cosmetic(
                 input.id(),
                 input.name(),
-                input.type()
+                input.type(),
+                assetPath,
+                1
         );
     }
 
