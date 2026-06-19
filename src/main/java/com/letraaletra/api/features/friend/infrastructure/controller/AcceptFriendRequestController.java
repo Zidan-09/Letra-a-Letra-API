@@ -14,9 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/friend")
 public class AcceptFriendRequestController {
     private final AcceptFriendRequestUseCase useCase;
 
@@ -26,7 +28,7 @@ public class AcceptFriendRequestController {
         this.useCase = useCase;
     }
 
-    @PatchMapping
+    @PatchMapping(path = "/accept")
     public ResponseEntity<SuccessResponse<Void>> acceptFriendRequest(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody AcceptFriendRequestRequest request

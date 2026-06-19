@@ -7,6 +7,7 @@ public enum FriendMessages implements MessageCode {
     REQUEST_ACCEPTED("request_accepted"),
 
     INVALID_FRIEND_REQUEST("invalid_friend_request"),
+    FRIEND_NOT_FOUND("friend_not_found"),
     FRIEND_REQUEST_STILL_PENDING("friend_request_still_pending");
 
     private final String message;

@@ -1,9 +1,6 @@
 package com.letraaletra.api.features.friend.infrastructure.config;
 
-import com.letraaletra.api.features.friend.application.usecase.AcceptFriendRequestUseCase;
-import com.letraaletra.api.features.friend.application.usecase.GetFriendListUseCase;
-import com.letraaletra.api.features.friend.application.usecase.RejectFriendRequestUseCase;
-import com.letraaletra.api.features.friend.application.usecase.SendFriendRequestUseCase;
+import com.letraaletra.api.features.friend.application.usecase.*;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +39,15 @@ public class FriendConfig {
             FriendRepository friendRepository
     ) {
         return new GetFriendListUseCase(
+                friendRepository
+        );
+    }
+
+    @Bean
+    public RemoveFriendUseCase removeFriendUseCase(
+            FriendRepository friendRepository
+    ) {
+        return new RemoveFriendUseCase(
                 friendRepository
         );
     }
