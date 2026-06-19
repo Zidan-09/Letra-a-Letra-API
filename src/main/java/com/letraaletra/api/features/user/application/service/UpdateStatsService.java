@@ -18,6 +18,8 @@ public class UpdateStatsService {
 
         user.registerMatchResult(isWinner);
 
+        user.getStats().incrementExperience(10);
+
         userRepository.save(user);
     }
 }

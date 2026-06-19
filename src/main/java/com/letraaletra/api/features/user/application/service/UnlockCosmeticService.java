@@ -20,11 +20,11 @@ public class UnlockCosmeticService {
     }
 
     public void execute(String cosmeticId, String userId) {
-        Cosmetic cosmetic = cosmeticRepository.find(cosmeticId).orElse(null);
-        validateCosmetic(cosmetic);
+        Cosmetic cosmetic = cosmeticRepository.find(cosmeticId)
+                .orElseThrow(CosmeticNotFoundException::new);
 
-        User user = userRepository.find(userId).orElse(null);
-        validateUser(user);
+        User user = userRepository.find(userId)
+                .orElseThrow(UserNotFoundException::new);
 
         InventoryItem item = new InventoryItem(
             cosmeticId,
@@ -35,17 +35,7 @@ public class UnlockCosmeticService {
         );
 
         user.addToInventory(item);
-    }
 
-    private void validateCosmetic(Cosmetic cosmetic) {
-        if (cosmetic == null) {
-            throw new CosmeticNotFoundException();
-        }
-    }
-
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
+        userRepository.save(user);
     }
 }
