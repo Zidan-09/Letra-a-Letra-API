@@ -1,0 +1,34 @@
+package com.letraaletra.api.features.friend.application.usecase;
+
+import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
+import com.letraaletra.api.features.friend.domain.Friend;
+import com.letraaletra.api.features.friend.domain.FriendStatus;
+import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
+import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.shared.application.usecase.UseCaseWithoutOutput;
+
+public class RemoveFriendUseCase implements UseCaseWithoutOutput<RemoveFriendInput> {
+    private final FriendRepository friendRepository;
+
+    public RemoveFriendUseCase(
+            FriendRepository friendRepository
+    ) {
+        this.friendRepository = friendRepository;
+    }
+
+    @Override
+    public void execute(RemoveFriendInput input) {
+        Friend friend = friendRepository.find(input.userId(), input.friendId());
+        validateFriend(friend);
+
+        friend.setStatus(FriendStatus.DECLINED);
+
+        friendRepository.save(friend);
+    }
+
+    private void validateFriend(Friend friend) {
+        if (friend == null || !friend.getStatus().equals(FriendStatus.ACCEPT)) {
+            throw new FriendNotFoundException();
+        }
+    }
+}
