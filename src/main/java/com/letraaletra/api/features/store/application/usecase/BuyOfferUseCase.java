@@ -36,7 +36,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         validateOffer(offer);
         processPayment(user, offer);
 
-        unlockCosmeticService.execute(offer.getCosmetic().id(), user.getId());
+        unlockCosmeticService.execute(offer.getCosmetic().getId(), user.getId());
 
         userRepository.save(user);
 

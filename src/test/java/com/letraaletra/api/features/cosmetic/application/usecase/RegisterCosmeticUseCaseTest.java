@@ -79,11 +79,11 @@ class RegisterCosmeticUseCaseTest {
 
         Cosmetic savedCosmetic = cosmeticCaptor.getValue();
 
-        assertEquals(input.id(), savedCosmetic.id());
-        assertEquals(input.name(), savedCosmetic.name());
-        assertEquals(input.type(), savedCosmetic.type());
-        assertEquals(assetPath, savedCosmetic.assetPath());
-        assertEquals(1, savedCosmetic.version());
+        assertEquals(input.id(), savedCosmetic.getId());
+        assertEquals(input.name(), savedCosmetic.getName());
+        assertEquals(input.type(), savedCosmetic.getType());
+        assertEquals(assetPath, savedCosmetic.getAssetPath());
+        assertEquals(1, savedCosmetic.getVersion());
 
         verify(imageConverter).convertToWebp(asset);
         verify(storageGateway).upload(
