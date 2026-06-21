@@ -324,6 +324,9 @@ async function runGameFlow(ws1, ws2, ws3) {
   await waitForEvent(e => e.event === "PARTICIPANT_LEAVE");
 
   console.log("\n✅ Teste finalizado com sucesso");
+  ws1.close();
+  ws2.close();
+  ws3.close();
 }
 
 /* =========================
