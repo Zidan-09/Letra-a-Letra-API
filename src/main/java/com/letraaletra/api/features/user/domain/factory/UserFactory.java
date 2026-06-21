@@ -48,10 +48,12 @@ public class UserFactory {
     private List<InventoryItem> getInitialCosmetics() {
         LocalDateTime now = LocalDateTime.now();
 
-        return List.of(
-                new InventoryItem("old-man-avatar-free", "old-man", CosmeticTypes.AVATAR, true, now),
-                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
-        );
+//        return List.of(
+//                new InventoryItem("old-man-avatar-free", "old-man", CosmeticTypes.AVATAR, true, now),
+//                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
+//        );
+
+        return List.of();
     }
 
     private Wallet getInitialWallet() {
