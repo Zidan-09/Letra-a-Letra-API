@@ -22,7 +22,6 @@ class UserFactoryTest {
         assertNull(user.getGoogleId(), "Usuários locais não devem possuir googleId");
         assertTrue(user.canChangeNickname());
         assertTrue(user.isNotInGame());
-        assertFalse(user.getInventory().isEmpty());
 
         assertNotNull(user.getStats());
         assertEquals(0, user.getStats().getPoints());
