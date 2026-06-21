@@ -27,10 +27,13 @@ const events = [];
    HTTP HELPERS
 ========================= */
 
-async function http(method, path, body) {
+async function http(method, path, body, token=undefined) {
   const res = await fetch(`${endpoint}${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
     body: body ? JSON.stringify(body) : undefined
   }).then(res => res.json());
 
