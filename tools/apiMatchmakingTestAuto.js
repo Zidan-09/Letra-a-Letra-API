@@ -169,6 +169,10 @@ async function runGameFlow(ws1, ws2) {
   while (gameRunning) {
     if (positions.length === 0) {
       console.log("⚠️ Sem mais posições disponíveis");
+      console.log("🧹 Encerrando conexões...");
+
+      ws1.close();
+      ws2.close();
       break;
     }
 

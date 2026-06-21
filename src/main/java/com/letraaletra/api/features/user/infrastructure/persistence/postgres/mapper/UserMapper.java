@@ -23,7 +23,8 @@ public class UserMapper {
                 entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa),
                 inventoryDomain,
-                UserWalletMapper.toDomain(walletJpaEntity)
+                UserWalletMapper.toDomain(walletJpaEntity),
+                entity.getCreatedAt()
         );
     }
 
@@ -38,6 +39,7 @@ public class UserMapper {
         entity.setGoogleId(user.getGoogleId());
         entity.setAdmin(user.isAdmin());
         entity.setCanChangeNickname(user.canChangeNickname());
+        entity.setCreatedAt(user.getCreatedAt());
 
         return entity;
     }

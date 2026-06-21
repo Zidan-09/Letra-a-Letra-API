@@ -8,6 +8,7 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +24,7 @@ public class User {
     private final UserStats stats;
     private List<InventoryItem> inventory;
     private final Wallet wallet;
+    private final LocalDateTime createdAt;
 
     public User(
             String id,
@@ -34,7 +36,8 @@ public class User {
             boolean canChangeNickname,
             UserStats stats,
             List<InventoryItem> inventory,
-            Wallet wallet
+            Wallet wallet,
+            LocalDateTime createdAt
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -45,6 +48,7 @@ public class User {
         this.stats = stats;
         this.inventory = inventory;
         this.wallet = wallet;
+        this.createdAt = createdAt;
     }
 
     public String getId() {
@@ -85,6 +89,10 @@ public class User {
 
     public Wallet getWallet() {
         return wallet;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public void addToInventory(InventoryItem item) {

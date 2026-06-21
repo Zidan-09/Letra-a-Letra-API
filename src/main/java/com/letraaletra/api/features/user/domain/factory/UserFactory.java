@@ -22,7 +22,8 @@ public class UserFactory {
                 true,
                 getInitialStats(),
                 getInitialCosmetics(),
-                getInitialWallet()
+                getInitialWallet(),
+                LocalDateTime.now()
         );
     }
 
@@ -37,7 +38,8 @@ public class UserFactory {
                 true,
                 getInitialStats(),
                 getInitialCosmetics(),
-                getInitialWallet()
+                getInitialWallet(),
+                LocalDateTime.now()
         );
     }
 
