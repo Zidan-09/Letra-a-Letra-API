@@ -28,8 +28,8 @@ public class UnlockCosmeticService {
 
         InventoryItem item = new InventoryItem(
             cosmeticId,
-            cosmetic.name(),
-            cosmetic.type(),
+            cosmetic.getName(),
+            cosmetic.getType(),
             false,
             LocalDateTime.now()
         );
