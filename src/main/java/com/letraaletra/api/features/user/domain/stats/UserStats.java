@@ -75,6 +75,6 @@ public class UserStats {
 
         int newLevel = (int) Math.floor(Math.pow((experience / multiplier), factor));
 
-        level = Math.max(1, Math.min(newLevel, 50));
+        level = Math.clamp(newLevel, 1, 50);
     }
 }
