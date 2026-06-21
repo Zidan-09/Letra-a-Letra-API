@@ -97,7 +97,7 @@ CREATE TABLE "friend" (
                       "status" varchar(50) NOT NULL,
                       "request_date" timestamp DEFAULT CURRENT_TIMESTAMP,
                       PRIMARY KEY ("user_id_1", "user_id_2")
-)
+);
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
 CREATE INDEX idx_user_stats_wins ON "user_stats" ("total_wins" DESC);
