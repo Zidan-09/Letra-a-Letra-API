@@ -10,6 +10,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,6 +39,15 @@ class CloseRoomDueToTimeoutServiceTest {
     @InjectMocks
     private CloseRoomDueToTimeoutService service;
 
+    private UUID userId1;
+    private UUID userId2;
+
+    @BeforeEach
+    void setup() {
+        userId1 = UUID.randomUUID();
+        userId2 = UUID.randomUUID();
+    }
+
     @Test
     void shouldCloseRoomSuccessfullyDueToTimeout() {
         Game game = mock(Game.class);
@@ -47,14 +58,14 @@ class CloseRoomDueToTimeoutServiceTest {
         var participant1 = mock(com.letraaletra.api.features.participant.domain.Participant.class);
         var participant2 = mock(com.letraaletra.api.features.participant.domain.Participant.class);
 
-        when(participant1.getUserId()).thenReturn("user-1");
-        when(participant2.getUserId()).thenReturn("user-2");
+        when(participant1.getUserId()).thenReturn(userId1);
+        when(participant2.getUserId()).thenReturn(userId2);
 
         when(game.getParticipants()).thenReturn(List.of(participant1, participant2));
         when(game.getId()).thenReturn("game-123");
 
-        when(userRepository.find("user-1")).thenReturn(Optional.of(user1));
-        when(userRepository.find("user-2")).thenReturn(Optional.of(user2));
+        when(userRepository.find(userId1)).thenReturn(Optional.of(user1));
+        when(userRepository.find(userId2)).thenReturn(Optional.of(user2));
 
         CloseRoomInput input = new CloseRoomInput(game);
 
@@ -86,13 +97,13 @@ class CloseRoomDueToTimeoutServiceTest {
         var participant1 = mock(com.letraaletra.api.features.participant.domain.Participant.class);
         var participant2 = mock(com.letraaletra.api.features.participant.domain.Participant.class);
 
-        when(participant1.getUserId()).thenReturn("user-1");
-        when(participant2.getUserId()).thenReturn("user-2");
+        when(participant1.getUserId()).thenReturn(userId1);
+        when(participant2.getUserId()).thenReturn(userId2);
 
         when(game.getParticipants()).thenReturn(List.of(participant1, participant2));
 
-        when(userRepository.find("user-1")).thenReturn(Optional.of(user1));
-        when(userRepository.find("user-2")).thenReturn(Optional.empty());
+        when(userRepository.find(userId1)).thenReturn(Optional.of(user1));
+        when(userRepository.find(userId2)).thenReturn(Optional.empty());
 
         CloseRoomInput input = new CloseRoomInput(game);
 

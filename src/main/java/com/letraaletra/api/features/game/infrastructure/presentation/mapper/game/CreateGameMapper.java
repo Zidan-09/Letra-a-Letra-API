@@ -6,6 +6,8 @@ import com.letraaletra.api.features.game.domain.RoomSettings;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.CreateGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.CreateGameResponse;
 
+import java.util.UUID;
+
 public class CreateGameMapper {
     public static CreateGameInput toInput(CreateGameWsRequest request, String sessionId, String userId) {
         return new CreateGameInput(
@@ -15,7 +17,7 @@ public class CreateGameMapper {
                         request.settings().privateGame()
                 ),
                 sessionId,
-                userId
+                UUID.fromString(userId)
         );
     }
 

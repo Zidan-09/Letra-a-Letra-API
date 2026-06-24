@@ -1,6 +1,5 @@
 package com.letraaletra.api.features.user.domain.factory;
 
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
@@ -13,7 +12,7 @@ import java.util.UUID;
 public class UserFactory {
     public User createLocal(String nickname, String email, String passwordHash) {
         return new User(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 nickname,
                 email,
                 passwordHash,
@@ -29,7 +28,7 @@ public class UserFactory {
 
     public User createGoogle(String email, String googleId) {
         return new User(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 null,
                 email,
                 null,

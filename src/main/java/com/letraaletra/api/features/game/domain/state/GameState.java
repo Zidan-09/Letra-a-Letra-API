@@ -10,14 +10,14 @@ import java.util.*;
 
 public class GameState {
     private final String matchId;
-    private final Map<String, Player> players;
+    private final Map<UUID, Player> players;
     private final Board board;
-    private final List<String> turnOrder;
+    private final List<UUID> turnOrder;
     private int currentTurnIndex;
     private Instant turnEndsAt;
     private int version;
 
-    public GameState(String matchId, Map<String, Player> players, Board board, Instant turnEnds) {
+    public GameState(String matchId, Map<UUID, Player> players, Board board, Instant turnEnds) {
         this.matchId = matchId;
         this.players = players;
         this.board = board;
@@ -38,11 +38,11 @@ public class GameState {
         return matchId;
     }
 
-    public Map<String, Player> getPlayers() {
+    public Map<UUID, Player> getPlayers() {
         return Map.copyOf(players);
     }
 
-    public Player getPlayerOrThrow(String userId) {
+    public Player getPlayerOrThrow(UUID userId) {
         Player player = players.get(userId);
 
         if (player == null) {
@@ -68,7 +68,7 @@ public class GameState {
         this.turnEndsAt = turnEndsAt;
     }
 
-    public String currentPlayerTurn() {
+    public UUID currentPlayerTurn() {
         return turnOrder.get(currentTurnIndex);
     }
 
@@ -109,7 +109,7 @@ public class GameState {
         return new GameOverResult(false, null, null);
     }
 
-    public void removePlayer(String playerId) {
+    public void removePlayer(UUID playerId) {
         players.remove(playerId);
     }
 }

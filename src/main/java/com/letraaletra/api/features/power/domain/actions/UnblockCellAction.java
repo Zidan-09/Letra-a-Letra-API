@@ -14,6 +14,7 @@ import com.letraaletra.api.features.player.domain.exception.NotYourTurnException
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class UnblockCellAction implements GameAction {
     private final String powerId;
@@ -25,7 +26,7 @@ public class UnblockCellAction implements GameAction {
     }
 
     @Override
-    public List<Event> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, UUID userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
@@ -44,12 +45,12 @@ public class UnblockCellAction implements GameAction {
                 StateEvent.CELL_UNBLOCKED,
                 new CellUnblockedEvent(
                         position,
-                        userId
+                        userId.toString()
                 )
         )));
     }
 
-    private void validatePlayerTurn(GameState state, String userId) {
+    private void validatePlayerTurn(GameState state, UUID userId) {
         if (!state.currentPlayerTurn().equals(userId)) {
             throw new NotYourTurnException();
         }

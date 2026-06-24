@@ -10,6 +10,7 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase implements UseCase<SwapPositionInput, SwapPositionOutput> {
@@ -22,9 +23,9 @@ public class SwapRoomPositionUseCase implements UseCase<SwapPositionInput, SwapP
     }
 
     public SwapPositionOutput execute(SwapPositionInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(gameId.toString());
         validateActor(actor);
 
         CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(input.user(), input.position()));

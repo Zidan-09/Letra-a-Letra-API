@@ -10,8 +10,8 @@ public class GameMapper {
         GameJpaEntity entity = new GameJpaEntity();
 
         entity.setId(UUID.fromString(game.getId()));
-        entity.setHostId(UUID.fromString(game.getHostId()));
-        entity.setCreatorId(UUID.fromString(game.getCreatedById()));
+        entity.setHostId(game.getHostId());
+        entity.setCreatorId(game.getCreatedById());
         entity.setRoomCode(game.getCode());
         entity.setGameType(game.getGameType());
         entity.setStatus(game.getGameStatus());

@@ -25,7 +25,7 @@ public class RevealCellAction implements GameAction {
     }
 
     @Override
-    public List<Event> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, UUID userId) {
         validatePlayerTurn(state, userId);
 
         Cell cell = state.getBoard().getCell(position);
@@ -49,7 +49,7 @@ public class RevealCellAction implements GameAction {
                 StateEvent.CELL_REVEALED,
                 new CellRevealedEvent(
                         position,
-                        userId
+                        userId.toString()
                 )
         ));
 
@@ -58,7 +58,7 @@ public class RevealCellAction implements GameAction {
         return events;
     }
 
-    private List<Event> checkCompletedWords(Cell cell, String userId, GameState state) {
+    private List<Event> checkCompletedWords(Cell cell, UUID userId, GameState state) {
         List<Word> words = cell.getRelatedWords();
 
         if (words.isEmpty()) return null;
@@ -79,7 +79,7 @@ public class RevealCellAction implements GameAction {
                         StateEvent.WORD_FOUNDED,
                         new WordFoundedEvent(
                                 positions.toArray(Position[]::new),
-                                userId
+                                userId.toString()
                         )
                 ));
             }
@@ -88,7 +88,7 @@ public class RevealCellAction implements GameAction {
         return !wordsFoundEvent.isEmpty() ? wordsFoundEvent : null;
     }
 
-    private void validatePlayerTurn(GameState state, String userId) {
+    private void validatePlayerTurn(GameState state, UUID userId) {
         if (!state.currentPlayerTurn().equals(userId)) {
             throw new NotYourTurnException();
         }
@@ -100,7 +100,7 @@ public class RevealCellAction implements GameAction {
         player.addToInventory(drop);
     }
 
-    private boolean activateEffect(Cell cell, String player, List<Event> events) {
+    private boolean activateEffect(Cell cell, UUID player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
             InteractResult result = effect.onInteract(this, player, cell);

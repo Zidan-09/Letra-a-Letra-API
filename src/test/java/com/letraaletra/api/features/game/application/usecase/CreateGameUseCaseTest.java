@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -54,11 +55,14 @@ class CreateGameUseCaseTest {
     @InjectMocks
     private CreateGameUseCase useCase;
 
+    private UUID userId;
     private User user;
     private CreateGameInput input;
 
     @BeforeEach
     void setup() {
+        userId = UUID.randomUUID();
+
         user = mock(User.class);
         RoomSettings settings = mock(RoomSettings.class);
 
@@ -66,13 +70,13 @@ class CreateGameUseCaseTest {
                 "Room Test",
                 settings,
                 "session-123",
-                "user-123"
+                userId
         );
     }
 
     @Test
     void shouldCreateGameSuccessfully() {
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
@@ -84,7 +88,7 @@ class CreateGameUseCaseTest {
         when(gameQueryService.existsByCode("ABC123"))
                 .thenReturn(false);
 
-        when(tokenService.generateToken(anyString()))
+        when(tokenService.generateToken(any()))
                 .thenReturn("token-game");
 
         CreateGameOutput output = useCase.execute(input);
@@ -109,7 +113,7 @@ class CreateGameUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.empty());
 
         assertThrows(
@@ -124,7 +128,7 @@ class CreateGameUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsAlreadyInGame() {
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
@@ -142,12 +146,12 @@ class CreateGameUseCaseTest {
         verify(gameTimeoutManager, never()).start(any());
 
         verify(generateRoomCode, never()).execute();
-        verify(tokenService, never()).generateToken(anyString());
+        verify(tokenService, never()).generateToken(any());
     }
 
     @Test
     void shouldGenerateNewCodeWhenCodeAlreadyExists() {
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
@@ -162,7 +166,7 @@ class CreateGameUseCaseTest {
         when(gameQueryService.existsByCode("XYZ999"))
                 .thenReturn(false);
 
-        when(tokenService.generateToken(anyString()))
+        when(tokenService.generateToken(any()))
                 .thenReturn("token");
 
         CreateGameOutput output = useCase.execute(input);
@@ -177,7 +181,7 @@ class CreateGameUseCaseTest {
 
     @Test
     void shouldGenerateTokenUsingCreatedGameId() {
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
@@ -189,19 +193,19 @@ class CreateGameUseCaseTest {
         when(gameQueryService.existsByCode("ABC123"))
                 .thenReturn(false);
 
-        when(tokenService.generateToken(anyString()))
+        when(tokenService.generateToken(any()))
                 .thenReturn("token");
 
         useCase.execute(input);
 
-        ArgumentCaptor<String> gameIdCaptor =
-                ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<UUID> gameIdCaptor =
+                ArgumentCaptor.forClass(UUID.class);
 
         verify(tokenService).generateToken(gameIdCaptor.capture());
 
-        String generatedGameId = gameIdCaptor.getValue();
+        UUID generatedGameId = gameIdCaptor.getValue();
 
         assertNotNull(generatedGameId);
-        assertFalse(generatedGameId.isBlank());
+        assertFalse(generatedGameId.toString().isBlank());
     }
 }

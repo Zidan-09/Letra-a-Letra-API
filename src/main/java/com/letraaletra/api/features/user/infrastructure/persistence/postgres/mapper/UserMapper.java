@@ -14,7 +14,7 @@ public class UserMapper {
         if (entity == null) return null;
 
         return new User(
-                entity.getId().toString(),
+                entity.getId(),
                 entity.getUsername(),
                 entity.getEmail(),
                 entity.getPasswordHash(),
@@ -32,7 +32,7 @@ public class UserMapper {
         if (user == null) return null;
 
         UserJpaEntity entity = new UserJpaEntity();
-        entity.setId(UUID.fromString(user.getId()));
+        entity.setId(user.getId());
         entity.setUsername(user.getNickname());
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getHashPassword());

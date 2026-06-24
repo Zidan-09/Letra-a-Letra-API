@@ -6,6 +6,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -58,8 +59,8 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public WebSocketSession findByUserId(String userId) {
-        String sessionId = sessionIdByUserId.get(userId);
+    public WebSocketSession findByUserId(UUID userId) {
+        String sessionId = sessionIdByUserId.get(userId.toString());
         if (sessionId == null) return null;
         return sessionsBySessionId.get(sessionId);
     }

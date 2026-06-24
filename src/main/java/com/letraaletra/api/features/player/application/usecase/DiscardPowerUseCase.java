@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.domain.security.TokenService;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPowerOutput> {
@@ -21,9 +22,9 @@ public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPo
     }
 
     public DiscardPowerOutput execute(DiscardPowerInput input) {
-        String gameId = tokenService.getTokenContent(input.tokenGameId());
+        UUID gameId = tokenService.getTokenContent(input.tokenGameId());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(gameId.toString());
 
         CompletableFuture<Game> future = actor.enqueueCommand(
                 new DiscardPowerActorCommand(input.userId(), input.powerId())

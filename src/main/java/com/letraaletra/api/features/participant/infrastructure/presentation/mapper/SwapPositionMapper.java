@@ -6,12 +6,14 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
 
+import java.util.UUID;
+
 public class SwapPositionMapper {
     public static SwapPositionInput toInput(SwapPositionWsRequest request, String userId) {
         return new SwapPositionInput(
                 request.tokenGameId(),
                 request.position(),
-                userId
+                UUID.fromString(userId)
         );
     }
 

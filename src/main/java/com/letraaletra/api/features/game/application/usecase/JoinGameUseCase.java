@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
@@ -27,11 +28,11 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
     }
 
     public JoinGameOutput execute(JoinGameInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
         User user = userRepository.find(input.user()).orElse(null);
         validateUser(user);
 
-        Actor actor = actorManager.get(gameId);
+        Actor actor = actorManager.get(gameId.toString());
         CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, input.session()));
 
         Game game = future.join();

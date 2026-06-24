@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -104,6 +105,9 @@ class GameOverHandlerTest {
 
     @Test
     void shouldRemoveActorsAndUsersWhenGameIsClosed() {
+        UUID gameId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
         Game game = mock(Game.class);
         GameOverResult result = mock(GameOverResult.class);
 
@@ -120,15 +124,15 @@ class GameOverHandlerTest {
         when(game.getGameType()).thenReturn(GameType.CUSTOM);
         when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
 
-        when(game.getId()).thenReturn("game-1");
+        when(game.getId()).thenReturn(gameId.toString());
         when(game.getParticipants()).thenReturn(List.of(participant));
 
-        when(participant.getUserId()).thenReturn("user-1");
-        when(userRepository.find("user-1")).thenReturn(Optional.of(user));
+        when(participant.getUserId()).thenReturn(userId);
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
 
         handler.handle(game, result);
 
-        verify(actorManager).remove("game-1");
+        verify(actorManager).remove(gameId.toString());
         verify(user).leaveGame();
         verify(userRepository).save(user);
         verify(gameRepository).save(game);

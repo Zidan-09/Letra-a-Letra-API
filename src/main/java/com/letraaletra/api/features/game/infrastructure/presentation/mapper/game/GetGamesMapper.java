@@ -7,6 +7,8 @@ import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponse;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GetGamesMapper {
     public static GetGamesResponse toResponse(GetGamesOutput output) {
@@ -22,7 +24,12 @@ public class GetGamesMapper {
                 output.tokens().get(game.getId()),
                 game.getRoomName(),
                 MapParticipantsMapper.execute(game),
-                game.getPositions()
+                game.getPositions().entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> entry.getValue().toString()
+                        ))
         );
     }
 }

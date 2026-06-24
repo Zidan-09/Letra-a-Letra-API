@@ -9,6 +9,8 @@ import com.letraaletra.api.features.participant.domain.exception.InvalidModerate
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.shared.domain.security.TokenService;
 
+import java.util.UUID;
+
 public class ModerationContextService {
     private final ActorManager<Game> actorManager;
     private final TokenService tokenService;
@@ -21,10 +23,10 @@ public class ModerationContextService {
         this.tokenService = tokenService;
     }
 
-    public ModerationContext resolve(String tokenGameId, String targetId, String hostId) {
-        String gameId = tokenService.getTokenContent(tokenGameId);
+    public ModerationContext resolve(String tokenGameId, UUID targetId, UUID hostId) {
+        UUID gameId = tokenService.getTokenContent(tokenGameId);
 
-        Game game = actorManager.get(gameId).getGame();
+        Game game = actorManager.get(gameId.toString()).getGame();
 
         validateUser(hostId, game);
         validateAction(targetId, hostId);
@@ -39,7 +41,7 @@ public class ModerationContextService {
         );
     }
 
-    private void validateAction(String targetId, String hostId) {
+    private void validateAction(UUID targetId, UUID hostId) {
         if (targetId.equals(hostId)) {
             throw new InvalidModerateActionException();
         }
@@ -51,7 +53,7 @@ public class ModerationContextService {
         }
     }
 
-    private void validateUser(String userId, Game game) {
+    private void validateUser(UUID userId, Game game) {
         if (!game.getHostId().equals(userId)) {
             throw new OnlyHostCanModerateException();
         }

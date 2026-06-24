@@ -1,7 +1,5 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
@@ -24,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,12 +34,6 @@ class PlayerActionUseCaseTest {
 
     @Mock
     private TokenService tokenService;
-
-    @Mock
-    private GameTimeoutManager gameTimeoutManager;
-
-    @Mock
-    private TurnTimeoutManager turnTimeoutManager;
 
     @Mock
     private ActorManager<Game> actorManager;
@@ -70,8 +63,8 @@ class PlayerActionUseCaseTest {
     @DisplayName("Deve executar ação do jogador com sucesso quando o jogo NÃO terminou")
     void shouldExecutePlayerActionSuccessfullyWhenGameIsNotOver() {
         String token = "valid-token";
-        String gameId = "game-123";
-        String userId = "user-789";
+        UUID gameId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
 
         PlayerActionInput input = new PlayerActionInput(token, userId, mockGameAction);
 
@@ -81,7 +74,7 @@ class PlayerActionUseCaseTest {
         PlayerActionResult actionResult = new PlayerActionResult(events, activeGameResult, mockGame);
 
         when(tokenService.getTokenContent(token)).thenReturn(gameId);
-        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actorManager.get(gameId.toString())).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
 
@@ -103,11 +96,11 @@ class PlayerActionUseCaseTest {
     }
 
     @Test
-    @DisplayName("Deve retornar o GameOverResult populado quando a ação causar o FIM do jogo")
+    @DisplayName("Deve retornar o GameOverResult popular quando a ação causar o FIM do jogo")
     void shouldReturnGameOverResultWhenActionFinishesTheGame() {
         String token = "valid-token";
-        String gameId = "game-123";
-        String userId = "user-789";
+        UUID gameId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         PlayerActionInput input = new PlayerActionInput(token, userId, mockGameAction);
 
         GameOverResult finishedGameResult = new GameOverResult(true, mockPlayer, mockPlayer);
@@ -115,7 +108,7 @@ class PlayerActionUseCaseTest {
         PlayerActionResult actionResult = new PlayerActionResult(events, finishedGameResult, mockGame);
 
         when(tokenService.getTokenContent(token)).thenReturn(gameId);
-        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actorManager.get(gameId.toString())).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
 

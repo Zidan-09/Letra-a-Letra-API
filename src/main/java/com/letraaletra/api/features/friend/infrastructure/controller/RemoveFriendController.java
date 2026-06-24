@@ -31,7 +31,7 @@ public class RemoveFriendController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody RemoveFriendRequest request
     ) {
-        RemoveFriendInput input = RemoveFriendMapper.toInput(user.getId(), request.friendId());
+        RemoveFriendInput input = RemoveFriendMapper.toInput(user.getId().toString(), request.friendId());
 
         useCase.execute(input);
 

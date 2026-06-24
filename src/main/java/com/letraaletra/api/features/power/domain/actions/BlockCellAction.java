@@ -17,6 +17,7 @@ import com.letraaletra.api.features.player.domain.exception.NotYourTurnException
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BlockCellAction implements GameAction {
     private final String powerId;
@@ -28,7 +29,7 @@ public class BlockCellAction implements GameAction {
     }
 
     @Override
-    public List<Event> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, UUID userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -51,7 +52,10 @@ public class BlockCellAction implements GameAction {
         );
         events.add(new Event(
                 StateEvent.CELL_BLOCKED,
-                new CellBlockedEvent(position, userId)
+                new CellBlockedEvent(
+                        position,
+                        userId.toString()
+                )
         ));
 
         state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
@@ -59,7 +63,7 @@ public class BlockCellAction implements GameAction {
         return events;
     }
 
-    private void validatePlayerTurn(GameState state, String userId) {
+    private void validatePlayerTurn(GameState state, UUID userId) {
         if (!state.currentPlayerTurn().equals(userId)) {
             throw new NotYourTurnException();
         }
@@ -83,7 +87,7 @@ public class BlockCellAction implements GameAction {
         }
     }
 
-    private boolean activateEffect(Cell cell, String player, List<Event> events) {
+    private boolean activateEffect(Cell cell, UUID player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
 

@@ -15,7 +15,7 @@ public class SignInMapper {
 
     public static SignInResponse toResponse(SignInOutput output) {
         return new SignInResponse(
-                output.id(),
+                output.id().toString(),
                 output.token()
         );
     }

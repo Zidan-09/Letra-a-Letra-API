@@ -22,6 +22,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class GlobalWebSocketHandler extends TextWebSocketHandler {
@@ -85,9 +86,9 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void sendError(Exception ex, WebSocketSession session) {
-        logger.error("A exception was threw {}", ex.getMessage());
+        logger.error("\nAn exception was threw {}\n", ex.getMessage());
 
-        String userId = (String) session.getAttributes().get("userId");
+        UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         Throwable cause = ex;
 

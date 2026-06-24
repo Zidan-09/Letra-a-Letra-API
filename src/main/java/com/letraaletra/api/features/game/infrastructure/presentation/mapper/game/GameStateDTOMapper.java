@@ -10,9 +10,10 @@ import com.letraaletra.api.features.game.infrastructure.presentation.mapper.boar
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public class GameStateDTOMapper {
-    public static GameStateDTO toDto(Game game, String viewerId) {
+    public static GameStateDTO toDto(Game game, UUID viewerId) {
         BoardView boardView = BoardViewBuilder.build(
                 game.getGameState(),
                 viewerId
@@ -27,7 +28,7 @@ public class GameStateDTOMapper {
                         .toList(),
                 BoardViewDTOMapper.toDTO(boardView),
                 Arrays.stream(game.getGameState().getBoard().words()).map(WordDTOMapper::toDTO).toList(),
-                game.getGameState().currentPlayerTurn()
+                game.getGameState().currentPlayerTurn().toString()
         );
     }
 
@@ -41,7 +42,7 @@ public class GameStateDTOMapper {
                         .toList(),
                 BoardDTOMapper.toDTO(game.getGameState().getBoard()),
                 Arrays.stream(game.getGameState().getBoard().words()).map(WordDTOMapper::toDTO).toList(),
-                game.getGameState().currentPlayerTurn()
+                game.getGameState().currentPlayerTurn().toString()
         );
     }
 }

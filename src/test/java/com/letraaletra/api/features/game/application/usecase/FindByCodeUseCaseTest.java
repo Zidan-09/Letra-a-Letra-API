@@ -6,11 +6,14 @@ import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +30,13 @@ class FindByCodeUseCaseTest {
     @InjectMocks
     private FindByCodeUseCase useCase;
 
+    private UUID gameId;
+
+    @BeforeEach
+    void setup() {
+        gameId = UUID.randomUUID();
+    }
+
     @Test
     void shouldReturnTokenWhenGameExists() {
         FindByCodeInput input = new FindByCodeInput("ABC123");
@@ -37,9 +47,9 @@ class FindByCodeUseCaseTest {
                 .thenReturn(game);
 
         when(game.getId())
-                .thenReturn("game-id");
+                .thenReturn(gameId.toString());
 
-        when(tokenService.generateToken("game-id"))
+        when(tokenService.generateToken(gameId))
                 .thenReturn("token");
 
         FindByCodeOutput output = useCase.execute(input);
@@ -48,7 +58,7 @@ class FindByCodeUseCaseTest {
         assertEquals("token", output.token());
 
         verify(gameQueryService).findByCode("ABC123");
-        verify(tokenService).generateToken("game-id");
+        verify(tokenService).generateToken(gameId);
     }
 
     @Test
@@ -63,6 +73,6 @@ class FindByCodeUseCaseTest {
                 () -> useCase.execute(input)
         );
 
-        verify(tokenService, never()).generateToken(anyString());
+        verify(tokenService, never()).generateToken(any());
     }
 }

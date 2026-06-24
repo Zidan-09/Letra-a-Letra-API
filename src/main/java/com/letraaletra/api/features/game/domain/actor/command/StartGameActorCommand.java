@@ -12,6 +12,8 @@ import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanStar
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
+import java.util.UUID;
+
 public class StartGameActorCommand implements ActorCommand<Game> {
     private final String session;
     private final Board board;
@@ -57,7 +59,7 @@ public class StartGameActorCommand implements ActorCommand<Game> {
         }
     }
 
-    private void validateHost(Participant participant, String hostId) {
+    private void validateHost(Participant participant, UUID hostId) {
         if (!participant.getUserId().equals(hostId)) {
             throw new OnlyHostCanStartException();
         }

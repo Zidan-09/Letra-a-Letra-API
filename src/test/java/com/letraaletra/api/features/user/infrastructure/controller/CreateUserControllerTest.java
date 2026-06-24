@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -36,7 +38,7 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        CreateUserOutput output = new CreateUserOutput("id1", "random-nickname", "teste@email.com");
+        CreateUserOutput output = new CreateUserOutput(UUID.randomUUID(), "random-nickname", "teste@email.com");
 
         when(createUserUseCase
                 .execute(any(CreateUserInput.class)))

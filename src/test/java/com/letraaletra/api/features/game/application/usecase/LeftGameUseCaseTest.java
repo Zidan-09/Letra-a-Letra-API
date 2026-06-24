@@ -14,6 +14,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,6 +50,15 @@ class LeftGameUseCaseTest {
     @InjectMocks
     private LeftGameUseCase useCase;
 
+    private UUID gameId;
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        gameId = UUID.randomUUID();
+        userId = UUID.randomUUID();
+    }
+
     @Test
     void shouldLeaveGameSuccessfully() {
         LeftGameInput input = new LeftGameInput(
@@ -61,16 +72,16 @@ class LeftGameUseCaseTest {
         LeftGameResult result = mock(LeftGameResult.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
         when(result.user())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(result.game())
                 .thenReturn(game);
@@ -81,7 +92,7 @@ class LeftGameUseCaseTest {
         when(result.isEmpty())
                 .thenReturn(false);
 
-        when(userRepository.find("user-id"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         LeftGameOutput output = useCase.execute(input);
@@ -110,16 +121,16 @@ class LeftGameUseCaseTest {
         LeftGameResult result = mock(LeftGameResult.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
         when(result.user())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(result.game())
                 .thenReturn(game);
@@ -127,18 +138,18 @@ class LeftGameUseCaseTest {
         when(result.isEmpty())
                 .thenReturn(true);
 
-        when(userRepository.find("user-id"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(game.getId())
-                .thenReturn("game-id");
+                .thenReturn(gameId.toString());
 
         useCase.execute(input);
 
         verify(user).leaveGame();
         verify(userRepository).save(user);
 
-        verify(actorManager).remove("game-id");
+        verify(actorManager).remove(gameId.toString());
         verify(game).setGameStatus(GameStatus.CLOSED);
         verify(gameRepository).save(game);
     }
@@ -153,18 +164,18 @@ class LeftGameUseCaseTest {
         LeftGameResult result = mock(LeftGameResult.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
         when(result.user())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
-        when(userRepository.find("user-id"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.empty());
 
         assertThrows(
@@ -188,16 +199,16 @@ class LeftGameUseCaseTest {
         LeftGameResult result = mock(LeftGameResult.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
         when(result.user())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(result.game())
                 .thenReturn(game);
@@ -205,7 +216,7 @@ class LeftGameUseCaseTest {
         when(result.isEmpty())
                 .thenReturn(false);
 
-        when(userRepository.find("user-id"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         useCase.execute(input);

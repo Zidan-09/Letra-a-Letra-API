@@ -66,8 +66,8 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> find(String id) {
-        return repository.findById(UUID.fromString(id)).map(this::assembleUser);
+    public Optional<User> find(UUID id) {
+        return repository.findById(id).map(this::assembleUser);
     }
 
     @Override

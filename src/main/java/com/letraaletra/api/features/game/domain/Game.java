@@ -20,13 +20,13 @@ public class Game {
     private final String id;
     private final String code;
     private final String roomName;
-    private final Map<String, Participant> participants = new HashMap<>();
-    private final Map<Integer, String> positions = new HashMap<>();
+    private final Map<UUID, Participant> participants = new HashMap<>();
+    private final Map<Integer, UUID> positions = new HashMap<>();
     private final RoomSettings roomSettings;
-    private final Set<String> blacklist = new HashSet<>();
+    private final Set<UUID> blacklist = new HashSet<>();
     private final GameType gameType;
-    private final String createdById;
-    private String hostId;
+    private final UUID createdById;
+    private UUID hostId;
     private GameStatus gameStatus;
     private GameState gameState;
 
@@ -65,11 +65,11 @@ public class Game {
         return List.copyOf(participants.values());
     }
 
-    public String getCreatedById() {
+    public UUID getCreatedById() {
         return createdById;
     }
 
-    public String getHostId() {
+    public UUID getHostId() {
         return hostId;
     }
 
@@ -85,11 +85,11 @@ public class Game {
         return roomSettings;
     }
 
-    public Participant getParticipantByUserId(String userId) {
+    public Participant getParticipantByUserId(UUID userId) {
         return participants.get(userId);
     }
 
-    public Map<Integer, String> getPositions() {
+    public Map<Integer, UUID> getPositions() {
         return Map.copyOf(positions);
     }
 
@@ -101,7 +101,7 @@ public class Game {
     }
 
     public void join(Participant participant) {
-        String userId = participant.getUserId();
+        UUID userId = participant.getUserId();
 
         if (isBlackListed(userId)) {
             throw new UserBannedException();
@@ -131,7 +131,7 @@ public class Game {
         positions.put(nextAvailablePosition(), userId);
     }
 
-    public void remove(String userId) {
+    public void remove(UUID userId) {
         Participant participant = participants.get(userId);
 
         if (participant == null) {
@@ -154,7 +154,7 @@ public class Game {
         }
     }
 
-    public void reconnect(String userId, String sessionId) {
+    public void reconnect(UUID userId, String sessionId) {
         Participant participant = participants.get(userId);
 
         if (participant == null) {
@@ -164,7 +164,7 @@ public class Game {
         participant.connect(sessionId);
     }
 
-    public void changePosition(String userId, int position) {
+    public void changePosition(UUID userId, int position) {
         if (gameStatus.equals(GameStatus.RUNNING)) {
             throw new GameIsRunningException();
         }
@@ -212,11 +212,11 @@ public class Game {
                 .orElse(null);
     }
 
-    public boolean isBlackListed(String userId) {
+    public boolean isBlackListed(UUID userId) {
         return blacklist.contains(userId);
     }
 
-    public void addToBlackList(String userId) {
+    public void addToBlackList(UUID userId) {
         if (blacklist.contains(userId)) {
             throw new ParticipantAlreadyBannedException();
         }
@@ -224,7 +224,7 @@ public class Game {
         blacklist.add(userId);
     }
 
-    public void removeFromBlackList(String userId) {
+    public void removeFromBlackList(UUID userId) {
         if (!blacklist.contains(userId)) {
             throw new ParticipantNotBannedException();
         }
@@ -254,7 +254,7 @@ public class Game {
         }
     }
 
-    private void assertMaxPlayersExcluding(String userId) {
+    private void assertMaxPlayersExcluding(UUID userId) {
         long players = participants.values().stream()
                 .filter(p -> p.getRole() == ParticipantRole.PLAYER)
                 .filter(p -> !p.getUserId().equals(userId))

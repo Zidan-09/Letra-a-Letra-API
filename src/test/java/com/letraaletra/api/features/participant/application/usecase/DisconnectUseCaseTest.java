@@ -10,6 +10,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,10 +40,16 @@ class DisconnectUseCaseTest {
     @InjectMocks
     private DisconnectUseCase disconnectUseCase;
 
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+    }
+
     @Test
     @DisplayName("Deve remover da fila se o usuário desconectado estiver buscando partida")
     void shouldRemoveFromMatchmakingIfUserIsOnQueue() {
-        String userId = "user-123";
         DisconnectParticipantInput input = new DisconnectParticipantInput(userId, "session-xyz");
 
         when(matchmakingRepository.onQueue(userId)).thenReturn(true);
@@ -56,7 +64,6 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Deve desconectar com sucesso do Ator e manter usuário se a sala persistir")
     void shouldDisconnectSuccessfullyWhenGamePersists() {
-        String userId = "user-123";
         String gameId = "game-456";
         DisconnectParticipantInput input = new DisconnectParticipantInput(userId, "session-xyz");
 
@@ -80,7 +87,6 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Deve forçar o usuário a sair da partida se o Ator retornar um jogo vazio")
     void shouldForceUserToLeaveGameWhenActorReturnsEmptyGame() {
-        String userId = "user-123";
         String gameId = "game-456";
         DisconnectParticipantInput input = new DisconnectParticipantInput(userId, "session-xyz");
 

@@ -15,7 +15,7 @@ public class MatchPlayerMapper {
         MatchPlayerId id = new MatchPlayerId();
 
         id.setMatchId(UUID.fromString(matchId));
-        id.setUserId(UUID.fromString(domain.getUserId()));
+        id.setUserId(domain.getUserId());
 
         entity.setMatchPlayerId(id);
         entity.setScore(domain.getScore());

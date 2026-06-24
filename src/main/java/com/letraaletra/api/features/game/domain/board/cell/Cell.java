@@ -8,12 +8,13 @@ import com.letraaletra.api.features.power.domain.PowerType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Cell {
     private final char letter;
     private final Position position;
     private boolean revealed;
-    private String revealedById;
+    private UUID revealedById;
     private final List<Word> relatedWords = new ArrayList<>();
     private PowerType drop;
 
@@ -42,11 +43,11 @@ public class Cell {
         return revealed;
     }
 
-    public String getRevealedById() {
+    public UUID getRevealedById() {
         return revealedById;
     }
 
-    public PowerType reveal(String actor) {
+    public PowerType reveal(UUID actor) {
         if (revealed) {
             throw new CellAlreadyRevealedException();
         }

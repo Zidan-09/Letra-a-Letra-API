@@ -19,6 +19,7 @@ import com.letraaletra.api.features.game.domain.board.theme.Theme;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {
@@ -52,7 +53,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     }
 
     public StartGameOutput execute(StartGameInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
 
         Theme theme = themeRepository.findById(input.settings().getThemeId());
 
@@ -62,13 +63,13 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         Board board = boardGenerator.generate(words, input.settings().getGameMode());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(gameId.toString());
 
         CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(input.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
 
         Game game = future.join();
 
-        return buildOutput(game, gameId);
+        return buildOutput(game, gameId.toString());
     }
 
     private StartGameOutput buildOutput(Game game, String id) {

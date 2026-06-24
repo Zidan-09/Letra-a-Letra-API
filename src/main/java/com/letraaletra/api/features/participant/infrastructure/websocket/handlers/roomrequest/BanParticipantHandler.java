@@ -12,6 +12,8 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.mapp
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.UUID;
+
 @Component
 public class BanParticipantHandler implements RoomRequestHandler<BanParticipantWsRequest> {
     private final BanParticipantUseCase banParticipant;
@@ -39,7 +41,7 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
 
         ModerationResponse dtoForBanned = new ModerationResponse("Banned from game");
 
-        gameNotifier.notifierOne(request.participantId(), dtoForBanned);
+        gameNotifier.notifierOne(UUID.fromString(request.participantId()), dtoForBanned);
 
     }
 

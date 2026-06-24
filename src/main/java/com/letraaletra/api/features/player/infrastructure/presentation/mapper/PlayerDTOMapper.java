@@ -7,7 +7,7 @@ import com.letraaletra.api.features.player.infrastructure.presentation.dto.respo
 public class PlayerDTOMapper {
     public static PlayerDTO toDTO(Player player, Participant participant) {
         return new PlayerDTO(
-                participant.getUserId(),
+                participant.getUserId().toString(),
                 participant.getNickname(),
                 participant.getCosmeticsEquipped(),
                 player.getScore(),

@@ -17,6 +17,7 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerActionOutput> {
@@ -41,9 +42,9 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
     }
 
     public PlayerActionOutput execute(PlayerActionInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(gameId.toString());
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
                 input.user(), input.action(), gameTimeoutManager, turnTimeoutManager

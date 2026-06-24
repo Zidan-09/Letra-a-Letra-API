@@ -17,10 +17,10 @@ public class UserStatsMapper {
         );
     }
 
-    public static UserStatsJpaEntity toEntity(UserStats domain, String userId) {
+    public static UserStatsJpaEntity toEntity(UserStats domain, UUID userId) {
         UserStatsJpaEntity entity = new UserStatsJpaEntity();
 
-        entity.setUserId(UUID.fromString(userId));
+        entity.setUserId(userId);
         entity.setTotalMatches(domain.getTotalMatches());
         entity.setTotalWins(domain.getTotalWins());
         entity.setWinStreak(domain.getWinStreak());

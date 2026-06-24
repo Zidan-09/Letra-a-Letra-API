@@ -8,7 +8,7 @@ public class WordDTOMapper {
         return new WordDTO(
                 word.getValue(),
                 word.isFound(),
-                word.getFoundById()
+                word.getFoundById() !=  null ? word.getFoundById().toString() : null
         );
     }
 }
