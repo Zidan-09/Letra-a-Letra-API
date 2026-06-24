@@ -22,14 +22,14 @@ public class JpaFriendRepository implements FriendRepository {
     }
 
     @Override
-    public List<Friend> getFriends(String userId) {
-        return repository.getFriendsList(UUID.fromString(userId), FriendStatus.ACCEPT)
+    public List<Friend> getFriends(UUID userId) {
+        return repository.getFriendsList(userId, FriendStatus.ACCEPT)
                 .stream().map(FriendMapper::toDomain).toList();
     }
 
     @Override
-    public Optional<Friend> find(String userId1, String userId2) {
-        return repository.getFriend(UUID.fromString(userId1), UUID.fromString(userId2))
+    public Optional<Friend> find(UUID userId1, UUID userId2) {
+        return repository.getFriend(userId1, userId2)
                 .map(FriendMapper::toDomain);
     }
 
