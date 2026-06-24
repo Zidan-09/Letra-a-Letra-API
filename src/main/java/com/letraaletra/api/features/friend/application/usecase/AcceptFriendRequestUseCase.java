@@ -18,7 +18,7 @@ public class AcceptFriendRequestUseCase implements UseCaseWithoutOutput<AcceptFr
 
     @Override
     public void execute(AcceptFriendRequestInput input) {
-        Friend request = friendRepository.find(input.userId(), input.friendId());
+        Friend request = friendRepository.find(input.userId(), input.friendId()).orElse(null);
         validateRequest(request);
 
         request.setStatus(FriendStatus.ACCEPT);

@@ -18,7 +18,9 @@ public class RemoveFriendUseCase implements UseCaseWithoutOutput<RemoveFriendInp
 
     @Override
     public void execute(RemoveFriendInput input) {
-        Friend friend = friendRepository.find(input.userId(), input.friendId());
+        Friend friend = friendRepository.find(input.userId(), input.friendId())
+                .orElseThrow(FriendNotFoundException::new);
+
         validateFriend(friend);
 
         friend.setStatus(FriendStatus.DECLINED);
@@ -27,7 +29,7 @@ public class RemoveFriendUseCase implements UseCaseWithoutOutput<RemoveFriendInp
     }
 
     private void validateFriend(Friend friend) {
-        if (friend == null || !friend.getStatus().equals(FriendStatus.ACCEPT)) {
+        if (!friend.getStatus().equals(FriendStatus.ACCEPT)) {
             throw new FriendNotFoundException();
         }
     }

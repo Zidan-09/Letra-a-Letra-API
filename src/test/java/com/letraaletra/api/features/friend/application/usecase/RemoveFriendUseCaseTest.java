@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -48,7 +49,7 @@ class RemoveFriendUseCaseTest {
         Friend friend = new Friend(userId, friendId, FriendStatus.ACCEPT, now);
 
         when(repository.find(userId, friendId))
-                .thenReturn(friend);
+                .thenReturn(Optional.of(friend));
 
         ArgumentCaptor<Friend> friendCaptor = ArgumentCaptor.forClass(Friend.class);
 
@@ -65,7 +66,7 @@ class RemoveFriendUseCaseTest {
     @DisplayName("should throw an FriendNotFoundException because null")
     void throwFriendNotFoundExceptionBecauseNull() {
         when(repository.find(userId, friendId))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
 
         assertThrows(FriendNotFoundException.class,
                 () -> useCase.execute(input)
@@ -78,7 +79,7 @@ class RemoveFriendUseCaseTest {
         Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
 
         when(repository.find(userId, friendId))
-                .thenReturn(friend);
+                .thenReturn(Optional.of(friend));
 
         assertThrows(FriendNotFoundException.class,
                 () -> useCase.execute(input)
