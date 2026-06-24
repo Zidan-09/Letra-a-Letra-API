@@ -1,16 +1,17 @@
 package com.letraaletra.api.features.friend.domain;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class Friend {
-    private final String userId1;
-    private final String userId2;
+    private final UUID userId1;
+    private final UUID userId2;
     private FriendStatus status;
     private final LocalDateTime requestDate;
 
     public Friend(
-            String userId1,
-            String userId2,
+            UUID userId1,
+            UUID userId2,
             FriendStatus status,
             LocalDateTime requestDate
     ) {
@@ -20,11 +21,11 @@ public class Friend {
         this.requestDate = requestDate;
     }
 
-    public String getUserId1() {
+    public UUID getUserId1() {
         return userId1;
     }
 
-    public String getUserId2() {
+    public UUID getUserId2() {
         return userId2;
     }
 

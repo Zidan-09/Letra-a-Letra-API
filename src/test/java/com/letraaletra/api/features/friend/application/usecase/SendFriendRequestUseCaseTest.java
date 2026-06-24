@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,8 +38,8 @@ class SendFriendRequestUseCaseTest {
 
     @BeforeEach
     void setup() {
-        userId = "id -1";
-        friendId = "id-2";
+        userId = UUID.randomUUID().toString();
+        friendId = UUID.randomUUID().toString();
         now = LocalDateTime.now();
         input = SendFriendRequestMapper.toInput(userId, friendId);
     }
@@ -46,7 +47,7 @@ class SendFriendRequestUseCaseTest {
     @Test
     @DisplayName("should send a friend request correctly")
     void sendFriendRequest() {
-        when(repository.find(userId, friendId))
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
                 .thenReturn(Optional.empty());
 
         SendFriendRequestOutput output = useCase.execute(input);
@@ -57,9 +58,9 @@ class SendFriendRequestUseCaseTest {
     @Test
     @DisplayName("should send a friend request correctly")
     void sendFriendRequest2() {
-        Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.DECLINED, now);
 
-        when(repository.find(userId, friendId))
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
                 .thenReturn(Optional.of(friend));
 
         SendFriendRequestOutput output = useCase.execute(input);
@@ -70,9 +71,9 @@ class SendFriendRequestUseCaseTest {
     @Test
     @DisplayName("should throw an InvalidFriendRequestException because status")
     void throwError() {
-        Friend friend = new Friend(userId, friendId, FriendStatus.PENDING, now);
+        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.PENDING, now);
 
-        when(repository.find(userId, friendId))
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
                 .thenReturn(Optional.of(friend));
 
         assertThrows(InvalidFriendRequestException.class,

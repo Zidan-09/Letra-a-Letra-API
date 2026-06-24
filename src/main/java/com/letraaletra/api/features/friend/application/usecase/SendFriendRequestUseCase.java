@@ -9,6 +9,7 @@ import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput, SendFriendRequestOutput> {
     private final FriendRepository friendRepository;
@@ -35,7 +36,7 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
         return buildOutput(friend);
     }
 
-    private void checkFriendRequest(String userId, String friendId) {
+    private void checkFriendRequest(UUID userId, UUID friendId) {
         Friend request = friendRepository.find(userId, friendId).orElse(null);
 
         if (request != null && !request.getStatus().equals(FriendStatus.DECLINED)) {
