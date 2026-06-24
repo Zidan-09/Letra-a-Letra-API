@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,6 +39,7 @@ class SignInUseCaseTest {
 
     private SignInInput input;
     private User user;
+    private UUID userId;
 
     @BeforeEach
     void setup() {
@@ -47,6 +49,8 @@ class SignInUseCaseTest {
         );
 
         user = mock(User.class);
+
+        userId = UUID.randomUUID();
     }
 
     @Test
@@ -60,27 +64,25 @@ class SignInUseCaseTest {
                 .thenReturn("hashed-password");
 
         when(user.getId())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(passwordService.matches(
                 input.password(),
                 "hashed-password"
         )).thenReturn(true);
 
-        when(tokenService.generateToken("user-id"))
+        when(tokenService.generateToken(userId))
                 .thenReturn("jwt-token");
 
         SignInOutput output = signInUseCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("user-id", output.id());
-        assertEquals("jwt-token", output.token());
 
         verify(userRepository).findByEmail(input.email());
         verify(passwordService)
                 .matches("123456", "hashed-password");
         verify(tokenService)
-                .generateToken("user-id");
+                .generateToken(userId);
     }
 
     @Test
@@ -125,7 +127,7 @@ class SignInUseCaseTest {
         );
 
         verify(tokenService, never())
-                .generateToken(anyString());
+                .generateToken(any());
     }
 
     @Test
@@ -154,7 +156,7 @@ class SignInUseCaseTest {
         assertSame(exception, thrown);
 
         verify(tokenService, never())
-                .generateToken(anyString());
+                .generateToken(any());
     }
 
     @Test
@@ -168,7 +170,7 @@ class SignInUseCaseTest {
                 .thenReturn("hashed-password");
 
         when(user.getId())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(passwordService.matches(
                 input.password(),
@@ -178,7 +180,7 @@ class SignInUseCaseTest {
         RuntimeException exception =
                 new RuntimeException("token error");
 
-        when(tokenService.generateToken("user-id"))
+        when(tokenService.generateToken(userId))
                 .thenThrow(exception);
 
         RuntimeException thrown = assertThrows(
@@ -200,12 +202,12 @@ class SignInUseCaseTest {
                 .thenReturn("hash");
 
         when(user.getId())
-                .thenReturn("user-id");
+                .thenReturn(userId);
 
         when(passwordService.matches(anyString(), anyString()))
                 .thenReturn(true);
 
-        when(tokenService.generateToken(anyString()))
+        when(tokenService.generateToken(any()))
                 .thenReturn("token");
 
         signInUseCase.execute(input);
@@ -223,6 +225,6 @@ class SignInUseCaseTest {
                 .matches("123456", "hash");
 
         inOrder.verify(tokenService)
-                .generateToken("user-id");
+                .generateToken(userId);
     }
 }

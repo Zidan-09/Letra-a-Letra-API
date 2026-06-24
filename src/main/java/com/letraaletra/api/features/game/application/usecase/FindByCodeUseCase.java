@@ -8,6 +8,8 @@ import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 
+import java.util.UUID;
+
 public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOutput> {
     private final GameQueryService gameQueryService;
     private final TokenService tokenService;
@@ -22,7 +24,7 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
 
         validateGame(game);
 
-        String token = tokenService.generateToken(game.getId());
+        String token = tokenService.generateToken(UUID.fromString(game.getId()));
 
         return buildReturn(token);
     }

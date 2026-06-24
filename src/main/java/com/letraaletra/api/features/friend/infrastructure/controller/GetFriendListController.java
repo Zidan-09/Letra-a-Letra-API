@@ -30,7 +30,7 @@ public class GetFriendListController {
     public ResponseEntity<SuccessResponse<GetFriendListResponse>> getFriends(
             @AuthenticationPrincipal User user
     ) {
-        GetFriendListInput input = GetFriendListMapper.toInput(user.getId());
+        GetFriendListInput input = GetFriendListMapper.toInput(user.getId().toString());
 
         GetFriendListOutput output = useCase.execute(input);
 

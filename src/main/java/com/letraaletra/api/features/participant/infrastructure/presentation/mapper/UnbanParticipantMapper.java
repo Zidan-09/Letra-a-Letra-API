@@ -5,11 +5,13 @@ import com.letraaletra.api.features.participant.application.output.UnbanParticip
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
 
+import java.util.UUID;
+
 public class UnbanParticipantMapper {
-    public static UnbanParticipantInput toInput(UnbanParticipantWsRequest request, String userId) {
+    public static UnbanParticipantInput toInput(UnbanParticipantWsRequest request, UUID userId) {
         return new UnbanParticipantInput(
                 request.tokenGameId(),
-                request.userId(),
+                UUID.fromString(request.userId()),
                 userId
         );
     }

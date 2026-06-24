@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -47,17 +48,19 @@ class BuyOfferUseCaseTest {
     private User mockUser;
     private Wallet mockWallet;
     private StoreOffer mockOffer;
+    private UUID userId;
 
     @BeforeEach
     void setUp() {
-        input = new BuyOfferInput("user-123", "offer-456");
+        userId = UUID.randomUUID();
+        input = new BuyOfferInput(userId, "offer-456");
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
         mockOffer = mock(StoreOffer.class);
         Cosmetic mockCosmetic = mock(Cosmetic.class);
 
-        lenient().when(mockUser.getId()).thenReturn("user-123");
+        lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
         lenient().when(mockOffer.getCosmetic()).thenReturn(mockCosmetic);
         lenient().when(mockCosmetic.getId()).thenReturn("cosmetic-789");
@@ -78,7 +81,7 @@ class BuyOfferUseCaseTest {
         assertEquals(mockOffer, output.offer());
 
         verify(mockWallet, times(1)).pay(CoinType.HARD, 100);
-        verify(unlockCosmeticService, times(1)).execute("cosmetic-789", "user-123");
+        verify(unlockCosmeticService, times(1)).execute("cosmetic-789", userId);
         verify(userRepository, times(1)).save(mockUser);
     }
 
@@ -142,7 +145,7 @@ class BuyOfferUseCaseTest {
         when(mockOffer.isActive()).thenReturn(true);
 
         doThrow(new UserNotFoundException())
-                .when(unlockCosmeticService).execute(anyString(), anyString());
+                .when(unlockCosmeticService).execute(anyString(), any());
 
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 

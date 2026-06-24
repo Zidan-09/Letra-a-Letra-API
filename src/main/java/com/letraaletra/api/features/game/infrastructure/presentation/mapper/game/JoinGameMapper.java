@@ -5,12 +5,14 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.application.output.JoinGameOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.JoinGameWsRequest;
 
+import java.util.UUID;
+
 public class JoinGameMapper {
     public static JoinGameInput toInput(JoinGameWsRequest request, String sessionId, String userId) {
         return new JoinGameInput(
                 request.tokenGameId(),
                 sessionId,
-                userId
+                UUID.fromString(userId)
         );
     }
 

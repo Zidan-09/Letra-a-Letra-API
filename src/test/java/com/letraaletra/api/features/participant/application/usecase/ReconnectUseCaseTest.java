@@ -9,6 +9,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -35,10 +37,16 @@ class ReconnectUseCaseTest {
     @InjectMocks
     private ReconnectUseCase reconnectUseCase;
 
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+    }
+
     @Test
     @DisplayName("Deve reconectar com sucesso, cancelando o agendamento de queda")
     void shouldReconnectParticipantSuccessfully() {
-        String userId = "user-789";
         String gameId = "game-123";
         String wsSessionId = "session-new";
         ReconnectParticipantInput input = new ReconnectParticipantInput(userId, wsSessionId);
@@ -62,7 +70,6 @@ class ReconnectUseCaseTest {
     @Test
     @DisplayName("Deve capturar qualquer exceção na reconexão, ejetar o usuário do jogo e salvar")
     void shouldFallbackAndRemoveUserFromGameOnException() {
-        String userId = "user-789";
         String gameId = "game-123";
         ReconnectParticipantInput input = new ReconnectParticipantInput(userId, "session-any");
 

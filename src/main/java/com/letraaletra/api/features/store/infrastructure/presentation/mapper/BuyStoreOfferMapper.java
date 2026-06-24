@@ -4,10 +4,12 @@ import com.letraaletra.api.features.store.application.input.BuyOfferInput;
 import com.letraaletra.api.features.store.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.BuyStoreOfferResponse;
 
+import java.util.UUID;
+
 public class BuyStoreOfferMapper {
     public static BuyOfferInput toInput(String userId, String offerId) {
         return new BuyOfferInput(
-               userId,
+               UUID.fromString(userId),
                offerId
         );
     }

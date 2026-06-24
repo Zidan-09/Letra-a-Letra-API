@@ -8,11 +8,14 @@ import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -35,14 +38,21 @@ class FindByTokenGameIdUseCaseTest {
     @InjectMocks
     private FindByTokenGameIdUseCase useCase;
 
+    private UUID gameId;
+
+    @BeforeEach
+    void setup() {
+        gameId = UUID.randomUUID();
+    }
+
     @Test
     void shouldReturnGameAndTokenWhenTokenIsValid() {
         FindByTokenInput input = new FindByTokenInput("token-123");
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.getGame())
@@ -55,7 +65,7 @@ class FindByTokenGameIdUseCaseTest {
         assertEquals(game, output.game());
 
         verify(tokenService).getTokenContent("token-123");
-        verify(actorManager).get("game-id");
+        verify(actorManager).get(gameId.toString());
         verify(actor).getGame();
     }
 
@@ -79,9 +89,9 @@ class FindByTokenGameIdUseCaseTest {
         FindByTokenInput input = new FindByTokenInput("token-123");
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenThrow(new GameNotFoundException());
 
         assertThrows(

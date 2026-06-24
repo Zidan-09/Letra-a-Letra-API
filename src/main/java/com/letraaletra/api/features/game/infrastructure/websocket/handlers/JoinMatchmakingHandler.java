@@ -12,6 +12,8 @@ import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestH
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.UUID;
+
 @Component
 public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakingGameWsRequest> {
     private final JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase;
@@ -27,7 +29,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
 
     @Override
     public void handle(JoinMatchmakingGameWsRequest request, WebSocketSession session) {
-        String userId = (String) session.getAttributes().get("userId");
+        UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         JoinMatchmakingInput command = JoinMatchmakingMapper.toInput(userId, session.getId(), request.gameMode());
 
@@ -43,7 +45,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
         return JoinMatchmakingGameWsRequest.class;
     }
 
-    private void notifier(Game game, String user, JoinMatchmakingResponse dto) {
+    private void notifier(Game game, UUID user, JoinMatchmakingResponse dto) {
         if (game == null) {
             gameNotifier.notifierOne(user, dto);
 

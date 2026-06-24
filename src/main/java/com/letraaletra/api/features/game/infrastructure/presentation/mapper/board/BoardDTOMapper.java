@@ -29,7 +29,7 @@ public class BoardDTOMapper {
             return new BoardDTO(
                     true,
                     cell.getLetter(),
-                    cell.getRevealedById(),
+                    cell.getRevealedById().toString(),
                     null
             );
         }
@@ -40,7 +40,7 @@ public class BoardDTOMapper {
                 null,
                 cell.getEffect() instanceof BlockEffect block ?
                         new BlockView(
-                                block.getOwnerId(),
+                                block.getOwnerId().toString(),
                                 block.getRemainingAttempts()
                         ) : null
         );

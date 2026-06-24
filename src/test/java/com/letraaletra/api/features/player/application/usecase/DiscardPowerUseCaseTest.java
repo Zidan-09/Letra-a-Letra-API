@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,14 +48,14 @@ class DiscardPowerUseCaseTest {
     @DisplayName("Deve executar o descarte de poder enviando o comando correto para o Ator da partida")
     void shouldExecuteDiscardPowerSuccessfully() {
         String tokenGameId = "token-criptografado-da-sala";
-        String decryptedGameId = "game-real-uuid";
-        String userId = "player-1";
+        UUID decryptedGameId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         String powerId = "power-uuid";
 
         DiscardPowerInput input = new DiscardPowerInput(tokenGameId, userId, powerId);
 
         when(tokenService.getTokenContent(tokenGameId)).thenReturn(decryptedGameId);
-        when(gameActorManager.get(decryptedGameId)).thenReturn(actor);
+        when(gameActorManager.get(decryptedGameId.toString())).thenReturn(actor);
 
         CompletableFuture<Game> futureResult = CompletableFuture.completedFuture(mockGame);
         when(actor.enqueueCommand(any(DiscardPowerActorCommand.class))).thenReturn(futureResult);

@@ -14,6 +14,7 @@ import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,6 +53,13 @@ class StartGameUseCaseTest {
     @InjectMocks
     private StartGameUseCase useCase;
 
+    private UUID gameId;
+
+    @BeforeEach
+    void setup() {
+        gameId = UUID.randomUUID();
+    }
+
     @Test
     void shouldStartGameUsingThemeWords() {
         GameSettings settings = new GameSettings(
@@ -77,7 +86,7 @@ class StartGameUseCaseTest {
         );
 
         when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
@@ -88,7 +97,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(words, settings.getGameMode()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -97,7 +106,7 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("game-id", output.id());
+        assertEquals(gameId.toString(), output.id());
         assertEquals(game, output.game());
 
         verify(theme).pickRandomWords(eq(5), any());
@@ -129,7 +138,7 @@ class StartGameUseCaseTest {
         );
 
         when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(null);
@@ -140,7 +149,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(words, settings.getGameMode()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -149,7 +158,7 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("game-id", output.id());
+        assertEquals(gameId.toString(), output.id());
         assertEquals(game, output.game());
 
         verify(pickRandomThemeWordsService).execute();
@@ -183,7 +192,7 @@ class StartGameUseCaseTest {
         );
 
         when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
@@ -194,7 +203,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(words, gameMode))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -223,7 +232,7 @@ class StartGameUseCaseTest {
         Game game = mock(Game.class);
 
         when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
@@ -234,7 +243,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(anyList(), any()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))

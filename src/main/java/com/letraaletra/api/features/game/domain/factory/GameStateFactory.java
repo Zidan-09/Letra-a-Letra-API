@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class GameStateFactory {
     public GameState generate(List<Participant> participants, Board board) {
-        Map<String, Player> players = new HashMap<>();
+        Map<UUID, Player> players = new HashMap<>();
 
         participants
                 .stream().filter(p -> p.getRole() == ParticipantRole.PLAYER)

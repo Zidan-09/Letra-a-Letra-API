@@ -28,6 +28,7 @@ import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput, JoinMatchmakingOutput> {
@@ -146,7 +147,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
     private JoinMatchmakingOutput buildOutput(DefaultGameResult result) {
         return new JoinMatchmakingOutput(
-                result.game() != null ? Optional.of(tokenService.generateToken(result.game().getId())) : Optional.empty(),
+                result.game() != null ? Optional.of(tokenService.generateToken(UUID.fromString(result.game().getId()))) : Optional.empty(),
                 result.game() != null ? Optional.of(result.game()) : Optional.empty()
         );
     }

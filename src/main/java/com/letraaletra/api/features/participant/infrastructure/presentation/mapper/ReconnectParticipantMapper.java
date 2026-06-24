@@ -5,10 +5,12 @@ import com.letraaletra.api.features.participant.application.output.ReconnectPart
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateDTOMapper;
 
+import java.util.UUID;
+
 public class ReconnectParticipantMapper {
     public static ReconnectParticipantInput toInput(String user, String session) {
         return new ReconnectParticipantInput(
-                user,
+                UUID.fromString(user),
                 session
         );
     }

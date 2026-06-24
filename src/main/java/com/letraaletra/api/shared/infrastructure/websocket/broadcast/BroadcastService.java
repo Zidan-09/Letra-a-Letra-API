@@ -17,6 +17,7 @@ import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class BroadcastService implements GameNotifier {
@@ -53,7 +54,7 @@ public class BroadcastService implements GameNotifier {
     }
 
     @Override
-    public void notifierOne(String userId, Object dto) {
+    public void notifierOne(UUID userId, Object dto) {
         WebSocketSession session = sessionRepository.findByUserId(userId);
 
         if (session == null || !session.isOpen()) {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
@@ -20,7 +21,7 @@ public class DisconnectManager implements DisconnectScheduler {
     private final Map<String, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
 
     @Override
-    public void start(String userId, String gameId) {
+    public void start(UUID userId, String gameId) {
         String key = buildKey(userId, gameId);
 
         cancel(userId, gameId);
@@ -31,7 +32,7 @@ public class DisconnectManager implements DisconnectScheduler {
     }
 
     @Override
-    public void cancel(String userId, String gameId) {
+    public void cancel(UUID userId, String gameId) {
         String key = buildKey(userId, gameId);
 
         ScheduledFuture<?> future = timers.remove(key);
@@ -41,7 +42,7 @@ public class DisconnectManager implements DisconnectScheduler {
         }
     }
 
-    private void handleTimeout(String userId, String gameId) {
+    private void handleTimeout(UUID userId, String gameId) {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
@@ -50,7 +51,7 @@ public class DisconnectManager implements DisconnectScheduler {
         ));
     }
 
-    private String buildKey(String userId, String gameId) {
-        return userId + ":" + gameId;
+    private String buildKey(UUID userId, String gameId) {
+        return userId.toString() + ":" + gameId;
     }
 }

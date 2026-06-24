@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class GetPublicGamesUseCase implements UseCaseWithoutInput<GetGamesOutput> {
     private final GameQueryService gameQueryService;
@@ -25,7 +26,7 @@ public class GetPublicGamesUseCase implements UseCaseWithoutInput<GetGamesOutput
         Map<String, String> tokens = new HashMap<>();
 
         for (Game game : games) {
-            String token = tokenService.generateToken(game.getId());
+            String token = tokenService.generateToken(UUID.fromString(game.getId()));
 
             tokens.put(game.getId(), token);
         }

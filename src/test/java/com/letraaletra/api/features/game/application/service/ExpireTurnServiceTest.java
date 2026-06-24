@@ -10,6 +10,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +42,15 @@ class ExpireTurnServiceTest {
     @InjectMocks
     private ExpireTurnService service;
 
+    private UUID userId1;
+    private UUID userId2;
+
+    @BeforeEach
+    void setup() {
+        userId1 = UUID.randomUUID();
+        userId2 = UUID.randomUUID();
+    }
+
     @Test
     void shouldExpireTurnSuccessfully() {
         ExpireTurnInput input = new ExpireTurnInput("game-1", 1);
@@ -55,19 +66,19 @@ class ExpireTurnServiceTest {
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
 
-        when(result.whoPassed()).thenReturn("user-1");
+        when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
         when(result.gameOverResult()).thenReturn(gameOverResult);
         when(result.removedBecauseAfk()).thenReturn(false);
 
         when(game.getGameState()).thenReturn(gameState);
-        when(gameState.currentPlayerTurn()).thenReturn("player-2");
+        when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
         ExpireTurnOutput output = service.execute(input).orElseThrow();
 
         assertEquals("TURN_EXPIRED", output.event());
-        assertEquals("user-1", output.user());
-        assertEquals("player-2", output.currentPlayerTurnId());
+        assertEquals(userId1, output.user());
+        assertEquals(userId2, output.currentPlayerTurnId());
         assertEquals(game, output.game());
         assertEquals(gameOverResult, output.gameOverResult());
         assertFalse(output.removedBecauseAfk());
@@ -93,15 +104,15 @@ class ExpireTurnServiceTest {
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
 
-        when(result.whoPassed()).thenReturn("user-1");
+        when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
         when(result.gameOverResult()).thenReturn(gameOverResult);
         when(result.removedBecauseAfk()).thenReturn(true);
 
         when(game.getGameState()).thenReturn(gameState);
-        when(gameState.currentPlayerTurn()).thenReturn("player-2");
+        when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        when(userRepository.find("user-1")).thenReturn(Optional.of(user));
+        when(userRepository.find(userId1)).thenReturn(Optional.of(user));
 
         service.execute(input);
 
@@ -124,13 +135,13 @@ class ExpireTurnServiceTest {
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
 
-        when(result.whoPassed()).thenReturn("user-1");
+        when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
         when(result.gameOverResult()).thenReturn(gameOverResult);
         when(result.removedBecauseAfk()).thenReturn(false);
 
         when(game.getGameState()).thenReturn(gameState);
-        when(gameState.currentPlayerTurn()).thenReturn("player-2");
+        when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
         when(gameOverResult.finished()).thenReturn(true);
 

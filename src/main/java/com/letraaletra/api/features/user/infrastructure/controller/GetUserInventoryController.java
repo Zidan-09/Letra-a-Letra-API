@@ -29,7 +29,7 @@ public class GetUserInventoryController {
     public ResponseEntity<SuccessResponse<GetUserInventoryResponse>> getUserInventory(
             @AuthenticationPrincipal User user
         ) {
-        GetUserInventoryInput input = GetUserInventoryMapper.toInput(user.getId());
+        GetUserInventoryInput input = GetUserInventoryMapper.toInput(user.getId().toString());
 
         GetUserInventoryOutput output = useCase.execute(input);
 

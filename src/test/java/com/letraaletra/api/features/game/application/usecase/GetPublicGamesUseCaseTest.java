@@ -4,6 +4,7 @@ import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,6 +30,15 @@ class GetPublicGamesUseCaseTest {
     @InjectMocks
     private GetPublicGamesUseCase useCase;
 
+    private UUID gameId1;
+    private UUID gameId2;
+
+    @BeforeEach
+    void setup() {
+        gameId1 = UUID.randomUUID();
+        gameId2 = UUID.randomUUID();
+    }
+
     @Test
     void shouldReturnEmptyListWhenNoPublicGamesExist() {
         when(gameQueryService.getPublic())
@@ -39,7 +50,7 @@ class GetPublicGamesUseCaseTest {
         assertTrue(output.games().isEmpty());
         assertTrue(output.tokens().isEmpty());
 
-        verify(tokenService, never()).generateToken(anyString());
+        verify(tokenService, never()).generateToken(any());
     }
 
     @Test
@@ -47,16 +58,16 @@ class GetPublicGamesUseCaseTest {
         Game game1 = mock(Game.class);
         Game game2 = mock(Game.class);
 
-        when(game1.getId()).thenReturn("game-1");
-        when(game2.getId()).thenReturn("game-2");
+        when(game1.getId()).thenReturn(gameId1.toString());
+        when(game2.getId()).thenReturn(gameId2.toString());
 
         when(gameQueryService.getPublic())
                 .thenReturn(List.of(game1, game2));
 
-        when(tokenService.generateToken("game-1"))
+        when(tokenService.generateToken(gameId1))
                 .thenReturn("token-1");
 
-        when(tokenService.generateToken("game-2"))
+        when(tokenService.generateToken(gameId2))
                 .thenReturn("token-2");
 
         GetGamesOutput output = useCase.execute();
@@ -66,8 +77,8 @@ class GetPublicGamesUseCaseTest {
         Map<String, String> tokens = output.tokens();
 
         assertEquals(2, tokens.size());
-        assertEquals("token-1", tokens.get("game-1"));
-        assertEquals("token-2", tokens.get("game-2"));
+        assertEquals("token-1", tokens.get(gameId1.toString()));
+        assertEquals("token-2", tokens.get(gameId2.toString()));
 
         assertTrue(output.games().contains(game1));
         assertTrue(output.games().contains(game2));
@@ -79,23 +90,25 @@ class GetPublicGamesUseCaseTest {
         Game game2 = mock(Game.class);
         Game game3 = mock(Game.class);
 
-        when(game1.getId()).thenReturn("game-1");
-        when(game2.getId()).thenReturn("game-2");
-        when(game3.getId()).thenReturn("game-3");
+        UUID gameId3 = UUID.randomUUID();
+
+        when(game1.getId()).thenReturn(gameId1.toString());
+        when(game2.getId()).thenReturn(gameId2.toString());
+        when(game3.getId()).thenReturn(gameId3.toString());
 
         when(gameQueryService.getPublic())
                 .thenReturn(List.of(game1, game2, game3));
 
-        when(tokenService.generateToken(anyString()))
+        when(tokenService.generateToken(any()))
                 .thenReturn("token");
 
         useCase.execute();
 
-        verify(tokenService).generateToken("game-1");
-        verify(tokenService).generateToken("game-2");
-        verify(tokenService).generateToken("game-3");
+        verify(tokenService).generateToken(gameId1);
+        verify(tokenService).generateToken(gameId2);
+        verify(tokenService).generateToken(gameId3);
 
         verify(tokenService, times(3))
-                .generateToken(anyString());
+                .generateToken(any());
     }
 }

@@ -11,6 +11,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,12 +40,21 @@ class JoinGameUseCaseTest {
     @InjectMocks
     private JoinGameUseCase useCase;
 
+    private UUID userId;
+    private UUID gameId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+        gameId = UUID.randomUUID();
+    }
+
     @Test
     void shouldJoinGameSuccessfully() {
         JoinGameInput input = new JoinGameInput(
                 "token-123",
                 "session-123",
-                "user-123"
+                userId
         );
 
         User user = mock(User.class);
@@ -51,15 +62,15 @@ class JoinGameUseCaseTest {
         Actor actor = mock(Actor.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
                 .thenReturn(true);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(JoinGameActorCommand.class)))
@@ -79,13 +90,13 @@ class JoinGameUseCaseTest {
         JoinGameInput input = new JoinGameInput(
                 "token-123",
                 "session-123",
-                "user-123"
+                userId
         );
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.empty());
 
         assertThrows(
@@ -102,7 +113,7 @@ class JoinGameUseCaseTest {
         JoinGameInput input = new JoinGameInput(
                 "token-123",
                 "session-abc",
-                "user-123"
+                userId
         );
 
         User user = mock(User.class);
@@ -110,15 +121,15 @@ class JoinGameUseCaseTest {
         Actor actor = mock(Actor.class);
 
         when(tokenService.getTokenContent("token-123"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(userRepository.find("user-123"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
                 .thenReturn(true);
 
-        when(actorManager.get("game-id"))
+        when(actorManager.get(gameId.toString()))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))
@@ -141,9 +152,9 @@ class JoinGameUseCaseTest {
         User user = mock(User.class);
 
         when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
+                .thenReturn(gameId);
 
-        when(userRepository.find("user"))
+        when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         when(user.isNotInGame())
@@ -155,7 +166,7 @@ class JoinGameUseCaseTest {
                         new JoinGameInput(
                                 "token",
                                 "session",
-                                "user"
+                                userId
                         )
                 )
         );

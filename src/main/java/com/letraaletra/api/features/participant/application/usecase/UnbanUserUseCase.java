@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.domain.security.TokenService;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class UnbanUserUseCase implements UseCase<UnbanParticipantInput, UnbanParticipantOutput> {
@@ -21,9 +22,9 @@ public class UnbanUserUseCase implements UseCase<UnbanParticipantInput, UnbanPar
     }
 
     public UnbanParticipantOutput execute(UnbanParticipantInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(gameId.toString());
 
         CompletableFuture<Game> future = actor.enqueueCommand(new UnbanParticipantActorCommand(input.target(), input.user()));
         Game game = future.join();

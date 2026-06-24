@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
+import java.util.UUID;
 
 public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         implements InGameActionHandler<T> {
@@ -27,7 +28,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
 
     @Override
     public void handle(T request, WebSocketSession session, String gameTokenId) {
-        String userId = (String) session.getAttributes().get("userId");
+        UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         GameAction action = createAction(request);
 

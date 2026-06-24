@@ -19,12 +19,12 @@ public class JpaUserInventoryRepository implements InventoryRepository {
     }
 
     @Override
-    public List<InventoryItem> getCosmetics(String userId) {
-        return repository.findInventoryItemsByUserId(UUID.fromString(userId));
+    public List<InventoryItem> getCosmetics(UUID userId) {
+        return repository.findInventoryItemsByUserId(userId);
     }
 
     @Override
-    public void save(InventoryItem inventory, String userId) {
+    public void save(InventoryItem inventory, UUID userId) {
         UserInventoryJpaEntity entity = UserInventoryMapper.toEntity(userId, inventory);
         repository.save(entity);
     }

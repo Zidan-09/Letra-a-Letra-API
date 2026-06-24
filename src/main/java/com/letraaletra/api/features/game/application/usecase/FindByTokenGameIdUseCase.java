@@ -8,6 +8,8 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 
+import java.util.UUID;
+
 public class FindByTokenGameIdUseCase implements UseCase<FindByTokenInput, FindByTokenOutput> {
     private final TokenService tokenService;
     private final ActorManager<Game> actorManager;
@@ -18,9 +20,9 @@ public class FindByTokenGameIdUseCase implements UseCase<FindByTokenInput, FindB
     }
 
     public FindByTokenOutput execute(FindByTokenInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = tokenService.getTokenContent(input.token());
 
-        Actor actor = actorManager.get(gameId);
+        Actor actor = actorManager.get(gameId.toString());
 
         return buildOutput(actor.getGame(), input.token());
     }

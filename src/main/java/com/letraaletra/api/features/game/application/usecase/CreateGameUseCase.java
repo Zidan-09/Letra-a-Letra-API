@@ -67,7 +67,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
 
         actorManager.create(gameId, game);
 
-        String tokenGameId = tokenService.generateToken(gameId);
+        String tokenGameId = tokenService.generateToken(UUID.fromString(gameId));
 
         gameTimeoutManager.start(game);
 

@@ -11,9 +11,10 @@ import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class User {
-    private final String id;
+    private final UUID id;
     private String nickname;
     private final String email;
     private final String hashPassword;
@@ -27,7 +28,7 @@ public class User {
     private final LocalDateTime createdAt;
 
     public User(
-            String id,
+            UUID id,
             String nickname,
             String email,
             String hashPassword,
@@ -51,7 +52,7 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

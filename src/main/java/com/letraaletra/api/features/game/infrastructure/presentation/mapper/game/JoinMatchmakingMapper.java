@@ -8,8 +8,10 @@ import com.letraaletra.api.features.game.domain.matchmaking.MatchmakingUser;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingStatus;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
 
+import java.util.UUID;
+
 public class JoinMatchmakingMapper {
-    public static JoinMatchmakingInput toInput(String user, String session, GameMode gameMode) {
+    public static JoinMatchmakingInput toInput(UUID user, String session, GameMode gameMode) {
         MatchmakingUser matchmakingUser = new MatchmakingUser(user, session);
 
         return new JoinMatchmakingInput(matchmakingUser, gameMode);

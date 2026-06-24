@@ -9,6 +9,7 @@ import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,11 +33,21 @@ class GameFactoriesTest {
 
         private final DefaultGameFactory factory = new DefaultGameFactory();
 
+        private UUID userId1;
+        private UUID userId2;
+
+        @BeforeEach
+        void setup() {
+            userId1 = UUID.randomUUID();
+            userId2 = UUID.randomUUID();
+        }
+
+
         @Test
         @DisplayName("Deve gerar um jogo de Matchmaking com dois jogadores e configurações padrão de privacidade")
         void shouldGenerateDefaultGameForMatchmaking() {
-            Participant player1 = new Participant("p1-id", "sess-1", "PlayerOne", List.of());
-            Participant player2 = new Participant("p2-id", "sess-2", "PlayerTwo", List.of());
+            Participant player1 = new Participant(userId1, "sess-1", "PlayerOne", List.of());
+            Participant player2 = new Participant(userId2, "sess-2", "PlayerTwo", List.of());
             String roomCode = "MATCH1";
 
             DefaultGameResult result = factory.generate(player1, player2, roomCode);
@@ -47,7 +59,7 @@ class GameFactoriesTest {
             assertEquals(roomCode, game.getCode());
             assertEquals(GameType.MATCHMAKING, game.getGameType());
             assertEquals("default-name", game.getRoomName());
-            assertEquals("p1-id", game.getHostId(), "O player1 deve iniciar como Host");
+            assertEquals(userId1, game.getHostId(), "O player1 deve iniciar como Host");
             assertEquals(2, game.getAmountPlayers(), "A sala deve possuir exatamente 2 jogadores ativos");
 
             RoomSettings settings = game.getRoomSettings();
@@ -63,16 +75,27 @@ class GameFactoriesTest {
         private final GameStateFactory factory = new GameStateFactory();
         @Mock private Board mockBoard;
 
+        private UUID playerId1;
+        private UUID playerId2;
+        private UUID spectatorId;
+
+        @BeforeEach
+        void setup() {
+            playerId1 = UUID.randomUUID();
+            playerId2 = UUID.randomUUID();
+            spectatorId = UUID.randomUUID();
+        }
+
         @Test
         @DisplayName("Deve gerar o GameState mapeando estritamente participantes que possuem o papel de PLAYER")
         void shouldGenerateGameStateOnlyFromActivePlayers() {
-            Participant p1 = new Participant("player-1", "s1", "P1", List.of());
+            Participant p1 = new Participant(playerId1, "s1", "P1", List.of());
             p1.changeRole(ParticipantRole.PLAYER);
 
-            Participant p2 = new Participant("player-2", "s2", "P2", List.of());
+            Participant p2 = new Participant(playerId2, "s2", "P2", List.of());
             p2.changeRole(ParticipantRole.PLAYER);
 
-            Participant spectator = new Participant("spec-3", "s3", "S3", List.of());
+            Participant spectator = new Participant(spectatorId, "s3", "S3", List.of());
             spectator.changeRole(ParticipantRole.SPECTATOR);
 
             List<Participant> roomParticipants = List.of(p1, p2, spectator);
@@ -85,9 +108,9 @@ class GameFactoriesTest {
 
             var playersMap = gameState.getPlayers();
             assertEquals(2, playersMap.size(), "Deveria mapear apenas os 2 usuários com role PLAYER");
-            assertTrue(playersMap.containsKey("player-1"));
-            assertTrue(playersMap.containsKey("player-2"));
-            assertFalse(playersMap.containsKey("spec-3"), "O espectador não deve entrar no mapa de execução de turnos");
+            assertTrue(playersMap.containsKey(playerId1));
+            assertTrue(playersMap.containsKey(playerId2));
+            assertFalse(playersMap.containsKey(spectatorId), "O espectador não deve entrar no mapa de execução de turnos");
 
             assertNotNull(gameState.getCurrentTurnEnds(), "O timestamp limite do primeiro turno deve ser definido");
         }

@@ -16,6 +16,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
@@ -32,8 +33,8 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
     }
 
     public LeftGameOutput execute(LeftGameInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
-        Actor actor = actorManager.get(gameId);
+        UUID gameId = tokenService.getTokenContent(input.token());
+        Actor actor = actorManager.get(gameId.toString());
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(input.session()));
 
