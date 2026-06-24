@@ -7,26 +7,20 @@ import com.letraaletra.api.features.game.domain.exception.UserNotInGameException
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
-import com.letraaletra.api.shared.domain.security.TokenService;
 
 import java.util.UUID;
 
 public class ModerationContextService {
     private final ActorManager<Game> actorManager;
-    private final TokenService tokenService;
 
     public ModerationContextService(
-            ActorManager<Game> actorManager,
-            TokenService tokenService
+            ActorManager<Game> actorManager
     ) {
         this.actorManager = actorManager;
-        this.tokenService = tokenService;
     }
 
-    public ModerationContext resolve(String tokenGameId, UUID targetId, UUID hostId) {
-        UUID gameId = tokenService.getTokenContent(tokenGameId);
-
-        Game game = actorManager.get(gameId.toString()).getGame();
+    public ModerationContext resolve(UUID gameId, UUID targetId, UUID hostId) {
+        Game game = actorManager.get(gameId).getGame();
 
         validateUser(hostId, game);
         validateAction(targetId, hostId);

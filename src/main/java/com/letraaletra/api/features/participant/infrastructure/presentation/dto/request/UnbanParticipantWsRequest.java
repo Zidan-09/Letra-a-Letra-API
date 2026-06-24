@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UnbanParticipantWsRequest(
         @NotBlank
-        String tokenGameId,
+        String gameId,
 
         @NotBlank
         String userId

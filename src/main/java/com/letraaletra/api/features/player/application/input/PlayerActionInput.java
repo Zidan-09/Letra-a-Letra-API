@@ -5,7 +5,7 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import java.util.UUID;
 
 public record PlayerActionInput(
-        String token,
+        String gameId,
         UUID user,
         GameAction action
 ) {

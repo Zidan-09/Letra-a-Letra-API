@@ -10,7 +10,7 @@ import java.util.UUID;
 public class JoinGameMapper {
     public static JoinGameInput toInput(JoinGameWsRequest request, String sessionId, String userId) {
         return new JoinGameInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 sessionId,
                 UUID.fromString(userId)
         );
@@ -18,7 +18,7 @@ public class JoinGameMapper {
 
     public static JoinGameResponse toResponse(JoinGameOutput output) {
         return new JoinGameResponse(
-                GameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game())
         );
     }
 }

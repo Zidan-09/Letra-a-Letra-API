@@ -10,7 +10,7 @@ import java.util.UUID;
 public class UnbanParticipantMapper {
     public static UnbanParticipantInput toInput(UnbanParticipantWsRequest request, UUID userId) {
         return new UnbanParticipantInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 UUID.fromString(request.userId()),
                 userId
         );
@@ -18,7 +18,7 @@ public class UnbanParticipantMapper {
 
     public static UnbanParticipantResponse toResponse(UnbanParticipantOutput output) {
         return new UnbanParticipantResponse(
-
+            output.game().getId().toString()
         );
     }
 }

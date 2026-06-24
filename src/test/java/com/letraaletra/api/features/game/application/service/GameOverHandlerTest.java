@@ -124,7 +124,7 @@ class GameOverHandlerTest {
         when(game.getGameType()).thenReturn(GameType.CUSTOM);
         when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
 
-        when(game.getId()).thenReturn(gameId.toString());
+        when(game.getId()).thenReturn(gameId);
         when(game.getParticipants()).thenReturn(List.of(participant));
 
         when(participant.getUserId()).thenReturn(userId);
@@ -132,7 +132,7 @@ class GameOverHandlerTest {
 
         handler.handle(game, result);
 
-        verify(actorManager).remove(gameId.toString());
+        verify(actorManager).remove(gameId);
         verify(user).leaveGame();
         verify(userRepository).save(user);
         verify(gameRepository).save(game);

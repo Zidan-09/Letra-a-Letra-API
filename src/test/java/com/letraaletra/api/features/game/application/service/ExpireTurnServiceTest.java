@@ -44,16 +44,18 @@ class ExpireTurnServiceTest {
 
     private UUID userId1;
     private UUID userId2;
+    private UUID gameId;
 
     @BeforeEach
     void setup() {
         userId1 = UUID.randomUUID();
         userId2 = UUID.randomUUID();
+        gameId = UUID.randomUUID();
     }
 
     @Test
     void shouldExpireTurnSuccessfully() {
-        ExpireTurnInput input = new ExpireTurnInput("game-1", 1);
+        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
 
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
@@ -61,7 +63,7 @@ class ExpireTurnServiceTest {
         ExpireTurnResult result = mock(ExpireTurnResult.class);
         GameOverResult gameOverResult = mock(GameOverResult.class);
 
-        when(gameActorManager.get("game-1")).thenReturn(actor);
+        when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
@@ -83,13 +85,13 @@ class ExpireTurnServiceTest {
         assertEquals(gameOverResult, output.gameOverResult());
         assertFalse(output.removedBecauseAfk());
 
-        verify(gameActorManager).get("game-1");
+        verify(gameActorManager).get(gameId);
         verify(actor).enqueueCommand(any(ExpireTurnActorCommand.class));
     }
 
     @Test
     void shouldHandleAfkRemovalWhenUserIsRemoved() {
-        ExpireTurnInput input = new ExpireTurnInput("game-1", 1);
+        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
 
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
@@ -99,7 +101,7 @@ class ExpireTurnServiceTest {
         ExpireTurnResult result = mock(ExpireTurnResult.class);
         GameOverResult gameOverResult = mock(GameOverResult.class);
 
-        when(gameActorManager.get("game-1")).thenReturn(actor);
+        when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
@@ -122,7 +124,7 @@ class ExpireTurnServiceTest {
 
     @Test
     void shouldHandleGameOverWhenFinished() {
-        ExpireTurnInput input = new ExpireTurnInput("game-1", 1);
+        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
 
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
@@ -130,7 +132,7 @@ class ExpireTurnServiceTest {
         ExpireTurnResult result = mock(ExpireTurnResult.class);
         GameOverResult gameOverResult = mock(GameOverResult.class);
 
-        when(gameActorManager.get("game-1")).thenReturn(actor);
+        when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
@@ -152,9 +154,9 @@ class ExpireTurnServiceTest {
 
     @Test
     void shouldReturnEmptyWhenActorReturnsEmptyResult() {
-        ExpireTurnInput input = new ExpireTurnInput("game-1", 1);
+        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
 
-        when(gameActorManager.get("game-1")).thenReturn(actor);
+        when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));

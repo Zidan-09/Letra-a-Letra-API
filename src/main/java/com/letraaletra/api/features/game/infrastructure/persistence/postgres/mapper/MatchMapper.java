@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class MatchMapper {
-    public static MatchJpaEntity toEntity(GameState domain, String gameId, LocalDateTime endedAt) {
+    public static MatchJpaEntity toEntity(GameState domain, UUID gameId, LocalDateTime endedAt) {
         if (domain == null) return null;
 
         MatchJpaEntity entity = new MatchJpaEntity();
 
-        entity.setId(UUID.fromString(domain.getMatchId()));
-        entity.setGameId(UUID.fromString(gameId));
+        entity.setId(domain.getMatchId());
+        entity.setGameId(gameId);
         entity.setGameMode(domain.getBoard().gameMode());
         entity.setEndedAt(endedAt);
 

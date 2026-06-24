@@ -26,7 +26,7 @@ public class GameStateFactory {
                     players.put(p.getUserId(), player);
                 });
 
-        String matchId = UUID.randomUUID().toString();
+        UUID matchId = UUID.randomUUID();
 
         return new GameState(
                 matchId,

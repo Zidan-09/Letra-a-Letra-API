@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public record GameDTO(
-    String tokenGameId,
+    String gameId,
     String gameName,
     List<ParticipantDTO> participants,
     Map<Integer, String> positions

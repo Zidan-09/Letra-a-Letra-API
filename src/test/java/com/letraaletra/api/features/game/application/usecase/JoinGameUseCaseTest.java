@@ -10,7 +10,6 @@ import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +31,6 @@ class JoinGameUseCaseTest {
     private UserRepository userRepository;
 
     @Mock
-    private TokenService tokenService;
-
-    @Mock
     private ActorManager<Game> actorManager;
 
     @InjectMocks
@@ -42,27 +38,25 @@ class JoinGameUseCaseTest {
 
     private UUID userId;
     private UUID gameId;
+    private JoinGameInput input;
 
     @BeforeEach
     void setup() {
         userId = UUID.randomUUID();
         gameId = UUID.randomUUID();
+
+        input = new JoinGameInput(
+                gameId,
+                "session-abc",
+                userId
+        );
     }
 
     @Test
     void shouldJoinGameSuccessfully() {
-        JoinGameInput input = new JoinGameInput(
-                "token-123",
-                "session-123",
-                userId
-        );
-
         User user = mock(User.class);
         Game game = mock(Game.class);
         Actor actor = mock(Actor.class);
-
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
 
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
@@ -70,7 +64,7 @@ class JoinGameUseCaseTest {
         when(user.isNotInGame())
                 .thenReturn(true);
 
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(JoinGameActorCommand.class)))
@@ -79,7 +73,6 @@ class JoinGameUseCaseTest {
         JoinGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("token-123", output.token());
         assertEquals(game, output.game());
 
         verify(userRepository).save(user);
@@ -87,15 +80,6 @@ class JoinGameUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
-        JoinGameInput input = new JoinGameInput(
-                "token-123",
-                "session-123",
-                userId
-        );
-
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.empty());
 
@@ -104,24 +88,15 @@ class JoinGameUseCaseTest {
                 () -> useCase.execute(input)
         );
 
-        verify(actorManager, never()).get(anyString());
+        verify(actorManager, never()).get(any());
         verify(userRepository, never()).save(any());
     }
 
     @Test
     void shouldSendJoinGameCommandToActor() {
-        JoinGameInput input = new JoinGameInput(
-                "token-123",
-                "session-abc",
-                userId
-        );
-
         User user = mock(User.class);
         Game game = mock(Game.class);
         Actor actor = mock(Actor.class);
-
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
 
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
@@ -129,7 +104,7 @@ class JoinGameUseCaseTest {
         when(user.isNotInGame())
                 .thenReturn(true);
 
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))
@@ -151,9 +126,6 @@ class JoinGameUseCaseTest {
     void shouldThrowExceptionWhenUserAlreadyInGame() {
         User user = mock(User.class);
 
-        when(tokenService.getTokenContent("token"))
-                .thenReturn(gameId);
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
@@ -163,14 +135,10 @@ class JoinGameUseCaseTest {
         assertThrows(
                 UserAlreadyInGameException.class,
                 () -> useCase.execute(
-                        new JoinGameInput(
-                                "token",
-                                "session",
-                                userId
-                        )
+                        input
                 )
         );
 
-        verify(actorManager, never()).get(anyString());
+        verify(actorManager, never()).get(any());
     }
 }

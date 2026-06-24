@@ -5,7 +5,6 @@ import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,6 @@ class FindByCodeUseCaseTest {
     @Mock
     private GameQueryService gameQueryService;
 
-    @Mock
-    private TokenService tokenService;
-
     @InjectMocks
     private FindByCodeUseCase useCase;
 
@@ -38,7 +34,7 @@ class FindByCodeUseCaseTest {
     }
 
     @Test
-    void shouldReturnTokenWhenGameExists() {
+    void shouldReturnGameIdWhenGameExists() {
         FindByCodeInput input = new FindByCodeInput("ABC123");
 
         Game game = mock(Game.class);
@@ -47,18 +43,14 @@ class FindByCodeUseCaseTest {
                 .thenReturn(game);
 
         when(game.getId())
-                .thenReturn(gameId.toString());
-
-        when(tokenService.generateToken(gameId))
-                .thenReturn("token");
+                .thenReturn(gameId);
 
         FindByCodeOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("token", output.token());
 
         verify(gameQueryService).findByCode("ABC123");
-        verify(tokenService).generateToken(gameId);
+        assertEquals(gameId.toString(), output.gameId());
     }
 
     @Test
@@ -72,7 +64,5 @@ class FindByCodeUseCaseTest {
                 GameNotFoundException.class,
                 () -> useCase.execute(input)
         );
-
-        verify(tokenService, never()).generateToken(any());
     }
 }

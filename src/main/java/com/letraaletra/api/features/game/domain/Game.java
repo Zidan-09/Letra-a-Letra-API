@@ -17,7 +17,7 @@ import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameExce
 import java.util.*;
 
 public class Game {
-    private final String id;
+    private final UUID id;
     private final String code;
     private final String roomName;
     private final Map<UUID, Participant> participants = new HashMap<>();
@@ -30,7 +30,7 @@ public class Game {
     private GameStatus gameStatus;
     private GameState gameState;
 
-    public Game(String id, String code, String roomName, RoomSettings roomSettings, Participant host, GameType gameType) {
+    public Game(UUID id, String code, String roomName, RoomSettings roomSettings, Participant host, GameType gameType) {
         this.id = id;
         this.code = code;
         this.roomName = roomName;
@@ -45,7 +45,7 @@ public class Game {
 
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

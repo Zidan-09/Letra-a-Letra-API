@@ -5,18 +5,13 @@ import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
-
-import java.util.UUID;
 
 public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOutput> {
     private final GameQueryService gameQueryService;
-    private final TokenService tokenService;
 
-    public FindByCodeUseCase(GameQueryService gameQueryService, TokenService tokenService) {
+    public FindByCodeUseCase(GameQueryService gameQueryService) {
         this.gameQueryService = gameQueryService;
-        this.tokenService = tokenService;
     }
 
     public FindByCodeOutput execute(FindByCodeInput input) {
@@ -24,9 +19,7 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
 
         validateGame(game);
 
-        String token = tokenService.generateToken(UUID.fromString(game.getId()));
-
-        return buildReturn(token);
+        return buildOutput(game);
     }
 
     private void validateGame(Game game) {
@@ -35,9 +28,9 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
         }
     }
 
-    private FindByCodeOutput buildReturn(String token) {
+    private FindByCodeOutput buildOutput(Game game) {
         return new FindByCodeOutput(
-                token
+                game.getId().toString()
         );
     }
 }

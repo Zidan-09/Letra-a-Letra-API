@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
@@ -20,21 +19,19 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
-    private final TokenService tokenService;
     private final ActorManager<Game> actorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public LeftGameUseCase(TokenService tokenService, ActorManager<Game> actorManager, UserRepository userRepository, GameRepository gameRepository) {
-        this.tokenService = tokenService;
+    public LeftGameUseCase(ActorManager<Game> actorManager, UserRepository userRepository, GameRepository gameRepository) {
         this.actorManager = actorManager;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
     }
 
     public LeftGameOutput execute(LeftGameInput input) {
-        UUID gameId = tokenService.getTokenContent(input.token());
-        Actor actor = actorManager.get(gameId.toString());
+        UUID gameId = input.gameId();
+        Actor actor = actorManager.get(gameId);
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(input.session()));
 
@@ -54,7 +51,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
             gameRepository.save(result.game());
         }
 
-        return buildOutput(result.game(), input.token(), result.gameOverResult());
+        return buildOutput(result.game(), result.gameOverResult());
     }
 
     private void validateUser(User user) {
@@ -63,9 +60,8 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
         }
     }
 
-    private LeftGameOutput buildOutput(Game game, String token, GameOverResult gameOverResult) {
+    private LeftGameOutput buildOutput(Game game, GameOverResult gameOverResult) {
         return new LeftGameOutput(
-                token,
                 game,
                 gameOverResult
         );

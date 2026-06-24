@@ -33,6 +33,8 @@ class GameStateTest {
     private UUID userId1;
     private UUID userId2;
 
+    private UUID matchId;
+
     @BeforeEach
     void setUp() {
         initialTurnEnds = Instant.now().plusSeconds(45);
@@ -47,7 +49,9 @@ class GameStateTest {
         playersMap.put(userId1, mockPlayer1);
         playersMap.put(userId2, mockPlayer2);
 
-        gameState = new GameState("match-123", playersMap, mockBoard, initialTurnEnds);
+        matchId = UUID.randomUUID();
+
+        gameState = new GameState(matchId, playersMap, mockBoard, initialTurnEnds);
     }
 
     @Nested
@@ -57,7 +61,7 @@ class GameStateTest {
         @Test
         @DisplayName("Deve inicializar com versão 1 e turnOrder populado com ID dos jogadores")
         void shouldInitializeWithVersionOneAndTurnOrder() {
-            assertEquals("match-123", gameState.getMatchId());
+            assertEquals(matchId, gameState.getMatchId());
             assertEquals(1, gameState.getVersion());
             assertEquals(initialTurnEnds, gameState.getCurrentTurnEnds());
 

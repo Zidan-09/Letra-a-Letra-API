@@ -23,7 +23,7 @@ public class CreateGameMapper {
 
     public static CreateGameResponse toResponseDTO(CreateGameOutput output) {
         return new CreateGameResponse(
-               GameDTOMapper.toDTO(output.game(), output.token())
+               GameDTOMapper.toDTO(output.game())
         );
     }
 }

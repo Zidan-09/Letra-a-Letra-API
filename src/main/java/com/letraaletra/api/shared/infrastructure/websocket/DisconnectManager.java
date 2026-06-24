@@ -21,7 +21,7 @@ public class DisconnectManager implements DisconnectScheduler {
     private final Map<String, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
 
     @Override
-    public void start(UUID userId, String gameId) {
+    public void start(UUID userId, UUID gameId) {
         String key = buildKey(userId, gameId);
 
         cancel(userId, gameId);
@@ -32,7 +32,7 @@ public class DisconnectManager implements DisconnectScheduler {
     }
 
     @Override
-    public void cancel(UUID userId, String gameId) {
+    public void cancel(UUID userId, UUID gameId) {
         String key = buildKey(userId, gameId);
 
         ScheduledFuture<?> future = timers.remove(key);
@@ -42,7 +42,7 @@ public class DisconnectManager implements DisconnectScheduler {
         }
     }
 
-    private void handleTimeout(UUID userId, String gameId) {
+    private void handleTimeout(UUID userId, UUID gameId) {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
@@ -51,7 +51,7 @@ public class DisconnectManager implements DisconnectScheduler {
         ));
     }
 
-    private String buildKey(UUID userId, String gameId) {
-        return userId.toString() + ":" + gameId;
+    private String buildKey(UUID userId, UUID gameId) {
+        return userId.toString() + ":" + gameId.toString();
     }
 }

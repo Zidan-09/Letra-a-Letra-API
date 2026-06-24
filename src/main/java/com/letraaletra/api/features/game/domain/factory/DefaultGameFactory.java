@@ -10,7 +10,7 @@ import java.util.UUID;
 public class DefaultGameFactory {
     public DefaultGameResult generate(Participant player1, Participant player2, String code) {
         RoomSettings settings = new RoomSettings(true, true);
-        String gameId = UUID.randomUUID().toString();
+        UUID gameId = UUID.randomUUID();
 
         Game game = new Game(gameId, code, "default-name", settings, player1, GameType.MATCHMAKING);
 
