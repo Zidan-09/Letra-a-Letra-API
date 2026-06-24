@@ -40,7 +40,7 @@ public class JpaStoreOfferRepository implements StoreOfferRepository {
 
     @Override
     public List<StoreOffer> getActiveOffers() {
-        List<StoreOfferJpaEntity> entities = repository.findByStatusActive(true);
+        List<StoreOfferJpaEntity> entities = repository.findByActive(true);
 
         return entities.stream()
                 .map(entity -> {

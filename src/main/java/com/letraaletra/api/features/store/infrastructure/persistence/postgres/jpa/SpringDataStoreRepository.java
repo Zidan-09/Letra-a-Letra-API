@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SpringDataStoreRepository extends JpaRepository<StoreOfferJpaEntity, UUID> {
-    List<StoreOfferJpaEntity> findByStatusActive(boolean active);
+    List<StoreOfferJpaEntity> findByActive(boolean active);
 }
