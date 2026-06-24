@@ -11,7 +11,7 @@ import java.time.Instant;
 public record JoinMatchmakingResponse(
         MatchmakingStatus status,
         Instant turnEndsAt,
-        String tokenGameId,
+        String gameId,
         GameStateDTO data
 ) implements WsResponse {
 }

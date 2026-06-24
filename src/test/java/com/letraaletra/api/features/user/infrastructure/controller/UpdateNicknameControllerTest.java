@@ -18,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.UUID;
+
 @ExtendWith(MockitoExtension.class)
 class UpdateNicknameControllerTest {
     @Mock
@@ -36,7 +38,7 @@ class UpdateNicknameControllerTest {
         Mockito.when(updateNicknameUseCase.execute(Mockito.any(UpdateNicknameInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<UpdateNicknameResponse>> responseEntity = controller.updateNickname(request, "id-1");
+        ResponseEntity<SuccessResponse<UpdateNicknameResponse>> responseEntity = controller.updateNickname(request, UUID.randomUUID().toString());
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

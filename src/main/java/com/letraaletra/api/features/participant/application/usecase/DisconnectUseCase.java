@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Optional<DisconnectParticipantOutput>> {
@@ -34,7 +35,7 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
     }
 
     public Optional<DisconnectParticipantOutput> execute(DisconnectParticipantInput input) {
-        String userId = input.user();
+        UUID userId = input.user();
         if (userId == null) return Optional.empty();
 
         if (matchmakingRepository.onQueue(userId)) {
@@ -62,7 +63,7 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         return buildReturn(gameOpt.get(), userId);
     }
 
-    private Optional<DisconnectParticipantOutput> buildReturn(Game game, String user) {
+    private Optional<DisconnectParticipantOutput> buildReturn(Game game, UUID user) {
         return Optional.of(
                 new DisconnectParticipantOutput(user, game)
         );

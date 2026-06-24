@@ -3,13 +3,14 @@ package com.letraaletra.api.features.game.domain.board.word;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Word {
     private final String value;
     private final List<Position> positions;
 
     private boolean found;
-    private String foundById;
+    private UUID foundById;
 
     public Word(String value, List<Position> positions) {
         this.value = value;
@@ -29,11 +30,11 @@ public class Word {
         return found;
     }
 
-    public String getFoundById() {
+    public UUID getFoundById() {
         return foundById;
     }
 
-    public boolean markAsFound(String playerId) {
+    public boolean markAsFound(UUID playerId) {
         if (found) {
             return false;
         }

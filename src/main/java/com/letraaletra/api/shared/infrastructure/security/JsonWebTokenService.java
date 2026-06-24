@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Service
 public class JsonWebTokenService implements TokenService {
@@ -19,23 +20,25 @@ public class JsonWebTokenService implements TokenService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String id) {
+    public String generateToken(UUID id) {
         return Jwts.builder()
-                .claim("id", id)
+                .claim("id", id.toString())
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String getTokenContent(String token) {
+    public UUID getTokenContent(String token) {
         try {
-            return Jwts.parser()
+            String raw = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
                     .get("id", String.class);
+
+            return UUID.fromString(raw);
 
         } catch (Exception ex) {
             throw new InvalidTokenException();

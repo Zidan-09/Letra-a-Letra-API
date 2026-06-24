@@ -9,7 +9,6 @@ import com.letraaletra.api.features.game.application.output.StartGameOutput;
 import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
@@ -19,6 +18,7 @@ import com.letraaletra.api.features.game.domain.board.theme.Theme;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {
@@ -27,7 +27,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     private final GameTimeoutManager gameTimeoutManager;
     private final PickRandomThemeWordsService pickRandomThemeWordsService;
     private final BoardGenerator boardGenerator;
-    private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
 
@@ -37,7 +36,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
             GameTimeoutManager gameTimeoutManager,
             PickRandomThemeWordsService pickRandomThemeWordsService,
             BoardGenerator boardGenerator,
-            TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager
     ) {
@@ -46,13 +44,12 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         this.gameTimeoutManager = gameTimeoutManager;
         this.pickRandomThemeWordsService = pickRandomThemeWordsService;
         this.boardGenerator = boardGenerator;
-        this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
     }
 
     public StartGameOutput execute(StartGameInput input) {
-        String gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = input.gameId();
 
         Theme theme = themeRepository.findById(input.settings().getThemeId());
 
@@ -71,7 +68,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         return buildOutput(game, gameId);
     }
 
-    private StartGameOutput buildOutput(Game game, String id) {
+    private StartGameOutput buildOutput(Game game, UUID id) {
         return new StartGameOutput(
                 id,
                 game

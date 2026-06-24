@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Component
 public class GameActorManager implements ActorManager<Game> {
-    private final Map<String, Actor> actors = new ConcurrentHashMap<>();
+    private final Map<UUID, Actor> actors = new ConcurrentHashMap<>();
     private final ExecutorService executor;
 
     public GameActorManager(ExecutorService executor) {
@@ -21,7 +22,7 @@ public class GameActorManager implements ActorManager<Game> {
     }
 
     @Override
-    public void create(String id, Game actor) {
+    public void create(UUID id, Game actor) {
         if (actor == null) {
             throw new GameNotFoundException();
         }
@@ -31,7 +32,7 @@ public class GameActorManager implements ActorManager<Game> {
     }
 
     @Override
-    public Actor get(String id) {
+    public Actor get(UUID id) {
         Actor existingActor = actors.get(id);
 
         if (existingActor == null) {
@@ -47,7 +48,7 @@ public class GameActorManager implements ActorManager<Game> {
     }
 
     @Override
-    public void remove(String id) {
+    public void remove(UUID id) {
         actors.remove(id);
     }
 }

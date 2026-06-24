@@ -33,7 +33,7 @@ public class AcceptFriendRequestController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody AcceptFriendRequestRequest request
     ) {
-        AcceptFriendRequestInput input = AcceptFriendRequestMapper.toInput(user.getId(), request.friendId());
+        AcceptFriendRequestInput input = AcceptFriendRequestMapper.toInput(user.getId().toString(), request.friendId());
 
         useCase.execute(input);
 

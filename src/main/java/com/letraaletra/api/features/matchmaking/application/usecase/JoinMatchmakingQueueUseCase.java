@@ -21,7 +21,6 @@ import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
@@ -39,7 +38,6 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
     private final DefaultGameFactory defaultGameFactory;
     private final PickRandomThemeWordsService pickRandomThemeWordsService;
     private final GenerateRoomCode generateRoomCode;
-    private final TokenService tokenService;
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> actorManager;
 
@@ -54,7 +52,6 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
             DefaultGameFactory defaultGameFactory,
             PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
-            TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> actorManager
     ) {
@@ -66,7 +63,6 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
         this.defaultGameFactory = defaultGameFactory;
         this.pickRandomThemeWordsService = pickRandomThemeWordsService;
         this.generateRoomCode = generateRoomCode;
-        this.tokenService = tokenService;
         this.turnTimeoutManager = turnTimeoutManager;
         this.actorManager = actorManager;
     }
@@ -146,7 +142,6 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
     private JoinMatchmakingOutput buildOutput(DefaultGameResult result) {
         return new JoinMatchmakingOutput(
-                result.game() != null ? Optional.of(tokenService.generateToken(result.game().getId())) : Optional.empty(),
                 result.game() != null ? Optional.of(result.game()) : Optional.empty()
         );
     }

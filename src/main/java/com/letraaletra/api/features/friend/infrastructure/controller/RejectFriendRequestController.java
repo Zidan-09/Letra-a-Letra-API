@@ -31,7 +31,7 @@ public class RejectFriendRequestController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody RejectFriendRequestRequest request
             ) {
-        RejectFriendRequestInput input = RejectFriendRequestMapper.toInput(user.getId(), request.friendId());
+        RejectFriendRequestInput input = RejectFriendRequestMapper.toInput(user.getId().toString(), request.friendId());
 
         useCase.execute(input);
 

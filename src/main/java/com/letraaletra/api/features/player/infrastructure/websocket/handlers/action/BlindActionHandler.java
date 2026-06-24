@@ -5,6 +5,8 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.BlindActionRequest;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class BlindActionHandler extends AbstractPlayerActionHandler<BlindActionRequest> {
 
@@ -12,7 +14,7 @@ public class BlindActionHandler extends AbstractPlayerActionHandler<BlindActionR
     protected GameAction createAction(BlindActionRequest request) {
         return new BlindPlayerAction(
                 request.actionId(),
-                request.targetId()
+                UUID.fromString(request.targetId())
         );
     }
     @Override

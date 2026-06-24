@@ -10,6 +10,7 @@ import com.letraaletra.api.features.game.domain.board.word.Word;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public record Board(
         Cell[][] grid,
@@ -33,7 +34,7 @@ public record Board(
         return words.clone();
     }
 
-    public List<Position> getOpponentTraps(String userId) {
+    public List<Position> getOpponentTraps(UUID userId) {
         return Arrays.stream(grid)
                 .flatMap(Arrays::stream)
                 .filter(cell -> cell.getEffect() instanceof TrapEffect)

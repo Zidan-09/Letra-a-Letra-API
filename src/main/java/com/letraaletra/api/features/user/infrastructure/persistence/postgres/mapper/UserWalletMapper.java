@@ -13,10 +13,10 @@ public class UserWalletMapper {
         );
     }
 
-    public static UserWalletJpaEntity toEntity(Wallet wallet, String userId) {
+    public static UserWalletJpaEntity toEntity(Wallet wallet, UUID userId) {
         UserWalletJpaEntity entity = new UserWalletJpaEntity();
 
-        entity.setUserId(UUID.fromString(userId));
+        entity.setUserId(userId);
         entity.setSoftCoins(wallet.getBalance().coins());
         entity.setHard_gems(wallet.getBalance().gems());
 

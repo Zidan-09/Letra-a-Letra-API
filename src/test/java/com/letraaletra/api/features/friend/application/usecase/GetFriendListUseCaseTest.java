@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -30,14 +31,14 @@ class GetFriendListUseCaseTest {
 
     @BeforeEach
     void setup() {
-        userId = "id-1";
+        userId = UUID.randomUUID().toString();
         input = GetFriendListMapper.toInput(userId);
     }
 
     @Test
     @DisplayName("should get friends list correctly")
     void getFriends() {
-        when(repository.getFriends(userId))
+        when(repository.getFriends(UUID.fromString(userId)))
                 .thenReturn(List.of());
 
         GetFriendListOutput output = useCase.execute(input);

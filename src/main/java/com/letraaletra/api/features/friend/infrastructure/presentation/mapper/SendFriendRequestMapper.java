@@ -4,11 +4,13 @@ import com.letraaletra.api.features.friend.application.input.SendFriendRequestIn
 import com.letraaletra.api.features.friend.application.output.SendFriendRequestOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.SendFriendRequestResponse;
 
+import java.util.UUID;
+
 public class SendFriendRequestMapper {
     public static SendFriendRequestInput toInput(String userId, String friendId) {
         return new SendFriendRequestInput(
-                userId,
-                friendId
+                UUID.fromString(userId),
+                UUID.fromString(friendId)
         );
     }
 

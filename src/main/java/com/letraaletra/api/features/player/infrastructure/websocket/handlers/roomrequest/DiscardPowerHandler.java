@@ -34,9 +34,9 @@ public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsReq
     public void handle(DiscardPowerWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        DiscardPowerInput command = discardPowerDTOMapper.toInput(request, userId);
+        DiscardPowerInput input = discardPowerDTOMapper.toInput(request, userId);
 
-        DiscardPowerOutput output = discardPowerUseCase.execute(command);
+        DiscardPowerOutput output = discardPowerUseCase.execute(input);
 
         send(output);
     }

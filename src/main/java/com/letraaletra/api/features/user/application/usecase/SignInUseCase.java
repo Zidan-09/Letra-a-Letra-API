@@ -10,6 +10,8 @@ import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordExce
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
+import java.util.UUID;
+
 public class SignInUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
@@ -40,7 +42,7 @@ public class SignInUseCase implements UseCase<SignInInput, SignInOutput> {
         }
     }
 
-    private SignInOutput buildReturn(String userId, String token) {
+    private SignInOutput buildReturn(UUID userId, String token) {
         return new SignInOutput(
                 userId,
                 token

@@ -8,12 +8,15 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,6 +39,13 @@ class CreateUserUseCaseTest {
 
     @InjectMocks
     private CreateUserUseCase createUserUseCase;
+
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+    }
 
     @Test
     @DisplayName("should create an user correctly")
@@ -62,7 +72,7 @@ class CreateUserUseCaseTest {
                 eq("hashed-password")
         )).thenReturn(user);
 
-        when(user.getId()).thenReturn("user-id");
+        when(user.getId()).thenReturn(userId);
         when(user.getNickname()).thenReturn("john123");
         when(user.getEmail()).thenReturn("john@email.com");
 
@@ -70,7 +80,7 @@ class CreateUserUseCaseTest {
 
         assertNotNull(output);
 
-        assertEquals("user-id", output.id());
+        assertEquals(userId, output.id());
         assertEquals("john123", output.nickname());
         assertEquals("john@email.com", output.email());
 

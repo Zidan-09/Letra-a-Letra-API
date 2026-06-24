@@ -3,21 +3,22 @@ package com.letraaletra.api.features.game.infrastructure.scheduler;
 import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 public class GameTurn implements Delayed {
-    private final String gameId;
+    private final UUID gameId;
     private final Instant turnEndsAt;
     private final int version;
 
-    public GameTurn(String gameId, Instant turnEndsAt, int version) {
+    public GameTurn(UUID gameId, Instant turnEndsAt, int version) {
         this.gameId = gameId;
         this.turnEndsAt = turnEndsAt;
         this.version = version;
     }
 
-    public String gameId() { return gameId; }
+    public UUID gameId() { return gameId; }
     public int version() { return version; }
 
     @Override

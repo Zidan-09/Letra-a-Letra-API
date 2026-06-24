@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.friend.application.input;
 
+import java.util.UUID;
+
 public record SendFriendRequestInput(
-        String userId,
-        String friendId
+        UUID userId,
+        UUID friendId
 ) {
 }

@@ -8,24 +8,27 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class User {
-    private final String id;
+    private final UUID id;
     private String nickname;
     private final String email;
     private final String hashPassword;
     private final String googleId;
-    private String currentGameId;
+    private UUID currentGameId;
     private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
     private List<InventoryItem> inventory;
     private final Wallet wallet;
+    private final LocalDateTime createdAt;
 
     public User(
-            String id,
+            UUID id,
             String nickname,
             String email,
             String hashPassword,
@@ -34,7 +37,8 @@ public class User {
             boolean canChangeNickname,
             UserStats stats,
             List<InventoryItem> inventory,
-            Wallet wallet
+            Wallet wallet,
+            LocalDateTime createdAt
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -45,9 +49,10 @@ public class User {
         this.stats = stats;
         this.inventory = inventory;
         this.wallet = wallet;
+        this.createdAt = createdAt;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -87,6 +92,10 @@ public class User {
         return wallet;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public void addToInventory(InventoryItem item) {
         if (item == null) {
             throw new CosmeticNotFoundException();
@@ -119,12 +128,12 @@ public class User {
         return currentGameId == null;
     }
 
-    public String getCurrentGameId() {
+    public UUID getCurrentGameId() {
         return currentGameId;
     }
 
-    public void enterGame(String gameId) {
-        if (gameId == null || gameId.isBlank()) {
+    public void enterGame(UUID gameId) {
+        if (gameId == null || gameId.toString().isBlank()) {
             throw new GameNotFoundException();
         }
 

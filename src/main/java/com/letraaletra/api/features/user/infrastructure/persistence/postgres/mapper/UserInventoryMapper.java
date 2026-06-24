@@ -8,11 +8,11 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.ent
 import java.util.UUID;
 
 public class UserInventoryMapper {
-    public static UserInventoryJpaEntity toEntity(String userId, InventoryItem domain) {
+    public static UserInventoryJpaEntity toEntity(UUID userId, InventoryItem domain) {
         UserInventoryJpaEntity entity = new UserInventoryJpaEntity();
         UserInventoryId id = new UserInventoryId();
 
-        id.setUserId(UUID.fromString(userId));
+        id.setUserId(userId);
         id.setCosmeticId(domain.cosmetic_id());
 
         entity.setUserInventoryId(id);

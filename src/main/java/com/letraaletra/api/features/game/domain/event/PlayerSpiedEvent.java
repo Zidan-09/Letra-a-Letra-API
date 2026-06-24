@@ -1,6 +1,8 @@
 package com.letraaletra.api.features.game.domain.event;
 
+import java.util.UUID;
+
 public record PlayerSpiedEvent(
-        String spiedBy
+        UUID spiedBy
 ) implements EventData {
 }

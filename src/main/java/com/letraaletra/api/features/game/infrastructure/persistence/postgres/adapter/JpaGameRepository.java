@@ -31,19 +31,17 @@ public class JpaGameRepository implements GameRepository {
     }
 
     @Override
-    public Game save(Game game) {
+    public void save(Game game) {
         repository.save(GameMapper.toEntity(game));
 
-        if (game.getGameState() == null) return game;
+        if (game.getGameState() != null) {
+            LocalDateTime endedAt = !game.getGameStatus().equals(GameStatus.RUNNING) ? LocalDateTime.now() : null;
 
-        LocalDateTime endedAt = !game.getGameStatus().equals(GameStatus.RUNNING) ? LocalDateTime.now() : null;
+            matchRepository.save(MatchMapper.toEntity(game.getGameState(), game.getId(), endedAt));
 
-        matchRepository.save(MatchMapper.toEntity(game.getGameState(), game.getId(), endedAt));
-
-        for (Player player : game.getGameState().getPlayers().values()) {
-            matchPlayerRepository.save(MatchPlayerMapper.toEntity(player, game.getGameState().getMatchId()));
+            for (Player player : game.getGameState().getPlayers().values()) {
+                matchPlayerRepository.save(MatchPlayerMapper.toEntity(player, game.getGameState().getMatchId()));
+            }
         }
-
-        return game;
     }
 }

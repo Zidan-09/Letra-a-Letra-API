@@ -14,7 +14,7 @@ public class PlayerActionHandler implements RoomRequestHandler<PlayerActionWsReq
 
     @Override
     public void handle(PlayerActionWsRequest request, WebSocketSession session) {
-        dispatcher.dispatch(request.tokenGameId(), request.action(), session);
+        dispatcher.dispatch(request.gameId(), request.action(), session);
     }
 
     @Override

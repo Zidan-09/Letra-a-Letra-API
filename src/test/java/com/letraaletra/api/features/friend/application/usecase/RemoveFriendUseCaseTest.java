@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -36,8 +38,8 @@ class RemoveFriendUseCaseTest {
 
     @BeforeEach
     void setup() {
-        userId = "id-1";
-        friendId = "id-2";
+        userId = UUID.randomUUID().toString();
+        friendId = UUID.randomUUID().toString();
         now = LocalDateTime.now();
         input = RemoveFriendMapper.toInput(userId, friendId);
     }
@@ -45,10 +47,10 @@ class RemoveFriendUseCaseTest {
     @Test
     @DisplayName("should remove a friend from friendsList correctly")
     void removeFriend() {
-        Friend friend = new Friend(userId, friendId, FriendStatus.ACCEPT, now);
+        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.ACCEPT, now);
 
-        when(repository.find(userId, friendId))
-                .thenReturn(friend);
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
+                .thenReturn(Optional.of(friend));
 
         ArgumentCaptor<Friend> friendCaptor = ArgumentCaptor.forClass(Friend.class);
 
@@ -64,8 +66,8 @@ class RemoveFriendUseCaseTest {
     @Test
     @DisplayName("should throw an FriendNotFoundException because null")
     void throwFriendNotFoundExceptionBecauseNull() {
-        when(repository.find(userId, friendId))
-                .thenReturn(null);
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
+                .thenReturn(Optional.empty());
 
         assertThrows(FriendNotFoundException.class,
                 () -> useCase.execute(input)
@@ -75,10 +77,10 @@ class RemoveFriendUseCaseTest {
     @Test
     @DisplayName("should throw an FriendNotFoundException because status")
     void throwFriendNotFoundExceptionBecauseStatus() {
-        Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.DECLINED, now);
 
-        when(repository.find(userId, friendId))
-                .thenReturn(friend);
+        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
+                .thenReturn(Optional.of(friend));
 
         assertThrows(FriendNotFoundException.class,
                 () -> useCase.execute(input)

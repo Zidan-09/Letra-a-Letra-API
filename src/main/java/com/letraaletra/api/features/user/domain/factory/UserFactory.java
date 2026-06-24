@@ -1,19 +1,19 @@
 package com.letraaletra.api.features.user.domain.factory;
 
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class UserFactory {
     public User createLocal(String nickname, String email, String passwordHash) {
         return new User(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 nickname,
                 email,
                 passwordHash,
@@ -22,13 +22,14 @@ public class UserFactory {
                 true,
                 getInitialStats(),
                 getInitialCosmetics(),
-                getInitialWallet()
+                getInitialWallet(),
+                LocalDateTime.now()
         );
     }
 
     public User createGoogle(String email, String googleId) {
         return new User(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 null,
                 email,
                 null,
@@ -37,7 +38,8 @@ public class UserFactory {
                 true,
                 getInitialStats(),
                 getInitialCosmetics(),
-                getInitialWallet()
+                getInitialWallet(),
+                LocalDateTime.now()
         );
     }
 
@@ -53,7 +55,7 @@ public class UserFactory {
 //                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
 //        );
 
-        return List.of();
+        return new ArrayList<>();
     }
 
     private Wallet getInitialWallet() {

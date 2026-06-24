@@ -9,6 +9,7 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class UnlockCosmeticService {
     private final UserRepository userRepository;
@@ -19,7 +20,7 @@ public class UnlockCosmeticService {
         this.cosmeticRepository = cosmeticRepository;
     }
 
-    public void execute(String cosmeticId, String userId) {
+    public void execute(String cosmeticId, UUID userId) {
         Cosmetic cosmetic = cosmeticRepository.find(cosmeticId)
                 .orElseThrow(CosmeticNotFoundException::new);
 

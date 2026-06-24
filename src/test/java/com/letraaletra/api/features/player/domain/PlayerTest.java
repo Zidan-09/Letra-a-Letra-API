@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +19,7 @@ class PlayerTest {
 
     @BeforeEach
     void setUp() {
-        String userId = "user-123";
+        UUID userId = UUID.randomUUID();
         player = new Player(userId);
     }
 
@@ -84,7 +85,7 @@ class PlayerTest {
         player.addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay(), "Deveria conseguir jogar pois possui UNFREEZE");
 
-        Player anotherPlayer = new Player("user-456");
+        Player anotherPlayer = new Player(UUID.randomUUID());
         anotherPlayer.applyEffect(new FreezeEffect());
         anotherPlayer.addToInventory(PowerType.IMMUNITY);
         assertFalse(anotherPlayer.canNotPlay(), "Deveria conseguir jogar pois possui IMMUNITY");

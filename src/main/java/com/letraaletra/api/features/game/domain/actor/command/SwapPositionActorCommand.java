@@ -4,11 +4,13 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.participant.domain.Participant;
 
+import java.util.UUID;
+
 public class SwapPositionActorCommand implements ActorCommand<Game> {
-    private final String user;
+    private final UUID user;
     private final int position;
 
-    public SwapPositionActorCommand(String user, int position) {
+    public SwapPositionActorCommand(UUID user, int position) {
         this.user = user;
         this.position = position;
     }

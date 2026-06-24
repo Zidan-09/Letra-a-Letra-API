@@ -8,20 +8,22 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 
-public class TrapEffect implements CellEffect {
-    private final String ownerId;
+import java.util.UUID;
 
-    public TrapEffect(String ownerId) {
+public class TrapEffect implements CellEffect {
+    private final UUID ownerId;
+
+    public TrapEffect(UUID ownerId) {
         this.ownerId = ownerId;
     }
 
     @Override
-    public String getOwnerId() {
+    public UUID getOwnerId() {
         return ownerId;
     }
 
     @Override
-    public InteractResult onInteract(GameAction action, String player, Cell cell) {
+    public InteractResult onInteract(GameAction action, UUID player, Cell cell) {
         boolean isOwner = player.equals(ownerId);
 
         if (isOwner && !(action instanceof RevealCellAction)) {
@@ -34,7 +36,7 @@ public class TrapEffect implements CellEffect {
                 StateEvent.TRAP_TRIGGERED,
                 new TrapTriggeredEvent(
                         cell.getPosition(),
-                        player
+                        player.toString()
                 )
         ));
     }

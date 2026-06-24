@@ -22,7 +22,6 @@ import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRep
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,7 +50,6 @@ public class GameConfig {
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
-            TokenService tokenService,
             GenerateRoomCode generateRoomCode
     ) {
         return new CreateGameUseCase(
@@ -60,40 +58,32 @@ public class GameConfig {
                 actorManager,
                 gameTimeoutManager,
                 gameQueryService,
-                tokenService,
                 generateRoomCode
         );
     }
 
     @Bean
-    public FindByCodeUseCase findByCodeUseCase(GameQueryService gameQueryService, TokenService tokenService) {
-        return new FindByCodeUseCase( gameQueryService, tokenService);
+    public FindByCodeUseCase findByCodeUseCase(GameQueryService gameQueryService) {
+        return new FindByCodeUseCase( gameQueryService);
     }
 
     @Bean
-    public FindByTokenGameIdUseCase findByTokenGameIdUseCase(TokenService tokenService, ActorManager<Game> actorManager) {
-        return new FindByTokenGameIdUseCase(tokenService, actorManager);
+    public GetPublicGamesUseCase getPublicGamesUseCase(GameQueryService gameQueryService) {
+        return new GetPublicGamesUseCase(gameQueryService);
     }
 
     @Bean
-    public GetPublicGamesUseCase getPublicGamesUseCase(GameQueryService gameQueryService, TokenService tokenService) {
-        return new GetPublicGamesUseCase(gameQueryService, tokenService);
-    }
-
-    @Bean
-    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, TokenService tokenService, ActorManager<Game> actorManager) {
-        return new JoinGameUseCase(userRepository, tokenService, actorManager);
+    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, ActorManager<Game> actorManager) {
+        return new JoinGameUseCase(userRepository, actorManager);
     }
 
     @Bean
     public LeftGameUseCase leftGameUseCase(
-            TokenService tokenService,
             GameActorManager gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository
     ) {
         return new LeftGameUseCase(
-                tokenService,
                 gameActorManager,
                 userRepository,
                 gameRepository
@@ -107,7 +97,6 @@ public class GameConfig {
              GameTimeoutManager gameTimeoutManager,
              PickRandomThemeWordsService pickRandomThemeWordsService,
              BoardGenerator boardGenerator,
-             TokenService tokenService,
              TurnTimeoutManager turnTimeoutManager,
              GameActorManager gameActorManager
     ) {
@@ -117,7 +106,6 @@ public class GameConfig {
                 gameTimeoutManager,
                 pickRandomThemeWordsService,
                 boardGenerator,
-                tokenService,
                 turnTimeoutManager,
                 gameActorManager
         );
@@ -147,7 +135,6 @@ public class GameConfig {
             DefaultGameFactory defaultGameFactory,
             PickRandomThemeWordsService pickRandomThemeWordsService,
             GenerateRoomCode generateRoomCode,
-            TokenService tokenService,
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> actorManager
     ) {
@@ -160,7 +147,6 @@ public class GameConfig {
                 defaultGameFactory,
                 pickRandomThemeWordsService,
                 generateRoomCode,
-                tokenService,
                 turnTimeoutManager,
                 actorManager
         );

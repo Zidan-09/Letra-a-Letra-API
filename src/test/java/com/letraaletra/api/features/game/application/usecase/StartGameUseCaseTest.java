@@ -13,7 +13,7 @@ import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.domain.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,9 +41,6 @@ class StartGameUseCaseTest {
     private BoardGenerator boardGenerator;
 
     @Mock
-    private TokenService tokenService;
-
-    @Mock
     private ActorManager<Game> gameActorManager;
 
     @Mock
@@ -51,19 +49,28 @@ class StartGameUseCaseTest {
     @InjectMocks
     private StartGameUseCase useCase;
 
-    @Test
-    void shouldStartGameUsingThemeWords() {
-        GameSettings settings = new GameSettings(
+    private UUID gameId;
+    private GameSettings settings;
+    private StartGameInput input;
+
+    @BeforeEach
+    void setup() {
+        settings = new GameSettings(
                 "theme-id",
                 mock(GameMode.class)
         );
 
-        StartGameInput input = new StartGameInput(
-                "token",
+        gameId = UUID.randomUUID();
+
+        input = new StartGameInput(
+                gameId,
                 "session",
                 settings
         );
+    }
 
+    @Test
+    void shouldStartGameUsingThemeWords() {
         Theme theme = mock(Theme.class);
         Board board = mock(Board.class);
         Game game = mock(Game.class);
@@ -76,9 +83,6 @@ class StartGameUseCaseTest {
                 "word5"
         );
 
-        when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
-
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
 
@@ -88,7 +92,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(words, settings.getGameMode()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -97,7 +101,7 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("game-id", output.id());
+        assertEquals(gameId, output.id());
         assertEquals(game, output.game());
 
         verify(theme).pickRandomWords(eq(5), any());
@@ -106,17 +110,6 @@ class StartGameUseCaseTest {
 
     @Test
     void shouldStartGameUsingRandomWordsWhenThemeDoesNotExist() {
-        GameSettings settings = new GameSettings(
-                "theme-id",
-                mock(GameMode.class)
-        );
-
-        StartGameInput input = new StartGameInput(
-                "token",
-                "session",
-                settings
-        );
-
         Board board = mock(Board.class);
         Game game = mock(Game.class);
 
@@ -127,9 +120,6 @@ class StartGameUseCaseTest {
                 "word4",
                 "word5"
         );
-
-        when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(null);
@@ -140,7 +130,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(words, settings.getGameMode()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -149,7 +139,7 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("game-id", output.id());
+        assertEquals(gameId, output.id());
         assertEquals(game, output.game());
 
         verify(pickRandomThemeWordsService).execute();
@@ -157,19 +147,6 @@ class StartGameUseCaseTest {
 
     @Test
     void shouldGenerateBoardUsingSelectedWords() {
-        GameMode gameMode = mock(GameMode.class);
-
-        GameSettings settings = new GameSettings(
-                "theme-id",
-                gameMode
-        );
-
-        StartGameInput input = new StartGameInput(
-                "token",
-                "session",
-                settings
-        );
-
         Theme theme = mock(Theme.class);
         Board board = mock(Board.class);
         Game game = mock(Game.class);
@@ -182,19 +159,16 @@ class StartGameUseCaseTest {
                 "word5"
         );
 
-        when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
-
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
 
         when(theme.pickRandomWords(eq(5), any()))
                 .thenReturn(words);
 
-        when(boardGenerator.generate(words, gameMode))
+        when(boardGenerator.generate(words, input.settings().getGameMode()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(StartGameActorCommand.class)))
@@ -202,28 +176,14 @@ class StartGameUseCaseTest {
 
         useCase.execute(input);
 
-        verify(boardGenerator).generate(words, gameMode);
+        verify(boardGenerator).generate(words, input.settings().getGameMode());
     }
 
     @Test
     void shouldSendStartGameCommandToActor() {
-        GameSettings settings = new GameSettings(
-                "theme-id",
-                mock(GameMode.class)
-        );
-
-        StartGameInput input = new StartGameInput(
-                "token",
-                "session",
-                settings
-        );
-
         Theme theme = mock(Theme.class);
         Board board = mock(Board.class);
         Game game = mock(Game.class);
-
-        when(tokenService.getTokenContent("token"))
-                .thenReturn("game-id");
 
         when(themeRepository.findById("theme-id"))
                 .thenReturn(theme);
@@ -234,7 +194,7 @@ class StartGameUseCaseTest {
         when(boardGenerator.generate(anyList(), any()))
                 .thenReturn(board);
 
-        when(gameActorManager.get("game-id"))
+        when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))

@@ -8,7 +8,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,13 +63,13 @@ public class ParticipantConfig {
     }
 
     @Bean
-    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameActorManager gameActorManager, TokenService tokenService) {
-        return new SwapRoomPositionUseCase(gameActorManager, tokenService);
+    public SwapRoomPositionUseCase swapRoomPositionUseCase(GameActorManager gameActorManager) {
+        return new SwapRoomPositionUseCase(gameActorManager);
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(TokenService tokenService, GameActorManager gameActorManager) {
-        return new UnbanUserUseCase(tokenService, gameActorManager);
+    public UnbanUserUseCase unbanUserUseCase(GameActorManager gameActorManager) {
+        return new UnbanUserUseCase(gameActorManager);
     }
 
     @Bean

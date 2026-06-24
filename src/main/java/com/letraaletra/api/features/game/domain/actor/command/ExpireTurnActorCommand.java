@@ -9,6 +9,7 @@ import com.letraaletra.api.features.game.domain.service.GameOverResult;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnResult>> {
     private final int version;
@@ -37,7 +38,7 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
             return Optional.empty();
         }
 
-        String whoPassed = state.currentPlayerTurn();
+        UUID whoPassed = state.currentPlayerTurn();
 
         Player player = state.getPlayerOrThrow(whoPassed);
         player.passedTurn();

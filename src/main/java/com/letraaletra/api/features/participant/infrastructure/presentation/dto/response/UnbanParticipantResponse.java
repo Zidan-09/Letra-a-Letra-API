@@ -5,6 +5,6 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsRes
 
 @JsonTypeName("PARTICIPANT_UNBANNED")
 public record UnbanParticipantResponse(
-
+            String gameId
 ) implements WsResponse {
 }

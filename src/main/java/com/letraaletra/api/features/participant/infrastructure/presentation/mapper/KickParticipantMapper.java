@@ -6,18 +6,20 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.KickParticipantResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
 
+import java.util.UUID;
+
 public class KickParticipantMapper {
     public static KickParticipantInput toInput(KickParticipantWsRequest request, String userId) {
         return new KickParticipantInput(
-                request.tokenGameId(),
-                request.participantId(),
-                userId
+                UUID.fromString(request.gameId()),
+                UUID.fromString(request.participantId()),
+                UUID.fromString(userId)
         );
     }
 
     public static KickParticipantResponse toResponse(KickParticipantOutput output) {
         return new KickParticipantResponse(
-                GameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game())
         );
     }
 }

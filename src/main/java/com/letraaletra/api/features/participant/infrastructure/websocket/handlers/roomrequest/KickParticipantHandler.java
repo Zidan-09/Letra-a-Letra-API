@@ -12,6 +12,8 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.mapp
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.UUID;
+
 @Component
 public class KickParticipantHandler implements RoomRequestHandler<KickParticipantWsRequest> {
     private final KickParticipantUseCase kickParticipant;
@@ -39,7 +41,7 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
 
         ModerationResponse dtoForKicked = new ModerationResponse("Kicked from game");
 
-        gameNotifier.notifierOne(request.participantId(), dtoForKicked);
+        gameNotifier.notifierOne(UUID.fromString(request.participantId()), dtoForKicked);
     }
 
     @Override

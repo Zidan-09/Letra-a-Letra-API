@@ -5,7 +5,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequ
 
 @JsonTypeName("DISCARD_POWER")
 public record DiscardPowerWsRequest(
-        String tokenGameId,
+        String gameId,
         String powerId
 ) implements WsRequest {
 }

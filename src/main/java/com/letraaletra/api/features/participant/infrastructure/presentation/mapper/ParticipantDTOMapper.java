@@ -6,7 +6,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 public class ParticipantDTOMapper {
     public static ParticipantDTO toDTO(Participant participant) {
         return new ParticipantDTO(
-                participant.getUserId(),
+                participant.getUserId().toString(),
                 participant.getNickname(),
                 participant.getCosmeticsEquipped(),
                 participant.getRole()

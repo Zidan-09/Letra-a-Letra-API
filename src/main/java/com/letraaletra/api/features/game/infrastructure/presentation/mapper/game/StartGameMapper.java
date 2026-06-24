@@ -6,10 +6,12 @@ import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.StartGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.StartGameResponse;
 
+import java.util.UUID;
+
 public class StartGameMapper {
     public static StartGameInput toInput(StartGameWsRequest request, String session) {
         return new StartGameInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 session,
                 new GameSettings(
                         request.settings().themeId(),

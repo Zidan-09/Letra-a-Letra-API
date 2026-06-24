@@ -153,7 +153,7 @@ async function runGameFlow(ws1, ws2) {
   });
 
   const started = await waitForEvent(e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"));
-  const tokenGameId = started.tokenGameId;
+  const gameId = started.gameId;
 
   let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -169,6 +169,10 @@ async function runGameFlow(ws1, ws2) {
   while (gameRunning) {
     if (positions.length === 0) {
       console.log("⚠️ Sem mais posições disponíveis");
+      console.log("🧹 Encerrando conexões...");
+
+      ws1.close();
+      ws2.close();
       break;
     }
 
@@ -179,7 +183,7 @@ async function runGameFlow(ws1, ws2) {
 
     send(currentWs, {
       type: "PLAYER_ACTION",
-      tokenGameId,
+      gameId: gameId,
       action: {
         type: "REVEAL",
         position: pos

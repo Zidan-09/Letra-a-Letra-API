@@ -17,11 +17,12 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BoardViewBuilder {
-    public static BoardView build(GameState state, String viewerId) {
+    public static BoardView build(GameState state, UUID viewerId) {
 
         Player player = state.getPlayerOrThrow(viewerId);
 
@@ -62,7 +63,7 @@ public class BoardViewBuilder {
             Set<Position> spyPositions,
             boolean isBlind,
             boolean isDetectingTraps,
-            String playerId
+            UUID playerId
     ) {
         List<CellView> row = new ArrayList<>(rowCells.length);
 
@@ -78,7 +79,7 @@ public class BoardViewBuilder {
             Set<Position> spyPositions,
             boolean isBlind,
             boolean isDetectingTraps,
-            String playerId
+            UUID playerId
     ) {
         if (cell.getEffect() instanceof BlockEffect block) {
             return new CellView(
@@ -86,7 +87,7 @@ public class BoardViewBuilder {
                     null,
                     null,
                     new BlockView(
-                            block.getOwnerId(),
+                            block.getOwnerId().toString(),
                             block.getRemainingAttempts()
                     )
             );
@@ -100,7 +101,7 @@ public class BoardViewBuilder {
                     false,
                     null,
                     null,
-                    visible ? new TrapView(trap.getOwnerId()) : null
+                    visible ? new TrapView(trap.getOwnerId().toString()) : null
             );
         }
 
@@ -122,7 +123,7 @@ public class BoardViewBuilder {
         return new CellView(
                 revealed,
                 revealed ? cell.getLetter() : null,
-                revealed ? cell.getRevealedById() : null,
+                revealed ? cell.getRevealedById().toString() : null,
                 null
         );
     }

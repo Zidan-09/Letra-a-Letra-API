@@ -68,7 +68,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
         TurnExpired data = new TurnExpired(
                 result.event(),
-                new TurnExpired.ExpiredData(result.user(), result.currentPlayerTurnId())
+                new TurnExpired.ExpiredData(result.user().toString(), result.currentPlayerTurnId().toString())
         );
 
         gameNotifier.notifierAll(result.game(), data);

@@ -12,6 +12,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> {
     private final ActorManager<Game> actorManager;
@@ -29,7 +30,7 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
     }
 
     public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantInput input) {
-        String userId = input.user();
+        UUID userId = input.user();
         if (userId == null) return Optional.empty();
 
         User user = userRepository.find(userId).orElse(null);

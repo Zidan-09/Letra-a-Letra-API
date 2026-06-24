@@ -4,6 +4,7 @@ import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.state.GameState;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class UnblockAndRevealAction implements GameAction {
@@ -16,7 +17,7 @@ public class UnblockAndRevealAction implements GameAction {
     }
 
     @Override
-    public List<Event> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, UUID userId) {
         List<Event> unblockEvents = unblock.execute(state, userId);
 
         List<Event> revealEvents = reveal.execute(state, userId);

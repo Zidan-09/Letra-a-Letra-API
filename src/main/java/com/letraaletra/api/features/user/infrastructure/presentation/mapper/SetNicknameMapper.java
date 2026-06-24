@@ -5,10 +5,12 @@ import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.UpdateNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.UpdateNicknameResponse;
 
+import java.util.UUID;
+
 public class SetNicknameMapper {
     public static UpdateNicknameInput toInput(UpdateNicknameRequest request, String userId) {
         return new UpdateNicknameInput(
-                userId,
+                UUID.fromString(userId),
                 request.nickname()
         );
     }

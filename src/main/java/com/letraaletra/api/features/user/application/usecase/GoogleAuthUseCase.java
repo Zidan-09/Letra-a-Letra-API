@@ -11,6 +11,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
@@ -49,7 +50,7 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
         return buildOutput(user.getId(), token);
     }
 
-    private SignInOutput buildOutput(String id, String token) {
+    private SignInOutput buildOutput(UUID id, String token) {
         return new SignInOutput(id, token);
     }
 }

@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<ExpireTurnOutput>> {
@@ -56,7 +57,7 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
         }
     }
 
-    private User getUserOrThrow(String userId) {
+    private User getUserOrThrow(UUID userId) {
         return userRepository.find(userId)
                 .orElseThrow(UserNotFoundException::new);
     }

@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 @JsonTypeName("PLAYER_ACTION")
 public record PlayerActionWsRequest(
         @NotBlank
-        String tokenGameId,
+        String gameId,
 
         @Valid
         @NotNull

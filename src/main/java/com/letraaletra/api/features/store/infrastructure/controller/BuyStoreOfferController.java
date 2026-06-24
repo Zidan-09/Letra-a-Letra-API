@@ -31,7 +31,7 @@ public class BuyStoreOfferController {
             @AuthenticationPrincipal User user,
             @RequestBody @NotBlank BuyStoreOfferRequest request
     ) {
-        BuyOfferInput input = BuyStoreOfferMapper.toInput(user.getId(), request.offerId());
+        BuyOfferInput input = BuyStoreOfferMapper.toInput(user.getId().toString(), request.offerId());
 
         BuyOfferOutput output = useCase.execute(input);
 

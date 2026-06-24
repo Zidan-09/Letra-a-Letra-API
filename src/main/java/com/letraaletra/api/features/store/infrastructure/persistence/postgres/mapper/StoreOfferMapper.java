@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public class StoreOfferMapper {
     public static StoreOffer toDomain(StoreOfferJpaEntity entity, Cosmetic cosmetic) {
+        if (entity == null) return null;
+
         return new StoreOffer(
                 entity.getId().toString(),
                 entity.getTitle(),
@@ -22,6 +24,8 @@ public class StoreOfferMapper {
     }
 
     public static StoreOfferJpaEntity toEntity(StoreOffer domain) {
+        if (domain == null) return null;
+
         StoreOfferJpaEntity entity = new StoreOfferJpaEntity();
 
         entity.setId(UUID.fromString(domain.getOfferId()));

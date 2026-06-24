@@ -6,6 +6,8 @@ import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.user.domain.User;
 
+import java.util.UUID;
+
 public class JoinGameActorCommand implements ActorCommand<Game> {
     private final User user;
     private final String session;
@@ -27,7 +29,7 @@ public class JoinGameActorCommand implements ActorCommand<Game> {
         return game;
     }
 
-    private void checkIfBlackListed(Game game, String userId) {
+    private void checkIfBlackListed(Game game, UUID userId) {
         if (game.isBlackListed(userId)) {
             throw new UserBannedException();
         }

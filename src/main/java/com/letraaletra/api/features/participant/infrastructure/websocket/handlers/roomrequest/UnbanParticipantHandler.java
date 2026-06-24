@@ -11,6 +11,8 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.mapp
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.UUID;
+
 @Component
 public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticipantWsRequest> {
     private final UnbanUserUseCase unbanUser;
@@ -26,7 +28,7 @@ public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticip
 
     @Override
     public void handle(UnbanParticipantWsRequest request, WebSocketSession session) {
-        String userId = (String) session.getAttributes().get("userId");
+        UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         UnbanParticipantInput command = UnbanParticipantMapper.toInput(request, userId);
 

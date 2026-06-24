@@ -15,6 +15,7 @@ import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameExcep
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ImmunityPlayerAction implements GameAction {
     private final String powerId;
@@ -24,7 +25,7 @@ public class ImmunityPlayerAction implements GameAction {
     }
 
     @Override
-    public List<Event> execute(GameState state, String userId) {
+    public List<Event> execute(GameState state, UUID userId) {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
@@ -46,7 +47,7 @@ public class ImmunityPlayerAction implements GameAction {
         )));
     }
 
-    private void validatePlayerTurn(GameState state, String userId) {
+    private void validatePlayerTurn(GameState state, UUID userId) {
         if (!state.currentPlayerTurn().equals(userId)) {
             throw new NotYourTurnException();
         }

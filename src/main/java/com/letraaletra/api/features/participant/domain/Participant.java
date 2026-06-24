@@ -3,16 +3,17 @@ package com.letraaletra.api.features.participant.domain;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Participant {
-    private final String userId;
+    private final UUID userId;
     private final String nickname;
     private final List<InventoryItem> cosmeticsEquipped;
     private String socketId;
     private ParticipantRole role;
     private boolean connected;
 
-    public Participant(String userId, String socketId, String nickname, List<InventoryItem> cosmeticsEquipped) {
+    public Participant(UUID userId, String socketId, String nickname, List<InventoryItem> cosmeticsEquipped) {
         this.userId = userId;
         this.socketId = socketId;
         this.nickname = nickname;
@@ -21,7 +22,7 @@ public class Participant {
         this.role = ParticipantRole.SPECTATOR;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 

@@ -8,17 +8,17 @@ import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionE
 import java.util.*;
 
 public class Player {
-    private final String userId;
+    private final UUID userId;
     private final LinkedHashMap<String, PowerType> inventory = new LinkedHashMap<>();
     private int score = 0;
     private final List<PlayerEffect> effects = new ArrayList<>();
     private int passedTurn = 0;
 
-    public Player(String userId) {
+    public Player(UUID userId) {
         this.userId = userId;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 

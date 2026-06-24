@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParticipantTest {
 
     private Participant participant;
-    private final String userId = "user-123";
+    private final UUID userId = UUID.randomUUID();
     private final String initialSocketId = "session-xyz";
     private final String nickname = "LetraMaster";
     private List<InventoryItem> mockCosmetics;

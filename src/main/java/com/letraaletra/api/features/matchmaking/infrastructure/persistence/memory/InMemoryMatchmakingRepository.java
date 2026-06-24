@@ -7,13 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Repository
 public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     private final Map<GameMode, Queue<MatchmakingUser>> queues = new ConcurrentHashMap<>();
-    private final Map<String, MatchmakingUser> users = new ConcurrentHashMap<>();
+    private final Map<UUID, MatchmakingUser> users = new ConcurrentHashMap<>();
 
     public InMemoryMatchmakingRepository() {
         for (GameMode mode : GameMode.values()) {
@@ -34,7 +35,7 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     }
 
     @Override
-    public void removeById(String id) {
+    public void removeById(UUID id) {
         MatchmakingUser user = users.remove(id);
 
         if (user == null) return;
@@ -56,7 +57,7 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     }
 
     @Override
-    public boolean onQueue(String userId) {
+    public boolean onQueue(UUID userId) {
         return users.containsKey(userId);
     }
 }

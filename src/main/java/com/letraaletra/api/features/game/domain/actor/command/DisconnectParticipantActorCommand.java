@@ -5,12 +5,13 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class DisconnectParticipantActorCommand implements ActorCommand<Optional<Game>> {
-    private final String userId;
+    private final UUID userId;
     private final DisconnectScheduler disconnectScheduler;
 
-    public DisconnectParticipantActorCommand(String userId, DisconnectScheduler disconnectScheduler) {
+    public DisconnectParticipantActorCommand(UUID userId, DisconnectScheduler disconnectScheduler) {
         this.userId = userId;
         this.disconnectScheduler = disconnectScheduler;
     }

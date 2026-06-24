@@ -5,13 +5,15 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.FreezeActionRequest;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class FreezeActionHandler extends AbstractPlayerActionHandler<FreezeActionRequest> {
     @Override
     protected GameAction createAction(FreezeActionRequest request) {
         return new FreezePlayerAction(
                 request.actionId(),
-                request.targetId()
+                UUID.fromString(request.targetId())
         );
     }
 

@@ -22,14 +22,15 @@ import com.letraaletra.api.features.game.domain.state.GameState;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult> {
-    private final String user;
+    private final UUID user;
     private final GameAction action;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
 
-    public PlayerActionActorCommand(String user, GameAction action, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
+    public PlayerActionActorCommand(UUID user, GameAction action, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
         this.user = user;
         this.action = action;
         this.gameTimeoutManager = gameTimeoutManager;
@@ -73,7 +74,10 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             current = state.getPlayerOrThrow(state.currentPlayerTurn());
 
             if (current.canNotPlay()) {
-                events.add(new Event(StateEvent.TURN_PASSED, new TurnPassedEvent(current.getUserId())));
+                events.add(new Event(
+                        StateEvent.TURN_PASSED,
+                        new TurnPassedEvent(current.getUserId().toString())
+                ));
             }
 
         } while (current.canNotPlay());
@@ -85,7 +89,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         return new PlayerActionResult(events, gameOverResult, game);
     }
 
-    private void validatePlayer(String userId, Game game) {
+    private void validatePlayer(UUID userId, Game game) {
         Participant participant = game.getParticipantByUserId(userId);
 
         if (participant == null) {
