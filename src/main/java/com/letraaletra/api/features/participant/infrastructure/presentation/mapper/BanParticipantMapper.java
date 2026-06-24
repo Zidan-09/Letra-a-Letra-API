@@ -11,7 +11,7 @@ import java.util.UUID;
 public class BanParticipantMapper {
     public static BanParticipantInput toInput(BanParticipantWsRequest request, String user) {
         return new BanParticipantInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 UUID.fromString(request.participantId()),
                 UUID.fromString(user)
         );
@@ -19,7 +19,7 @@ public class BanParticipantMapper {
 
     public static BanParticipantResponse toResponse(BanParticipantOutput output) {
         return new BanParticipantResponse(
-               GameDTOMapper.toDTO(output.game(), output.token())
+               GameDTOMapper.toDTO(output.game())
         );
     }
 }

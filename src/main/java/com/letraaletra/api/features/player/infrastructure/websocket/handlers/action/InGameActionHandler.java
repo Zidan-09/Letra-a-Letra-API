@@ -4,7 +4,7 @@ import com.letraaletra.api.features.player.infrastructure.presentation.dto.reque
 import org.springframework.web.socket.WebSocketSession;
 
 public interface InGameActionHandler<T extends PlayerActionRequest> {
-    void handle(T request, WebSocketSession session, String gameTokenId);
+    void handle(T request, WebSocketSession session, String gameId);
 
     Class<T> getType();
 }

@@ -38,6 +38,7 @@ class ReconnectUseCaseTest {
     private ReconnectUseCase reconnectUseCase;
 
     private UUID userId;
+    private UUID gameId;
 
     @BeforeEach
     void setup() {
@@ -47,7 +48,7 @@ class ReconnectUseCaseTest {
     @Test
     @DisplayName("Deve reconectar com sucesso, cancelando o agendamento de queda")
     void shouldReconnectParticipantSuccessfully() {
-        String gameId = "game-123";
+        gameId = UUID.randomUUID();
         String wsSessionId = "session-new";
         ReconnectParticipantInput input = new ReconnectParticipantInput(userId, wsSessionId);
 
@@ -70,14 +71,12 @@ class ReconnectUseCaseTest {
     @Test
     @DisplayName("Deve capturar qualquer exceção na reconexão, ejetar o usuário do jogo e salvar")
     void shouldFallbackAndRemoveUserFromGameOnException() {
-        String gameId = "game-123";
         ReconnectParticipantInput input = new ReconnectParticipantInput(userId, "session-any");
 
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
 
-        // Simula erro ao buscar o Ator (sala expirou ou deu erro de concorrência)
         when(actorManager.get(gameId)).thenThrow(new RuntimeException("Actor thread error"));
 
         Optional<ReconnectParticipantOutput> result = reconnectUseCase.execute(input);

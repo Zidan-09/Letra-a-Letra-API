@@ -41,11 +41,13 @@ class CloseRoomDueToTimeoutServiceTest {
 
     private UUID userId1;
     private UUID userId2;
+    private UUID gameId;
 
     @BeforeEach
     void setup() {
         userId1 = UUID.randomUUID();
         userId2 = UUID.randomUUID();
+        gameId = UUID.randomUUID();
     }
 
     @Test
@@ -62,7 +64,7 @@ class CloseRoomDueToTimeoutServiceTest {
         when(participant2.getUserId()).thenReturn(userId2);
 
         when(game.getParticipants()).thenReturn(List.of(participant1, participant2));
-        when(game.getId()).thenReturn("game-123");
+        when(game.getId()).thenReturn(gameId);
 
         when(userRepository.find(userId1)).thenReturn(Optional.of(user1));
         when(userRepository.find(userId2)).thenReturn(Optional.of(user2));
@@ -82,7 +84,7 @@ class CloseRoomDueToTimeoutServiceTest {
         verify(userRepository).save(user1);
         verify(userRepository).save(user2);
 
-        verify(actorManager).remove("game-123");
+        verify(actorManager).remove(gameId);
         verify(gameRepository).save(game);
 
         verify(game).setGameStatus(GameStatus.CANCELED);
@@ -115,7 +117,7 @@ class CloseRoomDueToTimeoutServiceTest {
         verify(user1).leaveGame();
         verify(userRepository).save(user1);
 
-        verify(actorManager, never()).remove(anyString());
+        verify(actorManager, never()).remove(any());
         verify(gameRepository, never()).save(any());
     }
 }

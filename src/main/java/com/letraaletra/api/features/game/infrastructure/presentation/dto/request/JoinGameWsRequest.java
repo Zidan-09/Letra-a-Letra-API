@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 @JsonTypeName("JOIN_GAME")
 public record JoinGameWsRequest(
         @NotBlank
-        String tokenGameId
+        String gameId
 ) implements WsRequest {
 }

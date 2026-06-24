@@ -5,7 +5,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import java.util.Optional;
 
 public record JoinMatchmakingOutput(
-    Optional<String> gameTokenId,
     Optional<Game> game
 ) {
 }

@@ -11,7 +11,7 @@ import java.util.UUID;
 public class KickParticipantMapper {
     public static KickParticipantInput toInput(KickParticipantWsRequest request, String userId) {
         return new KickParticipantInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 UUID.fromString(request.participantId()),
                 UUID.fromString(userId)
         );
@@ -19,7 +19,7 @@ public class KickParticipantMapper {
 
     public static KickParticipantResponse toResponse(KickParticipantOutput output) {
         return new KickParticipantResponse(
-                GameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game())
         );
     }
 }

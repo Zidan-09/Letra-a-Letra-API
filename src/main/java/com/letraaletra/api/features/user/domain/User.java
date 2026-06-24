@@ -19,7 +19,7 @@ public class User {
     private final String email;
     private final String hashPassword;
     private final String googleId;
-    private String currentGameId;
+    private UUID currentGameId;
     private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
@@ -128,12 +128,12 @@ public class User {
         return currentGameId == null;
     }
 
-    public String getCurrentGameId() {
+    public UUID getCurrentGameId() {
         return currentGameId;
     }
 
-    public void enterGame(String gameId) {
-        if (gameId == null || gameId.isBlank()) {
+    public void enterGame(UUID gameId) {
+        if (gameId == null || gameId.toString().isBlank()) {
             throw new GameNotFoundException();
         }
 

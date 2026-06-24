@@ -13,7 +13,6 @@ import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +32,6 @@ import static org.mockito.Mockito.*;
 class LeftGameUseCaseTest {
 
     @Mock
-    private TokenService tokenService;
-
-    @Mock
     private ActorManager<Game> actorManager;
 
     @Mock
@@ -52,29 +48,26 @@ class LeftGameUseCaseTest {
 
     private UUID gameId;
     private UUID userId;
+    private LeftGameInput input;
 
     @BeforeEach
     void setup() {
         gameId = UUID.randomUUID();
         userId = UUID.randomUUID();
+        input = new LeftGameInput(
+                gameId,
+                "session-123"
+        );
     }
 
     @Test
     void shouldLeaveGameSuccessfully() {
-        LeftGameInput input = new LeftGameInput(
-                "token-123",
-                "session-123"
-        );
-
         Game game = mock(Game.class);
         User user = mock(User.class);
         GameOverResult gameOverResult = mock(GameOverResult.class);
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
-
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
@@ -98,32 +91,23 @@ class LeftGameUseCaseTest {
         LeftGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals("token-123", output.token());
         assertEquals(game, output.game());
         assertEquals(gameOverResult, output.gameOverResult());
 
         verify(user).leaveGame();
         verify(userRepository).save(user);
 
-        verify(actorManager, never()).remove(anyString());
+        verify(actorManager, never()).remove(any());
         verify(gameRepository, never()).save(any());
     }
 
     @Test
     void shouldCloseGameWhenLastPlayerLeaves() {
-        LeftGameInput input = new LeftGameInput(
-                "token-123",
-                "session-123"
-        );
-
         Game game = mock(Game.class);
         User user = mock(User.class);
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
-
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
@@ -142,31 +126,23 @@ class LeftGameUseCaseTest {
                 .thenReturn(Optional.of(user));
 
         when(game.getId())
-                .thenReturn(gameId.toString());
+                .thenReturn(gameId);
 
         useCase.execute(input);
 
         verify(user).leaveGame();
         verify(userRepository).save(user);
 
-        verify(actorManager).remove(gameId.toString());
+        verify(actorManager).remove(gameId);
         verify(game).setGameStatus(GameStatus.CLOSED);
         verify(gameRepository).save(game);
     }
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
-        LeftGameInput input = new LeftGameInput(
-                "token-123",
-                "session-123"
-        );
-
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
-
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
@@ -189,19 +165,11 @@ class LeftGameUseCaseTest {
 
     @Test
     void shouldSendLeftGameCommandToActor() {
-        LeftGameInput input = new LeftGameInput(
-                "token-123",
-                "session-123"
-        );
-
         Game game = mock(Game.class);
         User user = mock(User.class);
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(tokenService.getTokenContent("token-123"))
-                .thenReturn(gameId);
-
-        when(actorManager.get(gameId.toString()))
+        when(actorManager.get(gameId))
                 .thenReturn(actor);
 
         when(actor.enqueueCommand(any()))

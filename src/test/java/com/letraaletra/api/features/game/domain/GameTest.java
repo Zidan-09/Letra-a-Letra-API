@@ -33,6 +33,7 @@ class GameTest {
     private Game game;
     private Participant host;
     private UUID hostId;
+    private UUID gameId;
 
     @Mock private Board mockBoard;
     @Mock private GameStateFactory mockStateGenerator;
@@ -44,7 +45,9 @@ class GameTest {
         host = new Participant(hostId, "sess-1", "DonoDaSala", List.of());
         RoomSettings defaultSettings = new RoomSettings(true, false);
 
-        game = new Game("game-1", "CODE12", "Lobby dos Devs", defaultSettings, host, GameType.CUSTOM);
+        gameId = UUID.randomUUID();
+
+        game = new Game(gameId, "CODE12", "Lobby dos Devs", defaultSettings, host, GameType.CUSTOM);
     }
 
     @Nested
@@ -115,7 +118,7 @@ class GameTest {
             UUID participantId3 = UUID.randomUUID();
 
             RoomSettings strictSettings = new RoomSettings(false, false);
-            Game strictGame = new Game("g2", "C", "N", strictSettings, host, GameType.CUSTOM);
+            Game strictGame = new Game(gameId, "C", "N", strictSettings, host, GameType.CUSTOM);
 
             strictGame.join(new Participant(participantId2, "s2", "J2", List.of()));
 

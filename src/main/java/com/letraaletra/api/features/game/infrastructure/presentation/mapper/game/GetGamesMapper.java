@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 public class GetGamesMapper {
     public static GetGamesResponse toResponse(GetGamesOutput output) {
         List<GameDTO> games = output.games().stream()
-                .map(game -> toGameDto(game, output))
+                .map(GetGamesMapper::toGameDto)
                 .toList();
 
         return new GetGamesResponse(games);
     }
 
-    private static GameDTO toGameDto(Game game, GetGamesOutput output) {
+    private static GameDTO toGameDto(Game game) {
         return new GameDTO(
-                output.tokens().get(game.getId()),
+                game.getId().toString(),
                 game.getRoomName(),
                 MapParticipantsMapper.execute(game),
                 game.getPositions().entrySet()

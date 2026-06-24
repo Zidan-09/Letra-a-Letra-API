@@ -19,12 +19,11 @@ public class JoinMatchmakingMapper {
 
     public static JoinMatchmakingResponse toResponse(JoinMatchmakingOutput output) {
         Game game = output.game().orElse(null);
-        String token = output.gameTokenId().orElse(null);
 
         return new JoinMatchmakingResponse(
                 game != null ? MatchmakingStatus.FOUNDED : MatchmakingStatus.SEARCHING,
                 game != null ? game.getGameState().getCurrentTurnEnds() : null,
-                token,
+                game != null ? game.getId().toString() : null,
                 game != null ? GameStateDTOMapper.toGlobalDto(game) : null
         );
     }

@@ -27,13 +27,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
     protected GameNotifier gameNotifier;
 
     @Override
-    public void handle(T request, WebSocketSession session, String gameTokenId) {
+    public void handle(T request, WebSocketSession session, String gameId) {
         UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         GameAction action = createAction(request);
 
         PlayerActionInput input =
-                PlayerActionMapper.toInput(gameTokenId, userId, action);
+                PlayerActionMapper.toInput(gameId, userId, action);
 
         PlayerActionOutput output = playerActionUseCase.execute(input);
 

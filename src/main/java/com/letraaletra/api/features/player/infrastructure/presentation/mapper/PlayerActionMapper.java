@@ -11,9 +11,9 @@ import java.util.UUID;
 
 @Component
 public class PlayerActionMapper {
-    public static PlayerActionInput toInput(String token, UUID userId, GameAction action) {
+    public static PlayerActionInput toInput(String gameId, UUID userId, GameAction action) {
         return new PlayerActionInput(
-                token,
+                gameId,
                 userId,
                 action
         );

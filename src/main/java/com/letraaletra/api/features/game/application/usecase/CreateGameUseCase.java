@@ -9,7 +9,6 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
@@ -26,7 +25,6 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
     private final ActorManager<Game> actorManager;
     private final GameQueryService gameQueryService;
     private final GameTimeoutManager gameTimeoutManager;
-    private final TokenService tokenService;
     private final GenerateRoomCode generateRoomCode;
 
     public CreateGameUseCase(
@@ -35,7 +33,6 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
             GameQueryService gameQueryService,
-            TokenService tokenService,
             GenerateRoomCode generateRoomCode
     ) {
         this.userRepository = userRepository;
@@ -43,12 +40,11 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
         this.actorManager = actorManager;
         this.gameTimeoutManager = gameTimeoutManager;
         this.gameQueryService = gameQueryService;
-        this.tokenService = tokenService;
         this.generateRoomCode = generateRoomCode;
     }
 
     public CreateGameOutput execute(CreateGameInput input) {
-        String gameId = UUID.randomUUID().toString();
+        UUID gameId = UUID.randomUUID();
 
         User user = userRepository.find(input.user()).orElse(null);
 
@@ -67,11 +63,9 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
 
         actorManager.create(gameId, game);
 
-        String tokenGameId = tokenService.generateToken(UUID.fromString(gameId));
-
         gameTimeoutManager.start(game);
 
-        return buildReturn(tokenGameId, game);
+        return buildOutput(game);
     }
 
     private void validateUser(User user) {
@@ -95,7 +89,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
         return code;
     }
 
-    private CreateGameOutput buildReturn(String token, Game game) {
-        return new CreateGameOutput(token, game);
+    private CreateGameOutput buildOutput(Game game) {
+        return new CreateGameOutput(game);
     }
 }

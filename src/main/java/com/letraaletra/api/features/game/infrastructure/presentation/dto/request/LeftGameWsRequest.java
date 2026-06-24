@@ -7,5 +7,5 @@ import jakarta.validation.constraints.NotBlank;
 @JsonTypeName("LEFT_GAME")
 public record LeftGameWsRequest(
         @NotBlank
-        String tokenGameId
+        String gameId
 ) implements WsRequest {}

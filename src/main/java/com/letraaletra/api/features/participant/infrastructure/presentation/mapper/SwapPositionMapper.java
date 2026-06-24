@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SwapPositionMapper {
     public static SwapPositionInput toInput(SwapPositionWsRequest request, String userId) {
         return new SwapPositionInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 request.position(),
                 UUID.fromString(userId)
         );
@@ -19,7 +19,7 @@ public class SwapPositionMapper {
 
     public static SwapPositionResponse toResponse(SwapPositionOutput output) {
         return new SwapPositionResponse(
-                GameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game())
         );
     }
 }

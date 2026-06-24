@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ public class UserFactory {
 //                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
 //        );
 
-        return List.of();
+        return new ArrayList<>();
     }
 
     private Wallet getInitialWallet() {

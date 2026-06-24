@@ -158,9 +158,9 @@ async function runGameFlow(ws1, ws2, ws3) {
   // pegar token via HTTP (testa endpoint)
   const games = await http("GET", "/game", undefined, users[0].token);
 
-  const tokenGameId = games.data.games[0]?.tokenGameId;
+  const gameId = games.data.games[0]?.gameId;
 
-  console.log("🎯 Token do jogo:", tokenGameId);
+  console.log("🎯 Id do jogo:", gameId);
 
   /* =========================
      JOIN
@@ -168,14 +168,14 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws2, {
     type: "JOIN_GAME",
-    tokenGameId
+    gameId: gameId
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
 
   send(ws3, {
     type: "JOIN_GAME",
-    tokenGameId
+    gameId: gameId
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
@@ -186,7 +186,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws2, {
     type: "SWAP_POSITION",
-    tokenGameId,
+    gameId: gameId,
     position: 3
   });
 
@@ -194,7 +194,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws3, {
     type: "SWAP_POSITION",
-    tokenGameId,
+    gameId: gameId,
     position: 1
   });
 
@@ -206,7 +206,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws1, {
     type: "START_GAME",
-    tokenGameId,
+    gameId: gameId,
     settings: {
       themeId: "tech",
       gameMode: "NORMAL"
@@ -239,7 +239,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
     send(currentWs, {
       type: "PLAYER_ACTION",
-      tokenGameId,
+      gameId: gameId,
       action: {
         type: "REVEAL",
         position: pos
@@ -283,7 +283,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws1, {
     type: "KICK_PARTICIPANT",
-    tokenGameId,
+    gameId: gameId,
     participantId: users[2].id
   });
 
@@ -291,7 +291,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws1, {
     type: "BAN_PARTICIPANT",
-    tokenGameId,
+    gameId: gameId,
     participantId: users[1].id
   });
 
@@ -299,7 +299,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws1, {
     type: "UNBAN_PARTICIPANT",
-    tokenGameId,
+    gameId: gameId,
     userId: users[1].id
   });
 
@@ -307,7 +307,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws2, {
     type: "JOIN_GAME",
-    tokenGameId
+    gameId: gameId
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_JOIN");
@@ -318,7 +318,7 @@ async function runGameFlow(ws1, ws2, ws3) {
 
   send(ws2, {
     type: "LEFT_GAME",
-    tokenGameId
+    gameId: gameId
   });
 
   await waitForEvent(e => e.event === "PARTICIPANT_LEAVE");

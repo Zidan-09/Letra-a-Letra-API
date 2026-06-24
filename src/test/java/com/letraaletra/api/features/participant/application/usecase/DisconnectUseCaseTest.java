@@ -1,6 +1,5 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.*;
 class DisconnectUseCaseTest {
 
     @Mock private ActorManager<Game> gameActorManager;
-    @Mock private DisconnectScheduler disconnectScheduler;
     @Mock private MatchmakingRepository matchmakingRepository;
     @Mock private UserRepository userRepository;
     @Mock private Actor actor;
@@ -41,10 +39,12 @@ class DisconnectUseCaseTest {
     private DisconnectUseCase disconnectUseCase;
 
     private UUID userId;
+    private UUID gameId;
 
     @BeforeEach
     void setup() {
         userId = UUID.randomUUID();
+        gameId = UUID.randomUUID();
     }
 
     @Test
@@ -64,7 +64,6 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Deve desconectar com sucesso do Ator e manter usuário se a sala persistir")
     void shouldDisconnectSuccessfullyWhenGamePersists() {
-        String gameId = "game-456";
         DisconnectParticipantInput input = new DisconnectParticipantInput(userId, "session-xyz");
 
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
@@ -87,7 +86,6 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Deve forçar o usuário a sair da partida se o Ator retornar um jogo vazio")
     void shouldForceUserToLeaveGameWhenActorReturnsEmptyGame() {
-        String gameId = "game-456";
         DisconnectParticipantInput input = new DisconnectParticipantInput(userId, "session-xyz");
 
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);

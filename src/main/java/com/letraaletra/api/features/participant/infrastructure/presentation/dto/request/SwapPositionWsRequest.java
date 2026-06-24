@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record SwapPositionWsRequest(
         @NotBlank
-        String tokenGameId,
+        String gameId,
 
         @NotNull
         @Min(0)

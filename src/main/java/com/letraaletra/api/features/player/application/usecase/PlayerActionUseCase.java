@@ -13,7 +13,6 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.shared.domain.security.TokenService;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,20 +20,17 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerActionOutput> {
-    private final TokenService tokenService;
     private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
 
     public PlayerActionUseCase(
-            TokenService tokenService,
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager,
             GameOverHandler gameOverHandler
     ) {
-        this.tokenService = tokenService;
         this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
@@ -42,9 +38,9 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
     }
 
     public PlayerActionOutput execute(PlayerActionInput input) {
-        UUID gameId = tokenService.getTokenContent(input.token());
+        UUID gameId = UUID.fromString(input.gameId());
 
-        Actor actor = gameActorManager.get(gameId.toString());
+        Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
                 input.user(), input.action(), gameTimeoutManager, turnTimeoutManager

@@ -27,31 +27,25 @@ public class BanParticipantUseCase implements UseCase<BanParticipantInput, BanPa
     }
 
     public BanParticipantOutput execute(BanParticipantInput input) {
-        ModerationContext context = moderationContextService.resolve(input.token(), input.target(), input.user());
+        ModerationContext context = moderationContextService
+                .resolve(input.gameId(), input.target(), input.user());
 
         Actor actor = gameActorManager.get(context.game().getId());
         CompletableFuture<Game> future = actor.enqueueCommand(new BanParticipantActorCommand(input.target(), input.user()));
         Game game = future.join();
 
-        User user = userRepository.find(input.target()).orElse(null);
-        validateUser(user);
+        User user = userRepository.find(input.target())
+                .orElseThrow(UserNotFoundException::new);
 
         user.leaveGame();
 
         userRepository.save(user);
 
-        return buildReturn(game, input.token());
+        return buildReturn(game);
     }
 
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
-    }
-
-    private BanParticipantOutput buildReturn(Game game, String token) {
+    private BanParticipantOutput buildReturn(Game game) {
         return new BanParticipantOutput(
-                token,
                 game
         );
     }
