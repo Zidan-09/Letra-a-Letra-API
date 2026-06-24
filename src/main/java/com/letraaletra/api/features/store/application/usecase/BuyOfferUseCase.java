@@ -4,6 +4,7 @@ import com.letraaletra.api.features.store.application.input.BuyOfferInput;
 import com.letraaletra.api.features.store.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusException;
+import com.letraaletra.api.features.store.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
 import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
 import com.letraaletra.api.features.user.domain.User;
@@ -31,7 +32,8 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         User user = userRepository.find(input.userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        StoreOffer offer = storeOfferRepository.findById(input.offerId());
+        StoreOffer offer = storeOfferRepository.findById(input.offerId())
+                .orElseThrow(OfferNotFoundException::new);
 
         validateOffer(offer);
         processPayment(user, offer);
