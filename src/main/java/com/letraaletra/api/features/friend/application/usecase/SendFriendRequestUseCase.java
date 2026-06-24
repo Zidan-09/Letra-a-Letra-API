@@ -36,7 +36,7 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
     }
 
     private void checkFriendRequest(String userId, String friendId) {
-        Friend request = friendRepository.find(userId, friendId);
+        Friend request = friendRepository.find(userId, friendId).orElse(null);
 
         if (request != null && !request.getStatus().equals(FriendStatus.DECLINED)) {
             throw new InvalidFriendRequestException();

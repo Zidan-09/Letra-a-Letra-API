@@ -8,6 +8,7 @@ import com.letraaletra.api.features.friend.infrastructure.persistence.postgres.m
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -27,8 +28,9 @@ public class JpaFriendRepository implements FriendRepository {
     }
 
     @Override
-    public Friend find(String userId1, String userId2) {
-        return FriendMapper.toDomain(repository.getFriend(UUID.fromString(userId1), UUID.fromString(userId2)));
+    public Optional<Friend> find(String userId1, String userId2) {
+        return repository.getFriend(UUID.fromString(userId1), UUID.fromString(userId2))
+                .map(FriendMapper::toDomain);
     }
 
     @Override

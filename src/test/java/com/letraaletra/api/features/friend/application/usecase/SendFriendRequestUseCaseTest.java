@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,7 +47,7 @@ class SendFriendRequestUseCaseTest {
     @DisplayName("should send a friend request correctly")
     void sendFriendRequest() {
         when(repository.find(userId, friendId))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
 
         SendFriendRequestOutput output = useCase.execute(input);
 
@@ -59,7 +60,7 @@ class SendFriendRequestUseCaseTest {
         Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
 
         when(repository.find(userId, friendId))
-                .thenReturn(friend);
+                .thenReturn(Optional.of(friend));
 
         SendFriendRequestOutput output = useCase.execute(input);
 
@@ -72,7 +73,7 @@ class SendFriendRequestUseCaseTest {
         Friend friend = new Friend(userId, friendId, FriendStatus.PENDING, now);
 
         when(repository.find(userId, friendId))
-                .thenReturn(friend);
+                .thenReturn(Optional.of(friend));
 
         assertThrows(InvalidFriendRequestException.class,
                 () -> useCase.execute(input)

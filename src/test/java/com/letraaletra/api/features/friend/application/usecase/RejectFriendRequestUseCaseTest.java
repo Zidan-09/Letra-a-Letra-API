@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,7 +49,7 @@ class RejectFriendRequestUseCaseTest {
     void accept() {
         Friend friendRequest = new Friend(userId, friendId, FriendStatus.PENDING, now);
 
-        when(repository.find(userId, friendId)).thenReturn(friendRequest);
+        when(repository.find(userId, friendId)).thenReturn(Optional.of(friendRequest));
 
         ArgumentCaptor<Friend> friendCaptor = ArgumentCaptor.forClass(Friend.class);
 
@@ -64,7 +65,7 @@ class RejectFriendRequestUseCaseTest {
     @Test
     @DisplayName("should throw an InvalidFriendRequestException because null")
     void throwInvalidFriendRequestExceptionBecauseNull() {
-        when(repository.find(userId, friendId)).thenReturn(null);
+        when(repository.find(userId, friendId)).thenReturn(Optional.empty());
 
         assertThrows(InvalidFriendRequestException.class,
                 () -> useCase.execute(input)
@@ -76,7 +77,7 @@ class RejectFriendRequestUseCaseTest {
     void throwInvalidFriendRequestExceptionBecauseStatus() {
         Friend friend = new Friend(userId, friendId, FriendStatus.ACCEPT, now);
 
-        when(repository.find(userId, friendId)).thenReturn(friend);
+        when(repository.find(userId, friendId)).thenReturn(Optional.of(friend));
 
         assertThrows(InvalidFriendRequestException.class,
                 () -> useCase.execute(input)
