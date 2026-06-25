@@ -3,6 +3,7 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
@@ -17,12 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserControllerTest {
@@ -38,7 +36,7 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        CreateUserOutput output = new CreateUserOutput(UUID.randomUUID(), "random-nickname", "teste@email.com");
+        CreateUserOutput output = new CreateUserOutput(any(User.class));
 
         when(createUserUseCase
                 .execute(any(CreateUserInput.class)))

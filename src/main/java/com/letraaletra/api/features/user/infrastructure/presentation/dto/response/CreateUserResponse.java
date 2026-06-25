@@ -2,7 +2,6 @@ package com.letraaletra.api.features.user.infrastructure.presentation.dto.respon
 
 public record CreateUserResponse(
         String id,
-        String nickname,
-        String email
+        String nickname
 ) {
 }
