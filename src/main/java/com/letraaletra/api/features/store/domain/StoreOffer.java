@@ -5,9 +5,10 @@ import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusExc
 import com.letraaletra.api.features.user.domain.wallet.CoinType;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class StoreOffer {
-    private final String offerId;
+    private final UUID offerId;
     private final String title;
     private final CoinType coinType;
     private final int price;
@@ -18,7 +19,7 @@ public class StoreOffer {
     private final LocalDateTime expiresAt;
 
     public StoreOffer(
-            String offerId,
+            UUID offerId,
             String title,
             CoinType coinType,
             int price,
@@ -39,7 +40,7 @@ public class StoreOffer {
         this.expiresAt = expiresAt;
     }
 
-    public String getOfferId() {
+    public UUID getOfferId() {
         return offerId;
     }
 

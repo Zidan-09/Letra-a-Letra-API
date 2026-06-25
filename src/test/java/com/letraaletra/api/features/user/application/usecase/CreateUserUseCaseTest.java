@@ -80,9 +80,9 @@ class CreateUserUseCaseTest {
 
         assertNotNull(output);
 
-        assertEquals(userId, output.id());
-        assertEquals("john123", output.nickname());
-        assertEquals("john@email.com", output.email());
+        assertEquals(userId, output.user().getId());
+        assertEquals("john123", output.user().getNickname());
+        assertEquals("john@email.com", output.user().getEmail());
 
         verify(userRepository).existsByEmail("john@email.com");
         verify(selectNicknameService).execute();

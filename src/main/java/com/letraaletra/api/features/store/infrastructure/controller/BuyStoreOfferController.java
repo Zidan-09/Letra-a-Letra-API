@@ -9,7 +9,7 @@ import com.letraaletra.api.features.store.infrastructure.presentation.mapper.Buy
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +29,7 @@ public class BuyStoreOfferController {
     @PostMapping(path = "/store/buy")
     public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> buyOffer(
             @AuthenticationPrincipal User user,
-            @RequestBody @NotBlank BuyStoreOfferRequest request
+            @Valid @RequestBody BuyStoreOfferRequest request
     ) {
         BuyOfferInput input = BuyStoreOfferMapper.toInput(user.getId().toString(), request.offerId());
 

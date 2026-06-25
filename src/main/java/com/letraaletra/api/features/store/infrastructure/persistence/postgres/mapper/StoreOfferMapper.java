@@ -4,14 +4,12 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.infrastructure.persistence.postgres.entity.StoreOfferJpaEntity;
 
-import java.util.UUID;
-
 public class StoreOfferMapper {
     public static StoreOffer toDomain(StoreOfferJpaEntity entity, Cosmetic cosmetic) {
         if (entity == null) return null;
 
         return new StoreOffer(
-                entity.getId().toString(),
+                entity.getId(),
                 entity.getTitle(),
                 entity.getCoinType(),
                 entity.getPrice(),
@@ -28,7 +26,7 @@ public class StoreOfferMapper {
 
         StoreOfferJpaEntity entity = new StoreOfferJpaEntity();
 
-        entity.setId(UUID.fromString(domain.getOfferId()));
+        entity.setId(domain.getOfferId());
         entity.setTitle(domain.getTitle());
         entity.setCoinType(domain.getCoinType());
         entity.setPrice(domain.getPrice());

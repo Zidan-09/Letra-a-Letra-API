@@ -54,9 +54,7 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
 
     private CreateUserOutput buildResult(User user) {
         return new CreateUserOutput(
-                user.getId(),
-                user.getNickname(),
-                user.getEmail()
+                user
         );
     }
 }

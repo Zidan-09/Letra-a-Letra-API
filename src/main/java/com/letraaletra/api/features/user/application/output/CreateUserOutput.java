@@ -1,10 +1,8 @@
 package com.letraaletra.api.features.user.application.output;
 
-import java.util.UUID;
+import com.letraaletra.api.features.user.domain.User;
 
 public record CreateUserOutput(
-        UUID id,
-        String nickname,
-        String email
+        User user
 ) {
 }

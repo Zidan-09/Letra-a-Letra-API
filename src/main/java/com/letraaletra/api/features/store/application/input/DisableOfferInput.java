@@ -1,6 +1,8 @@
 package com.letraaletra.api.features.store.application.input;
 
+import java.util.UUID;
+
 public record DisableOfferInput(
-        String offerId
+        UUID offerId
 ) {
 }
