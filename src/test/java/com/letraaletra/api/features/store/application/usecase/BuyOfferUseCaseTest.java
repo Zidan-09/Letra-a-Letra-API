@@ -53,7 +53,9 @@ class BuyOfferUseCaseTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
-        input = new BuyOfferInput(userId, "offer-456");
+        UUID offerId = UUID.randomUUID();
+
+        input = new BuyOfferInput(userId, offerId);
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);

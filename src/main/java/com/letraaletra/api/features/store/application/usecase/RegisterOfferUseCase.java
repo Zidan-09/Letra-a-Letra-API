@@ -43,7 +43,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
 
     private StoreOffer buildOffer(RegisterOfferInput input, Cosmetic cosmetic) {
         return new StoreOffer(
-            UUID.randomUUID().toString(),
+            UUID.randomUUID(),
             input.title(),
             input.coinType(),
             input.price(),
