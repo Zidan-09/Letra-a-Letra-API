@@ -43,7 +43,7 @@ public class JpaUserRepository implements UserRepository {
         statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
         walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
 
-        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
+        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
                 .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
                 .toList();
 

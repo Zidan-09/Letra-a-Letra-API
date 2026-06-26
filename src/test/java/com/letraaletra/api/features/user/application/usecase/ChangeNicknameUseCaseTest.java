@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.features.user.application.input.UpdateNicknameInput;
-import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput;
+import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
+import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.NicknameAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.exceptions.UserCannotChangeNicknameException;
@@ -22,22 +22,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UpdateNicknameUseCaseTest {
+class ChangeNicknameUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private UpdateNicknameUseCase updateNicknameUseCase;
+    private ChangeNicknameUseCase changeNicknameUseCase;
 
     private UUID userId;
-    private UpdateNicknameInput input;
+    private ChangeNicknameInput input;
     private User user;
 
     @BeforeEach
     void setup() {
         userId = UUID.randomUUID();
 
-        input = new UpdateNicknameInput(
+        input = new ChangeNicknameInput(
                 userId,
                 "new-nickname"
         );
@@ -61,10 +61,10 @@ class UpdateNicknameUseCaseTest {
         when(userRepository.existsByNickname("new-nickname"))
                 .thenReturn(false);
 
-        UpdateNicknameOutput output =
-                updateNicknameUseCase.execute(input);
+        ChangeNicknameOutput output =
+                changeNicknameUseCase.execute(input);
 
-        assertEquals("new-nickname", output.nickname());
+        assertEquals("new-nickname", output.user().getNickname());
 
         verify(user).setNickname("new-nickname");
         verify(user).setCanChangeNickname(false);
@@ -81,7 +81,7 @@ class UpdateNicknameUseCaseTest {
 
         assertThrows(
                 UserNotFoundException.class,
-                () -> updateNicknameUseCase.execute(input)
+                () -> changeNicknameUseCase.execute(input)
         );
 
         verify(userRepository, never())
@@ -106,7 +106,7 @@ class UpdateNicknameUseCaseTest {
 
         assertThrows(
                 NicknameAlreadyInUseException.class,
-                () -> updateNicknameUseCase.execute(input)
+                () -> changeNicknameUseCase.execute(input)
         );
 
         verify(userRepository, never())
@@ -128,7 +128,7 @@ class UpdateNicknameUseCaseTest {
 
         assertThrows(
                 UserCannotChangeNicknameException.class,
-                () -> updateNicknameUseCase.execute(input)
+                () -> changeNicknameUseCase.execute(input)
         );
 
         verify(userRepository, never())
@@ -156,7 +156,7 @@ class UpdateNicknameUseCaseTest {
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
-                () -> updateNicknameUseCase.execute(input)
+                () -> changeNicknameUseCase.execute(input)
         );
 
         assertSame(exception, thrown);
@@ -187,7 +187,7 @@ class UpdateNicknameUseCaseTest {
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
-                () -> updateNicknameUseCase.execute(input)
+                () -> changeNicknameUseCase.execute(input)
         );
 
         assertSame(exception, thrown);

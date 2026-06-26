@@ -4,6 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
@@ -23,7 +24,7 @@ public class User {
     private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
-    private List<InventoryItem> inventory;
+    private Inventory inventory;
     private final Wallet wallet;
     private final LocalDateTime createdAt;
 
@@ -36,7 +37,7 @@ public class User {
             boolean isAdmin,
             boolean canChangeNickname,
             UserStats stats,
-            List<InventoryItem> inventory,
+            Inventory inventory,
             Wallet wallet,
             LocalDateTime createdAt
     ) {
@@ -84,8 +85,8 @@ public class User {
         return stats;
     }
 
-    public List<InventoryItem> getInventory() {
-        return List.copyOf(inventory);
+    public Inventory getInventory() {
+        return inventory;
     }
 
     public Wallet getWallet() {
@@ -94,34 +95,6 @@ public class User {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void addToInventory(InventoryItem item) {
-        if (item == null) {
-            throw new CosmeticNotFoundException();
-        }
-
-        if (inventory.stream().anyMatch(cosmetic -> cosmetic.cosmetic_id().equals(item.cosmetic_id()))) {
-            throw new InvalidCosmeticException();
-        }
-
-        inventory.add(item);
-    }
-
-    public void removeFromInventory(String cosmeticId) {
-        InventoryItem itemToBeRemoved = inventory.stream()
-                .filter(cosmetic -> cosmetic.cosmetic_id().equals(cosmeticId))
-                .findFirst().orElseThrow();
-
-        inventory.remove(itemToBeRemoved);
-
-        if (itemToBeRemoved.equipped()) {
-            InventoryItem newEquipped = inventory.stream()
-                    .filter(cosmetic -> cosmetic.type().equals(itemToBeRemoved.type()))
-                    .findFirst().orElseThrow();
-
-            this.equipCosmetic(newEquipped.cosmetic_id());
-        }
     }
 
     public boolean isNotInGame() {
@@ -158,24 +131,6 @@ public class User {
 
     public void setCanChangeNickname(boolean canChangeNickname) {
         this.canChangeNickname = canChangeNickname;
-    }
-
-    public void equipCosmetic(String cosmeticId) {
-        InventoryItem targetItem = this.inventory.stream()
-                .filter(item -> item.cosmetic_id().equals(cosmeticId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não possui este cosmético."));
-
-        this.inventory = this.inventory.stream()
-                .map(item -> {
-                    if (item.type() == targetItem.type()) {
-                        boolean isTarget = item.cosmetic_id().equals(cosmeticId);
-                        return new InventoryItem(item.cosmetic_id(), item.name(), item.type(), isTarget, item.unlocked_at());
-                    }
-
-                    return item;
-                })
-                .toList();
     }
 
     public boolean isAdmin() {

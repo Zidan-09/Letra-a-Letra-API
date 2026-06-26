@@ -4,6 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -99,13 +100,15 @@ class UserTest {
         @Test
         @DisplayName("Deve equipar o cosmético desejado e desequipar outros do mesmo tipo")
         void shouldEquipCosmeticAndUnequipOthersOfSameType() {
-            user.addToInventory(item1);
-            user.addToInventory(item2);
-            user.addToInventory(item3);
+            Inventory inventory = user.getInventory();
 
-            user.equipCosmetic(itemId2);
+            inventory.addToInventory(item1);
+            inventory.addToInventory(item2);
+            inventory.addToInventory(item3);
 
-            List<InventoryItem> updatedInventory = user.getInventory();
+            inventory.equipCosmetic(itemId2);
+
+            List<InventoryItem> updatedInventory = user.getInventory().getItems();
 
             InventoryItem updatedItem1 = updatedInventory.stream().filter(i -> i.cosmetic_id().equals(itemId1)).findFirst().orElseThrow();
             InventoryItem updatedItem2 = updatedInventory.stream().filter(i -> i.cosmetic_id().equals(itemId2)).findFirst().orElseThrow();
@@ -119,7 +122,7 @@ class UserTest {
         @Test
         @DisplayName("Deve lançar IllegalArgumentException ao tentar equipar um item que o usuário não possui")
         void shouldThrowExceptionWhenItemNotFoundInInventory() {
-            assertThrows(IllegalArgumentException.class, () -> user.equipCosmetic("id-inexistente"));
+            assertThrows(IllegalArgumentException.class, () -> user.getInventory().equipCosmetic("id-inexistente"));
         }
     }
 }

@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
@@ -50,7 +49,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
 
         validateUser(user);
 
-        Participant host = ParticipantFactory.fromUser(user, input.session());
+        Participant host = Participant.create(user, input.session());
 
         String code = getCode();
 
