@@ -21,7 +21,7 @@ public class GetGamesController {
 
     @GetMapping(path = "/game")
     public ResponseEntity<SuccessResponse<GetGamesResponse>> getGames() {
-        GetGamesOutput output = getPublicGamesUseCase.execute();
+        GetGamesOutput output = getPublicGamesUseCase.execute(null);
 
         GetGamesResponse dto = GetGamesMapper.toResponse(output);
 
