@@ -58,7 +58,7 @@ class DisconnectUseCaseTest {
         Optional<DisconnectParticipantOutput> result = disconnectUseCase.execute(input);
 
         assertTrue(result.isEmpty());
-        verify(matchmakingRepository, times(1)).removeById(userId);
+        verify(matchmakingRepository, times(1)).remove(userId);
     }
 
     @Test
