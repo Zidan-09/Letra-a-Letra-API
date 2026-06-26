@@ -7,9 +7,11 @@ public class CosmeticMapper {
     public static CosmeticJpaEntity toEntity(Cosmetic cosmetic) {
         CosmeticJpaEntity entity = new CosmeticJpaEntity();
 
-        entity.setId(cosmetic.id());
-        entity.setName(cosmetic.name());
-        entity.setType(cosmetic.type());
+        entity.setId(cosmetic.getId());
+        entity.setName(cosmetic.getName());
+        entity.setType(cosmetic.getType());
+        entity.setAssetPath(cosmetic.getAssetPath());
+        entity.setVersion(cosmetic.getVersion());
 
         return entity;
     }
@@ -18,7 +20,9 @@ public class CosmeticMapper {
         return new Cosmetic(
                 entity.getId(),
                 entity.getName(),
-                entity.getType()
+                entity.getType(),
+                entity.getAssetPath(),
+                entity.getVersion()
         );
     }
 }

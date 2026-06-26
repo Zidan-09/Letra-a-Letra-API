@@ -3,11 +3,13 @@ package com.letraaletra.api.features.game.domain.actor.command;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
 
-public class UnbanParticipantActorCommand implements ActorCommand<Game> {
-    private final String user;
-    private final String host;
+import java.util.UUID;
 
-    public UnbanParticipantActorCommand(String user, String host) {
+public class UnbanParticipantActorCommand implements ActorCommand<Game> {
+    private final UUID user;
+    private final UUID host;
+
+    public UnbanParticipantActorCommand(UUID user, UUID host) {
         this.user = user;
         this.host = host;
     }

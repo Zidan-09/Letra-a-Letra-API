@@ -27,10 +27,13 @@ const events = [];
    HTTP HELPERS
 ========================= */
 
-async function http(method, path, body) {
+async function http(method, path, body, token=undefined) {
   const res = await fetch(`${endpoint}${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
     body: body ? JSON.stringify(body) : undefined
   }).then(res => res.json());
 
@@ -53,12 +56,17 @@ async function registerAndLogin(user) {
 
   console.log(`🔐 Logando: ${user.nickname}`);
 
-  const login = await http("POST", "/auth", {
-    email: user.email,
-    password: user.password
-  });
+  try {
+        const login = await http("POST", "/auth", {
+            email: user.email,
+            password: user.password
+        });
 
-  user.setAuth(login.data);
+         user.setAuth(login.data);
+
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /* =========================
@@ -100,6 +108,8 @@ function connect(user) {
 
 function send(ws, payload) {
   ws.send(JSON.stringify(payload));
+
+  console.log(`Enviando mensagem para a API:\n\n${payload}`);
 }
 
 /* =========================
@@ -145,7 +155,7 @@ async function runGameFlow(ws1, ws2) {
   });
 
   const started = await waitForEvent(e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"));
-  const tokenGameId = started.tokenGameId;
+  const gameId = started.gameId;
 
   let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -161,6 +171,10 @@ async function runGameFlow(ws1, ws2) {
   while (gameRunning) {
     if (positions.length === 0) {
       console.log("⚠️ Sem mais posições disponíveis");
+      console.log("🧹 Encerrando conexões...");
+
+      ws1.close();
+      ws2.close();
       break;
     }
 
@@ -171,7 +185,7 @@ async function runGameFlow(ws1, ws2) {
 
     send(currentWs, {
       type: "PLAYER_ACTION",
-      tokenGameId,
+      gameId: gameId,
       action: {
         type: "REVEAL",
         position: pos
@@ -205,9 +219,6 @@ async function main() {
   for (const user of users) {
     await registerAndLogin(user);
   }
-
-  // buscar user (testa GET)
-  await http("GET", `/user/${users[0].id}`);
 
   // sockets
   const ws1 = await connect(users[0]);

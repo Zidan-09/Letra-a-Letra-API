@@ -25,6 +25,7 @@ public enum UserMessages implements MessageCode {
     COSMETIC_EQUIPPED("cosmetic_equipped"),
     COSMETIC_UNLOCKED("cosmetic_unlocked"),
     INVALID_COSMETIC("invalid_cosmetic"),
+    INSUFFICIENT_BALANCE("insufficient_balance"),
 
     INVALID_CREDENTIALS("invalid_credentials"),
     USER_DISABLED("user_disabled"),

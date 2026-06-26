@@ -1,6 +1,8 @@
 package com.letraaletra.api.features.game.domain.event;
 
+import java.util.UUID;
+
 public record PlayerBlindedEvent(
-        String playerBlinded
+        UUID playerBlinded
 ) implements EventData {
 }

@@ -7,22 +7,29 @@ import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponse;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GetGamesMapper {
     public static GetGamesResponse toResponse(GetGamesOutput output) {
         List<GameDTO> games = output.games().stream()
-                .map(game -> toGameDto(game, output))
+                .map(GetGamesMapper::toGameDto)
                 .toList();
 
         return new GetGamesResponse(games);
     }
 
-    private static GameDTO toGameDto(Game game, GetGamesOutput output) {
+    private static GameDTO toGameDto(Game game) {
         return new GameDTO(
-                output.tokens().get(game.getId()),
+                game.getId().toString(),
                 game.getRoomName(),
                 MapParticipantsMapper.execute(game),
-                game.getPositions()
+                game.getPositions().entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> entry.getValue().toString()
+                        ))
         );
     }
 }

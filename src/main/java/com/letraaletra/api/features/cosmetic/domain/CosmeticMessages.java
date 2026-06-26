@@ -4,7 +4,8 @@ import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum CosmeticMessages implements MessageCode {
     FAILED_TO_LOAD_COSMETICS("failed_to_load_cosmetics"),
-    COSMETIC_NOT_FOUND("cosmetic_not_found");
+    COSMETIC_NOT_FOUND("cosmetic_not_found"),
+    INVALID_COSMETIC("invalid_cosmetic");
 
     private final String message;
 

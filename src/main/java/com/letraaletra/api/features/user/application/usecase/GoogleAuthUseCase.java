@@ -31,23 +31,26 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
         this.userFactory = userFactory;
     }
 
-    public SignInOutput execute(AuthInput command) {
-        GoogleAuthData payload = googleTokenService.verify(command.token());
+    public SignInOutput execute(AuthInput input) {
+        GoogleAuthData payload = googleTokenService.verify(input.token());
 
         Optional<User> userOpt = userRepository.findByGoogleId(payload.googleId());
 
-        User user = userOpt.orElseGet(() ->
-                userRepository.save(
-                        userFactory.createGoogle(UUID.randomUUID().toString(), payload.email(), payload.googleId())
-                )
-        );
+        User user = userOpt.orElseGet(() -> {
+            User userFabricated = userFactory.createGoogle(
+                    payload.email(),
+                    payload.googleId()
+            );
+
+            return userRepository.save(userFabricated);
+        });
 
         String token = tokenService.generateToken(user.getId());
 
         return buildOutput(user.getId(), token);
     }
 
-    private SignInOutput buildOutput(String id, String token) {
+    private SignInOutput buildOutput(UUID id, String token) {
         return new SignInOutput(id, token);
     }
 }

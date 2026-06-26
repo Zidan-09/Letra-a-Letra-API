@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record KickParticipantWsRequest(
         @NotBlank
-        String tokenGameId,
+        String gameId,
 
         @NotBlank
         String participantId

@@ -3,15 +3,15 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ad
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.*;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,28 +23,31 @@ public class JpaUserRepository implements UserRepository {
     private final SpringDataUserRepository repository;
     private final SpringDataUserStatsRepository statsRepository;
     private final SpringDataUserInventoryRepository inventoryRepository;
+    private final SpringDataUserWalletRepository walletRepository;
 
     public JpaUserRepository(
             SpringDataUserRepository repository,
             SpringDataUserStatsRepository statsRepository,
-            SpringDataUserInventoryRepository inventoryRepository
+            SpringDataUserInventoryRepository inventoryRepository,
+            SpringDataUserWalletRepository walletRepository
     ) {
         this.repository = repository;
         this.statsRepository = statsRepository;
         this.inventoryRepository = inventoryRepository;
+        this.walletRepository = walletRepository;
     }
 
     @Override
     public User save(User user) {
         repository.save(UserMapper.toEntity(user));
         statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
+        walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
 
-        if (user.getInventory() != null) {
-            List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
-                    .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
-                    .toList();
-            inventoryRepository.saveAll(inventoryEntities);
-        }
+        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
+                .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
+                .toList();
+
+        inventoryRepository.saveAll(inventoryEntities);
 
         return user;
     }
@@ -57,12 +60,14 @@ public class JpaUserRepository implements UserRepository {
 
         List<InventoryItem> inventoryItems = inventoryRepository.findInventoryItemsByUserId(userId);
 
-        return UserMapper.toDomain(userEntity, statsEntity, inventoryItems);
+        UserWalletJpaEntity userWalletJpaEntity = walletRepository.findByUserId(userId);
+
+        return UserMapper.toDomain(userEntity, statsEntity, inventoryItems, userWalletJpaEntity);
     }
 
     @Override
-    public Optional<User> find(String id) {
-        return repository.findById(UUID.fromString(id)).map(this::assembleUser);
+    public Optional<User> find(UUID id) {
+        return repository.findById(id).map(this::assembleUser);
     }
 
     @Override

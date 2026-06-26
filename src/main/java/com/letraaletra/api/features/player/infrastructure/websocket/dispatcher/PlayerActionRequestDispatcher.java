@@ -23,7 +23,7 @@ public class PlayerActionRequestDispatcher {
     }
 
     @SuppressWarnings("unchecked")
-    public void dispatch(String gameTokenId, PlayerActionRequest request, WebSocketSession session) {
+    public void dispatch(String gameId, PlayerActionRequest request, WebSocketSession session) {
         InGameActionHandler<PlayerActionRequest> handler =
                 (InGameActionHandler<PlayerActionRequest>) handlers.get(request.getClass());
 
@@ -31,6 +31,6 @@ public class PlayerActionRequestDispatcher {
             throw new InvalidPlayerActionException();
         }
 
-        handler.handle(request, session, gameTokenId);
+        handler.handle(request, session, gameId);
     }
 }

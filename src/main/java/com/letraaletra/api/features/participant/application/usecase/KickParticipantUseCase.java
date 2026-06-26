@@ -21,24 +21,23 @@ public class KickParticipantUseCase implements UseCase<KickParticipantInput, Kic
         this.gameActorManager = gameActorManager;
     }
 
-    public KickParticipantOutput execute(KickParticipantInput command) {
+    public KickParticipantOutput execute(KickParticipantInput input) {
         ModerationContext context = moderationContextService.resolve(
-                command.token(),
-                command.target(),
-                command.user()
+                input.gameId(),
+                input.target(),
+                input.user()
         );
 
         Actor actor = gameActorManager.get(context.game().getId());
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(command.target(), command.user()));
+        CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(input.target(), input.user()));
         Game game = future.join();
 
-        return buildReturn(game, command.token());
+        return buildReturn(game);
     }
 
-    private KickParticipantOutput buildReturn(Game game, String token) {
+    private KickParticipantOutput buildReturn(Game game) {
         return new KickParticipantOutput(
-                token,
                 game
         );
     }

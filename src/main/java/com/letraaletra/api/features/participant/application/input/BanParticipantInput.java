@@ -1,8 +1,10 @@
 package com.letraaletra.api.features.participant.application.input;
 
+import java.util.UUID;
+
 public record BanParticipantInput(
-        String token,
-        String target,
-        String user
+        UUID gameId,
+        UUID target,
+        UUID user
 ) {
 }

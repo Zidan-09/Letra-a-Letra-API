@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
@@ -29,13 +30,13 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        String userId = tokenService.getTokenContent(token);
+        UUID userId = tokenService.getTokenContent(token);
 
         if (userId == null) {
             return false;
         }
 
-        attributes.put("userId", userId);
+        attributes.put("userId", userId.toString());
 
         return true;
     }

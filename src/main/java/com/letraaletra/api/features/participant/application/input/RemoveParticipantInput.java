@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.participant.application.input;
 
+import java.util.UUID;
+
 public record RemoveParticipantInput(
-        String gameId,
-        String userId
+        UUID gameId,
+        UUID userId
 ) {
 }

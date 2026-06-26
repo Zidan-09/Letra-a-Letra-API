@@ -8,12 +8,15 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,6 +40,13 @@ class CreateUserUseCaseTest {
     @InjectMocks
     private CreateUserUseCase createUserUseCase;
 
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+    }
+
     @Test
     @DisplayName("should create an user correctly")
     void createUser() {
@@ -57,13 +67,12 @@ class CreateUserUseCaseTest {
         User user = mock(User.class);
 
         when(userFactory.createLocal(
-                anyString(),
                 eq("john123"),
                 eq(input.email()),
                 eq("hashed-password")
         )).thenReturn(user);
 
-        when(user.getId()).thenReturn("user-id");
+        when(user.getId()).thenReturn(userId);
         when(user.getNickname()).thenReturn("john123");
         when(user.getEmail()).thenReturn("john@email.com");
 
@@ -71,15 +80,14 @@ class CreateUserUseCaseTest {
 
         assertNotNull(output);
 
-        assertEquals("user-id", output.id());
-        assertEquals("john123", output.nickname());
-        assertEquals("john@email.com", output.email());
+        assertEquals(userId, output.user().getId());
+        assertEquals("john123", output.user().getNickname());
+        assertEquals("john@email.com", output.user().getEmail());
 
         verify(userRepository).existsByEmail("john@email.com");
         verify(selectNicknameService).execute();
         verify(passwordService).hash("123456");
         verify(userFactory).createLocal(
-                anyString(),
                 eq("john123"),
                 eq("john@email.com"),
                 eq("hashed-password")
@@ -191,7 +199,6 @@ class CreateUserUseCaseTest {
         when(userFactory.createLocal(
                 anyString(),
                 anyString(),
-                anyString(),
                 anyString()
         )).thenThrow(exception);
 
@@ -225,7 +232,6 @@ class CreateUserUseCaseTest {
         User user = mock(User.class);
 
         when(userFactory.createLocal(
-                anyString(),
                 anyString(),
                 anyString(),
                 anyString()

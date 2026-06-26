@@ -5,17 +5,19 @@ import com.letraaletra.api.features.game.application.output.LeftGameOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.LeftGameResponse;
 
+import java.util.UUID;
+
 public class LeftGameMapper {
     public static LeftGameInput toInput(LeftGameWsRequest request, String session) {
         return new LeftGameInput(
-                request.tokenGameId(),
+                UUID.fromString(request.gameId()),
                 session
         );
     }
 
     public static LeftGameResponse toResponse(LeftGameOutput output) {
         return new LeftGameResponse(
-                GameDTOMapper.toDTO(output.game(), output.token())
+                GameDTOMapper.toDTO(output.game())
         );
     }
 }

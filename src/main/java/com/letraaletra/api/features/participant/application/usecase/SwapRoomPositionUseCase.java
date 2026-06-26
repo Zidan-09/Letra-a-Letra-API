@@ -6,7 +6,6 @@ import com.letraaletra.api.features.participant.application.output.SwapPositionO
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 
@@ -14,23 +13,19 @@ import java.util.concurrent.CompletableFuture;
 
 public class SwapRoomPositionUseCase implements UseCase<SwapPositionInput, SwapPositionOutput> {
     private final ActorManager<Game> gameActorManager;
-    private final TokenService tokenService;
 
-    public SwapRoomPositionUseCase(ActorManager<Game> gameActorManager, TokenService tokenService) {
+    public SwapRoomPositionUseCase(ActorManager<Game> gameActorManager) {
         this.gameActorManager = gameActorManager;
-        this.tokenService = tokenService;
     }
 
-    public SwapPositionOutput execute(SwapPositionInput command) {
-        String gameId = tokenService.getTokenContent(command.token());
-
-        Actor actor = gameActorManager.get(gameId);
+    public SwapPositionOutput execute(SwapPositionInput input) {
+        Actor actor = gameActorManager.get(input.gameId());
         validateActor(actor);
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(command.user(), command.position()));
+        CompletableFuture<Game> future = actor.enqueueCommand(new SwapPositionActorCommand(input.user(), input.position()));
         Game game = future.join();
 
-        return buildReturn(game, command.token());
+        return buildReturn(game);
     }
 
     private void validateActor(Actor actor) {
@@ -39,9 +34,8 @@ public class SwapRoomPositionUseCase implements UseCase<SwapPositionInput, SwapP
         }
     }
 
-    private SwapPositionOutput buildReturn(Game game, String token) {
+    private SwapPositionOutput buildReturn(Game game) {
         return new SwapPositionOutput(
-                token,
                 game
         );
     }

@@ -13,6 +13,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -20,6 +22,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class GlobalWebSocketHandler extends TextWebSocketHandler {
@@ -44,6 +47,8 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
     private Validator validator;
+
+    private final Logger logger = LoggerFactory.getLogger(GlobalWebSocketHandler.class);
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -81,7 +86,9 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void sendError(Exception ex, WebSocketSession session) {
-        String userId = (String) session.getAttributes().get("userId");
+        logger.error("\nAn exception was threw {}\n", ex.getMessage());
+
+        UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         Throwable cause = ex;
 
@@ -94,7 +101,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         if (cause instanceof DomainException appEx) {
             message = appEx.getMessage();
         } else {
-            message = ex.getMessage();
+            message = "an_intern_error_ocurrered";
         }
 
         ErrorWsResponse json = new ErrorWsResponse(message);

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public record GetGamesOutput(
-        List<Game> games,
-        Map<String, String> tokens
+        List<Game> games
 ) {
 }

@@ -1,32 +1,45 @@
 package com.letraaletra.api.features.user.domain;
 
+import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class User {
-    private final String id;
+    private final UUID id;
     private String nickname;
     private final String email;
     private final String hashPassword;
     private final String googleId;
-    private String currentGameId;
+    private UUID currentGameId;
+    private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
-    private List<InventoryItem> inventory;
+    private Inventory inventory;
+    private final Wallet wallet;
+    private final LocalDateTime createdAt;
 
     public User(
-            String id,
+            UUID id,
             String nickname,
             String email,
             String hashPassword,
             String googleId,
+            boolean isAdmin,
             boolean canChangeNickname,
             UserStats stats,
-            List<InventoryItem> inventory
+            Inventory inventory,
+            Wallet wallet,
+            LocalDateTime createdAt
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -36,9 +49,11 @@ public class User {
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
+        this.wallet = wallet;
+        this.createdAt = createdAt;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -70,24 +85,28 @@ public class User {
         return stats;
     }
 
-    public List<InventoryItem> getInventory() {
-        return List.copyOf(inventory);
+    public Inventory getInventory() {
+        return inventory;
     }
 
-    public void setInventory(List<InventoryItem> newInventory) {
-        inventory = newInventory;
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public boolean isNotInGame() {
         return currentGameId == null;
     }
 
-    public String getCurrentGameId() {
+    public UUID getCurrentGameId() {
         return currentGameId;
     }
 
-    public void enterGame(String gameId) {
-        if (gameId == null || gameId.isBlank()) {
+    public void enterGame(UUID gameId) {
+        if (gameId == null || gameId.toString().isBlank()) {
             throw new GameNotFoundException();
         }
 
@@ -114,21 +133,11 @@ public class User {
         this.canChangeNickname = canChangeNickname;
     }
 
-    public void equipCosmetic(String cosmeticId) {
-        InventoryItem targetItem = this.inventory.stream()
-                .filter(item -> item.cosmetic_id().equals(cosmeticId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não possui este cosmético."));
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 
-        this.inventory = this.inventory.stream()
-                .map(item -> {
-                    if (item.type() == targetItem.type()) {
-                        boolean isTarget = item.cosmetic_id().equals(cosmeticId);
-                        return new InventoryItem(item.cosmetic_id(), item.name(), item.type(), isTarget, item.unlocked_at());
-                    }
-
-                    return item;
-                })
-                .toList();
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

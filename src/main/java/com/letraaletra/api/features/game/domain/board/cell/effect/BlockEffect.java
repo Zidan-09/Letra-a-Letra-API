@@ -9,16 +9,18 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 
+import java.util.UUID;
+
 public class BlockEffect implements CellEffect {
-    private final String ownerId;
+    private final UUID ownerId;
     private int remainingAttempts = 3;
 
-    public BlockEffect(String ownerId) {
+    public BlockEffect(UUID ownerId) {
         this.ownerId = ownerId;
     }
 
     @Override
-    public String getOwnerId() {
+    public UUID getOwnerId() {
         return ownerId;
     }
 
@@ -31,7 +33,7 @@ public class BlockEffect implements CellEffect {
     }
 
     @Override
-    public InteractResult onInteract(GameAction action, String player, Cell cell) {
+    public InteractResult onInteract(GameAction action, UUID player, Cell cell) {
         if (!(action instanceof RevealCellAction)) {
             throw new InvalidPlayerActionException();
         }
@@ -43,7 +45,7 @@ public class BlockEffect implements CellEffect {
                     StateEvent.CELL_STILL_BLOCKED,
                     new CellStillBlockedEvent(
                             cell.getPosition(),
-                            ownerId,
+                            ownerId.toString(),
                             remainingAttempts
                     )
             ));
@@ -54,7 +56,7 @@ public class BlockEffect implements CellEffect {
                 StateEvent.CELL_UNBLOCKED,
                 new CellUnblockedEvent(
                         cell.getPosition(),
-                        player
+                        player.toString()
                 )
         ));
     }

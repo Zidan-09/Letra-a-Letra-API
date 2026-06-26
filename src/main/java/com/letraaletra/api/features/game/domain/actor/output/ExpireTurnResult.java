@@ -3,8 +3,10 @@ package com.letraaletra.api.features.game.domain.actor.output;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
 
+import java.util.UUID;
+
 public record ExpireTurnResult(
-        String whoPassed,
+        UUID whoPassed,
         Game game,
         GameOverResult gameOverResult,
         boolean removedBecauseAfk

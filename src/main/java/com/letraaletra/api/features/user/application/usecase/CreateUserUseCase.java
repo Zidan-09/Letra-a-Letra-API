@@ -10,8 +10,6 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 
-import java.util.UUID;
-
 public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
@@ -37,11 +35,9 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
 
         validateEmail(email);
 
-        String userId = UUID.randomUUID().toString();
-
         String nickname = selectNicknameService.execute();
 
-        User user = userFactory.createLocal(userId, nickname, email, passwordService.hash(password));
+        User user = userFactory.createLocal(nickname, email, passwordService.hash(password));
 
         userRepository.save(user);
 
@@ -58,9 +54,7 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
 
     private CreateUserOutput buildResult(User user) {
         return new CreateUserOutput(
-                user.getId(),
-                user.getNickname(),
-                user.getEmail()
+                user
         );
     }
 }

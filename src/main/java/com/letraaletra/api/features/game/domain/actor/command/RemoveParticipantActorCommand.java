@@ -8,14 +8,15 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class RemoveParticipantActorCommand implements ActorCommand<Optional<Game>> {
     private final UserRepository userRepository;
-    private final String userId;
+    private final UUID userId;
 
     public RemoveParticipantActorCommand(
             UserRepository userRepository,
-            String userId
+            UUID userId
     ) {
         this.userRepository = userRepository;
         this.userId = userId;

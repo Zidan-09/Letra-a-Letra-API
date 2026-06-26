@@ -24,11 +24,11 @@ public class RemoveParticipantUseCase implements UseCaseWithoutOutput<RemovePart
         this.userRepository = userRepository;
     }
 
-    public void execute(RemoveParticipantInput command) {
-        Actor actor = gameActorManager.get(command.gameId());
+    public void execute(RemoveParticipantInput input) {
+        Actor actor = gameActorManager.get(input.gameId());
 
         CompletableFuture<Optional<Game>> future = actor.enqueueCommand(new RemoveParticipantActorCommand(
-                userRepository, command.userId()
+                userRepository, input.userId()
         ));
 
         Optional<Game> game = future.join();

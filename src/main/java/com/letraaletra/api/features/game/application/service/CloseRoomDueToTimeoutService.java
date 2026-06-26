@@ -12,6 +12,8 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
+import java.util.UUID;
+
 public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, CloseRoomOutput> {
     private final UserRepository userRepository;
     private final ActorManager<Game> actorManager;
@@ -27,11 +29,11 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         this.gameRepository = gameRepository;
     }
 
-    public CloseRoomOutput execute(CloseRoomInput command) {
-        Game game = command.game();
+    public CloseRoomOutput execute(CloseRoomInput input) {
+        Game game = input.game();
 
         game.getParticipants().forEach(p -> {
-            String userId = p.getUserId();
+            UUID userId = p.getUserId();
 
             User user = userRepository.find(userId).orElse(null);
             validateUser(user);
@@ -46,7 +48,7 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         actorManager.remove(game.getId());
         gameRepository.save(game);
 
-        return buildReturn(game);
+        return buildOutput(game);
     }
 
     private void validateUser(User user) {
@@ -55,7 +57,7 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
         }
     }
 
-    private CloseRoomOutput buildReturn(Game game) {
+    private CloseRoomOutput buildOutput(Game game) {
         return new CloseRoomOutput(
                 game,
                 "ROOM_CLOSED",

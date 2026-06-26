@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,16 +44,15 @@ class BanParticipantUseCaseTest {
     @Test
     @DisplayName("Deve banir o participante da sala com sucesso e atualizar o estado do usuário alvo")
     void shouldBanParticipantSuccessfully() {
-        String token = "room-token";
-        String targetId = "target-user-id";
-        String moderatorId = "moderator-user-id";
-        String gameId = "game-uuid";
+        UUID targetId = UUID.randomUUID();
+        UUID moderatorId = UUID.randomUUID();
+        UUID gameId = UUID.randomUUID();
 
-        BanParticipantInput input = new BanParticipantInput(token, targetId, moderatorId);
+        BanParticipantInput input = new BanParticipantInput(gameId, targetId, moderatorId);
         ModerationContext context = new ModerationContext(mockGame, mockParticipant);
 
         when(mockGame.getId()).thenReturn(gameId);
-        when(moderationContextService.resolve(token, targetId, moderatorId)).thenReturn(context);
+        when(moderationContextService.resolve(gameId, targetId, moderatorId)).thenReturn(context);
         when(gameActorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(BanParticipantActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(mockGame));
@@ -61,7 +61,6 @@ class BanParticipantUseCaseTest {
         BanParticipantOutput output = banParticipantUseCase.execute(input);
 
         assertNotNull(output);
-        assertEquals(token, output.token());
         assertEquals(mockGame, output.game());
 
         verify(mockTargetUser, times(1)).leaveGame();
@@ -71,9 +70,8 @@ class BanParticipantUseCaseTest {
     @Test
     @DisplayName("Deve lançar UserNotFoundException se o participante banido não constar no repositório")
     void shouldThrowExceptionWhenBannedUserDoesNotExist() {
-        String token = "room-token";
-        String targetId = "invalid-user";
-        BanParticipantInput input = new BanParticipantInput(token, targetId, "mod-id");
+        UUID targetId = UUID.randomUUID();
+        BanParticipantInput input = new BanParticipantInput(UUID.randomUUID(), targetId, UUID.randomUUID());
         ModerationContext context = new ModerationContext(mockGame, mockParticipant);
 
         when(moderationContextService.resolve(any(), any(), any())).thenReturn(context);

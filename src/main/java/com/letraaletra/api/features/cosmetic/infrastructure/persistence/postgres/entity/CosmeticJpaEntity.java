@@ -4,8 +4,8 @@ import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "\"cosmetic\"")
@@ -22,4 +22,10 @@ public class CosmeticJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private CosmeticTypes type;
+
+    @Column(name = "asset_path")
+    private String assetPath;
+
+    @Column(name = "version")
+    private int version;
 }

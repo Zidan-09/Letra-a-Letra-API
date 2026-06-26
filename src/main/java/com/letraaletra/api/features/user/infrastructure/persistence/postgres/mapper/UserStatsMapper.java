@@ -11,18 +11,22 @@ public class UserStatsMapper {
                 entity.getTotalMatches(),
                 entity.getTotalWins(),
                 entity.getWinStreak(),
-                entity.getPoints()
+                entity.getLevel(),
+                entity.getExperience(),
+                entity.getRankingPoints()
         );
     }
 
-    public static UserStatsJpaEntity toEntity(UserStats domain, String userId) {
+    public static UserStatsJpaEntity toEntity(UserStats domain, UUID userId) {
         UserStatsJpaEntity entity = new UserStatsJpaEntity();
 
-        entity.setUserId(UUID.fromString(userId));
+        entity.setUserId(userId);
         entity.setTotalMatches(domain.getTotalMatches());
         entity.setTotalWins(domain.getTotalWins());
         entity.setWinStreak(domain.getWinStreak());
-        entity.setPoints(domain.getPoints());
+        entity.setLevel(domain.getLevel());
+        entity.setExperience(domain.getExperience());
+        entity.setRankingPoints(domain.getPoints());
 
         return entity;
     }

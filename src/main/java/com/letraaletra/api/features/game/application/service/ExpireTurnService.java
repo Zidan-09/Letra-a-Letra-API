@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<ExpireTurnOutput>> {
@@ -30,11 +31,11 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
         this.userRepository = userRepository;
     }
 
-    public Optional<ExpireTurnOutput> execute(ExpireTurnInput command) {
-        Actor actor = gameActorManager.get(command.gameId());
+    public Optional<ExpireTurnOutput> execute(ExpireTurnInput input) {
+        Actor actor = gameActorManager.get(input.gameId());
 
         CompletableFuture<Optional<ExpireTurnResult>> future = actor.enqueueCommand(
-                new ExpireTurnActorCommand(command.version())
+                new ExpireTurnActorCommand(input.version())
         );
 
         Optional<ExpireTurnResult> result = future.join();
@@ -56,6 +57,18 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
         }
     }
 
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.find(userId)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void handleAfkRemoval(ExpireTurnResult expireTurn) {
+        User user = getUserOrThrow(expireTurn.whoPassed());
+
+        user.leaveGame();
+        userRepository.save(user);
+    }
+
     private Optional<ExpireTurnOutput> buildOutput(ExpireTurnResult result) {
         return Optional.of(
                 new ExpireTurnOutput(
@@ -67,17 +80,5 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
                         result.removedBecauseAfk()
                 )
         );
-    }
-
-    private User getUserOrThrow(String userId) {
-        return userRepository.find(userId)
-                .orElseThrow(UserNotFoundException::new);
-    }
-
-    private void handleAfkRemoval(ExpireTurnResult expireTurn) {
-        User user = getUserOrThrow(expireTurn.whoPassed());
-
-        user.leaveGame();
-        userRepository.save(user);
     }
 }

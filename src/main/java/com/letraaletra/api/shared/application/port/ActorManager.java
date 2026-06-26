@@ -1,10 +1,11 @@
 package com.letraaletra.api.shared.application.port;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ActorManager<T> {
-    void create(String id, T ator);
-    Actor get(String id);
+    void create(UUID id, T actor);
+    Actor get(UUID id);
     List<Actor> getAllActors();
-    void remove(String id);
+    void remove(UUID id);
 }

@@ -9,6 +9,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
@@ -26,7 +27,7 @@ public class ScheduledGameTimeoutManager implements GameTimeoutManager {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
-    private final Map<String, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
+    private final Map<UUID, ScheduledFuture<?>> timers = new ConcurrentHashMap<>();
 
     public void start(Game game) {
         cancel(game);

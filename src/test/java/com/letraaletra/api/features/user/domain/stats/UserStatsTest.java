@@ -15,7 +15,7 @@ class UserStatsTest {
 
     @BeforeEach
     void setUp() {
-        user = userFactory.createLocal("user-1", "Gamer", "game@test.com", "hash");
+        user = userFactory.createLocal("Gamer", "game@test.com", "hash");
     }
 
     @Test
