@@ -27,8 +27,8 @@ public class JpaStoreOfferRepository implements StoreOfferRepository {
         this.cosmeticRepository = cosmeticRepository;
     }
 
-    public Optional<StoreOffer> findById(String offerId) {
-        return repository.findById(UUID.fromString(offerId))
+    public Optional<StoreOffer> findById(UUID offerId) {
+        return repository.findById(offerId)
                 .map(entity -> {
                    Cosmetic cosmetic = CosmeticMapper.toDomain(
                            cosmeticRepository.findById(entity.getCosmeticId()).orElseThrow()

@@ -35,7 +35,7 @@ public class UnlockCosmeticService {
             LocalDateTime.now()
         );
 
-        user.addToInventory(item);
+        user.getInventory().addToInventory(item);
 
         userRepository.save(user);
     }

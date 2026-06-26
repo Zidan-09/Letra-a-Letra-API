@@ -1,11 +1,12 @@
 package com.letraaletra.api.features.user.infrastructure.controller;
 
-import com.letraaletra.api.features.user.application.input.UpdateNicknameInput;
-import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput;
-import com.letraaletra.api.features.user.application.usecase.UpdateNicknameUseCase;
+import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
+import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
+import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCase;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserMessages;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.UpdateNicknameRequest;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.UpdateNicknameResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeNicknameRequest;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeNicknameResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -20,30 +21,32 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
+import static org.mockito.Mockito.mock;
+
 @ExtendWith(MockitoExtension.class)
-class UpdateNicknameControllerTest {
+class ChangeNicknameControllerTest {
     @Mock
-    private UpdateNicknameUseCase updateNicknameUseCase;
+    private ChangeNicknameUseCase changeNicknameUseCase;
 
     @InjectMocks
-    private UpdateNicknameController controller;
+    private ChangeNicknameController controller;
 
     @Test
     @DisplayName("should get the request to update the nickname and return an response correctly")
     void updateNickname() {
-        UpdateNicknameRequest request = new UpdateNicknameRequest("nickname-test-123");
+        ChangeNicknameRequest request = new ChangeNicknameRequest("nickname-test-123");
 
-        UpdateNicknameOutput output = new UpdateNicknameOutput("nickname-test-123");
+        ChangeNicknameOutput output = new ChangeNicknameOutput(mock(User.class));
 
-        Mockito.when(updateNicknameUseCase.execute(Mockito.any(UpdateNicknameInput.class)))
+        Mockito.when(changeNicknameUseCase.execute(Mockito.any(ChangeNicknameInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<UpdateNicknameResponse>> responseEntity = controller.updateNickname(request, UUID.randomUUID().toString());
+        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.updateNickname(request, UUID.randomUUID().toString());
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
-        SuccessResponse<UpdateNicknameResponse> body = responseEntity.getBody();
+        SuccessResponse<ChangeNicknameResponse> body = responseEntity.getBody();
         Assertions.assertNotNull(body);
 
         Assertions.assertEquals(UserMessages.NICKNAME_SETTER.getMessage(), body.message());

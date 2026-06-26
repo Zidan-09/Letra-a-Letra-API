@@ -10,7 +10,7 @@ public class BuyStoreOfferMapper {
     public static BuyOfferInput toInput(String userId, String offerId) {
         return new BuyOfferInput(
                UUID.fromString(userId),
-               offerId
+               UUID.fromString(offerId)
         );
     }
 

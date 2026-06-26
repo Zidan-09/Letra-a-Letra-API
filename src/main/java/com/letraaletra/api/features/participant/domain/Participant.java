@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
@@ -20,6 +21,18 @@ public class Participant {
         this.cosmeticsEquipped = cosmeticsEquipped;
         this.connected = true;
         this.role = ParticipantRole.SPECTATOR;
+    }
+
+    public static Participant create(User user, String sessionId) {
+        return new Participant(
+                user.getId(),
+                sessionId,
+                user.getNickname(),
+                user.getInventory()
+                        .getItems().stream()
+                        .filter(InventoryItem::equipped)
+                        .toList()
+        );
     }
 
     public UUID getUserId() {

@@ -3,7 +3,11 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserMessages;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
+import com.letraaletra.api.features.user.domain.stats.UserStats;
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -17,12 +21,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserControllerTest {
@@ -38,7 +44,21 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        CreateUserOutput output = new CreateUserOutput(UUID.randomUUID(), "random-nickname", "teste@email.com");
+        User user = new User(
+                UUID.randomUUID(),
+                "nickname",
+                "email@email.com",
+                "hash-password",
+                null,
+                false,
+                false,
+                mock(UserStats.class),
+                new Inventory(new ArrayList<>()),
+                mock(Wallet.class),
+                LocalDateTime.now()
+        );
+
+        CreateUserOutput output = new CreateUserOutput(user);
 
         when(createUserUseCase
                 .execute(any(CreateUserInput.class)))

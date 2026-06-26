@@ -9,7 +9,7 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.application.service.SelectNicknameService;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.application.usecase.SignInUseCase;
-import com.letraaletra.api.features.user.application.usecase.UpdateNicknameUseCase;
+import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCase;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -45,10 +45,10 @@ public class UserConfig {
     }
 
     @Bean
-    public UpdateNicknameUseCase setNicknameUseCase(
+    public ChangeNicknameUseCase setNicknameUseCase(
             UserRepository userRepository
     ) {
-        return new UpdateNicknameUseCase(
+        return new ChangeNicknameUseCase(
                 userRepository
         );
     }

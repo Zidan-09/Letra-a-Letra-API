@@ -11,6 +11,7 @@ import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,6 +78,11 @@ class CreateGameUseCaseTest {
 
         when(user.isNotInGame())
                 .thenReturn(true);
+
+        Inventory inventory = new Inventory(new ArrayList<>());
+
+        when(user.getInventory())
+                .thenReturn(inventory);
 
         when(generateRoomCode.execute())
                 .thenReturn("ABC123");
@@ -146,6 +153,11 @@ class CreateGameUseCaseTest {
 
         when(user.isNotInGame())
                 .thenReturn(true);
+
+        Inventory inventory = new Inventory(new ArrayList<>());
+
+        when(user.getInventory())
+                .thenReturn(inventory);
 
         when(generateRoomCode.execute())
                 .thenReturn("ABC123", "XYZ999");

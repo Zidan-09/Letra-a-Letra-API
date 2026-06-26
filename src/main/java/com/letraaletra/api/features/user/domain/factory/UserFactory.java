@@ -1,13 +1,12 @@
 package com.letraaletra.api.features.user.domain.factory;
 
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class UserFactory {
@@ -47,15 +46,8 @@ public class UserFactory {
         return new UserStats(0, 0, 0, 1, 0, 0);
     }
 
-    private List<InventoryItem> getInitialCosmetics() {
-        LocalDateTime now = LocalDateTime.now();
-
-//        return List.of(
-//                new InventoryItem("old-man-avatar-free", "old-man", CosmeticTypes.AVATAR, true, now),
-//                new InventoryItem("little-girl-avatar-free", "little-girl", CosmeticTypes.AVATAR, false, now)
-//        );
-
-        return new ArrayList<>();
+    private Inventory getInitialCosmetics() {
+        return new Inventory(new ArrayList<>());
     }
 
     private Wallet getInitialWallet() {

@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.matchmaking.MatchmakingUser;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
 import com.letraaletra.api.features.game.domain.factory.DefaultGameResult;
 import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
@@ -87,9 +86,9 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
             validateUser(opponent);
 
-            Participant player1 = ParticipantFactory.fromUser(opponent, matchmakingOpponent.session());
+            Participant player1 = Participant.create(opponent, matchmakingOpponent.session());
 
-            Participant player2 = ParticipantFactory.fromUser(user, matchmakingUser.session());
+            Participant player2 = Participant.create(user, matchmakingUser.session());
 
             DefaultGameResult result = defaultGameFactory.generate(player1, player2, getCode());
 
