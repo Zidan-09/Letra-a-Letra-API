@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.features.user.application.input.UpdateNicknameInput;
-import com.letraaletra.api.features.user.application.output.UpdateNicknameOutput;
+import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
+import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.domain.exceptions.UserCannotChangeNicknameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -9,14 +9,14 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.NicknameAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 
-public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, UpdateNicknameOutput> {
+public class ChangeNicknameUseCase implements UseCase<ChangeNicknameInput, ChangeNicknameOutput> {
     private final UserRepository userRepository;
 
-    public UpdateNicknameUseCase(UserRepository userRepository) {
+    public ChangeNicknameUseCase(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public UpdateNicknameOutput execute(UpdateNicknameInput input) {
+    public ChangeNicknameOutput execute(ChangeNicknameInput input) {
         User user = userRepository.find(input.user()).orElse(null);
         validateUser(user);
         validateNickname(input.nickname());
@@ -26,7 +26,7 @@ public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, Updat
 
         userRepository.save(user);
 
-        return buildOutput(user.getNickname());
+        return buildOutput(user);
     }
 
     private void validateUser(User user) {
@@ -47,7 +47,7 @@ public class UpdateNicknameUseCase implements UseCase<UpdateNicknameInput, Updat
         }
     }
 
-    private UpdateNicknameOutput buildOutput(String nickname) {
-        return new UpdateNicknameOutput(nickname);
+    private ChangeNicknameOutput buildOutput(User user) {
+        return new ChangeNicknameOutput(user);
     }
 }

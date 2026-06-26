@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
@@ -7,7 +8,6 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserWalletJpaEntity;
 
 import java.util.List;
-import java.util.UUID;
 
 public class UserMapper {
     public static User toDomain(UserJpaEntity entity, UserStatsJpaEntity statsJpa, List<InventoryItem> inventoryDomain, UserWalletJpaEntity walletJpaEntity) {
@@ -22,7 +22,7 @@ public class UserMapper {
                 entity.isAdmin(),
                 entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa),
-                inventoryDomain,
+                new Inventory(inventoryDomain),
                 UserWalletMapper.toDomain(walletJpaEntity),
                 entity.getCreatedAt()
         );

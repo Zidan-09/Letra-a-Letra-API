@@ -17,7 +17,7 @@ public class ChangeCosmeticMapper {
 
     public static ChangeCosmeticResponse toResponse(ChangeCosmeticOutput output) {
         return new ChangeCosmeticResponse(
-                output.inventory()
+                output.user().getInventory().getItems()
         );
     }
 }

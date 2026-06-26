@@ -19,10 +19,16 @@ public class ChangeCosmeticUseCase implements UseCase<ChangeCosmeticInput, Chang
         User user = userRepository.find(input.userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        user.equipCosmetic(input.cosmeticId());
+        user.getInventory().equipCosmetic(input.cosmeticId());
 
         userRepository.save(user);
 
-        return new ChangeCosmeticOutput(user.getInventory());
+        return buildOutput(user);
+    }
+
+    private ChangeCosmeticOutput buildOutput(User user) {
+        return new ChangeCosmeticOutput(
+            user
+        );
     }
 }
