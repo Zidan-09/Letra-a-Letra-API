@@ -65,12 +65,11 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         Game game = future.join();
 
-        return buildOutput(game, gameId);
+        return buildOutput(game);
     }
 
-    private StartGameOutput buildOutput(Game game, UUID id) {
+    private StartGameOutput buildOutput(Game game) {
         return new StartGameOutput(
-                id,
                 game
         );
     }

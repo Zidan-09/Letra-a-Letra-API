@@ -101,7 +101,6 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals(gameId, output.id());
         assertEquals(game, output.game());
 
         verify(theme).pickRandomWords(eq(5), any());
@@ -139,7 +138,6 @@ class StartGameUseCaseTest {
         StartGameOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals(gameId, output.id());
         assertEquals(game, output.game());
 
         verify(pickRandomThemeWordsService).execute();
