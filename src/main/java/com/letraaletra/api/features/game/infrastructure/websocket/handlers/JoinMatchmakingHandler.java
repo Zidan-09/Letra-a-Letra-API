@@ -1,10 +1,8 @@
 package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
-import com.letraaletra.api.features.matchmaking.application.output.JoinMatchmakingOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
-import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.JoinMatchmakingMapper;
@@ -31,13 +29,13 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
     public void handle(JoinMatchmakingGameWsRequest request, WebSocketSession session) {
         UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
-        JoinMatchmakingInput command = JoinMatchmakingMapper.toInput(userId, session.getId(), request.gameMode());
+        JoinMatchmakingInput input = JoinMatchmakingMapper.toInput(userId, session.getId(), request.gameMode());
 
-        JoinMatchmakingOutput output = joinMatchmakingQueueUseCase.execute(command);
+        joinMatchmakingQueueUseCase.execute(input);
 
-        JoinMatchmakingResponse dto = JoinMatchmakingMapper.toResponse(output);
+        JoinMatchmakingResponse dto = JoinMatchmakingMapper.toResponse();
 
-        notifier(output.game().orElse(null), userId, dto);
+        notifier(userId, dto);
     }
 
     @Override
@@ -45,12 +43,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
         return JoinMatchmakingGameWsRequest.class;
     }
 
-    private void notifier(Game game, UUID user, JoinMatchmakingResponse dto) {
-        if (game == null) {
-            gameNotifier.notifierOne(user, dto);
-
-        } else {
-            gameNotifier.notifierAll(game, dto);
-        }
+    private void notifier(UUID user, JoinMatchmakingResponse dto) {
+        gameNotifier.notifierOne(user, dto);
     }
 }

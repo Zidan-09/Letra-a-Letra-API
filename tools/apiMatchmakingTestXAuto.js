@@ -3,6 +3,8 @@ import WebSocket from "ws";
 const endpoint = "http://localhost:8080";
 const wspoint = "ws://localhost:8080/ws/game";
 
+let vez = 1;
+
 class User {
   constructor(nickname, email, password) {
     this.nickname = nickname;
@@ -21,7 +23,7 @@ const users = [
   new User("Ronaldo", "ronaldo@email.com", "12345678")
 ];
 
-const events = [];
+let events = [];
 
 /* =========================
    HTTP HELPERS
@@ -108,8 +110,6 @@ function connect(user) {
 
 function send(ws, payload) {
   ws.send(JSON.stringify(payload));
-
-  console.log(`Enviando mensagem para a API:\n\n${payload}`);
 }
 
 /* =========================
@@ -172,9 +172,7 @@ async function runGameFlow(ws1, ws2) {
     if (positions.length === 0) {
       console.log("⚠️ Sem mais posições disponíveis");
       console.log("🧹 Encerrando conexões...");
-
-      ws1.close();
-      ws2.close();
+      gameRunning = false;
       break;
     }
 
@@ -182,6 +180,8 @@ async function runGameFlow(ws1, ws2) {
 
     const currentWs =
       currentPlayer === users[0].id ? ws1 : ws2;
+
+    if (!gameRunning) break;
 
     send(currentWs, {
       type: "PLAYER_ACTION",
@@ -208,23 +208,32 @@ async function runGameFlow(ws1, ws2) {
 
     currentPlayer = result.data.currentTurnPlayerId;
 
-    await sleep(100);
   }
 }
 
 async function main() {
   console.log("🚀 Iniciando testes...");
 
-  // auth
   for (const user of users) {
     await registerAndLogin(user);
   }
 
-  // sockets
   const ws1 = await connect(users[0]);
   const ws2 = await connect(users[1]);
 
-  await runGameFlow(ws1, ws2);
+  for (let i = 1; i <= 10; i++) {
+    console.log(`Iniciando teste ${i}`);
+    events = [];
+
+    await runGameFlow(ws1, ws2);
+
+    console.log(`\nTeste ${i} finalizado`);
+    console.log("\n--------------------------------------------------------------------------------------\n");
+    await sleep(1 * 1000);
+  }
+
+  ws1.close();
+  ws2.close();
 }
 
 function sleep(ms) {

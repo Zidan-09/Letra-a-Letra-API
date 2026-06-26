@@ -128,27 +128,11 @@ public class GameConfig {
     @Bean
     public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
             MatchmakingRepository matchmakingRepository,
-            UserRepository userRepository,
-            GameRepository gameRepository,
-            GameQueryService gameQueryService,
-            DefaultGameStateFactory defaultGameStateFactory,
-            DefaultGameFactory defaultGameFactory,
-            PickRandomThemeWordsService pickRandomThemeWordsService,
-            GenerateRoomCode generateRoomCode,
-            TurnTimeoutManager turnTimeoutManager,
-            ActorManager<Game> actorManager
+            UserRepository userRepository
     ) {
         return new JoinMatchmakingQueueUseCase(
                 matchmakingRepository,
-                userRepository,
-                gameRepository,
-                gameQueryService,
-                defaultGameStateFactory,
-                defaultGameFactory,
-                pickRandomThemeWordsService,
-                generateRoomCode,
-                turnTimeoutManager,
-                actorManager
+                userRepository
         );
     }
 

@@ -39,7 +39,7 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         if (userId == null) return Optional.empty();
 
         if (matchmakingRepository.onQueue(userId)) {
-            matchmakingRepository.removeById(userId);
+            matchmakingRepository.remove(userId);
         }
 
         User user = userRepository.find(userId).orElse(null);
