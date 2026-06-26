@@ -3,11 +3,11 @@ package com.letraaletra.api.features.store.application.usecase;
 import com.letraaletra.api.features.store.application.output.GetActiveOffersOutput;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
-import com.letraaletra.api.shared.application.usecase.UseCaseWithoutInput;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.List;
 
-public class GetActiveOffersUseCase implements UseCaseWithoutInput<GetActiveOffersOutput> {
+public class GetActiveOffersUseCase implements UseCase<Void, GetActiveOffersOutput> {
     private final StoreOfferRepository storeOfferRepository;
 
     public GetActiveOffersUseCase(
@@ -17,7 +17,7 @@ public class GetActiveOffersUseCase implements UseCaseWithoutInput<GetActiveOffe
     }
 
     @Override
-    public GetActiveOffersOutput execute() {
+    public GetActiveOffersOutput execute(Void input) {
         List<StoreOffer> activeOffers = storeOfferRepository.getActiveOffers();
 
         return buildOutput(activeOffers);
