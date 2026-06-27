@@ -14,19 +14,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping(path = "/cosmetic")
 public class DisableCosmeticController {
     private final DisableCosmeticUseCase useCase;
 
     public DisableCosmeticController(
             DisableCosmeticUseCase useCase
     ) {
-        this.useCase= useCase;
+        this.useCase = useCase;
     }
 
-    @PatchMapping(path = "/cosmetic/disable/{cosmeticId}")
+    @PatchMapping(path = "/disable/{cosmeticId}")
     public ResponseEntity<SuccessResponse<DisableCosmeticResponse>> handle(
             @AuthenticationPrincipal User user,
             @PathVariable @NotBlank String cosmeticId
