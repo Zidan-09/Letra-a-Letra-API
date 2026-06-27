@@ -6,9 +6,9 @@ import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusException;
 import com.letraaletra.api.features.store.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
-import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceException;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.wallet.CoinType;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
@@ -38,27 +38,25 @@ class BuyOfferUseCaseTest {
     @Mock
     private StoreOfferRepository storeOfferRepository;
 
-    @Mock
-    private UnlockCosmeticService unlockCosmeticService;
-
     @InjectMocks
     private BuyOfferUseCase useCase;
 
     private BuyOfferInput input;
     private User mockUser;
     private Wallet mockWallet;
+    private Inventory mockInventory;
     private StoreOffer mockOffer;
-    private UUID userId;
 
     @BeforeEach
     void setUp() {
-        userId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         UUID offerId = UUID.randomUUID();
 
         input = new BuyOfferInput(userId, offerId);
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
+        mockInventory = mock(Inventory.class);
         mockOffer = mock(StoreOffer.class);
         Cosmetic mockCosmetic = mock(Cosmetic.class);
 
@@ -68,6 +66,7 @@ class BuyOfferUseCaseTest {
         lenient().when(mockCosmetic.getId()).thenReturn("cosmetic-789");
         lenient().when(mockOffer.getCoinType()).thenReturn(CoinType.HARD);
         lenient().when(mockOffer.getPrice()).thenReturn(100);
+        lenient().when(mockUser.getInventory()).thenReturn(mockInventory);
     }
 
     @Test
@@ -83,8 +82,9 @@ class BuyOfferUseCaseTest {
         assertEquals(mockOffer, output.offer());
 
         verify(mockWallet, times(1)).pay(CoinType.HARD, 100);
-        verify(unlockCosmeticService, times(1)).execute("cosmetic-789", userId);
         verify(userRepository, times(1)).save(mockUser);
+        verify(mockInventory, times(1)).unlock(mockOffer.getCosmetic());
+        verify(mockUser, times(1)).getInventory();
     }
 
     @Test
@@ -94,7 +94,7 @@ class BuyOfferUseCaseTest {
 
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(storeOfferRepository, unlockCosmeticService);
+        verifyNoInteractions(storeOfferRepository);
         verify(userRepository, never()).save(any());
     }
 
@@ -106,7 +106,6 @@ class BuyOfferUseCaseTest {
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(unlockCosmeticService);
         verify(userRepository, never()).save(any());
     }
 
@@ -119,7 +118,7 @@ class BuyOfferUseCaseTest {
 
         assertThrows(InvalidOfferStatusException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(mockWallet, unlockCosmeticService);
+        verifyNoInteractions(mockWallet);
         verify(userRepository, never()).save(any());
     }
 
@@ -135,22 +134,6 @@ class BuyOfferUseCaseTest {
 
         assertThrows(InsufficientBalanceException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(unlockCosmeticService);
         verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should stop the salving user process if unlock service throws an exception")
-    void shouldNotSaveUserWhenUnlockCosmeticServiceFails() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.of(mockUser));
-        when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(mockOffer.isActive()).thenReturn(true);
-
-        doThrow(new UserNotFoundException())
-                .when(unlockCosmeticService).execute(anyString(), any());
-
-        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
-
-        verify(userRepository, never()).save(mockUser);
     }
 }

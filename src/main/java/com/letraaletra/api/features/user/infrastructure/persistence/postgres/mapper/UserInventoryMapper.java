@@ -13,17 +13,17 @@ public class UserInventoryMapper {
         UserInventoryId id = new UserInventoryId();
 
         id.setUserId(userId);
-        id.setCosmeticId(domain.cosmetic_id());
+        id.setCosmeticId(domain.cosmeticId());
 
         entity.setUserInventoryId(id);
         entity.setEquipped(domain.equipped());
-        entity.setUnlockedAt(domain.unlocked_at());
+        entity.setUnlockedAt(domain.unlockedAt());
 
         return entity;
     }
 
     public static InventoryItem toDomain(UserInventoryJpaEntity entity, CosmeticJpaEntity cosmeticJpaEntity) {
-        return new InventoryItem(
+        return InventoryItem.restore(
                 entity.getUserInventoryId().getCosmeticId(),
                 cosmeticJpaEntity.getName(),
                 cosmeticJpaEntity.getType(),

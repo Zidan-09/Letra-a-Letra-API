@@ -6,7 +6,6 @@ import com.letraaletra.api.features.store.application.usecase.DisableOfferUseCas
 import com.letraaletra.api.features.store.application.usecase.GetActiveOffersUseCase;
 import com.letraaletra.api.features.store.application.usecase.RegisterOfferUseCase;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
-import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,13 +44,11 @@ public class StoreConfig {
     @Bean
     public BuyOfferUseCase buyOfferUseCase(
             UserRepository userRepository,
-            StoreOfferRepository storeOfferRepository,
-            UnlockCosmeticService unlockCosmeticService
+            StoreOfferRepository storeOfferRepository
     ) {
         return new BuyOfferUseCase(
                 userRepository,
-                storeOfferRepository,
-                unlockCosmeticService
+                storeOfferRepository
         );
     }
 }

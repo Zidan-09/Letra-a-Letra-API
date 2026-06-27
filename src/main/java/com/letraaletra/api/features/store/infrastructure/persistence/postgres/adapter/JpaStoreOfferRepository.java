@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.store.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import com.letraaletra.api.features.store.domain.StoreOffer;
@@ -45,7 +46,8 @@ public class JpaStoreOfferRepository implements StoreOfferRepository {
         return entities.stream()
                 .map(entity -> {
                     Cosmetic cosmetic = CosmeticMapper.toDomain(
-                            cosmeticRepository.findById(entity.getCosmeticId()).orElseThrow()
+                            cosmeticRepository.findById(entity.getCosmeticId())
+                                    .orElseThrow(CosmeticNotFoundException::new)
                     );
 
                     return StoreOfferMapper.toDomain(entity, cosmetic);
