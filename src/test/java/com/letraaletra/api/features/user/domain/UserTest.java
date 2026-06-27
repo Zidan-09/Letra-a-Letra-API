@@ -90,9 +90,9 @@ class UserTest {
             itemId2 = "item-id-2";
             itemId3 = "item-id-3";
 
-            item1 = new Cosmetic(itemId1, "item-1", CosmeticTypes.AVATAR, "any-path", 1);
-            item2 = new Cosmetic(itemId2, "item-2", CosmeticTypes.AVATAR, "any-path", 1);
-            item3 = new Cosmetic(itemId3, "item-", CosmeticTypes.BANNER, "any-path", 1);
+            item1 = Cosmetic.create(itemId1, "item-1", CosmeticTypes.AVATAR, "any-path");
+            item2 = Cosmetic.create(itemId2, "item-2", CosmeticTypes.AVATAR, "any-path");
+            item3 = Cosmetic.create(itemId3, "item-", CosmeticTypes.BANNER, "any-path");
         }
 
         @Test

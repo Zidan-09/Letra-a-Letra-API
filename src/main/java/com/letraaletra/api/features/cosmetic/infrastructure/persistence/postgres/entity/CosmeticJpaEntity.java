@@ -28,4 +28,7 @@ public class CosmeticJpaEntity {
 
     @Column(name = "version")
     private int version;
+
+    @Column(name = "available")
+    private boolean available;
 }

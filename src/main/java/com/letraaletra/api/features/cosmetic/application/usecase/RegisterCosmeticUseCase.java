@@ -46,12 +46,11 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
     }
 
     private Cosmetic buildCosmetic(RegisterCosmeticInput input, String assetPath) {
-        return new Cosmetic(
+        return Cosmetic.create(
                 input.id(),
                 input.name(),
                 input.type(),
-                assetPath,
-                1
+                assetPath
         );
     }
 
