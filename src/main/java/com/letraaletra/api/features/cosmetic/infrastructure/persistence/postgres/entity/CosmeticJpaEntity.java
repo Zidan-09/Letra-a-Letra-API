@@ -13,7 +13,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 public class CosmeticJpaEntity {
     @Id
-    @Column(name = "cosmetic_id", nullable = false)
+    @Column(name = "cosmeticId", nullable = false)
     private String id;
 
     @Column(name = "name", nullable = false)
