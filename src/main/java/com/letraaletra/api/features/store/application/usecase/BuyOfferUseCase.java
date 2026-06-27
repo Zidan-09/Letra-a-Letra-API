@@ -34,8 +34,6 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         validateOffer(offer);
         processPayment(user, offer);
 
-        user.getInventory().unlock(offer.getCosmetic());
-
         userRepository.save(user);
 
         return new BuyOfferOutput(offer);
@@ -49,5 +47,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
 
     private void processPayment(User user, StoreOffer offer) {
         user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+
+        user.getInventory().unlock(offer.getCosmetic());
     }
 }
