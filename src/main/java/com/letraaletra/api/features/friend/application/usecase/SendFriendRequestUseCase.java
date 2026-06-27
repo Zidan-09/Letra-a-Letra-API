@@ -8,7 +8,6 @@ import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequest
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput, SendFriendRequestOutput> {
@@ -24,11 +23,9 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
     public SendFriendRequestOutput execute(SendFriendRequestInput input) {
         checkFriendRequest(input.userId(), input.friendId());
 
-        Friend friend = new Friend(
+        Friend friend = Friend.create(
                 input.userId(),
-                input.friendId(),
-                FriendStatus.PENDING,
-                LocalDateTime.now()
+                input.friendId()
         );
 
         friendRepository.save(friend);
