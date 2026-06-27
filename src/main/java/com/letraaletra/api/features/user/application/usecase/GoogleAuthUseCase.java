@@ -42,7 +42,9 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
                     payload.googleId()
             );
 
-            return userRepository.save(userFabricated);
+            userRepository.save(userFabricated);
+
+            return userFabricated;
         });
 
         String token = tokenService.generateToken(user.getId());
