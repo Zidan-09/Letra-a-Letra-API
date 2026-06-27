@@ -38,7 +38,7 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public User save(User user) {
+    public void save(User user) {
         repository.save(UserMapper.toEntity(user));
         statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
         walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
@@ -48,8 +48,6 @@ public class JpaUserRepository implements UserRepository {
                 .toList();
 
         inventoryRepository.saveAll(inventoryEntities);
-
-        return user;
     }
 
     private User assembleUser(UserJpaEntity userEntity) {
