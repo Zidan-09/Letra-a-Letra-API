@@ -12,17 +12,19 @@ public class CosmeticMapper {
         entity.setType(cosmetic.getType());
         entity.setAssetPath(cosmetic.getAssetPath());
         entity.setVersion(cosmetic.getVersion());
+        entity.setAvailable(cosmetic.isAvailable());
 
         return entity;
     }
 
     public static Cosmetic toDomain(CosmeticJpaEntity entity) {
-        return new Cosmetic(
+        return Cosmetic.restore(
                 entity.getId(),
                 entity.getName(),
                 entity.getType(),
                 entity.getAssetPath(),
-                entity.getVersion()
+                entity.getVersion(),
+                entity.isAvailable()
         );
     }
 }

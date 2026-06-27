@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.domain;
 
+import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,9 +80,9 @@ class UserTest {
         private String itemId2;
         private String itemId3;
 
-        private InventoryItem item1;
-        private InventoryItem item2;
-        private InventoryItem item3;
+        private Cosmetic item1;
+        private Cosmetic item2;
+        private Cosmetic item3;
 
         @BeforeEach
         void setup() {
@@ -90,11 +90,9 @@ class UserTest {
             itemId2 = "item-id-2";
             itemId3 = "item-id-3";
 
-            LocalDateTime now = LocalDateTime.now();
-
-            item1 = new InventoryItem(itemId1, "item-1", CosmeticTypes.AVATAR, true, now);
-            item2 = new InventoryItem(itemId2, "item-2", CosmeticTypes.AVATAR, false, now);
-            item3 = new InventoryItem(itemId3, "item-", CosmeticTypes.BANNER, true, now);
+            item1 = Cosmetic.create(itemId1, "item-1", CosmeticTypes.AVATAR, "any-path");
+            item2 = Cosmetic.create(itemId2, "item-2", CosmeticTypes.AVATAR, "any-path");
+            item3 = Cosmetic.create(itemId3, "item-", CosmeticTypes.BANNER, "any-path");
         }
 
         @Test
@@ -102,21 +100,23 @@ class UserTest {
         void shouldEquipCosmeticAndUnequipOthersOfSameType() {
             Inventory inventory = user.getInventory();
 
-            inventory.addToInventory(item1);
-            inventory.addToInventory(item2);
-            inventory.addToInventory(item3);
+            inventory.unlock(item1);
+            inventory.unlock(item2);
+            inventory.unlock(item3);
+            inventory.equipCosmetic(itemId1);
+            inventory.equipCosmetic(itemId3);
 
             inventory.equipCosmetic(itemId2);
 
             List<InventoryItem> updatedInventory = user.getInventory().getItems();
 
-            InventoryItem updatedItem1 = updatedInventory.stream().filter(i -> i.cosmetic_id().equals(itemId1)).findFirst().orElseThrow();
-            InventoryItem updatedItem2 = updatedInventory.stream().filter(i -> i.cosmetic_id().equals(itemId2)).findFirst().orElseThrow();
-            InventoryItem updatedItem3 = updatedInventory.stream().filter(i -> i.cosmetic_id().equals(itemId3)).findFirst().orElseThrow();
+            InventoryItem updatedItem1 = updatedInventory.stream().filter(i -> i.cosmeticId().equals(itemId1)).findFirst().orElseThrow();
+            InventoryItem updatedItem2 = updatedInventory.stream().filter(i -> i.cosmeticId().equals(itemId2)).findFirst().orElseThrow();
+            InventoryItem updatedItem3 = updatedInventory.stream().filter(i -> i.cosmeticId().equals(itemId3)).findFirst().orElseThrow();
 
             assertFalse(updatedItem1.equipped(), "O antigo avatar equipado (id-1) deveria ter sido desequipado");
             assertTrue(updatedItem2.equipped(), "O novo avatar (id-2) deveria estar equipado");
-            assertTrue(updatedItem3.equipped(), "Itens de categorias diferentes (BOARD) não deveriam ser afetados");
+            assertTrue(updatedItem3.equipped(), "Itens de categorias diferentes (BANNER) não deveriam ser afetados");
         }
 
         @Test

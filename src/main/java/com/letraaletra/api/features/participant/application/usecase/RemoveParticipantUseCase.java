@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.domain.actor.command.RemoveParticipantA
 import com.letraaletra.api.features.participant.application.input.RemoveParticipantInput;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.application.usecase.UseCaseWithoutOutput;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
@@ -13,7 +13,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class RemoveParticipantUseCase implements UseCaseWithoutOutput<RemoveParticipantInput> {
+public class RemoveParticipantUseCase implements UseCase<RemoveParticipantInput, Void> {
     private final ActorManager<Game> gameActorManager;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
@@ -24,7 +24,7 @@ public class RemoveParticipantUseCase implements UseCaseWithoutOutput<RemovePart
         this.userRepository = userRepository;
     }
 
-    public void execute(RemoveParticipantInput input) {
+    public Void execute(RemoveParticipantInput input) {
         Actor actor = gameActorManager.get(input.gameId());
 
         CompletableFuture<Optional<Game>> future = actor.enqueueCommand(new RemoveParticipantActorCommand(
@@ -40,5 +40,7 @@ public class RemoveParticipantUseCase implements UseCaseWithoutOutput<RemovePart
                 gameRepository.save(g);
             }
         });
+
+        return null;
     }
 }

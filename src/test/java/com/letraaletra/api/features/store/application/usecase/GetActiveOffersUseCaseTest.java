@@ -33,7 +33,7 @@ class GetActiveOffersUseCaseTest {
         when(repository.getActiveOffers())
                 .thenReturn(List.of(offer1, offer2));
 
-        GetActiveOffersOutput output = useCase.execute();
+        GetActiveOffersOutput output = useCase.execute(null);
 
         assertFalse(output.offers().isEmpty());
         assertEquals(2, output.offers().size());
@@ -45,7 +45,7 @@ class GetActiveOffersUseCaseTest {
         when(repository.getActiveOffers())
                 .thenReturn(List.of());
 
-        GetActiveOffersOutput output = useCase.execute();
+        GetActiveOffersOutput output = useCase.execute(null);
 
         assertTrue(output.offers().isEmpty());
     }

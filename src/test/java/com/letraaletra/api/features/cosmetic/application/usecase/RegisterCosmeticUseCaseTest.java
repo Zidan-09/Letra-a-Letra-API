@@ -95,12 +95,11 @@ class RegisterCosmeticUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenCosmeticAlreadyExists() {
-        Cosmetic existingCosmetic = new Cosmetic(
+        Cosmetic existingCosmetic = Cosmetic.create(
                 "old-man-avatar-free",
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
-                "asset.webp",
-                1
+                "asset.webp"
         );
 
         when(cosmeticRepository.find(input.id()))

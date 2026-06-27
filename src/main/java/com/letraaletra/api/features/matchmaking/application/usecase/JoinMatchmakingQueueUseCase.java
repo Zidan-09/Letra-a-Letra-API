@@ -6,9 +6,9 @@ import com.letraaletra.api.features.matchmaking.domain.exception.UserAlreadyOnQu
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
-import com.letraaletra.api.shared.application.usecase.UseCaseWithoutOutput;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 
-public class JoinMatchmakingQueueUseCase implements UseCaseWithoutOutput<JoinMatchmakingInput> {
+public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput, Void> {
     private final MatchmakingRepository matchmakingRepository;
     private final UserRepository userRepository;
 
@@ -20,7 +20,7 @@ public class JoinMatchmakingQueueUseCase implements UseCaseWithoutOutput<JoinMat
         this.userRepository = userRepository;
     }
 
-    public void execute(JoinMatchmakingInput input) {
+    public Void execute(JoinMatchmakingInput input) {
         MatchUserData matchUserData = input.matchUserData();
 
         userRepository.find(matchUserData.userId())
@@ -31,5 +31,7 @@ public class JoinMatchmakingQueueUseCase implements UseCaseWithoutOutput<JoinMat
         if (alreadyOnQueue) throw new UserAlreadyOnQueueException();
 
         matchmakingRepository.add(matchUserData, input.gameMode());
+
+        return null;
     }
 }

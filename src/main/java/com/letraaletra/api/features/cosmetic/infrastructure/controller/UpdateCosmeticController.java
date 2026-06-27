@@ -10,11 +10,10 @@ import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping(path = "/cosmetic")
 public class UpdateCosmeticController {
     private final UpdateCosmeticUseCase useCase;
 
@@ -24,7 +23,7 @@ public class UpdateCosmeticController {
         this.useCase = useCase;
     }
 
-    @PatchMapping(path = "/cosmetic")
+    @PutMapping()
     public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(@Valid @RequestBody UpdateCosmeticRequest request) {
         UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(request);
 

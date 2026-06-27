@@ -22,7 +22,7 @@ public class GetActiveOffersController {
 
     @GetMapping(path = "/store")
     public ResponseEntity<SuccessResponse<GetActiveOffersResponse>> getActiveOffers() {
-        GetActiveOffersOutput output = useCase.execute();
+        GetActiveOffersOutput output = useCase.execute(null);
 
         GetActiveOffersResponse dto = GetActiveOffersMapper.toResponse(output);
 

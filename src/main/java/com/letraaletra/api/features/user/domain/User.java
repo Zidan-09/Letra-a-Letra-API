@@ -1,17 +1,12 @@
 package com.letraaletra.api.features.user.domain;
 
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public class User {
@@ -24,7 +19,7 @@ public class User {
     private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
-    private Inventory inventory;
+    private final Inventory inventory;
     private final Wallet wallet;
     private final LocalDateTime createdAt;
 

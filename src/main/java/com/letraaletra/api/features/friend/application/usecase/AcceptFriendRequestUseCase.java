@@ -5,9 +5,9 @@ import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
-import com.letraaletra.api.shared.application.usecase.UseCaseWithoutOutput;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 
-public class AcceptFriendRequestUseCase implements UseCaseWithoutOutput<AcceptFriendRequestInput> {
+public class AcceptFriendRequestUseCase implements UseCase<AcceptFriendRequestInput, Void> {
     private final FriendRepository friendRepository;
 
     public AcceptFriendRequestUseCase(
@@ -17,13 +17,15 @@ public class AcceptFriendRequestUseCase implements UseCaseWithoutOutput<AcceptFr
     }
 
     @Override
-    public void execute(AcceptFriendRequestInput input) {
+    public Void execute(AcceptFriendRequestInput input) {
         Friend request = friendRepository.find(input.userId(), input.friendId()).orElse(null);
         validateRequest(request);
 
         request.setStatus(FriendStatus.ACCEPT);
 
         friendRepository.save(request);
+
+        return null;
     }
 
     private void validateRequest(Friend request) {

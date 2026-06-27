@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.domain.inventory;
 
+import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 
@@ -16,12 +17,22 @@ public class Inventory {
         return List.copyOf(inventory);
     }
 
-    public void addToInventory(InventoryItem item) {
+    public void unlock(Cosmetic cosmetic) {
+        InventoryItem item = InventoryItem.create(
+                cosmetic.getId(),
+                cosmetic.getName(),
+                cosmetic.getType()
+        );
+
+        addToInventory(item);
+    }
+
+    private void addToInventory(InventoryItem item) {
         if (item == null) {
             throw new CosmeticNotFoundException();
         }
 
-        if (inventory.stream().anyMatch(cosmetic -> cosmetic.cosmetic_id().equals(item.cosmetic_id()))) {
+        if (inventory.stream().anyMatch(cosmetic -> cosmetic.cosmeticId().equals(item.cosmeticId()))) {
             throw new InvalidCosmeticException();
         }
 
@@ -30,7 +41,7 @@ public class Inventory {
 
     public void removeFromInventory(String cosmeticId) {
         InventoryItem itemToBeRemoved = inventory.stream()
-                .filter(cosmetic -> cosmetic.cosmetic_id().equals(cosmeticId))
+                .filter(cosmetic -> cosmetic.cosmeticId().equals(cosmeticId))
                 .findFirst().orElseThrow();
 
         inventory.remove(itemToBeRemoved);
@@ -40,21 +51,21 @@ public class Inventory {
                     .filter(cosmetic -> cosmetic.type().equals(itemToBeRemoved.type()))
                     .findFirst().orElseThrow();
 
-            this.equipCosmetic(newEquipped.cosmetic_id());
+            this.equipCosmetic(newEquipped.cosmeticId());
         }
     }
 
     public void equipCosmetic(String cosmeticId) {
         InventoryItem targetItem = this.inventory.stream()
-                .filter(item -> item.cosmetic_id().equals(cosmeticId))
+                .filter(item -> item.cosmeticId().equals(cosmeticId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não possui este cosmético."));
 
         this.inventory = this.inventory.stream()
                 .map(item -> {
                     if (item.type() == targetItem.type()) {
-                        boolean isTarget = item.cosmetic_id().equals(cosmeticId);
-                        return new InventoryItem(item.cosmetic_id(), item.name(), item.type(), isTarget, item.unlocked_at());
+                        boolean isTarget = item.cosmeticId().equals(cosmeticId);
+                        return new InventoryItem(item.cosmeticId(), item.name(), item.type(), isTarget, item.unlockedAt());
                     }
 
                     return item;

@@ -11,7 +11,6 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -20,11 +19,16 @@ import java.util.UUID;
 public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         implements InGameActionHandler<T> {
 
-    @Autowired
-    protected PlayerActionUseCase playerActionUseCase;
+    protected final PlayerActionUseCase useCase;
+    protected final GameNotifier notifier;
 
-    @Autowired
-    protected GameNotifier gameNotifier;
+    public AbstractPlayerActionHandler(
+            PlayerActionUseCase useCase,
+            GameNotifier notifier
+    ) {
+        this.useCase = useCase;
+        this.notifier = notifier;
+    }
 
     @Override
     public void handle(T request, WebSocketSession session, String gameId) {
@@ -35,7 +39,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         PlayerActionInput input =
                 PlayerActionMapper.toInput(gameId, userId, action);
 
-        PlayerActionOutput output = playerActionUseCase.execute(input);
+        PlayerActionOutput output = useCase.execute(input);
 
         send(output);
 
@@ -59,13 +63,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         for (Player player : players) {
             PlayerActionResponse dto = PlayerActionMapper.toResponse(output, player.getUserId());
 
-            gameNotifier.notifierOne(player.getUserId(), dto);
+            notifier.notifierOne(player.getUserId(), dto);
         }
 
         for (Participant spectator : spectators) {
             PlayerActionResponse dto = PlayerActionMapper.toGlobalResponse(output);
 
-            gameNotifier.notifierOne(spectator.getUserId(), dto);
+            notifier.notifierOne(spectator.getUserId(), dto);
         }
     }
 }
