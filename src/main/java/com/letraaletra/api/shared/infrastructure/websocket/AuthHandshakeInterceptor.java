@@ -2,7 +2,6 @@ package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.shared.domain.security.TokenService;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -16,9 +15,13 @@ import java.util.UUID;
 
 @Component
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public AuthHandshakeInterceptor(
+            TokenService tokenService
+    ) {
+        this.tokenService = tokenService;
+    }
 
     @Override
     public boolean beforeHandshake(
