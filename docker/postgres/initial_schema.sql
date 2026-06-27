@@ -58,7 +58,8 @@ CREATE TABLE "cosmetic" (
                         "name" varchar(50) NOT NULL,
                         "type" varchar(50) NOT NULL,
                         "asset_path" varchar(50) NOT NULL,
-                        "version" integer NOT NULL DEFAULT 1
+                        "version" integer NOT NULL DEFAULT 1,
+                        "available" boolean DEFAULT true
 );
 
 CREATE TABLE "user_inventory" (
