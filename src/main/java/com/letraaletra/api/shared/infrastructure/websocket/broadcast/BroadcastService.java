@@ -10,7 +10,6 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,12 +20,17 @@ import java.util.UUID;
 
 @Component
 public class BroadcastService implements GameNotifier {
-    @Autowired
-    private SessionRepository sessionRepository;
+    private final SessionRepository sessionRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(BroadcastService.class);
+
+    public BroadcastService(
+            SessionRepository sessionRepository
+    ) {
+        this.sessionRepository = sessionRepository;
+    }
 
     @Override
     public void notifierAll(Game game, Object dto) {

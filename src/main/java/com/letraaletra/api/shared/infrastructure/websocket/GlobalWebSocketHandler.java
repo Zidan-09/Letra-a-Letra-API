@@ -15,7 +15,6 @@ import jakarta.validation.Validator;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -26,29 +25,33 @@ import java.util.UUID;
 
 @Component
 public class GlobalWebSocketHandler extends TextWebSocketHandler {
-
-    @Autowired
-    private SessionRepository sessionRepository;
-
-    @Autowired
-    private RoomRequestDispatcher roomRequestDispatcher;
-
-    @Autowired
-    private ReconnectParticipantHandler reconnectParticipantHandler;
-
-    @Autowired
-    private DisconnectParticipantHandler disconnectParticipantHandler;
-
-    @Autowired
-    private GameNotifier gameNotifier;
-
-    @Autowired
-    private JsonMapper jsonMapper;
-
-    @Autowired
-    private Validator validator;
+    private final SessionRepository sessionRepository;
+    private final RoomRequestDispatcher roomRequestDispatcher;
+    private final ReconnectParticipantHandler reconnectParticipantHandler;
+    private final DisconnectParticipantHandler disconnectParticipantHandler;
+    private final GameNotifier gameNotifier;
+    private final JsonMapper jsonMapper;
+    private final Validator validator;
 
     private final Logger logger = LoggerFactory.getLogger(GlobalWebSocketHandler.class);
+
+    public GlobalWebSocketHandler(
+            SessionRepository sessionRepository,
+            RoomRequestDispatcher roomRequestDispatcher,
+            ReconnectParticipantHandler reconnectParticipantHandler,
+            DisconnectParticipantHandler disconnectParticipantHandler,
+            GameNotifier gameNotifier,
+            JsonMapper jsonMapper,
+            Validator validator
+    ) {
+        this.sessionRepository = sessionRepository;
+        this.roomRequestDispatcher = roomRequestDispatcher;
+        this.reconnectParticipantHandler = reconnectParticipantHandler;
+        this.disconnectParticipantHandler = disconnectParticipantHandler;
+        this.gameNotifier = gameNotifier;
+        this.jsonMapper = jsonMapper;
+        this.validator = validator;
+    }
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
