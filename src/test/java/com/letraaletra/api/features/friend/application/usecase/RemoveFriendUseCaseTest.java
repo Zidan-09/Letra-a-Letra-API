@@ -4,8 +4,8 @@ import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
+import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
-import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RemoveFriendMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RemoveFriendUseCaseTest {
@@ -31,59 +30,56 @@ class RemoveFriendUseCaseTest {
     @InjectMocks
     private RemoveFriendUseCase useCase;
 
-    private String userId;
-    private String friendId;
+    private UUID userId;
+    private UUID friendId;
     private LocalDateTime now;
     private RemoveFriendInput input;
 
     @BeforeEach
     void setup() {
-        userId = UUID.randomUUID().toString();
-        friendId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID();
+        friendId = UUID.randomUUID();
         now = LocalDateTime.now();
-        input = RemoveFriendMapper.toInput(userId, friendId);
+
+        input = new RemoveFriendInput(userId, friendId);
     }
 
     @Test
     @DisplayName("should remove a friend from friendsList correctly")
     void removeFriend() {
-        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.ACCEPT, now);
-
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.of(friend));
+        Friend friend = new Friend(userId, friendId, FriendStatus.ACCEPT, now);
+        when(repository.find(input.userId(), input.friendId())).thenReturn(Optional.of(friend));
 
         ArgumentCaptor<Friend> friendCaptor = ArgumentCaptor.forClass(Friend.class);
 
         useCase.execute(input);
 
-        verify(repository).save(friendCaptor.capture());
-
+        verify(repository, times(1)).save(friendCaptor.capture());
         Friend friendSaved = friendCaptor.getValue();
 
         assertEquals(FriendStatus.DECLINED, friendSaved.getStatus());
     }
 
     @Test
-    @DisplayName("should throw an FriendNotFoundException because null")
+    @DisplayName("should throw a FriendNotFoundException when relation does not exist")
     void throwFriendNotFoundExceptionBecauseNull() {
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.empty());
+        when(repository.find(input.userId(), input.friendId())).thenReturn(Optional.empty());
 
         assertThrows(FriendNotFoundException.class,
                 () -> useCase.execute(input)
         );
+        verify(repository, never()).save(any());
     }
 
     @Test
-    @DisplayName("should throw an FriendNotFoundException because status")
+    @DisplayName("should throw an InvalidFriendRequestException when trying to remove someone who is not ACCEPT")
     void throwFriendNotFoundExceptionBecauseStatus() {
-        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.DECLINED, now);
+        Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+        when(repository.find(input.userId(), input.friendId())).thenReturn(Optional.of(friend));
 
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.of(friend));
-
-        assertThrows(FriendNotFoundException.class,
+        assertThrows(InvalidFriendRequestException.class,
                 () -> useCase.execute(input)
         );
+        verify(repository, never()).save(any());
     }
 }
