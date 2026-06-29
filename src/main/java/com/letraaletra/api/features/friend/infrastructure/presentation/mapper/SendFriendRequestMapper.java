@@ -3,13 +3,15 @@ package com.letraaletra.api.features.friend.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.friend.application.input.SendFriendRequestInput;
 import com.letraaletra.api.features.friend.application.output.SendFriendRequestOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.SendFriendRequestResponse;
+import com.letraaletra.api.features.user.domain.User;
 
 import java.util.UUID;
 
 public class SendFriendRequestMapper {
-    public static SendFriendRequestInput toInput(String userId, String friendId) {
+    public static SendFriendRequestInput toInput(User user, String friendId) {
         return new SendFriendRequestInput(
-                UUID.fromString(userId),
+                user.getId(),
+                user.getNickname(),
                 UUID.fromString(friendId)
         );
     }

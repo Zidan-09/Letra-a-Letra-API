@@ -1,5 +1,10 @@
 package com.letraaletra.api.features.friend.domain;
 
+import com.letraaletra.api.features.friend.domain.exception.CanNotDeclineTheRequestException;
+import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
+import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
+import com.letraaletra.api.features.friend.domain.exception.CanNotAcceptTheRequestException;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -63,7 +68,35 @@ public class Friend {
         return requestDate;
     }
 
-    public void setStatus(FriendStatus status) {
-        this.status = status;
+    public void accept(UUID userId) {
+        if (!userId.equals(userId2)) {
+            throw new CanNotAcceptTheRequestException();
+        }
+
+        if (!status.equals(FriendStatus.PENDING)) {
+            throw new InvalidFriendRequestException();
+        }
+
+        status = FriendStatus.ACCEPT;
+    }
+
+    public void decline(UUID userId) {
+        if (!userId.equals(userId2)) {
+            throw new CanNotDeclineTheRequestException();
+        }
+
+        if (!status.equals(FriendStatus.PENDING)) {
+            throw new InvalidFriendRequestException();
+        }
+
+        status = FriendStatus.DECLINED;
+    }
+
+    public void remove() {
+        if (!status.equals(FriendStatus.ACCEPT)) {
+            throw new InvalidFriendRequestException();
+        }
+
+        status = FriendStatus.DECLINED;
     }
 }

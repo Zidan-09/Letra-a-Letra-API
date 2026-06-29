@@ -33,7 +33,7 @@ public class SendFriendRequestController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody SendFriendRequestRequest request
     ) {
-        SendFriendRequestInput input = SendFriendRequestMapper.toInput(user.getId().toString(), request.friendId());
+        SendFriendRequestInput input = SendFriendRequestMapper.toInput(user, request.friendId());
 
         SendFriendRequestOutput output = useCase.execute(input);
 
