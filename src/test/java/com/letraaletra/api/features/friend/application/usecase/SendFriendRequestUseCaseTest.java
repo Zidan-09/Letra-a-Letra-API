@@ -2,11 +2,11 @@ package com.letraaletra.api.features.friend.application.usecase;
 
 import com.letraaletra.api.features.friend.application.input.SendFriendRequestInput;
 import com.letraaletra.api.features.friend.application.output.SendFriendRequestOutput;
+import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
-import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,63 +21,69 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SendFriendRequestUseCaseTest {
     @Mock
     private FriendRepository repository;
 
+    @Mock
+    private FriendNotifier notifier;
+
     @InjectMocks
     private SendFriendRequestUseCase useCase;
 
-    private String userId;
-    private String friendId;
+    private UUID userId;
+    private UUID friendId;
+    private String senderNickname;
     private LocalDateTime now;
     private SendFriendRequestInput input;
 
     @BeforeEach
     void setup() {
-        userId = UUID.randomUUID().toString();
-        friendId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID();
+        friendId = UUID.randomUUID();
+        senderNickname = "PlayerOne";
         now = LocalDateTime.now();
-        input = SendFriendRequestMapper.toInput(userId, friendId);
+
+        input = new SendFriendRequestInput(userId, senderNickname, friendId);
     }
 
     @Test
-    @DisplayName("should send a friend request correctly")
+    @DisplayName("Should send a friend request correctly when no previous request exists")
     void sendFriendRequest() {
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.empty());
+        when(repository.find(userId, friendId)).thenReturn(Optional.empty());
 
         SendFriendRequestOutput output = useCase.execute(input);
 
         assertEquals(FriendStatus.PENDING, output.friend().getStatus());
+        verify(repository, times(1)).save(any(Friend.class));
+        verify(notifier, times(1)).notifierUser(friendId, senderNickname);
     }
 
     @Test
-    @DisplayName("should send a friend request correctly")
+    @DisplayName("Should send a friend request correctly when previous request was declined")
     void sendFriendRequest2() {
-        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.DECLINED, now);
-
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.of(friend));
+        Friend previousFriendRequest = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+        when(repository.find(userId, friendId)).thenReturn(Optional.of(previousFriendRequest));
 
         SendFriendRequestOutput output = useCase.execute(input);
 
         assertEquals(FriendStatus.PENDING, output.friend().getStatus());
+        verify(repository, times(1)).save(any(Friend.class));
+        verify(notifier, times(1)).notifierUser(friendId, senderNickname);
     }
 
     @Test
-    @DisplayName("should throw an InvalidFriendRequestException because status")
+    @DisplayName("Should throw an InvalidFriendRequestException because current status is already pending")
     void throwError() {
-        Friend friend = new Friend(UUID.fromString(userId), UUID.fromString(friendId), FriendStatus.PENDING, now);
+        Friend existingPendingRequest = new Friend(userId, friendId, FriendStatus.PENDING, now);
+        when(repository.find(userId, friendId)).thenReturn(Optional.of(existingPendingRequest));
 
-        when(repository.find(UUID.fromString(userId), UUID.fromString(friendId)))
-                .thenReturn(Optional.of(friend));
+        assertThrows(InvalidFriendRequestException.class, () -> useCase.execute(input));
 
-        assertThrows(InvalidFriendRequestException.class,
-                () -> useCase.execute(input)
-        );
+        verify(repository, never()).save(any());
+        verify(notifier, never()).notifierUser(any(), any());
     }
 }

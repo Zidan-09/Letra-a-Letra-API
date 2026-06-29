@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.friend.infrastructure.config;
 
+import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.application.usecase.*;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class FriendConfig {
     @Bean
     public SendFriendRequestUseCase addFriendUseCase(
-            FriendRepository friendRepository
+            FriendRepository friendRepository,
+            FriendNotifier notifier
     ) {
         return new SendFriendRequestUseCase(
-                friendRepository
+                friendRepository,
+                notifier
         );
     }
 
