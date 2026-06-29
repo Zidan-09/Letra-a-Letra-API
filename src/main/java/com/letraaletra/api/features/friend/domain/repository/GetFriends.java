@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface GetFriends {
     List<Friend> getFriends(UUID userId);
+    List<Friend> getPendingRequests(UUID userId);
 }

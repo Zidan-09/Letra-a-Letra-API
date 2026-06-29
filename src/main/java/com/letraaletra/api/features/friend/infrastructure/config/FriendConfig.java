@@ -54,4 +54,13 @@ public class FriendConfig {
                 friendRepository
         );
     }
+
+    @Bean
+    public GetFriendPendingRequestsUseCase getFriendPendingRequestsUseCase(
+            FriendRepository friendRepository
+    ) {
+        return new GetFriendPendingRequestsUseCase(
+                friendRepository
+        );
+    }
 }

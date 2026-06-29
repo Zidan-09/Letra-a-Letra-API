@@ -2,7 +2,6 @@ package com.letraaletra.api.features.friend.application.usecase;
 
 import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
 import com.letraaletra.api.features.friend.domain.Friend;
-import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -21,7 +20,7 @@ public class AcceptFriendRequestUseCase implements UseCase<AcceptFriendRequestIn
         Friend request = friendRepository.find(input.userId(), input.friendId()).orElse(null);
         validateRequest(request);
 
-        request.setStatus(FriendStatus.ACCEPT);
+        request.accept(input.userId());
 
         friendRepository.save(request);
 
@@ -29,7 +28,7 @@ public class AcceptFriendRequestUseCase implements UseCase<AcceptFriendRequestIn
     }
 
     private void validateRequest(Friend request) {
-        if (request == null || !request.getStatus().equals(FriendStatus.PENDING)) {
+        if (request == null) {
             throw new InvalidFriendRequestException();
         }
     }
