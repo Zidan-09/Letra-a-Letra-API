@@ -63,7 +63,7 @@ class BuyOfferUseCaseTest {
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
         lenient().when(mockOffer.getCosmetic()).thenReturn(mockCosmetic);
-        lenient().when(mockCosmetic.getId()).thenReturn("cosmetic-789");
+        lenient().when(mockCosmetic.getId()).thenReturn(UUID.randomUUID());
         lenient().when(mockOffer.getCoinType()).thenReturn(CoinType.HARD);
         lenient().when(mockOffer.getPrice()).thenReturn(100);
         lenient().when(mockUser.getInventory()).thenReturn(mockInventory);

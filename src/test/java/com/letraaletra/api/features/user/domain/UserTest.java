@@ -76,9 +76,9 @@ class UserTest {
     @DisplayName("Testes de Gerenciamento de Cosméticos (Inventory)")
     class CosmeticInventoryTests {
 
-        private String itemId1;
-        private String itemId2;
-        private String itemId3;
+        private UUID itemId1;
+        private UUID itemId2;
+        private UUID itemId3;
 
         private Cosmetic item1;
         private Cosmetic item2;
@@ -86,19 +86,19 @@ class UserTest {
 
         @BeforeEach
         void setup() {
-            itemId1 = "item-id-1";
-            itemId2 = "item-id-2";
-            itemId3 = "item-id-3";
-
-            item1 = Cosmetic.create(itemId1, "item-1", CosmeticTypes.AVATAR, "any-path");
-            item2 = Cosmetic.create(itemId2, "item-2", CosmeticTypes.AVATAR, "any-path");
-            item3 = Cosmetic.create(itemId3, "item-", CosmeticTypes.BANNER, "any-path");
+            item1 = Cosmetic.create("item-1", CosmeticTypes.AVATAR, "any-path");
+            item2 = Cosmetic.create("item-2", CosmeticTypes.AVATAR, "any-path");
+            item3 = Cosmetic.create("item-", CosmeticTypes.BANNER, "any-path");
         }
 
         @Test
         @DisplayName("Deve equipar o cosmético desejado e desequipar outros do mesmo tipo")
         void shouldEquipCosmeticAndUnequipOthersOfSameType() {
             Inventory inventory = user.getInventory();
+
+            itemId1 = item1.getId();
+            itemId2 = item2.getId();
+            itemId3 = item3.getId();
 
             inventory.unlock(item1);
             inventory.unlock(item2);
@@ -122,7 +122,7 @@ class UserTest {
         @Test
         @DisplayName("Deve lançar IllegalArgumentException ao tentar equipar um item que o usuário não possui")
         void shouldThrowExceptionWhenItemNotFoundInInventory() {
-            assertThrows(IllegalArgumentException.class, () -> user.getInventory().equipCosmetic("id-inexistente"));
+            assertThrows(IllegalArgumentException.class, () -> user.getInventory().equipCosmetic(UUID.randomUUID()));
         }
     }
 }

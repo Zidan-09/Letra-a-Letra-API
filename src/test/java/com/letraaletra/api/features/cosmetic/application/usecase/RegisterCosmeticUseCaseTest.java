@@ -44,7 +44,6 @@ class RegisterCosmeticUseCaseTest {
     @BeforeEach
     void setup() {
         input = new RegisterCosmeticInput(
-                "old-man-avatar-free",
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
                 asset
@@ -56,7 +55,7 @@ class RegisterCosmeticUseCaseTest {
         byte[] webpImage = "webp-image".getBytes();
         String assetPath = "avatars/old-man-avatar-free.webp";
 
-        when(cosmeticRepository.find(input.id()))
+        when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.empty());
 
         when(imageConverter.convertToWebp(asset))
@@ -79,7 +78,6 @@ class RegisterCosmeticUseCaseTest {
 
         Cosmetic savedCosmetic = cosmeticCaptor.getValue();
 
-        assertEquals(input.id(), savedCosmetic.getId());
         assertEquals(input.name(), savedCosmetic.getName());
         assertEquals(input.type(), savedCosmetic.getType());
         assertEquals(assetPath, savedCosmetic.getAssetPath());
@@ -96,13 +94,12 @@ class RegisterCosmeticUseCaseTest {
     @Test
     void shouldThrowExceptionWhenCosmeticAlreadyExists() {
         Cosmetic existingCosmetic = Cosmetic.create(
-                "old-man-avatar-free",
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
                 "asset.webp"
         );
 
-        when(cosmeticRepository.find(input.id()))
+        when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.of(existingCosmetic));
 
         RuntimeException exception = assertThrows(

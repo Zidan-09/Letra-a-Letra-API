@@ -7,9 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public record RegisterCosmeticRequest(
         @NotBlank
-        String id,
-
-        @NotBlank
         String name,
 
         @NotNull

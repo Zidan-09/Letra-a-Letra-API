@@ -5,13 +5,15 @@ import com.letraaletra.api.features.store.application.output.RegisterOfferOutput
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.RegisterOfferResponse;
 
+import java.util.UUID;
+
 public class RegisterOfferMapper {
     public static RegisterOfferInput toInput(RegisterOfferRequest request) {
         return new RegisterOfferInput(
                 request.title(),
                 request.coinType(),
                 request.price(),
-                request.cosmeticId(),
+                UUID.fromString(request.cosmeticId()),
                 request.rewardSoftCoins(),
                 request.rewardHardGems(),
                 request.expiresIn()

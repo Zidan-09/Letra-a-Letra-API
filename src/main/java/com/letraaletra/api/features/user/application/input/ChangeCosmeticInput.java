@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record ChangeCosmeticInput(
         UUID userId,
-        String cosmeticId
+        UUID cosmeticId
 ) {
 }

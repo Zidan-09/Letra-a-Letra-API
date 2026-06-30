@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 public class UserInventoryId implements Serializable {
     private UUID userId;
-    private String cosmeticId;
+    private UUID cosmeticId;
 
     @Override
     public boolean equals(Object o) {
