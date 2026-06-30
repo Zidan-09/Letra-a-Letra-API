@@ -13,10 +13,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.Succe
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/cosmetic")
@@ -32,7 +29,7 @@ public class RegisterCosmeticController {
     @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> registerCosmetic(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody RegisterCosmeticRequest request
+            @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {
         validateUser(user);
 

@@ -8,7 +8,6 @@ import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class JpaCosmeticRepository implements CosmeticRepository {
         Pageable pageable = PageRequest.of(
                 input.page(),
                 input.size(),
-                Sort.by(input.sort())
+                input.sort()
         );
 
         return repository.findAll(pageable).map(CosmeticMapper::toDomain);
