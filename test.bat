@@ -29,5 +29,6 @@ echo [6] Iniciando testes javascript...
 
 call node tools\apiMatchmakingTestAuto.js
 call node tools\apiTestAuto.js
+call node tools\apiFriendTestAuto.js
 
 echo [7] Testes finalizados!
