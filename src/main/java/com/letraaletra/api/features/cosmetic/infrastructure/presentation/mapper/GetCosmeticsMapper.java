@@ -12,7 +12,7 @@ public class GetCosmeticsMapper {
         return new GetCosmeticsInput(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSort().toString()
+                pageable.getSort()
         );
     }
 

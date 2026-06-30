@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ class GetCosmeticsUseCaseTest {
         GetCosmeticsInput input = new GetCosmeticsInput(
                 0,
                 10,
-                "name"
+                    Sort.unsorted()
         );
 
         Page<Cosmetic> expectedPage = new PageImpl<>(List.of());
