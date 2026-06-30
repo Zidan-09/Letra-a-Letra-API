@@ -54,8 +54,8 @@ CREATE TABLE "match_players" (
 );
 
 CREATE TABLE "cosmetic" (
-                        "cosmetic_id" varchar(50) PRIMARY KEY NOT NULL,
-                        "name" varchar(50) NOT NULL,
+                        "cosmetic_id" uuid PRIMARY KEY NOT NULL,
+                        "name" varchar(50) UNIQUE NOT NULL,
                         "type" varchar(50) NOT NULL,
                         "asset_path" varchar(50) NOT NULL,
                         "version" integer NOT NULL DEFAULT 1,
@@ -64,7 +64,7 @@ CREATE TABLE "cosmetic" (
 
 CREATE TABLE "user_inventory" (
                         "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "cosmetic_id" varchar(50) REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
+                        "cosmetic_id" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
                         "equipped" boolean DEFAULT false,
                         "unlocked_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         PRIMARY KEY ("user_id", "cosmetic_id")
@@ -75,7 +75,7 @@ CREATE TABLE "store_offer" (
                        "title" varchar(100) NOT NULL,
                        "coin_type" varchar(50) NOT NULL,
                        "price" integer NOT NULL CHECK ("price" > 0),
-                       "target_cosmetic_id" varchar(50) REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
+                       "target_cosmetic_id" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
                        "reward_soft_coins" integer DEFAULT 0,
                        "reward_hard_gems" integer DEFAULT 0,
                        "active" boolean NOT NULL DEFAULT true,

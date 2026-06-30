@@ -5,6 +5,7 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Inventory {
     private List<InventoryItem> inventory;
@@ -39,7 +40,7 @@ public class Inventory {
         inventory.add(item);
     }
 
-    public void removeFromInventory(String cosmeticId) {
+    public void removeFromInventory(UUID cosmeticId) {
         InventoryItem itemToBeRemoved = inventory.stream()
                 .filter(cosmetic -> cosmetic.cosmeticId().equals(cosmeticId))
                 .findFirst().orElseThrow();
@@ -55,9 +56,9 @@ public class Inventory {
         }
     }
 
-    public void equipCosmetic(String cosmeticId) {
+    public void equipCosmetic(UUID cosmeticId) {
         InventoryItem targetItem = this.inventory.stream()
-                .filter(item -> item.cosmeticId().equals(cosmeticId))
+                .filter(item -> item.cosmeticId() == cosmeticId)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não possui este cosmético."));
 

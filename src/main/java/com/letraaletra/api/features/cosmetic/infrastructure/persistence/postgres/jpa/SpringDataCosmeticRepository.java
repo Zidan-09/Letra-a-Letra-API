@@ -3,5 +3,9 @@ package com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgre
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.CosmeticJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SpringDataCosmeticRepository extends JpaRepository<CosmeticJpaEntity, String> {
+import java.util.Optional;
+import java.util.UUID;
+
+public interface SpringDataCosmeticRepository extends JpaRepository<CosmeticJpaEntity, UUID> {
+    Optional<CosmeticJpaEntity> findByName(String name);
 }

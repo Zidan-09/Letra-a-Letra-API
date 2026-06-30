@@ -25,7 +25,7 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
 
     @Override
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
-        Cosmetic exists = cosmeticRepository.find(input.id()).orElse(null);
+        Cosmetic exists = cosmeticRepository.findByName(input.name()).orElse(null);
         validateIfExists(exists);
 
         byte[] image = imageConverter.convertToWebp(input.asset());
@@ -47,7 +47,6 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
 
     private Cosmetic buildCosmetic(RegisterCosmeticInput input, String assetPath) {
         return Cosmetic.create(
-                input.id(),
                 input.name(),
                 input.type(),
                 assetPath

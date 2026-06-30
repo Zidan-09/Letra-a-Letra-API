@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface SpringDataUserInventoryRepository extends JpaRepository<UserInventoryJpaEntity, UserInventoryId> {
     @Query("""
         SELECT new com.letraaletra.api.features.user.domain.inventory.InventoryItem(
-            cast(ui.userInventoryId.cosmeticId as string),
+            ui.userInventoryId.cosmeticId,
             c.name,
             c.type,
             ui.isEquipped,

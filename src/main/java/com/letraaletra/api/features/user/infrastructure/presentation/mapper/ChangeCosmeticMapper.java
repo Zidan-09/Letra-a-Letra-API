@@ -11,7 +11,7 @@ public class ChangeCosmeticMapper {
     public static ChangeCosmeticInput toInput(ChangeCosmeticRequest request, String userId) {
         return new ChangeCosmeticInput(
                 UUID.fromString(userId),
-                request.cosmeticId()
+                UUID.fromString(request.cosmeticId())
         );
     }
 

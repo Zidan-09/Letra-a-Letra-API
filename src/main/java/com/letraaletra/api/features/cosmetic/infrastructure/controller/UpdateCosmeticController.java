@@ -9,6 +9,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +24,12 @@ public class UpdateCosmeticController {
         this.useCase = useCase;
     }
 
-    @PutMapping()
-    public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(@Valid @RequestBody UpdateCosmeticRequest request) {
-        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(request);
+    @PutMapping("/{cosmeticId}")
+    public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(
+            @Valid @RequestBody UpdateCosmeticRequest request,
+            @PathVariable @NotBlank String cosmeticId
+    ) {
+        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(request, cosmeticId);
 
         UpdateCosmeticOutput output = useCase.execute(input);
 

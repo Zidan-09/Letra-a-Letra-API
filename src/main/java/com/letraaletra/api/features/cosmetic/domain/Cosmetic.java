@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.cosmetic.domain;
 
+import java.util.UUID;
+
 public class Cosmetic {
-    private final String id;
+    private final UUID id;
     private String name;
     private final CosmeticTypes type;
     private final String assetPath;
@@ -9,7 +11,7 @@ public class Cosmetic {
     private boolean available;
 
     public Cosmetic(
-            String id,
+            UUID id,
             String name,
             CosmeticTypes type,
             String assetPath,
@@ -25,13 +27,12 @@ public class Cosmetic {
     }
 
     public static Cosmetic create(
-            String id,
             String name,
             CosmeticTypes type,
             String assetPath
     ) {
         return new Cosmetic(
-                id,
+                UUID.randomUUID(),
                 name,
                 type,
                 assetPath,
@@ -41,7 +42,7 @@ public class Cosmetic {
     }
 
     public static Cosmetic restore(
-            String id,
+            UUID id,
             String name,
             CosmeticTypes type,
             String assetPath,
@@ -58,7 +59,7 @@ public class Cosmetic {
         );
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
