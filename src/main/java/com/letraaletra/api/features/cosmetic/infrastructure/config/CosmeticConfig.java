@@ -3,6 +3,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.config;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.application.usecase.DisableCosmeticUseCase;
+import com.letraaletra.api.features.cosmetic.application.usecase.GetCosmeticsUseCase;
 import com.letraaletra.api.features.cosmetic.application.usecase.RegisterCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.application.usecase.UpdateCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -49,6 +50,15 @@ public class CosmeticConfig {
             CosmeticRepository cosmeticRepository
     ) {
         return new DisableCosmeticUseCase(
+                cosmeticRepository
+        );
+    }
+
+    @Bean
+    public GetCosmeticsUseCase getCosmeticsUseCase(
+            CosmeticRepository cosmeticRepository
+    ) {
+        return new GetCosmeticsUseCase(
                 cosmeticRepository
         );
     }
