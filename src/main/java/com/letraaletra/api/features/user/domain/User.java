@@ -41,6 +41,7 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.googleId = googleId;
+        this.isAdmin = isAdmin;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
@@ -132,7 +133,7 @@ public class User {
         return isAdmin;
     }
 
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
+    public void setAdmin() {
+        isAdmin = true;
     }
 }

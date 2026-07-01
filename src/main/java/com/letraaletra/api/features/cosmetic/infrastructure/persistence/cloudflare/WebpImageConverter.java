@@ -10,6 +10,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 import java.util.Objects;
 
 @Component
@@ -33,12 +34,14 @@ public class WebpImageConverter implements ImageConverter {
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByMIMEType("image/webp");
+
+            System.out.println(writers.hasNext());
 
             ImageOutputStream ios = ImageIO.createImageOutputStream(output);
 
-            writer.setOutput(ios);
-            writer.write(original);
+//            writer.setOutput(ios);
+//            writer.write(original);
 
             return output.toByteArray();
 
