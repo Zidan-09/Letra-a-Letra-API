@@ -5,10 +5,12 @@ import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOu
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.UpdateCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.UpdateCosmeticResponse;
 
+import java.util.UUID;
+
 public class UpdateCosmeticMapper {
-    public static UpdateCosmeticInput toInput(UpdateCosmeticRequest request) {
+    public static UpdateCosmeticInput toInput(UpdateCosmeticRequest request, String cosmeticId) {
         return new UpdateCosmeticInput(
-                request.id(),
+                UUID.fromString(cosmeticId),
                 request.name(),
                 request.asset()
         );

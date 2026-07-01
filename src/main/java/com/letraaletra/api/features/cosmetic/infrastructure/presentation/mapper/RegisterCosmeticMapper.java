@@ -8,7 +8,6 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 public class RegisterCosmeticMapper {
     public static RegisterCosmeticInput toInput(RegisterCosmeticRequest request) {
         return new RegisterCosmeticInput(
-                request.id(),
                 request.name(),
                 request.cosmeticType(),
                 request.asset()
