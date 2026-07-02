@@ -2,6 +2,8 @@ package com.letraaletra.api.features.cosmetic.infrastructure.persistence.cloudfl
 
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,11 +12,12 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 import java.util.Objects;
 
 @Component
 public class WebpImageConverter implements ImageConverter {
+    private final Logger logger = LoggerFactory.getLogger(WebpImageConverter.class);
+
     @Override
     public byte[] convertToWebp(MultipartFile image) {
         if (image.getSize() > 5_000_000) {
@@ -32,20 +35,26 @@ public class WebpImageConverter implements ImageConverter {
                 throw new InvalidCosmeticException();
             }
 
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream output = new ByteArrayOutputStream();
+                 ImageOutputStream ios = ImageIO.createImageOutputStream(output)) {
 
-            Iterator<ImageWriter> writers = ImageIO.getImageWritersByMIMEType("image/webp");
+                ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
 
-            System.out.println(writers.hasNext());
+                if (writer == null) {
+                    throw new RuntimeException("Writer not found");
+                }
 
-            ImageOutputStream ios = ImageIO.createImageOutputStream(output);
+                writer.setOutput(ios);
+                writer.write(original);
 
-//            writer.setOutput(ios);
-//            writer.write(original);
+                writer.dispose();
+                ios.flush();
 
-            return output.toByteArray();
+                return output.toByteArray();
+            }
 
         } catch (Exception e) {
+            logger.error("Error to convert image to webp:", e);
             throw new RuntimeException("failed_to_convert_image", e);
         }
     }
