@@ -15,7 +15,7 @@ public class DisableCosmeticMapper {
 
     public static DisableCosmeticResponse toResponse(DisableCosmeticOutput output) {
         return new DisableCosmeticResponse(
-                output.cosmetic().getId().toString()
+                CosmeticMapper.toDto(output.cosmetic())
         );
     }
 }
