@@ -2,7 +2,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.re
 
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
 
-public record DisableCosmeticResponse(
+public record EnableCosmeticResponse(
         CosmeticDTO cosmetic
 ) {
 }
