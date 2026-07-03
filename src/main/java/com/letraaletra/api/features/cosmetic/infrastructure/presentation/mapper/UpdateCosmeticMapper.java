@@ -12,7 +12,9 @@ public class UpdateCosmeticMapper {
         return new UpdateCosmeticInput(
                 UUID.fromString(cosmeticId),
                 request.name(),
-                request.asset()
+                request.type(),
+                request.asset(),
+                request.isNewAsset()
         );
     }
 
