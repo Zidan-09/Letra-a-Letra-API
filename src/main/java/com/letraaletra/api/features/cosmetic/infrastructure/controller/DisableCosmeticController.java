@@ -7,7 +7,6 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DisableCosmeticMapper;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -33,20 +32,12 @@ public class DisableCosmeticController {
             @AuthenticationPrincipal User user,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        validateUser(user);
-
-        DisableCosmeticInput input = DisableCosmeticMapper.toInput(cosmeticId);
+        DisableCosmeticInput input = DisableCosmeticMapper.toInput(user, cosmeticId);
 
         DisableCosmeticOutput output = useCase.execute(input);
 
         DisableCosmeticResponse dto = DisableCosmeticMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 }

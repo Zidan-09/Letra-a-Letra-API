@@ -6,11 +6,13 @@ import com.letraaletra.api.features.cosmetic.application.usecase.UpdateCosmeticU
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.UpdateCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.UpdateCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.UpdateCosmeticMapper;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,10 +28,11 @@ public class UpdateCosmeticController {
 
     @PutMapping("/{cosmeticId}")
     public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody UpdateCosmeticRequest request,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(request, cosmeticId);
+        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(user, request, cosmeticId);
 
         UpdateCosmeticOutput output = useCase.execute(input);
 
