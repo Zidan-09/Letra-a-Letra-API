@@ -29,7 +29,7 @@ public class SignInUseCase implements UseCase<SignInInput, SignInOutput> {
 
         checkMatch(input.password(), user.getHashPassword());
 
-        String token = tokenService.generateToken(user.getId());
+        String token = tokenService.generateToken(user.getId(), user.isAdmin());
 
         return buildReturn(user.getId(), token);
     }
