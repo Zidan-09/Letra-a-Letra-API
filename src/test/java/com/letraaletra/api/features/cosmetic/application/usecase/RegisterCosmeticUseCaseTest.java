@@ -7,7 +7,10 @@ import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,10 +43,14 @@ class RegisterCosmeticUseCaseTest {
     private RegisterCosmeticUseCase useCase;
 
     private RegisterCosmeticInput input;
+    private User user;
 
     @BeforeEach
     void setup() {
+        user = mock(User.class);
+
         input = new RegisterCosmeticInput(
+                user,
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
                 asset
@@ -54,6 +61,9 @@ class RegisterCosmeticUseCaseTest {
     void shouldRegisterCosmeticSuccessfully() {
         byte[] webpImage = "webp-image".getBytes();
         String assetPath = "avatars/old-man-avatar-free.webp";
+
+        when(user.isAdmin())
+                .thenReturn(true);
 
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.empty());
@@ -99,6 +109,9 @@ class RegisterCosmeticUseCaseTest {
                 "asset.webp"
         );
 
+        when(user.isAdmin())
+                .thenReturn(true);
+
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.of(existingCosmetic));
 
@@ -112,6 +125,28 @@ class RegisterCosmeticUseCaseTest {
                 exception.getMessage()
         );
 
+        verify(cosmeticRepository, never()).save(any());
+        verify(imageConverter, never()).convertToWebp(any());
+        verify(storageGateway, never()).upload(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("should throws an UserIsNotAdminException when user is not admin")
+    void shouldThrowExceptionWhenUserIsNotAdmin() {
+        when(user.isAdmin())
+                .thenReturn(false);
+
+        RuntimeException exception = assertThrows(
+                UserIsNotAdminException.class,
+                () -> useCase.execute(input)
+        );
+
+        assertEquals(
+                "invalid_user_data",
+                exception.getMessage()
+        );
+
+        verify(cosmeticRepository, never()).findByName(any());
         verify(cosmeticRepository, never()).save(any());
         verify(imageConverter, never()).convertToWebp(any());
         verify(storageGateway, never()).upload(any(), any(), any());

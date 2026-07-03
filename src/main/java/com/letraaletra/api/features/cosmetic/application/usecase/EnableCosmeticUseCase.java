@@ -5,7 +5,9 @@ import com.letraaletra.api.features.cosmetic.application.output.EnableCosmeticOu
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class EnableCosmeticUseCase implements UseCase<EnableCosmeticInput, EnableCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
@@ -18,6 +20,8 @@ public class EnableCosmeticUseCase implements UseCase<EnableCosmeticInput, Enabl
 
     @Override
     public EnableCosmeticOutput execute(EnableCosmeticInput input) {
+        validateUser(input.user());
+
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);
 
@@ -26,6 +30,12 @@ public class EnableCosmeticUseCase implements UseCase<EnableCosmeticInput, Enabl
         cosmeticRepository.save(cosmetic);
 
         return buildOutput(cosmetic);
+    }
+
+    private void validateUser(User user) {
+        if (!user.isAdmin()) {
+            throw new UserIsNotAdminException();
+        }
     }
 
     private EnableCosmeticOutput buildOutput(Cosmetic cosmetic) {

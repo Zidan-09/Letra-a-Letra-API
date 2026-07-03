@@ -8,7 +8,6 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +30,12 @@ public class RegisterCosmeticController {
             @AuthenticationPrincipal User user,
             @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {
-        validateUser(user);
-
-        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(request);
+        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(user, request);
 
         RegisterCosmeticOutput output = useCase.execute(input);
 
         RegisterCosmeticResponse dto = RegisterCosmeticMapper.toResponse(output);
 
        return ApiResponseService.success(dto);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 }
