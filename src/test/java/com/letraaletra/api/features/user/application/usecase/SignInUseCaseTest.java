@@ -71,12 +71,17 @@ class SignInUseCaseTest {
                 "hashed-password"
         )).thenReturn(true);
 
+        when(user.isAdmin())
+                .thenReturn(false);
+
         when(tokenService.generateToken(userId, false))
                 .thenReturn("jwt-token");
 
         SignInOutput output = signInUseCase.execute(input);
 
         assertNotNull(output);
+        assertEquals(userId, output.id());
+        assertEquals("jwt-token", output.token());
 
         verify(userRepository).findByEmail(input.email());
         verify(passwordService)
@@ -127,7 +132,7 @@ class SignInUseCaseTest {
         );
 
         verify(tokenService, never())
-                .generateToken(any(), any());
+                .generateToken(any(), eq(false));
     }
 
     @Test
@@ -156,7 +161,7 @@ class SignInUseCaseTest {
         assertSame(exception, thrown);
 
         verify(tokenService, never())
-                .generateToken(any(), any());
+                .generateToken(any(), eq(false));
     }
 
     @Test
@@ -179,6 +184,9 @@ class SignInUseCaseTest {
 
         RuntimeException exception =
                 new RuntimeException("token error");
+
+        when(user.isAdmin())
+                .thenReturn(false);
 
         when(tokenService.generateToken(userId, false))
                 .thenThrow(exception);
@@ -207,7 +215,7 @@ class SignInUseCaseTest {
         when(passwordService.matches(anyString(), anyString()))
                 .thenReturn(true);
 
-        when(tokenService.generateToken(any(), any()))
+        when(tokenService.generateToken(any(), eq(false)))
                 .thenReturn("token");
 
         signInUseCase.execute(input);
@@ -226,5 +234,34 @@ class SignInUseCaseTest {
 
         inOrder.verify(tokenService)
                 .generateToken(userId, false);
+    }
+
+    @Test
+    @DisplayName("should generate admin token when user is admin")
+    void shouldGenerateAdminToken() {
+        when(userRepository.findByEmail(input.email()))
+                .thenReturn(Optional.of(user));
+
+        when(user.getHashPassword())
+                .thenReturn("hashed-password");
+
+        when(user.getId())
+                .thenReturn(userId);
+
+        when(user.isAdmin())
+                .thenReturn(true);
+
+        when(passwordService.matches(
+                input.password(),
+                "hashed-password"
+        )).thenReturn(true);
+
+        when(tokenService.generateToken(userId, true))
+                .thenReturn("jwt-token");
+
+        signInUseCase.execute(input);
+
+        verify(tokenService)
+                .generateToken(userId, true);
     }
 }
