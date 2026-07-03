@@ -5,8 +5,8 @@ import java.util.UUID;
 public class Cosmetic {
     private final UUID id;
     private String name;
-    private final CosmeticTypes type;
-    private final String assetPath;
+    private CosmeticTypes type;
+    private String assetPath;
     private int version;
     private boolean available;
 
@@ -85,6 +85,14 @@ public class Cosmetic {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setType(CosmeticTypes type) {
+        this.type = type;
+    }
+
+    public void setAssetPath(String assetPath) {
+        this.assetPath = assetPath;
     }
 
     public void incrementVersion() {

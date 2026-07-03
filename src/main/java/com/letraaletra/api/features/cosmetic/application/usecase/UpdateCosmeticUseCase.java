@@ -29,11 +29,10 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);
 
-        byte[] image = imageConverter.convertToWebp(input.asset());
-
-        storageGateway.upload(image, input.name(), cosmetic.getType());
+        resolveAsset(input, cosmetic);
 
         cosmetic.setName(input.name());
+        cosmetic.setType(input.type());
         cosmetic.incrementVersion();
 
         cosmeticRepository.save(cosmetic);
@@ -45,5 +44,43 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
         return new UpdateCosmeticOutput(
                 cosmetic
         );
+    }
+
+    private void resolveAsset(UpdateCosmeticInput input, Cosmetic cosmetic) {
+        if (input.isNewAsset()) {
+            cosmetic.setAssetPath(saveNewAsset(input, cosmetic));
+            return;
+        }
+
+        if (shouldMoveAsset(input, cosmetic)) {
+            cosmetic.setAssetPath(moveAsset(input, cosmetic));
+        }
+    }
+
+    private boolean shouldMoveAsset(UpdateCosmeticInput input, Cosmetic cosmetic) {
+        return
+            !input.name().equals(cosmetic.getName()) ||
+            !input.type().equals(cosmetic.getType());
+    }
+
+    private String moveAsset(UpdateCosmeticInput input, Cosmetic cosmetic) {
+        return storageGateway.move(
+                cosmetic.getAssetPath(),
+                input.name(), input.type()
+        );
+    }
+
+    private String saveNewAsset(UpdateCosmeticInput input, Cosmetic cosmetic) {
+        byte[] image = imageConverter.convertToWebp(input.asset());
+
+        String path = storageGateway.upload(
+                image,
+                input.name(),
+                input.type()
+        );
+
+        storageGateway.delete(cosmetic.getAssetPath());
+
+        return path;
     }
 }

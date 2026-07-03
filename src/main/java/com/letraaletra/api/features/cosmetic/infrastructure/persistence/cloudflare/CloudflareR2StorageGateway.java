@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
@@ -47,7 +49,48 @@ public class CloudflareR2StorageGateway implements AssetStorageGateway {
             return nameSaved;
 
         } catch (Exception e) {
-            logger.error("Error on upload asset:", e);
+            logger.error("Error on upload asset to CDN");
+
+            throw e;
+        }
+    }
+
+    @Override
+    public String move(String oldPath, String newName, CosmeticTypes newType) {
+        try {
+            String nameSaved = newType + "/" + newName + ".webp";
+
+            s3Client.copyObject(
+                    CopyObjectRequest.builder()
+                            .sourceBucket(bucket)
+                            .sourceKey(oldPath)
+                            .destinationBucket(bucket)
+                            .destinationKey(nameSaved)
+                            .build()
+            );
+
+            delete(oldPath);
+
+            return nameSaved;
+
+        } catch (Exception e) {
+            logger.error("Error to move asset on CDN");
+
+            throw e;
+        }
+    }
+
+    @Override
+    public void delete(String assetPath) {
+        try {
+            s3Client.deleteObject(
+                    DeleteObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(assetPath)
+                            .build()
+            );
+        } catch (Exception e) {
+            logger.error("Error on delete asset from CDN");
 
             throw e;
         }

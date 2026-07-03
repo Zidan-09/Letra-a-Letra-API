@@ -34,7 +34,7 @@ public class AdminSeeder {
                 passwordService.hash("admin123")
         );
 
-        admin.setAdmin();
+        admin.setAdmin(true);
 
         userRepository.save(admin);
     }

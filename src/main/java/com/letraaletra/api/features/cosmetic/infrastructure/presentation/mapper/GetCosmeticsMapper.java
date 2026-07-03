@@ -20,7 +20,9 @@ public class GetCosmeticsMapper {
         Page<Cosmetic> page = output.cosmetics();
 
         return new GetCosmeticsResponse(
-            page.getContent(),
+            page.getContent()
+                    .stream().map(CosmeticMapper::toDto)
+                    .toList(),
             page.getNumber(),
             page.getSize(),
             page.getTotalElements(),

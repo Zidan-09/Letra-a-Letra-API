@@ -133,7 +133,7 @@ public class User {
         return isAdmin;
     }
 
-    public void setAdmin() {
-        isAdmin = true;
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }
