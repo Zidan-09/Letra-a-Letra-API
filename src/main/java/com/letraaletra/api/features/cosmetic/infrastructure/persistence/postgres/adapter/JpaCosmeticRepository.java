@@ -3,6 +3,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgre
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.CosmeticJpaEntity;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import org.springframework.data.domain.Page;
@@ -47,5 +48,15 @@ public class JpaCosmeticRepository implements CosmeticRepository {
         );
 
         return repository.findAll(pageable).map(CosmeticMapper::toDomain);
+    }
+
+    @Override
+    public void delete(UUID cosmeticId) {
+        CosmeticJpaEntity cosmetic = repository.findById(cosmeticId)
+                .orElse(null);
+
+        if (cosmetic == null) return;
+
+        repository.delete(cosmetic);
     }
 }

@@ -1,4 +1,4 @@
 package com.letraaletra.api.features.cosmetic.domain.repository;
 
-public interface CosmeticRepository extends SaveCosmetic, FindCosmetic, GetCosmetics {
+public interface CosmeticRepository extends SaveCosmetic, FindCosmetic, GetCosmetics, DeleteCosmetic {
 }

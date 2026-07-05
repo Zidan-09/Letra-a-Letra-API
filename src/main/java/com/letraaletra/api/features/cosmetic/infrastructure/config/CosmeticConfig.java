@@ -68,4 +68,15 @@ public class CosmeticConfig {
                 cosmeticRepository
         );
     }
+
+    @Bean
+    public DeleteCosmeticUseCase deleteCosmeticUseCase(
+            CosmeticRepository cosmeticRepository,
+            AssetStorageGateway assetStorageGateway
+    ) {
+        return new DeleteCosmeticUseCase(
+                cosmeticRepository,
+                assetStorageGateway
+        );
+    }
 }
