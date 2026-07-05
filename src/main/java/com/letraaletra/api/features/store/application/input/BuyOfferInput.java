@@ -1,9 +1,11 @@
 package com.letraaletra.api.features.store.application.input;
 
+import com.letraaletra.api.features.user.domain.User;
+
 import java.util.UUID;
 
 public record BuyOfferInput(
-        UUID userId,
+        User user,
         UUID offerId
 ) {
 }

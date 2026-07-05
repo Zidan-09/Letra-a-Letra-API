@@ -11,7 +11,6 @@ import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceEx
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.wallet.CoinType;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 
@@ -52,13 +51,13 @@ class BuyOfferUseCaseTest {
         UUID userId = UUID.randomUUID();
         UUID offerId = UUID.randomUUID();
 
-        input = new BuyOfferInput(userId, offerId);
-
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
         mockInventory = mock(Inventory.class);
         mockOffer = mock(StoreOffer.class);
         Cosmetic mockCosmetic = mock(Cosmetic.class);
+
+        input = new BuyOfferInput(mockUser, offerId);
 
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
@@ -72,7 +71,6 @@ class BuyOfferUseCaseTest {
     @Test
     @DisplayName("should buy an offer correctly when all data is valid")
     void shouldBuyOfferWithSuccess() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.of(mockUser));
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(mockOffer.isActive()).thenReturn(true);
 
@@ -88,20 +86,8 @@ class BuyOfferUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw a UserNotFoundException when user don't exists")
-    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
-
-        verifyNoInteractions(storeOfferRepository);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("should throw an OfferNotFoundException when offer don't exists")
     void shouldThrowOfferNotFoundExceptionWhenOfferDoesNotExist() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.of(mockUser));
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.empty());
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));
@@ -112,7 +98,6 @@ class BuyOfferUseCaseTest {
     @Test
     @DisplayName("should throw an InvalidOfferStatusException when offer is not active")
     void shouldThrowInvalidOfferStatusExceptionWhenOfferIsNotActive() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.of(mockUser));
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(mockOffer.isActive()).thenReturn(false);
 
@@ -125,7 +110,6 @@ class BuyOfferUseCaseTest {
     @Test
     @DisplayName("should throw an InsufficientBalanceException when user balance is insufficient")
     void shouldPropagateExceptionWhenWalletPaymentFails() {
-        when(userRepository.find(input.userId())).thenReturn(Optional.of(mockUser));
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(mockOffer.isActive()).thenReturn(true);
 

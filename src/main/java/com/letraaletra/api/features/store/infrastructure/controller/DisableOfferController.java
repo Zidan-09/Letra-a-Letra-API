@@ -7,7 +7,6 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.DisableOfferMapper;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -29,20 +28,12 @@ public class DisableOfferController {
             @AuthenticationPrincipal User user,
             @PathVariable @NotBlank String offerId
     ) {
-        validateUser(user);
-
-        DisableOfferInput input = DisableOfferMapper.toInput(offerId);
+        DisableOfferInput input = DisableOfferMapper.toInput(user, offerId);
 
         DisableOfferOutput output = useCase.execute(input);
 
         DisableOfferResponse dto = DisableOfferMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 }
