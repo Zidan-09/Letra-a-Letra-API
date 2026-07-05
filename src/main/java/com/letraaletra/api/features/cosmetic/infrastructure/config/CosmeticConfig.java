@@ -52,7 +52,7 @@ public class CosmeticConfig {
     }
 
     @Bean
-    public DisableCosmeticUseCase deleteCosmeticUseCase(
+    public DisableCosmeticUseCase disableCosmeticUseCase(
             CosmeticRepository cosmeticRepository
     ) {
         return new DisableCosmeticUseCase(
