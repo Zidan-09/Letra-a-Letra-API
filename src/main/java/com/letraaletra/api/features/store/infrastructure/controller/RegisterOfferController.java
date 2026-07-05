@@ -8,7 +8,6 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.RegisterOfferMapper;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +31,7 @@ public class RegisterOfferController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody RegisterOfferRequest request
     ) {
-        validateUser(user);
-
-        RegisterOfferInput input = RegisterOfferMapper.toInput(request);
+        RegisterOfferInput input = RegisterOfferMapper.toInput(user, request);
 
         RegisterOfferOutput output = useCase.execute(input);
 
@@ -43,9 +40,5 @@ public class RegisterOfferController {
         return ApiResponseService.success(dto);
     }
 
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
-    }
+
 }

@@ -7,7 +7,9 @@ import com.letraaletra.api.features.store.application.input.RegisterOfferInput;
 import com.letraaletra.api.features.store.application.output.RegisterOfferOutput;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -26,6 +28,8 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
 
     @Override
     public RegisterOfferOutput execute(RegisterOfferInput input) {
+        validateUser(input.user());
+
         Cosmetic cosmetic = cosmeticRepository.find(input.cosmeticId()).orElseThrow(CosmeticNotFoundException::new);
 
         StoreOffer storeOffer = buildOffer(input, cosmetic);
@@ -39,6 +43,12 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
         return new RegisterOfferOutput(
                 storeOffer
         );
+    }
+
+    private void validateUser(User user) {
+        if (!user.isAdmin()) {
+            throw new UserIsNotAdminException();
+        }
     }
 
     private StoreOffer buildOffer(RegisterOfferInput input, Cosmetic cosmetic) {

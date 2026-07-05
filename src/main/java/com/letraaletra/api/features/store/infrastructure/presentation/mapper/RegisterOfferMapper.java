@@ -4,12 +4,14 @@ import com.letraaletra.api.features.store.application.input.RegisterOfferInput;
 import com.letraaletra.api.features.store.application.output.RegisterOfferOutput;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.RegisterOfferResponse;
+import com.letraaletra.api.features.user.domain.User;
 
 import java.util.UUID;
 
 public class RegisterOfferMapper {
-    public static RegisterOfferInput toInput(RegisterOfferRequest request) {
+    public static RegisterOfferInput toInput(User user, RegisterOfferRequest request) {
         return new RegisterOfferInput(
+                user,
                 request.title(),
                 request.coinType(),
                 request.price(),
