@@ -8,14 +8,17 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.Aut
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/admin")
+@Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
 public class AuthAdminController {
     private final UseCase<AuthAdminInput, AuthAdminOutput> useCase;
 
@@ -25,6 +28,7 @@ public class AuthAdminController {
         this.useCase = useCase;
     }
 
+    @PostMapping(path = "/auth")
     public ResponseEntity<SuccessResponse<AuthAdminResponse>> handle(@Valid @RequestBody AuthAdminRequest request) {
         AuthAdminInput input = AuthAdminMapper.toInput(request);
 

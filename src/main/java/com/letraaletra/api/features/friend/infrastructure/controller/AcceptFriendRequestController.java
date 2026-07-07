@@ -6,6 +6,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.reque
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/friend")
+@Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class AcceptFriendRequestController {
     private final AcceptFriendRequestUseCase useCase;
 

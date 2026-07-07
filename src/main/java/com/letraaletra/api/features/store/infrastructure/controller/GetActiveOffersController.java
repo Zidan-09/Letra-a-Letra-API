@@ -6,11 +6,15 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.GetActiveOffersMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping(path = "/store")
+@Tag(name = "Store", description = "Rotas relacionadas ao gerenciamento da loja do jogo")
 public class GetActiveOffersController {
     private final GetActiveOffersUseCase useCase;
 
@@ -20,7 +24,7 @@ public class GetActiveOffersController {
         this.useCase = useCase;
     }
 
-    @GetMapping(path = "/store")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<GetActiveOffersResponse>> getActiveOffers() {
         GetActiveOffersOutput output = useCase.execute(null);
 

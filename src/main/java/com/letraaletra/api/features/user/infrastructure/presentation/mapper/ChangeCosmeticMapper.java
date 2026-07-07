@@ -2,16 +2,15 @@ package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeCosmeticRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeCosmeticResponse;
 
 import java.util.UUID;
 
 public class ChangeCosmeticMapper {
-    public static ChangeCosmeticInput toInput(ChangeCosmeticRequest request, String userId) {
+    public static ChangeCosmeticInput toInput(String cosmeticId, UUID auth) {
         return new ChangeCosmeticInput(
-                UUID.fromString(userId),
-                UUID.fromString(request.cosmeticId())
+                auth,
+                UUID.fromString(cosmeticId)
         );
     }
 

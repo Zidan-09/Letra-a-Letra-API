@@ -7,13 +7,17 @@ import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.FindByCodeResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping(path = "/game")
+@Tag(name = "Game", description = "Rotas relacionadas a funcionalidade de salas")
 public class FindGameByCodeController {
     private final FindByCodeUseCase findByCodeUseCase;
 
@@ -21,8 +25,10 @@ public class FindGameByCodeController {
         this.findByCodeUseCase = findByCodeUseCase;
     }
 
-    @GetMapping("/game/code/{code}")
-    public ResponseEntity<SuccessResponse<FindByCodeResponse>> getGameByCode(@Valid @PathVariable String code) {
+    @GetMapping("/code/{code}")
+    public ResponseEntity<SuccessResponse<FindByCodeResponse>> getGameByCode(
+            @PathVariable @NotBlank String code
+    ) {
         FindByCodeInput command = FindByCodeMapper.toInput(code);
 
         FindByCodeOutput output = findByCodeUseCase.execute(command);
