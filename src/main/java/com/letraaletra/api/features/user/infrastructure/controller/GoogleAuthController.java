@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.AuthInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.usecase.GoogleAuthUseCase;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.GoogleAuthRequest;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,6 +33,6 @@ public class GoogleAuthController {
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, UserMessages.USER_LOGGED.getMessage());
+        return ApiResponseService.success(dto);
     }
 }

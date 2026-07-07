@@ -2,7 +2,6 @@ package com.letraaletra.api.features.game.infrastructure.controller;
 
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.application.usecase.GetPublicGamesUseCase;
-import com.letraaletra.api.features.game.domain.GameMessages;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GetGamesResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetGamesMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
@@ -25,6 +24,6 @@ public class GetGamesController {
 
         GetGamesResponse dto = GetGamesMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, GameMessages.GAMES_FOUND.getMessage());
+        return ApiResponseService.success(dto);
     }
 }

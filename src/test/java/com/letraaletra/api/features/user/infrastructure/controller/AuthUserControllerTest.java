@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.usecase.AuthUserUseCase;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.AuthUserRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -56,7 +55,6 @@ class AuthUserControllerTest {
         SuccessResponse<AuthUserResponse> body = responseEntity.getBody();
         Assertions.assertNotNull(body);
 
-        Assertions.assertEquals(UserMessages.USER_LOGGED.getMessage(), body.message());
         Assertions.assertNotNull(body.data());
         Assertions.assertTrue(body.success());
     }

@@ -4,7 +4,6 @@ import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
@@ -70,7 +69,6 @@ class CreateUserControllerTest {
         SuccessResponse<CreateUserResponse> body = responseEntity.getBody();
         assertNotNull(body);
 
-        assertEquals(UserMessages.USER_CREATED.getMessage(), body.message());
         assertNotNull(body.data());
         Assertions.assertTrue(body.success());
     }
