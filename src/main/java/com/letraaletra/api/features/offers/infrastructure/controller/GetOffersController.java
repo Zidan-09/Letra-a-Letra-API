@@ -7,6 +7,7 @@ import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +26,9 @@ public class GetOffersController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<GetOffersResponse>> handle() {
+    public ResponseEntity<SuccessResponse<GetOffersResponse>> handle(
+            Pageable pageable
+    ) {
         GetOffersOutput output = useCase.execute(null);
 
         GetOffersResponse dto = GetOffersMapper.toResponse(output);
