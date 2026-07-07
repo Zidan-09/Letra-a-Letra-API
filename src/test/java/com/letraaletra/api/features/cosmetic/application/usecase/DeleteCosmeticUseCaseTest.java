@@ -65,7 +65,7 @@ class DeleteCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         verify(storageGateway, times(1)).delete(assetPath);
-        verify(cosmeticRepository, times(1)).delete(cosmeticId);
+        verify(cosmeticRepository, times(1)).delete(cosmetic);
     }
 
     @Test
@@ -97,6 +97,6 @@ class DeleteCosmeticUseCaseTest {
         assertThrows(CosmeticNotFoundException.class, () -> deleteCosmeticUseCase.execute(input));
 
         verify(storageGateway, never()).delete(anyString());
-        verify(cosmeticRepository, never()).delete(any(UUID.class));
+        verify(cosmeticRepository, never()).delete(any(Cosmetic.class));
     }
 }

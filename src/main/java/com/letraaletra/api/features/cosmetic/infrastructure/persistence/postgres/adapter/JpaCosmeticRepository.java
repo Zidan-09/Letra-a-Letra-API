@@ -51,12 +51,9 @@ public class JpaCosmeticRepository implements CosmeticRepository {
     }
 
     @Override
-    public void delete(UUID cosmeticId) {
-        CosmeticJpaEntity cosmetic = repository.findById(cosmeticId)
-                .orElse(null);
+    public void delete(Cosmetic cosmetic) {
+        CosmeticJpaEntity entity = CosmeticMapper.toEntity(cosmetic);
 
-        if (cosmetic == null) return;
-
-        repository.delete(cosmetic);
+        repository.delete(entity);
     }
 }
