@@ -50,7 +50,7 @@ class FindByCodeUseCaseTest {
         assertNotNull(output);
 
         verify(gameQueryService).findByCode("ABC123");
-        assertEquals(gameId.toString(), output.gameId());
+        assertEquals(gameId, output.gameId());
     }
 
     @Test
