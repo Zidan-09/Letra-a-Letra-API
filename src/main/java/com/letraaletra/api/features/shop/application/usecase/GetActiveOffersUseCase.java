@@ -1,6 +1,6 @@
-package com.letraaletra.api.features.store.application.usecase;
+package com.letraaletra.api.features.shop.application.usecase;
 
-import com.letraaletra.api.features.store.application.output.GetActiveOffersOutput;
+import com.letraaletra.api.features.shop.application.output.GetActiveOffersOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;

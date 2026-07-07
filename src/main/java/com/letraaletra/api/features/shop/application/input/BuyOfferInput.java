@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.store.application.input;
+package com.letraaletra.api.features.shop.application.input;
 
 import java.util.UUID;
 

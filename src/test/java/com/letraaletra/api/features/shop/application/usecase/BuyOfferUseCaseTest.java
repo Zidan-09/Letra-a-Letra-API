@@ -1,7 +1,7 @@
-package com.letraaletra.api.features.store.application.usecase;
+package com.letraaletra.api.features.shop.application.usecase;
 
-import com.letraaletra.api.features.store.application.input.BuyOfferInput;
-import com.letraaletra.api.features.store.application.output.BuyOfferOutput;
+import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
+import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
