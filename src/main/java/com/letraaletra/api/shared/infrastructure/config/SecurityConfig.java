@@ -24,8 +24,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth",
-                                "/auth/**",
+                                "/user/auth",
                                 "/user",
                                 "/ws/**",
                                 "/h2-console/**",
