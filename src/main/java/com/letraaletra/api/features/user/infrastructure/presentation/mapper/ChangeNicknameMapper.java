@@ -8,9 +8,9 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import java.util.UUID;
 
 public class ChangeNicknameMapper {
-    public static ChangeNicknameInput toInput(ChangeNicknameRequest request, String userId) {
+    public static ChangeNicknameInput toInput(UUID auth, ChangeNicknameRequest request) {
         return new ChangeNicknameInput(
-                UUID.fromString(userId),
+                auth,
                 request.nickname()
         );
     }
