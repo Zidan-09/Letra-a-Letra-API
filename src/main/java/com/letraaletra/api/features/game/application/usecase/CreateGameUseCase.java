@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
-import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -14,7 +14,7 @@ import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 import java.util.UUID;
 

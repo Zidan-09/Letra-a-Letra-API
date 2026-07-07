@@ -7,7 +7,7 @@ import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusExc
 import com.letraaletra.api.features.store.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceException;
+import com.letraaletra.api.features.user.domain.exception.InsufficientBalanceException;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.wallet.CoinType;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;

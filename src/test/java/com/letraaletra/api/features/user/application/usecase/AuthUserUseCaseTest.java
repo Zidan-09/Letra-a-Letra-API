@@ -6,7 +6,7 @@ import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordExce
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SignInUseCaseTest {
+class AuthUserUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
@@ -35,7 +35,7 @@ class SignInUseCaseTest {
     private TokenService tokenService;
 
     @InjectMocks
-    private SignInUseCase signInUseCase;
+    private AuthUserUseCase authUserUseCase;
 
     private SignInInput input;
     private User user;
@@ -74,7 +74,7 @@ class SignInUseCaseTest {
         when(tokenService.generateUserToken(userId))
                 .thenReturn("jwt-token");
 
-        SignInOutput output = signInUseCase.execute(input);
+        SignInOutput output = authUserUseCase.execute(input);
 
         assertNotNull(output);
         assertEquals(userId, output.id());
@@ -96,7 +96,7 @@ class SignInUseCaseTest {
 
         assertThrows(
                 UserNotFoundException.class,
-                () -> signInUseCase.execute(input)
+                () -> authUserUseCase.execute(input)
         );
 
         verify(userRepository)
@@ -125,7 +125,7 @@ class SignInUseCaseTest {
 
         assertThrows(
                 InvalidPasswordException.class,
-                () -> signInUseCase.execute(input)
+                () -> authUserUseCase.execute(input)
         );
 
         verify(tokenService, never())
@@ -152,7 +152,7 @@ class SignInUseCaseTest {
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
-                () -> signInUseCase.execute(input)
+                () -> authUserUseCase.execute(input)
         );
 
         assertSame(exception, thrown);
@@ -187,7 +187,7 @@ class SignInUseCaseTest {
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
-                () -> signInUseCase.execute(input)
+                () -> authUserUseCase.execute(input)
         );
 
         assertSame(exception, thrown);
@@ -212,7 +212,7 @@ class SignInUseCaseTest {
         when(tokenService.generateUserToken(any()))
                 .thenReturn("token");
 
-        signInUseCase.execute(input);
+        authUserUseCase.execute(input);
 
         InOrder inOrder = inOrder(
                 userRepository,
@@ -250,7 +250,7 @@ class SignInUseCaseTest {
         when(tokenService.generateUserToken(userId))
                 .thenReturn("jwt-token");
 
-        signInUseCase.execute(input);
+        authUserUseCase.execute(input);
 
         verify(tokenService)
                 .generateUserToken(userId);

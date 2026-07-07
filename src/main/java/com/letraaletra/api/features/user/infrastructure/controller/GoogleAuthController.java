@@ -7,9 +7,9 @@ import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.GoogleAuthRequest;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GoogleAuthMapper;
-import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SignInMapper;
+import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,12 +27,12 @@ public class GoogleAuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<SuccessResponse<SignInResponse>> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<SuccessResponse<AuthUserResponse>> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
         AuthInput input = GoogleAuthMapper.toInput(request);
 
         SignInOutput output = googleAuthUseCase.execute(input);
 
-        SignInResponse dto = SignInMapper.toResponse(output);
+        AuthUserResponse dto = AuthUserMapper.toResponse(output);
 
         return ApiResponseService.success(dto, UserMessages.USER_LOGGED.getMessage());
     }
