@@ -7,9 +7,9 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import java.util.UUID;
 
 public class GetUserInventoryMapper {
-    public static GetUserInventoryInput toInput(String userId) {
+    public static GetUserInventoryInput toInput(UUID auth) {
         return new GetUserInventoryInput(
-                UUID.fromString(userId)
+                auth
         );
     }
 

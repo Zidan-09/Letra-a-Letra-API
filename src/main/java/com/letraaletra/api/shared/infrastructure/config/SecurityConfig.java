@@ -24,11 +24,14 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth",
-                                "/auth/**",
+                                "/user/auth",
                                 "/user",
                                 "/ws/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/index.html",
+                                "/swagger-ui/**",
+                                "/docs",
+                                "/docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

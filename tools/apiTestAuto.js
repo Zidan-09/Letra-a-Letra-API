@@ -63,7 +63,7 @@ async function registerAndLogin(user) {
 
   console.log(`🔐 Logando: ${user.nickname}`);
 
-  const login = await http("POST", "/auth", {
+  const login = await http("POST", "/user/auth", {
     email: user.email,
     password: user.password
   });

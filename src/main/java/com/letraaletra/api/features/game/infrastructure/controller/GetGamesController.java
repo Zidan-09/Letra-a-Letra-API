@@ -6,11 +6,15 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetGamesMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping(path = "game")
+@Tag(name = "Game", description = "Rotas relacionadas a funcionalidade de salas")
 public class GetGamesController {
     private final GetPublicGamesUseCase getPublicGamesUseCase;
 
@@ -18,7 +22,7 @@ public class GetGamesController {
         this.getPublicGamesUseCase = getPublicGamesUseCase;
     }
 
-    @GetMapping(path = "/game")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<GetGamesResponse>> getGames() {
         GetGamesOutput output = getPublicGamesUseCase.execute(null);
 
