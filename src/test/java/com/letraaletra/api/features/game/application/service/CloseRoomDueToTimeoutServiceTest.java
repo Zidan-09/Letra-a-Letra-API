@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.RoomCloseReasons;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;

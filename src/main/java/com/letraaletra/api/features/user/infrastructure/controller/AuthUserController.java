@@ -2,13 +2,13 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
-import com.letraaletra.api.features.user.application.usecase.SignInUseCase;
+import com.letraaletra.api.features.user.application.usecase.AuthUserUseCase;
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.SignInRequest;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.AuthUserRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.SignInResponse;
-import com.letraaletra.api.features.user.infrastructure.presentation.mapper.SignInMapper;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/auth")
-public class SignInController {
-    private final SignInUseCase signInUseCase;
+public class AuthUserController {
+    private final AuthUserUseCase authUserUseCase;
 
-    public SignInController(SignInUseCase signInUseCase) {
-        this.signInUseCase = signInUseCase;
+    public AuthUserController(AuthUserUseCase authUserUseCase) {
+        this.authUserUseCase = authUserUseCase;
     }
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request) {
-        SignInInput input = SignInMapper.toInput(request);
+    public ResponseEntity<SuccessResponse<AuthUserResponse>> signIn(@Valid @RequestBody AuthUserRequest request) {
+        SignInInput input = AuthUserMapper.toInput(request);
 
-        SignInOutput output = signInUseCase.execute(input);
+        SignInOutput output = authUserUseCase.execute(input);
 
-        SignInResponse dto = SignInMapper.toResponse(output);
+        AuthUserResponse dto = AuthUserMapper.toResponse(output);
 
         return ApiResponseService.success(dto, UserMessages.USER_LOGGED.getMessage());
     }

@@ -8,7 +8,7 @@ import com.letraaletra.api.features.participant.application.output.ModerationCon
 import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;

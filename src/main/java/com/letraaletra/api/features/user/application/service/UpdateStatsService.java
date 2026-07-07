@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.application.service;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 public class UpdateStatsService {
     private final UserRepository userRepository;
@@ -19,7 +19,5 @@ public class UpdateStatsService {
         user.registerMatchResult(isWinner);
 
         user.getStats().incrementExperience(10);
-
-        userRepository.save(user);
     }
 }

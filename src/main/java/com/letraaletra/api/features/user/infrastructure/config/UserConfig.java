@@ -49,12 +49,12 @@ public class UserConfig {
     }
 
     @Bean
-    public SignInUseCase signInUseCase(
+    public AuthUserUseCase signInUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
             TokenService tokenService
     ) {
-        return new SignInUseCase(
+        return new AuthUserUseCase(
                 userRepository,
                 passwordService,
                 tokenService

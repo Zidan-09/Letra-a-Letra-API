@@ -7,17 +7,17 @@ import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.util.UUID;
 
-public class SignInUseCase implements UseCase<SignInInput, SignInOutput> {
+public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final TokenService tokenService;
 
-    public SignInUseCase(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
+    public AuthUserUseCase(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.tokenService = tokenService;

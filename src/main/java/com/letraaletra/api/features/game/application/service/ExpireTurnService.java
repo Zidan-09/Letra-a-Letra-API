@@ -10,7 +10,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -10,7 +10,7 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanStartException;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 import java.util.UUID;
 
