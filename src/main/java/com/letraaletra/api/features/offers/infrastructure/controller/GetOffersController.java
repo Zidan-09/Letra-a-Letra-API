@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.offers.infrastructure.controller;
 
+import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.GetOffersResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.GetOffersMapper;
@@ -17,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/offer")
 @Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
 public class GetOffersController {
-    private final UseCase<Void, GetOffersOutput> useCase;
+    private final UseCase<GetOffersInput, GetOffersOutput> useCase;
 
     public GetOffersController(
-            UseCase<Void, GetOffersOutput> useCase
+            UseCase<GetOffersInput, GetOffersOutput> useCase
     ) {
         this.useCase = useCase;
     }
@@ -29,7 +30,9 @@ public class GetOffersController {
     public ResponseEntity<SuccessResponse<GetOffersResponse>> handle(
             Pageable pageable
     ) {
-        GetOffersOutput output = useCase.execute(null);
+        GetOffersInput input = GetOffersMapper.toInput(pageable);
+
+        GetOffersOutput output = useCase.execute(input);
 
         GetOffersResponse dto = GetOffersMapper.toResponse(output);
 
