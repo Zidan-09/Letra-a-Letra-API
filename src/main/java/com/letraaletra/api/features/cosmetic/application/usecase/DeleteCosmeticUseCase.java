@@ -33,7 +33,7 @@ public class DeleteCosmeticUseCase implements UseCase<DeleteCosmeticInput, Delet
 
         storageGateway.delete(cosmetic.getAssetPath());
 
-        cosmeticRepository.delete(input.cosmeticId());
+        cosmeticRepository.delete(cosmetic);
 
         return buildOutput(cosmetic);
     }
