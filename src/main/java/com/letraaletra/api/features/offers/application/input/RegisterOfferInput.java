@@ -1,0 +1,17 @@
+package com.letraaletra.api.features.offers.application.input;
+
+import com.letraaletra.api.features.user.domain.wallet.CoinType;
+
+import java.util.UUID;
+
+public record RegisterOfferInput(
+        UUID auth,
+        String title,
+        CoinType coinType,
+        int price,
+        UUID cosmeticId,
+        int rewardSoftCoins,
+        int rewardHardGems,
+        long expiresIn
+) {
+}

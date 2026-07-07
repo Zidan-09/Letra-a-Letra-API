@@ -2,10 +2,10 @@ package com.letraaletra.api.features.store.application.usecase;
 
 import com.letraaletra.api.features.store.application.input.BuyOfferInput;
 import com.letraaletra.api.features.store.application.output.BuyOfferOutput;
-import com.letraaletra.api.features.store.domain.StoreOffer;
-import com.letraaletra.api.features.store.domain.exception.InvalidOfferStatusException;
-import com.letraaletra.api.features.store.domain.exception.OfferNotFoundException;
-import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
+import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
+import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
+import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -13,19 +13,19 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
-    private final StoreOfferRepository storeOfferRepository;
+    private final OfferRepository offerRepository;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
-            StoreOfferRepository storeOfferRepository
+            OfferRepository offerRepository
     ) {
         this.userRepository = userRepository;
-        this.storeOfferRepository = storeOfferRepository;
+        this.offerRepository = offerRepository;
     }
 
     @Override
     public BuyOfferOutput execute(BuyOfferInput input) {
-        StoreOffer offer = storeOfferRepository.findById(input.offerId())
+        Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);
 
         User user = userRepository.find(input.auth())
@@ -39,13 +39,13 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         return new BuyOfferOutput(offer);
     }
 
-    private void validateOffer(StoreOffer offer) {
+    private void validateOffer(Offer offer) {
         if (!offer.isActive()) {
             throw new InvalidOfferStatusException();
         }
     }
 
-    private void processPayment(User user, StoreOffer offer) {
+    private void processPayment(User user, Offer offer) {
         user.getWallet().pay(offer.getCoinType(), offer.getPrice());
 
         user.getInventory().unlock(offer.getCosmetic());
