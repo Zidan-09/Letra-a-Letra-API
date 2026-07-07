@@ -7,10 +7,10 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import java.util.UUID;
 
 public class ChangeCosmeticMapper {
-    public static ChangeCosmeticInput toInput(String cosmeticId, UUID auth) {
+    public static ChangeCosmeticInput toInput(UUID cosmeticId, UUID auth) {
         return new ChangeCosmeticInput(
                 auth,
-                UUID.fromString(cosmeticId)
+                cosmeticId
         );
     }
 

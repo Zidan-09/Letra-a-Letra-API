@@ -8,7 +8,6 @@ import com.letraaletra.api.features.user.infrastructure.presentation.mapper.Chan
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class ChangeCosmeticController {
     @PatchMapping(path = "/cosmetic/{cosmeticId}")
     public ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> changeCosmetic(
             @AuthenticationPrincipal UUID auth,
-            @PathVariable @NotBlank String cosmeticId
+            @PathVariable UUID cosmeticId
     ) {
         ChangeCosmeticInput input = ChangeCosmeticMapper.toInput(cosmeticId, auth);
 
