@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.usecase.AuthUserUseCase;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.AuthUserRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -33,6 +32,6 @@ public class AuthUserController {
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, UserMessages.USER_LOGGED.getMessage());
+        return ApiResponseService.success(dto);
     }
 }

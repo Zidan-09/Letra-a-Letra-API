@@ -2,7 +2,6 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
 import com.letraaletra.api.features.friend.application.usecase.AcceptFriendRequestUseCase;
-import com.letraaletra.api.features.friend.domain.FriendMessages;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.AcceptFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
@@ -38,6 +37,6 @@ public class AcceptFriendRequestController {
 
         useCase.execute(input);
 
-        return ApiResponseService.success(null, FriendMessages.REQUEST_ACCEPTED.getMessage(), HttpStatus.NO_CONTENT);
+        return ApiResponseService.success(null, HttpStatus.NO_CONTENT);
     }
 }
