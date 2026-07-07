@@ -5,6 +5,7 @@ import com.letraaletra.api.features.user.domain.wallet.CoinType;
 import java.util.UUID;
 
 public record RegisterOfferInput(
+        UUID auth,
         String title,
         CoinType coinType,
         int price,

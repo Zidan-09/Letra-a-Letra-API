@@ -6,7 +6,6 @@ import com.letraaletra.api.features.store.application.usecase.BuyOfferUseCase;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.request.BuyStoreOfferRequest;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.BuyStoreOfferResponse;
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.BuyStoreOfferMapper;
-import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
@@ -15,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 public class BuyStoreOfferController {
@@ -28,10 +29,10 @@ public class BuyStoreOfferController {
 
     @PostMapping(path = "/store/buy")
     public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> buyOffer(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody BuyStoreOfferRequest request
     ) {
-        BuyOfferInput input = BuyStoreOfferMapper.toInput(user.getId().toString(), request.offerId());
+        BuyOfferInput input = BuyStoreOfferMapper.toInput(auth, request.offerId());
 
         BuyOfferOutput output = useCase.execute(input);
 

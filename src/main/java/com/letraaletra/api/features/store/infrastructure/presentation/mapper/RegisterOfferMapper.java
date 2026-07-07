@@ -8,8 +8,9 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import java.util.UUID;
 
 public class RegisterOfferMapper {
-    public static RegisterOfferInput toInput(RegisterOfferRequest request) {
+    public static RegisterOfferInput toInput(UUID auth, RegisterOfferRequest request) {
         return new RegisterOfferInput(
+                auth,
                 request.title(),
                 request.coinType(),
                 request.price(),

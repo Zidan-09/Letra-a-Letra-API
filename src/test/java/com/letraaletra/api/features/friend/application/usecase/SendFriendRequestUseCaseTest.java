@@ -36,7 +36,6 @@ class SendFriendRequestUseCaseTest {
 
     private UUID userId;
     private UUID friendId;
-    private String senderNickname;
     private LocalDateTime now;
     private SendFriendRequestInput input;
 
@@ -44,10 +43,9 @@ class SendFriendRequestUseCaseTest {
     void setup() {
         userId = UUID.randomUUID();
         friendId = UUID.randomUUID();
-        senderNickname = "PlayerOne";
         now = LocalDateTime.now();
 
-        input = new SendFriendRequestInput(userId, senderNickname, friendId);
+        input = new SendFriendRequestInput(userId, friendId);
     }
 
     @Test
@@ -59,7 +57,7 @@ class SendFriendRequestUseCaseTest {
 
         assertEquals(FriendStatus.PENDING, output.friend().getStatus());
         verify(repository, times(1)).save(any(Friend.class));
-        verify(notifier, times(1)).notifierUser(friendId, senderNickname);
+        verify(notifier, times(1)).notifierUser(friendId);
     }
 
     @Test
@@ -72,7 +70,7 @@ class SendFriendRequestUseCaseTest {
 
         assertEquals(FriendStatus.PENDING, output.friend().getStatus());
         verify(repository, times(1)).save(any(Friend.class));
-        verify(notifier, times(1)).notifierUser(friendId, senderNickname);
+        verify(notifier, times(1)).notifierUser(friendId);
     }
 
     @Test
@@ -84,6 +82,6 @@ class SendFriendRequestUseCaseTest {
         assertThrows(InvalidFriendRequestException.class, () -> useCase.execute(input));
 
         verify(repository, never()).save(any());
-        verify(notifier, never()).notifierUser(any(), any());
+        verify(notifier, never()).notifierUser(any());
     }
 }

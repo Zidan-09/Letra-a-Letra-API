@@ -49,12 +49,12 @@ public class UserConfig {
     }
 
     @Bean
-    public SignInUseCase signInUseCase(
+    public AuthUserUseCase signInUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
             TokenService tokenService
     ) {
-        return new SignInUseCase(
+        return new AuthUserUseCase(
                 userRepository,
                 passwordService,
                 tokenService
@@ -72,24 +72,6 @@ public class UserConfig {
     ) {
         return new GetUserInventoryUseCase(
                 inventoryRepository
-        );
-    }
-
-    @Bean
-    public PromoteUserToAdminUseCase promoteUserToAdminUseCase(
-            UserRepository userRepository
-    ) {
-        return new PromoteUserToAdminUseCase(
-                userRepository
-        );
-    }
-
-    @Bean
-    public RevokeAdminRoleUseCase revokeAdminRoleUseCase(
-            UserRepository userRepository
-    ) {
-        return new RevokeAdminRoleUseCase(
-                userRepository
         );
     }
 }

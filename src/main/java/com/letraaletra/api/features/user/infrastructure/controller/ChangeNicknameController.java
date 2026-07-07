@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCase;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeNicknameResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeNicknameMapper;
@@ -31,6 +30,6 @@ public class ChangeNicknameController {
 
         ChangeNicknameResponse dto = ChangeNicknameMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, UserMessages.NICKNAME_SETTER.getMessage());
+        return ApiResponseService.success(dto);
     }
 }

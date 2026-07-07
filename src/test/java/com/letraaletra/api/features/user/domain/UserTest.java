@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.domain;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.features.user.domain.exceptions.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;

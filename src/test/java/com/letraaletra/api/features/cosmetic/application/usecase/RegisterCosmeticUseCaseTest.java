@@ -7,7 +7,10 @@ import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -36,14 +40,21 @@ class RegisterCosmeticUseCaseTest {
     @Mock
     private MultipartFile asset;
 
+    @Mock
+    private AdminChecker adminChecker;
+
     @InjectMocks
     private RegisterCosmeticUseCase useCase;
 
     private RegisterCosmeticInput input;
+    private UUID auth;
 
     @BeforeEach
     void setup() {
+        auth = UUID.randomUUID();
+
         input = new RegisterCosmeticInput(
+                auth,
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
                 asset
@@ -54,6 +65,8 @@ class RegisterCosmeticUseCaseTest {
     void shouldRegisterCosmeticSuccessfully() {
         byte[] webpImage = "webp-image".getBytes();
         String assetPath = "avatars/old-man-avatar-free.webp";
+
+        doNothing().when(adminChecker).check(auth);
 
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.empty());
@@ -99,6 +112,8 @@ class RegisterCosmeticUseCaseTest {
                 "asset.webp"
         );
 
+        doNothing().when(adminChecker).check(auth);
+
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.of(existingCosmetic));
 
@@ -112,6 +127,27 @@ class RegisterCosmeticUseCaseTest {
                 exception.getMessage()
         );
 
+        verify(cosmeticRepository, never()).save(any());
+        verify(imageConverter, never()).convertToWebp(any());
+        verify(storageGateway, never()).upload(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("should throws an UserIsNotAdminException when user is not admin")
+    void shouldThrowExceptionWhenUserIsNotAdmin() {
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(auth);
+
+        RuntimeException exception = assertThrows(
+                UserIsNotAdminException.class,
+                () -> useCase.execute(input)
+        );
+
+        assertEquals(
+                "invalid_user_data",
+                exception.getMessage()
+        );
+
+        verify(cosmeticRepository, never()).findByName(any());
         verify(cosmeticRepository, never()).save(any());
         verify(imageConverter, never()).convertToWebp(any());
         verify(storageGateway, never()).upload(any(), any(), any());

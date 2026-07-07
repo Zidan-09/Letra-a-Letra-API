@@ -4,7 +4,6 @@ import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCase;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeNicknameResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -49,7 +48,6 @@ class ChangeNicknameControllerTest {
         SuccessResponse<ChangeNicknameResponse> body = responseEntity.getBody();
         Assertions.assertNotNull(body);
 
-        Assertions.assertEquals(UserMessages.NICKNAME_SETTER.getMessage(), body.message());
         Assertions.assertNotNull(body.data());
         Assertions.assertTrue(body.success());
     }

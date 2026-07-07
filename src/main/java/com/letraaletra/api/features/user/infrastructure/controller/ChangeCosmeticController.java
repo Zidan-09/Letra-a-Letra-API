@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
 import com.letraaletra.api.features.user.application.usecase.ChangeCosmeticUseCase;
-import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeCosmeticRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeCosmeticResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeCosmeticMapper;
@@ -31,6 +30,6 @@ public class ChangeCosmeticController {
 
         ChangeCosmeticResponse dto = ChangeCosmeticMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, UserMessages.COSMETIC_EQUIPPED.getMessage());
+        return ApiResponseService.success(dto);
     }
 }

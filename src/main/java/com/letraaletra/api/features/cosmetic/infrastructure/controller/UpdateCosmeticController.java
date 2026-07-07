@@ -11,7 +11,10 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.Succe
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/cosmetic")
@@ -26,10 +29,11 @@ public class UpdateCosmeticController {
 
     @PutMapping("/{cosmeticId}")
     public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(
+            @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody UpdateCosmeticRequest request,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(request, cosmeticId);
+        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(auth, request, cosmeticId);
 
         UpdateCosmeticOutput output = useCase.execute(input);
 

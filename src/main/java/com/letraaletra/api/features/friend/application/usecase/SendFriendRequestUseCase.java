@@ -34,7 +34,7 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
 
         friendRepository.save(friend);
 
-        notifier.notifierUser(input.friendId(), input.senderNickname());
+        notifier.notifierUser(input.friendId());
 
         return buildOutput(friend);
     }

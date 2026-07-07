@@ -6,7 +6,6 @@ CREATE TABLE "user" (
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-                        "is_admin" boolean NOT NULL DEFAULT false,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
@@ -98,6 +97,14 @@ CREATE TABLE "friend" (
                       "status" varchar(50) NOT NULL,
                       "request_date" timestamp DEFAULT CURRENT_TIMESTAMP,
                       PRIMARY KEY ("user_id_1", "user_id_2")
+);
+
+CREATE TABLE "admin" (
+                    "admin_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "name" varchar(50) NOT NULL,
+                    "email" varchar(50) UNIQUE NOT NULL,
+                    "password_hash" varchar(100) NOT NULL,
+                    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';

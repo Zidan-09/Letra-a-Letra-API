@@ -5,7 +5,7 @@ import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.EmailAlreadyInUseException;
+import com.letraaletra.api.features.user.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 public record UpdateCosmeticInput(
+        UUID auth,
         UUID id,
         String name,
         CosmeticTypes type,

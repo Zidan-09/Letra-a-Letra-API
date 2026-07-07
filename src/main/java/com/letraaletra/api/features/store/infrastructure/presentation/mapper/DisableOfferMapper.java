@@ -7,8 +7,9 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import java.util.UUID;
 
 public class DisableOfferMapper {
-    public static DisableOfferInput toInput(String offerId) {
+    public static DisableOfferInput toInput(UUID auth, String offerId) {
         return new DisableOfferInput(
+                auth,
                 UUID.fromString(offerId)
         );
     }

@@ -7,9 +7,9 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import java.util.UUID;
 
 public class BuyStoreOfferMapper {
-    public static BuyOfferInput toInput(String userId, String offerId) {
+    public static BuyOfferInput toInput(UUID auth, String offerId) {
         return new BuyOfferInput(
-               UUID.fromString(userId),
+               auth,
                UUID.fromString(offerId)
         );
     }

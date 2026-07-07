@@ -1,6 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenContent;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -11,7 +12,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
@@ -33,13 +33,13 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        UUID userId = tokenService.getTokenContent(token);
+        TokenContent content = tokenService.getTokenContent(token);
 
-        if (userId == null) {
+        if (content == null) {
             return false;
         }
 
-        attributes.put("userId", userId.toString());
+        attributes.put("userId", content.id().toString());
 
         return true;
     }

@@ -8,8 +8,9 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import java.util.UUID;
 
 public class UpdateCosmeticMapper {
-    public static UpdateCosmeticInput toInput(UpdateCosmeticRequest request, String cosmeticId) {
+    public static UpdateCosmeticInput toInput(UUID auth, UpdateCosmeticRequest request, String cosmeticId) {
         return new UpdateCosmeticInput(
+                auth,
                 UUID.fromString(cosmeticId),
                 request.name(),
                 request.type(),

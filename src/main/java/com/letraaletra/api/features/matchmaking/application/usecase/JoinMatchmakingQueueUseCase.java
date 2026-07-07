@@ -5,7 +5,7 @@ import com.letraaletra.api.features.matchmaking.domain.MatchUserData;
 import com.letraaletra.api.features.matchmaking.domain.exception.UserAlreadyOnQueueException;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput, Void> {

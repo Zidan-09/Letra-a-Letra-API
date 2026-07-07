@@ -1,0 +1,61 @@
+package com.letraaletra.api.features.user.infrastructure.controller;
+
+import com.letraaletra.api.features.user.application.input.SignInInput;
+import com.letraaletra.api.features.user.application.output.SignInOutput;
+import com.letraaletra.api.features.user.application.usecase.AuthUserUseCase;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.AuthUserRequest;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.UUID;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+
+@ExtendWith(MockitoExtension.class)
+class AuthUserControllerTest {
+    @Mock
+    private AuthUserUseCase authUserUseCase;
+
+    @InjectMocks
+    private AuthUserController controller;
+
+    private UUID userId;
+
+    @BeforeEach
+    void setup() {
+        userId = UUID.randomUUID();
+    }
+
+    @Test
+    @DisplayName("should get the request to sign in an user and return an response correctly")
+    void signInUser() {
+        AuthUserRequest request = new AuthUserRequest("teste@email.com", "12341234");
+
+        SignInOutput output = new SignInOutput(userId, "token");
+
+        when(authUserUseCase.execute(any(SignInInput.class)))
+                .thenReturn(output);
+
+        ResponseEntity<SuccessResponse<AuthUserResponse>> responseEntity = controller.signIn(request);
+
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        SuccessResponse<AuthUserResponse> body = responseEntity.getBody();
+        Assertions.assertNotNull(body);
+
+        Assertions.assertNotNull(body.data());
+        Assertions.assertTrue(body.success());
+    }
+}

@@ -28,10 +28,10 @@ public class FriendBroadcastService implements FriendNotifier {
     }
 
     @Override
-    public void notifierUser(UUID userId, Object dto) {
+    public void notifierUser(UUID userId) {
         WebSocketSession session = sessionRepository.findByUserId(userId);
 
-        FriendRequestEvent event = new FriendRequestEvent("RECEIVE_FRIEND_REQUEST", dto);
+        FriendRequestEvent event = new FriendRequestEvent("RECEIVE_FRIEND_REQUEST");
 
         try {
             String json = objectMapper.writeValueAsString(event);

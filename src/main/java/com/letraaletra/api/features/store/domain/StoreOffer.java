@@ -40,6 +40,29 @@ public class StoreOffer {
         this.expiresAt = expiresAt;
     }
 
+    public static StoreOffer create(
+            String title,
+            CoinType coinType,
+            int price,
+            Cosmetic cosmetic,
+            int rewardSoftCoins,
+            int rewardHardGems,
+            boolean active,
+            LocalDateTime expiresAt
+    ) {
+        return new StoreOffer(
+                UUID.randomUUID(),
+                title,
+                coinType,
+                price,
+                cosmetic,
+                rewardSoftCoins,
+                rewardHardGems,
+                active,
+                expiresAt
+        );
+    }
+
     public UUID getOfferId() {
         return offerId;
     }

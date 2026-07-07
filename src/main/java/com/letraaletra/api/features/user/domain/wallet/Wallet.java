@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.domain.wallet;
 
-import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceException;
+import com.letraaletra.api.features.user.domain.exception.InsufficientBalanceException;
 
 public class Wallet {
     private long softCoins;

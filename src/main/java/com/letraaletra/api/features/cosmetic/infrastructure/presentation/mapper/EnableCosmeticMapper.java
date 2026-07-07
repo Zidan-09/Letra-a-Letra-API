@@ -7,8 +7,9 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import java.util.UUID;
 
 public class EnableCosmeticMapper {
-    public static EnableCosmeticInput toInput(String cosmeticId) {
+    public static EnableCosmeticInput toInput(UUID auth, String cosmeticId) {
         return new EnableCosmeticInput(
+                auth,
                 UUID.fromString(cosmeticId)
         );
     }

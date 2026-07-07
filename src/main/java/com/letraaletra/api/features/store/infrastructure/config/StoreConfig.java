@@ -7,6 +7,7 @@ import com.letraaletra.api.features.store.application.usecase.GetActiveOffersUse
 import com.letraaletra.api.features.store.application.usecase.RegisterOfferUseCase;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,20 +16,24 @@ public class StoreConfig {
     @Bean
     public RegisterOfferUseCase registerOfferUseCase(
             StoreOfferRepository storeOfferRepository,
-            CosmeticRepository cosmeticRepository
+            CosmeticRepository cosmeticRepository,
+            AdminChecker adminChecker
     ) {
         return new RegisterOfferUseCase(
                 storeOfferRepository,
-                cosmeticRepository
+                cosmeticRepository,
+                adminChecker
         );
     }
 
     @Bean
     public DisableOfferUseCase disableOfferUseCase(
-            StoreOfferRepository storeOfferRepository
+            StoreOfferRepository storeOfferRepository,
+            AdminChecker adminChecker
     ) {
         return new DisableOfferUseCase(
-                storeOfferRepository
+                storeOfferRepository,
+                adminChecker
         );
     }
 

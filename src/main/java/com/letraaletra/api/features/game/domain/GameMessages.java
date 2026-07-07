@@ -3,8 +3,6 @@ package com.letraaletra.api.features.game.domain;
 import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum GameMessages implements MessageCode {
-    GAME_FOUND("game_found"),
-    GAMES_FOUND("games_found"),
     GAME_NOT_FOUND("game_not_found"),
     GAME_ALREADY_STARTED("game_already_started"),
     GAME_ALREADY_FINISHED("game_already_finished"),
@@ -18,6 +16,7 @@ public enum GameMessages implements MessageCode {
     INSUFFICIENT_PLAYERS("insufficient_players"),
     ROOM_FULL("room_full"),
 
+    YOU_ARE_BANNED_OF_THIS_ROOM("you_are_banned_of_this_room"),
     PARTICIPANT_ALREADY_BANNED("participant_already_banned"),
     PARTICIPANT_NOT_BANNED("participant_not_banned"),
 

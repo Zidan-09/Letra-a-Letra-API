@@ -5,9 +5,7 @@ import com.letraaletra.api.features.cosmetic.application.output.EnableCosmeticOu
 import com.letraaletra.api.features.cosmetic.application.usecase.EnableCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.EnableCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.EnableCosmeticMapper;
-import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/cosmetic")
@@ -30,23 +30,15 @@ public class EnableCosmeticController {
 
     @PatchMapping(path = "/enable/{cosmeticId}")
     public ResponseEntity<SuccessResponse<EnableCosmeticResponse>> handle(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UUID auth,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        validateUser(user);
-
-        EnableCosmeticInput input = EnableCosmeticMapper.toInput(cosmeticId);
+        EnableCosmeticInput input = EnableCosmeticMapper.toInput(auth, cosmeticId);
 
         EnableCosmeticOutput output = useCase.execute(input);
 
         EnableCosmeticResponse dto = EnableCosmeticMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 }

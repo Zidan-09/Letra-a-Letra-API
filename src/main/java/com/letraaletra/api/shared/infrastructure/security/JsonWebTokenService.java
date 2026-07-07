@@ -1,5 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.security;
 
+import com.letraaletra.api.shared.domain.security.Roles;
+import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import io.jsonwebtoken.Jwts;
@@ -20,26 +22,40 @@ public class JsonWebTokenService implements TokenService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(UUID id, boolean isAdmin) {
+    public String generateUserToken(UUID id) {
         return Jwts.builder()
-                .claim("id", id.toString())
-                .claim("admin", isAdmin)
+                .subject(id.toString())
+                .claim("role", Roles.USER.name())
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public UUID getTokenContent(String token) {
+    @Override
+    public String generateAdminToken(UUID id) {
+        return Jwts.builder()
+                .subject(id.toString())
+                .claim("role", Roles.ADMIN.name())
+                .issuedAt(new java.util.Date())
+                .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    @Override
+    public TokenContent getTokenContent(String token) {
         try {
-            String raw = Jwts.parser()
+            var claims = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token)
-                    .getPayload()
-                    .get("id", String.class);
+                    .getPayload();
 
-            return UUID.fromString(raw);
+            UUID id = UUID.fromString(claims.getSubject());
+            Roles role = Roles.valueOf(claims.get("role", String.class));
+
+            return new TokenContent(id, role);
 
         } catch (Exception ex) {
             throw new InvalidTokenException();

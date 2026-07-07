@@ -1,9 +1,14 @@
 package com.letraaletra.api.shared.infrastructure.config;
 
+import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +24,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     protected void doFilterInternal(
@@ -42,17 +47,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authorization.substring(7);
 
             try {
-                UUID userId = tokenService.getTokenContent(token);
+                TokenContent content = tokenService.getTokenContent(token);
 
-                User user = userRepository.find(userId)
-                        .orElseThrow(UserNotFoundException::new);
+                Authentication authentication;
 
-                Authentication authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                user,
-                                null,
-                                Collections.emptyList()
+                switch (content.role()) {
+                    case USER -> {
+                        User user = userRepository.find(content.id())
+                                .orElseThrow(UserNotFoundException::new);
+
+                        authentication = new UsernamePasswordAuthenticationToken(
+                            user.getId(),
+                            null,
+                            Collections.emptyList()
                         );
+                    }
+                    case ADMIN -> {
+                        Admin admin = adminRepository.find(content.id())
+                                .orElseThrow(AdminNotFoundException::new);
+
+                        authentication = new UsernamePasswordAuthenticationToken(
+                            admin.getId(),
+                            null,
+                            Collections.emptyList()
+                        );
+                    }
+
+                    case null, default -> throw new InvalidTokenException();
+                }
 
                 SecurityContextHolder
                         .getContext()
