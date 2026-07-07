@@ -6,25 +6,27 @@ import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGatewa
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class DeleteCosmeticUseCase implements UseCase<DeleteCosmeticInput, DeleteCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
     private final AssetStorageGateway storageGateway;
+    private final AdminChecker adminChecker;
 
     public DeleteCosmeticUseCase(
             CosmeticRepository cosmeticRepository,
-            AssetStorageGateway storageGateway
+            AssetStorageGateway storageGateway,
+            AdminChecker adminChecker
     ) {
         this.cosmeticRepository = cosmeticRepository;
         this.storageGateway = storageGateway;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public DeleteCosmeticOutput execute(DeleteCosmeticInput input) {
-        validateUser(input.user());
+        adminChecker.check(input.auth());
 
         Cosmetic cosmetic = cosmeticRepository.find(input.cosmeticId())
                 .orElseThrow(CosmeticNotFoundException::new);
@@ -34,12 +36,6 @@ public class DeleteCosmeticUseCase implements UseCase<DeleteCosmeticInput, Delet
         cosmeticRepository.delete(input.cosmeticId());
 
         return buildOutput(cosmetic);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private DeleteCosmeticOutput buildOutput(Cosmetic cosmetic) {

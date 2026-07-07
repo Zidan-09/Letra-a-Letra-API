@@ -6,7 +6,6 @@ import com.letraaletra.api.features.friend.application.usecase.GetFriendListUseC
 import com.letraaletra.api.features.friend.domain.FriendMessages;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendListResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
-import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/friend")
@@ -28,9 +29,9 @@ public class GetFriendListController {
 
     @GetMapping
     public ResponseEntity<SuccessResponse<GetFriendListResponse>> getFriends(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UUID auth
     ) {
-        GetFriendListInput input = GetFriendListMapper.toInput(user.getId().toString());
+        GetFriendListInput input = GetFriendListMapper.toInput(auth.toString());
 
         GetFriendListOutput output = useCase.execute(input);
 

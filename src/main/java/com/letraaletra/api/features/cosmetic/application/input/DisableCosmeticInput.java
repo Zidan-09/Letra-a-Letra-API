@@ -5,7 +5,7 @@ import com.letraaletra.api.features.user.domain.User;
 import java.util.UUID;
 
 public record DisableCosmeticInput(
-        User user,
+        UUID auth,
         UUID id
 ) {
 }

@@ -6,13 +6,14 @@ import com.letraaletra.api.features.cosmetic.application.usecase.RegisterCosmeti
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
-import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/cosmetic")
@@ -27,10 +28,10 @@ public class RegisterCosmeticController {
 
     @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> registerCosmetic(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UUID auth,
             @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {
-        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(user, request);
+        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(auth, request);
 
         RegisterCosmeticOutput output = useCase.execute(input);
 

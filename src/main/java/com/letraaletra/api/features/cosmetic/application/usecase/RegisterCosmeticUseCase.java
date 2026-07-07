@@ -6,28 +6,30 @@ import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGatewa
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
     private final ImageConverter imageConverter;
     private final AssetStorageGateway storageGateway;
+    private final AdminChecker adminChecker;
 
     public RegisterCosmeticUseCase(
             CosmeticRepository cosmeticRepository,
             AssetStorageGateway storageGateway,
-            ImageConverter imageConverter
+            ImageConverter imageConverter,
+            AdminChecker adminChecker
     ) {
         this.cosmeticRepository = cosmeticRepository;
         this.storageGateway = storageGateway;
         this.imageConverter = imageConverter;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
-        validateUser(input.user());
+        adminChecker.check(input.auth());
 
         Cosmetic exists = cosmeticRepository.findByName(input.name()).orElse(null);
         validateIfExists(exists);
@@ -41,12 +43,6 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
         cosmeticRepository.save(cosmetic);
 
         return buildOutput(cosmetic);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private RegisterCosmeticOutput buildOutput(Cosmetic cosmetic) {

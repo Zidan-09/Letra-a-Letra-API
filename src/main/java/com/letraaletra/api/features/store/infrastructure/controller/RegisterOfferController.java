@@ -6,7 +6,6 @@ import com.letraaletra.api.features.store.application.usecase.RegisterOfferUseCa
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.store.infrastructure.presentation.dto.response.RegisterOfferResponse;
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.RegisterOfferMapper;
-import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import jakarta.validation.Valid;
@@ -15,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 public class RegisterOfferController {
@@ -28,10 +29,10 @@ public class RegisterOfferController {
 
     @PostMapping(path = "/store")
     public ResponseEntity<SuccessResponse<RegisterOfferResponse>> registerOffer(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody RegisterOfferRequest request
     ) {
-        RegisterOfferInput input = RegisterOfferMapper.toInput(user, request);
+        RegisterOfferInput input = RegisterOfferMapper.toInput(auth, request);
 
         RegisterOfferOutput output = useCase.execute(input);
 

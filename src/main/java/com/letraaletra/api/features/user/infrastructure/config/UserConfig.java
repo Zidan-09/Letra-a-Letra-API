@@ -74,22 +74,4 @@ public class UserConfig {
                 inventoryRepository
         );
     }
-
-    @Bean
-    public PromoteUserToAdminUseCase promoteUserToAdminUseCase(
-            UserRepository userRepository
-    ) {
-        return new PromoteUserToAdminUseCase(
-                userRepository
-        );
-    }
-
-    @Bean
-    public RevokeAdminRoleUseCase revokeAdminRoleUseCase(
-            UserRepository userRepository
-    ) {
-        return new RevokeAdminRoleUseCase(
-                userRepository
-        );
-    }
 }

@@ -6,8 +6,9 @@ import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGatewa
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,8 +31,18 @@ class DeleteCosmeticUseCaseTest {
     @Mock
     private AssetStorageGateway storageGateway;
 
+    @Mock
+    private AdminChecker adminChecker;
+
     @InjectMocks
     private DeleteCosmeticUseCase deleteCosmeticUseCase;
+
+    private UUID auth;
+
+    @BeforeEach
+    void setup() {
+        auth = UUID.randomUUID();
+    }
 
     @Test
     @DisplayName("should delete the cosmetic correctly")
@@ -39,13 +50,12 @@ class DeleteCosmeticUseCaseTest {
         UUID cosmeticId = UUID.randomUUID();
         String assetPath = "path/to/cosmetic/asset.png";
 
-        User adminUser = mock(User.class);
-        when(adminUser.isAdmin()).thenReturn(true);
+        doNothing().when(adminChecker).check(auth);
 
         Cosmetic cosmetic = mock(Cosmetic.class);
         when(cosmetic.getAssetPath()).thenReturn(assetPath);
 
-        DeleteCosmeticInput input = new DeleteCosmeticInput(adminUser, cosmeticId);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
@@ -62,10 +72,10 @@ class DeleteCosmeticUseCaseTest {
     @DisplayName("should throw an UserIsNotAdminException when user is not admin")
     void shouldThrowUserIsNotAdminExceptionWhenUserIsNotAdmin() {
         UUID cosmeticId = UUID.randomUUID();
-        User regularUser = mock(User.class);
-        when(regularUser.isAdmin()).thenReturn(false);
 
-        DeleteCosmeticInput input = new DeleteCosmeticInput(regularUser, cosmeticId);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(auth);
+
+        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
 
         assertThrows(UserIsNotAdminException.class, () -> deleteCosmeticUseCase.execute(input));
 
@@ -77,10 +87,10 @@ class DeleteCosmeticUseCaseTest {
     @DisplayName("should throw a CosmeticNotFoundException when cosmetic is not found")
     void shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist() {
         UUID cosmeticId = UUID.randomUUID();
-        User adminUser = mock(User.class);
-        when(adminUser.isAdmin()).thenReturn(true);
 
-        DeleteCosmeticInput input = new DeleteCosmeticInput(adminUser, cosmeticId);
+        doNothing().when(adminChecker).check(auth);
+
+        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.empty());
 

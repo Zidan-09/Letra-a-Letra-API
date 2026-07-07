@@ -36,7 +36,4 @@ public class UserJpaEntity {
 
     @Column(name = "can_change_nickname", nullable = false)
     private boolean canChangeNickname;
-
-    @Column(name = "is_admin", nullable = false)
-    private boolean isAdmin;
 }

@@ -5,22 +5,24 @@ import com.letraaletra.api.features.cosmetic.application.output.DisableCosmeticO
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class DisableCosmeticUseCase implements UseCase<DisableCosmeticInput, DisableCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
+    private final AdminChecker adminChecker;
 
     public DisableCosmeticUseCase(
-            CosmeticRepository cosmeticRepository
+            CosmeticRepository cosmeticRepository,
+            AdminChecker adminChecker
     ) {
         this.cosmeticRepository = cosmeticRepository;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public DisableCosmeticOutput execute(DisableCosmeticInput input) {
-        validateUser(input.user());
+        adminChecker.check(input.auth());
 
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);
@@ -30,12 +32,6 @@ public class DisableCosmeticUseCase implements UseCase<DisableCosmeticInput, Dis
         cosmeticRepository.save(cosmetic);
 
         return buildOutput(cosmetic);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private DisableCosmeticOutput buildOutput(Cosmetic cosmetic) {
