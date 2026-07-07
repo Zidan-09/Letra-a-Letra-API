@@ -30,7 +30,7 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
 
     private FindByCodeOutput buildOutput(Game game) {
         return new FindByCodeOutput(
-                game.getId().toString()
+                game.getId()
         );
     }
 }
