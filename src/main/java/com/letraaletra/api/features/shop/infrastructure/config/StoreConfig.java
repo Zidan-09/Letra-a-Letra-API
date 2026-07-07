@@ -1,7 +1,7 @@
-package com.letraaletra.api.features.store.infrastructure.config;
+package com.letraaletra.api.features.shop.infrastructure.config;
 
-import com.letraaletra.api.features.store.application.usecase.BuyOfferUseCase;
-import com.letraaletra.api.features.store.application.usecase.GetActiveOffersUseCase;
+import com.letraaletra.api.features.shop.application.usecase.BuyOfferUseCase;
+import com.letraaletra.api.features.shop.application.usecase.GetActiveOffersUseCase;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
