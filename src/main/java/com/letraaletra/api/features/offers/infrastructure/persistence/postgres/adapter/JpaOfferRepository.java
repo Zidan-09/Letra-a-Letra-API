@@ -4,11 +4,14 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
+import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferJpaEntity;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper.OfferMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,8 +43,21 @@ public class JpaOfferRepository implements OfferRepository {
     }
 
     @Override
-    public List<Offer> get() {
-        return List.of();
+    public List<Offer> get(GetOffersInput input) {
+        Pageable pageable = PageRequest.of(
+                input.page(),
+                input.size(),
+                input.sort()
+        );
+
+        return repository.findAll(pageable).stream().map(entity -> {
+                Cosmetic cosmetic = CosmeticMapper.toDomain(
+                        cosmeticRepository.findById(entity.getCosmeticId()).orElseThrow()
+                );
+
+                return OfferMapper.toDomain(entity, cosmetic);
+        })
+        .toList();
     }
 
     @Override
