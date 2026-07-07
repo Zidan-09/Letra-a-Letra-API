@@ -41,6 +41,7 @@ class BuyOfferUseCaseTest {
     private BuyOfferUseCase useCase;
 
     private BuyOfferInput input;
+    private UUID userId;
     private User mockUser;
     private Wallet mockWallet;
     private Inventory mockInventory;
@@ -48,7 +49,7 @@ class BuyOfferUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        UUID userId = UUID.randomUUID();
+        userId = UUID.randomUUID();
         UUID offerId = UUID.randomUUID();
 
         mockUser = mock(User.class);
@@ -57,7 +58,7 @@ class BuyOfferUseCaseTest {
         mockOffer = mock(StoreOffer.class);
         Cosmetic mockCosmetic = mock(Cosmetic.class);
 
-        input = new BuyOfferInput(mockUser, offerId);
+        input = new BuyOfferInput(userId, offerId);
 
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
@@ -72,6 +73,7 @@ class BuyOfferUseCaseTest {
     @DisplayName("should buy an offer correctly when all data is valid")
     void shouldBuyOfferWithSuccess() {
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockOffer.isActive()).thenReturn(true);
 
         BuyOfferOutput output = useCase.execute(input);
@@ -99,6 +101,7 @@ class BuyOfferUseCaseTest {
     @DisplayName("should throw an InvalidOfferStatusException when offer is not active")
     void shouldThrowInvalidOfferStatusExceptionWhenOfferIsNotActive() {
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockOffer.isActive()).thenReturn(false);
 
         assertThrows(InvalidOfferStatusException.class, () -> useCase.execute(input));
@@ -111,6 +114,7 @@ class BuyOfferUseCaseTest {
     @DisplayName("should throw an InsufficientBalanceException when user balance is insufficient")
     void shouldPropagateExceptionWhenWalletPaymentFails() {
         when(storeOfferRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockOffer.isActive()).thenReturn(true);
 
         doThrow(new InsufficientBalanceException())

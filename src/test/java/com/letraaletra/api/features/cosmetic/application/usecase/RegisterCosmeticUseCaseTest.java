@@ -7,7 +7,7 @@ import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,18 +40,21 @@ class RegisterCosmeticUseCaseTest {
     @Mock
     private MultipartFile asset;
 
+    @Mock
+    private AdminChecker adminChecker;
+
     @InjectMocks
     private RegisterCosmeticUseCase useCase;
 
     private RegisterCosmeticInput input;
-    private User user;
+    private UUID auth;
 
     @BeforeEach
     void setup() {
-        user = mock(User.class);
+        auth = UUID.randomUUID();
 
         input = new RegisterCosmeticInput(
-                user,
+                auth,
                 "Old Man Avatar",
                 CosmeticTypes.AVATAR,
                 asset
@@ -62,8 +66,7 @@ class RegisterCosmeticUseCaseTest {
         byte[] webpImage = "webp-image".getBytes();
         String assetPath = "avatars/old-man-avatar-free.webp";
 
-        when(user.isAdmin())
-                .thenReturn(true);
+        doNothing().when(adminChecker).check(auth);
 
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.empty());
@@ -109,8 +112,7 @@ class RegisterCosmeticUseCaseTest {
                 "asset.webp"
         );
 
-        when(user.isAdmin())
-                .thenReturn(true);
+        doNothing().when(adminChecker).check(auth);
 
         when(cosmeticRepository.findByName(input.name()))
                 .thenReturn(Optional.of(existingCosmetic));
@@ -133,8 +135,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("should throws an UserIsNotAdminException when user is not admin")
     void shouldThrowExceptionWhenUserIsNotAdmin() {
-        when(user.isAdmin())
-                .thenReturn(false);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(auth);
 
         RuntimeException exception = assertThrows(
                 UserIsNotAdminException.class,

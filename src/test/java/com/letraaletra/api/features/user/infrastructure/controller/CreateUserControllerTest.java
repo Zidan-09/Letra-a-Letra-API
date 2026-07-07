@@ -50,7 +50,6 @@ class CreateUserControllerTest {
                 "hash-password",
                 null,
                 false,
-                false,
                 mock(UserStats.class),
                 new Inventory(new ArrayList<>()),
                 mock(Wallet.class),

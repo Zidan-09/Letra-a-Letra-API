@@ -47,7 +47,7 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
             return userFabricated;
         });
 
-        String token = tokenService.generateToken(user.getId(), user.isAdmin());
+        String token = tokenService.generateUserToken(user.getId());
 
         return buildOutput(user.getId(), token);
     }

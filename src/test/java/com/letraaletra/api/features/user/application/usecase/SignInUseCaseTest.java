@@ -71,10 +71,7 @@ class SignInUseCaseTest {
                 "hashed-password"
         )).thenReturn(true);
 
-        when(user.isAdmin())
-                .thenReturn(false);
-
-        when(tokenService.generateToken(userId, false))
+        when(tokenService.generateUserToken(userId))
                 .thenReturn("jwt-token");
 
         SignInOutput output = signInUseCase.execute(input);
@@ -87,7 +84,7 @@ class SignInUseCaseTest {
         verify(passwordService)
                 .matches("123456", "hashed-password");
         verify(tokenService)
-                .generateToken(userId, false);
+                .generateUserToken(userId);
     }
 
     @Test
@@ -132,7 +129,7 @@ class SignInUseCaseTest {
         );
 
         verify(tokenService, never())
-                .generateToken(any(), eq(false));
+                .generateUserToken(any());
     }
 
     @Test
@@ -161,7 +158,7 @@ class SignInUseCaseTest {
         assertSame(exception, thrown);
 
         verify(tokenService, never())
-                .generateToken(any(), eq(false));
+                .generateUserToken(any());
     }
 
     @Test
@@ -185,10 +182,7 @@ class SignInUseCaseTest {
         RuntimeException exception =
                 new RuntimeException("token error");
 
-        when(user.isAdmin())
-                .thenReturn(false);
-
-        when(tokenService.generateToken(userId, false))
+        when(tokenService.generateUserToken(userId))
                 .thenThrow(exception);
 
         RuntimeException thrown = assertThrows(
@@ -215,7 +209,7 @@ class SignInUseCaseTest {
         when(passwordService.matches(anyString(), anyString()))
                 .thenReturn(true);
 
-        when(tokenService.generateToken(any(), eq(false)))
+        when(tokenService.generateUserToken(any()))
                 .thenReturn("token");
 
         signInUseCase.execute(input);
@@ -233,7 +227,7 @@ class SignInUseCaseTest {
                 .matches("123456", "hash");
 
         inOrder.verify(tokenService)
-                .generateToken(userId, false);
+                .generateUserToken(userId);
     }
 
     @Test
@@ -248,20 +242,17 @@ class SignInUseCaseTest {
         when(user.getId())
                 .thenReturn(userId);
 
-        when(user.isAdmin())
-                .thenReturn(true);
-
         when(passwordService.matches(
                 input.password(),
                 "hashed-password"
         )).thenReturn(true);
 
-        when(tokenService.generateToken(userId, true))
+        when(tokenService.generateUserToken(userId))
                 .thenReturn("jwt-token");
 
         signInUseCase.execute(input);
 
         verify(tokenService)
-                .generateToken(userId, true);
+                .generateUserToken(userId);
     }
 }

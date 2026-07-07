@@ -19,7 +19,6 @@ public class UserMapper {
                 entity.getEmail(),
                 entity.getPasswordHash(),
                 entity.getGoogleId(),
-                entity.isAdmin(),
                 entity.isCanChangeNickname(),
                 UserStatsMapper.toDomain(statsJpa),
                 new Inventory(inventoryDomain),
@@ -37,7 +36,6 @@ public class UserMapper {
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getHashPassword());
         entity.setGoogleId(user.getGoogleId());
-        entity.setAdmin(user.isAdmin());
         entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCreatedAt(user.getCreatedAt());
 

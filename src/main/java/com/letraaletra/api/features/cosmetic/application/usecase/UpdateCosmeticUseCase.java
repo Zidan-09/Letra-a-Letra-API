@@ -7,28 +7,30 @@ import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, UpdateCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
     private final ImageConverter imageConverter;
     private final AssetStorageGateway storageGateway;
+    private final AdminChecker adminChecker;
 
     public UpdateCosmeticUseCase(
             CosmeticRepository cosmeticRepository,
             AssetStorageGateway assetStorageGateway,
-            ImageConverter imageConverter
+            ImageConverter imageConverter,
+            AdminChecker adminChecker
     ) {
         this.cosmeticRepository = cosmeticRepository;
         this.storageGateway = assetStorageGateway;
         this.imageConverter = imageConverter;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public UpdateCosmeticOutput execute(UpdateCosmeticInput input) {
-        validateUser(input.user());
+        adminChecker.check(input.auth());
 
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);
@@ -86,11 +88,5 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
         storageGateway.delete(cosmetic.getAssetPath());
 
         return path;
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 }

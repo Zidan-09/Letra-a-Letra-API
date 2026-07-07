@@ -16,7 +16,6 @@ public class User {
     private final String hashPassword;
     private final String googleId;
     private UUID currentGameId;
-    private boolean isAdmin;
     private boolean canChangeNickname;
     private final UserStats stats;
     private final Inventory inventory;
@@ -29,7 +28,6 @@ public class User {
             String email,
             String hashPassword,
             String googleId,
-            boolean isAdmin,
             boolean canChangeNickname,
             UserStats stats,
             Inventory inventory,
@@ -41,7 +39,6 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.googleId = googleId;
-        this.isAdmin = isAdmin;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
@@ -127,13 +124,5 @@ public class User {
 
     public void setCanChangeNickname(boolean canChangeNickname) {
         this.canChangeNickname = canChangeNickname;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
     }
 }

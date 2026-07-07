@@ -4,14 +4,13 @@ import com.letraaletra.api.features.cosmetic.application.input.UpdateCosmeticInp
 import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.UpdateCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.UpdateCosmeticResponse;
-import com.letraaletra.api.features.user.domain.User;
 
 import java.util.UUID;
 
 public class UpdateCosmeticMapper {
-    public static UpdateCosmeticInput toInput(User user, UpdateCosmeticRequest request, String cosmeticId) {
+    public static UpdateCosmeticInput toInput(UUID auth, UpdateCosmeticRequest request, String cosmeticId) {
         return new UpdateCosmeticInput(
-                user,
+                auth,
                 UUID.fromString(cosmeticId),
                 request.name(),
                 request.type(),

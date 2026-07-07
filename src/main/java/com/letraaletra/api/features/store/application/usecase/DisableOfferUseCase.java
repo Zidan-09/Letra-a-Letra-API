@@ -5,22 +5,24 @@ import com.letraaletra.api.features.store.application.output.DisableOfferOutput;
 import com.letraaletra.api.features.store.domain.StoreOffer;
 import com.letraaletra.api.features.store.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.store.domain.repository.StoreOfferRepository;
-import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 public class DisableOfferUseCase implements UseCase<DisableOfferInput, DisableOfferOutput> {
     private final StoreOfferRepository storeOfferRepository;
+    private final AdminChecker adminChecker;
 
     public DisableOfferUseCase(
-            StoreOfferRepository storeOfferRepository
+            StoreOfferRepository storeOfferRepository,
+            AdminChecker adminChecker
     ) {
         this.storeOfferRepository = storeOfferRepository;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public DisableOfferOutput execute(DisableOfferInput input) {
-        validateUser(input.user());
+        adminChecker.check(input.auth());
 
         StoreOffer offer = storeOfferRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);
@@ -30,12 +32,6 @@ public class DisableOfferUseCase implements UseCase<DisableOfferInput, DisableOf
         storeOfferRepository.save(offer);
 
         return buildOutput(offer);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private DisableOfferOutput buildOutput(StoreOffer offer) {
