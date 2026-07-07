@@ -8,6 +8,7 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.Reg
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/admin")
+@Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
 public class RegisterAdminController {
     private final UseCase<RegisterAdminInput, RegisterAdminOutput> useCase;
 

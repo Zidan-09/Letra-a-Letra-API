@@ -8,16 +8,20 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.BuyStoreOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
+@RequestMapping(path = "/store")
+@Tag(name = "Store", description = "Rotas relacionadas ao gerenciamento da loja do jogo")
 public class BuyStoreOfferController {
     private final BuyOfferUseCase useCase;
 
@@ -27,7 +31,7 @@ public class BuyStoreOfferController {
         this.useCase = useCase;
     }
 
-    @PostMapping(path = "/store/buy")
+    @PostMapping(path = "/buy")
     public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> buyOffer(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody BuyStoreOfferRequest request

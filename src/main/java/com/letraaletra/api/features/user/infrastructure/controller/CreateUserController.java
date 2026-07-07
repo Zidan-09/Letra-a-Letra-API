@@ -8,6 +8,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.request
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.CreateUserMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/user")
+@Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class CreateUserController {
     private final CreateUserUseCase createUserUseCase;
 
@@ -26,7 +28,9 @@ public class CreateUserController {
     }
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(
+            @Valid @RequestBody CreateUserRequest request
+    ) {
         CreateUserInput input = CreateUserMapper.toInput(request);
 
         CreateUserOutput output = createUserUseCase.execute(input);

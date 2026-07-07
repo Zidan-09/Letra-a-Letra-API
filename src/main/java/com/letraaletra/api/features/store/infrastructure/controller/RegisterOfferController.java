@@ -8,16 +8,20 @@ import com.letraaletra.api.features.store.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.store.infrastructure.presentation.mapper.RegisterOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
+@RequestMapping(path = "/store")
+@Tag(name = "Store", description = "Rotas relacionadas ao gerenciamento da loja do jogo")
 public class RegisterOfferController {
     private final RegisterOfferUseCase useCase;
 
@@ -27,7 +31,7 @@ public class RegisterOfferController {
         this.useCase = useCase;
     }
 
-    @PostMapping(path = "/store")
+    @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterOfferResponse>> registerOffer(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody RegisterOfferRequest request

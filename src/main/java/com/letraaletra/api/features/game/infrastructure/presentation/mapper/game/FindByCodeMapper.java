@@ -11,7 +11,7 @@ public class FindByCodeMapper {
 
     public static FindByCodeResponse toResponseDTO(FindByCodeOutput output) {
         return new FindByCodeResponse(
-                output.gameId()
+                output.gameId().toString()
         );
     }
 }
