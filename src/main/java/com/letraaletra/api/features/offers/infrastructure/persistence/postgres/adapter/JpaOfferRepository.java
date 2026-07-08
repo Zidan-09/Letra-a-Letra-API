@@ -1,6 +1,5 @@
 package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
@@ -8,10 +7,10 @@ import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
-import com.letraaletra.api.features.offers.domain.rewards.CosmeticReward;
-import com.letraaletra.api.features.offers.domain.rewards.HardGemsReward;
-import com.letraaletra.api.features.offers.domain.rewards.Reward;
-import com.letraaletra.api.features.offers.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
+import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
+import com.letraaletra.api.shared.domain.rewards.Reward;
+import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferJpaEntity;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRewardRepository;

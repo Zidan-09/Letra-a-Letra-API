@@ -1,28 +1,28 @@
-package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper;
+package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.offers.domain.OfferReward;
+import com.letraaletra.api.features.levels.domain.LevelReward;
+import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
 import com.letraaletra.api.shared.domain.rewards.Reward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
-import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferRewardJpaEntity;
 
 import java.util.UUID;
 
-public class OfferRewardMapper {
-    public static OfferReward toDomain(OfferRewardJpaEntity entity, Reward reward) {
-        return new OfferReward(
-            entity.getOfferRewardId(),
-            reward
+public class LevelRewardMapper {
+    public static LevelReward toDomain(LevelRewardJpaEntity entity, Reward reward) {
+        return new LevelReward(
+                entity.getLevelRewardId(),
+                reward
         );
     }
 
-    public static OfferRewardJpaEntity toEntity(UUID offerId, OfferReward domain) {
-        OfferRewardJpaEntity entity = new OfferRewardJpaEntity();
+    public static LevelRewardJpaEntity toEntity(UUID levelId, LevelReward domain) {
+        LevelRewardJpaEntity entity = new LevelRewardJpaEntity();
 
-        entity.setOfferRewardId(domain.offerRewardId());
-        entity.setOfferId(offerId);
+        entity.setLevelRewardId(domain.levelRewardId());
+        entity.setLevelId(levelId);
 
         switch (domain.reward()) {
             case CosmeticReward reward -> {
