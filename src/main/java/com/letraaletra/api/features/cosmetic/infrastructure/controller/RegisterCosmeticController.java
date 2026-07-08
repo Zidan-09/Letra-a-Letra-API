@@ -2,11 +2,11 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
-import com.letraaletra.api.features.cosmetic.application.usecase.RegisterCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,10 +20,10 @@ import java.util.UUID;
 @RequestMapping(path = "/cosmetic")
 @Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class RegisterCosmeticController {
-    private final RegisterCosmeticUseCase useCase;
+    private final UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> useCase;
 
     public RegisterCosmeticController(
-            RegisterCosmeticUseCase useCase
+            UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> useCase
     ) {
         this.useCase = useCase;
     }
