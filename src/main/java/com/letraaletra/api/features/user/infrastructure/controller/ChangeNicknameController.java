@@ -2,11 +2,11 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
-import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCase;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeNicknameResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeNicknameMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,9 +20,9 @@ import java.util.UUID;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class ChangeNicknameController {
-    private final ChangeNicknameUseCase changeNicknameUseCase;
+    private final UseCase<ChangeNicknameInput, ChangeNicknameOutput> changeNicknameUseCase;
 
-    public ChangeNicknameController(ChangeNicknameUseCase changeNicknameUseCase) {
+    public ChangeNicknameController(UseCase<ChangeNicknameInput, ChangeNicknameOutput> changeNicknameUseCase) {
         this.changeNicknameUseCase = changeNicknameUseCase;
     }
 
