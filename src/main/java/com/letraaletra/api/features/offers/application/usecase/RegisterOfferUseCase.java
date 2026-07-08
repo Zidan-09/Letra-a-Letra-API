@@ -9,9 +9,9 @@ import com.letraaletra.api.features.offers.application.output.RegisterOfferOutpu
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
-import com.letraaletra.api.features.offers.domain.rewards.CosmeticReward;
-import com.letraaletra.api.features.offers.domain.rewards.HardGemsReward;
-import com.letraaletra.api.features.offers.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
+import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
+import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 

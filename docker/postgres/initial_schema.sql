@@ -38,15 +38,15 @@ CREATE TABLE "game" (
 
 CREATE TABLE "matches" (
                         "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                        "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
+                        "game_id" uuid NOT NULL REFERENCES "game" ("game_id") ON DELETE CASCADE,
                         "game_mode" varchar(50) NOT NULL,
                         "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                         "ended_at" timestamp
 );
 
 CREATE TABLE "match_players" (
-                        "match_id" uuid REFERENCES "matches" ("match_id") ON DELETE CASCADE,
-                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "match_id" uuid NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
+                        "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
                         "score" integer DEFAULT 0,
                         "is_winner" boolean DEFAULT false,
                         PRIMARY KEY ("match_id", "user_id")
@@ -62,8 +62,8 @@ CREATE TABLE "cosmetic" (
 );
 
 CREATE TABLE "user_inventory" (
-                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "cosmetic_id" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
+                        "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "cosmetic_id" uuid NOT NULL REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
                         "equipped" boolean DEFAULT false,
                         "unlocked_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         PRIMARY KEY ("user_id", "cosmetic_id")
@@ -76,12 +76,12 @@ CREATE TABLE "offer" (
                        "price" integer NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
                        "expires_at" timestamptz,
-                       "created_at" timestampz
+                       "created_at" timestamptz
 );
 
 CREATE TABLE "offer_reward" (
                         "offer_reward_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                        "offer_id" uuid REFERENCES "offer" ("offer_id") ON DELETE CASCADE,
+                        "offer_id" uuid NOT NULL REFERENCES "offer" ("offer_id") ON DELETE CASCADE,
                         "reward_type" varchar(50) NOT NULL,
                         "reward_reference" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
                         "quantity" integer NOT NULL DEFAULT 1
@@ -111,6 +111,19 @@ CREATE TABLE "admin" (
                     "email" varchar(50) UNIQUE NOT NULL,
                     "password_hash" varchar(100) NOT NULL,
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "level" (
+                    "level_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "level" integer NOT NULL UNIQUE,
+);
+
+CREATE TABLE "level_reward" (
+                    "level_reward_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "level_id" uuid NOT NULL REFERENCES "level" ("level_id") ON DELETE CASCADE,
+                    "reward_type" varchar(50) NOT NULL,
+                    "reward_reference" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
+                    "quantity" integer NOT NULL DEFAULT 1
 );
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
