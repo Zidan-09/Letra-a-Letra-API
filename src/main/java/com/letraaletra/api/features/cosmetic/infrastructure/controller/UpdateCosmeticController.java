@@ -2,11 +2,11 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.UpdateCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOutput;
-import com.letraaletra.api.features.cosmetic.application.usecase.UpdateCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.UpdateCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.UpdateCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.UpdateCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +21,10 @@ import java.util.UUID;
 @RequestMapping(path = "/cosmetic")
 @Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class UpdateCosmeticController {
-    private final UpdateCosmeticUseCase useCase;
+    private final UseCase<UpdateCosmeticInput, UpdateCosmeticOutput> useCase;
 
     public UpdateCosmeticController(
-            UpdateCosmeticUseCase useCase
+            UseCase<UpdateCosmeticInput, UpdateCosmeticOutput> useCase
     ) {
         this.useCase = useCase;
     }
