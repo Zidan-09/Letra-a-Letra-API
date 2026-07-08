@@ -115,7 +115,7 @@ CREATE TABLE "admin" (
 
 CREATE TABLE "level" (
                     "level_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                    "level" integer NOT NULL UNIQUE,
+                    "level" integer NOT NULL UNIQUE
 );
 
 CREATE TABLE "level_reward" (

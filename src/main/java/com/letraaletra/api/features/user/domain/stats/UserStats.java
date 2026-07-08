@@ -48,10 +48,10 @@ public class UserStats {
         return points;
     }
 
-    public void incrementExperience(int value) {
+    public void incrementExperience(int value, int maxLevel) {
         experience += value;
 
-        advanceLevel();
+        advanceLevel(maxLevel);
     }
 
     public void registerWin() {
@@ -69,12 +69,12 @@ public class UserStats {
         points += Math.max(userPoints, opponentPoints) - Math.min(userPoints, opponentPoints);
     }
 
-    private void advanceLevel() {
+    private void advanceLevel(int maxLevel) {
         double multiplier = 20.0;
         double factor = 1.0 / 1.6;
 
         int newLevel = (int) Math.floor(Math.pow((experience / multiplier), factor));
 
-        level = Math.clamp(newLevel, 1, 50);
+        level = Math.clamp(newLevel, 1, maxLevel);
     }
 }
