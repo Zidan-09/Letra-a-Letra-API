@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity;
 
-import com.letraaletra.api.features.user.domain.wallet.CoinType;
+import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.domain.wallet.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.shop.application.usecase;
 
+import com.letraaletra.api.features.offers.domain.CoinType;
+import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -43,11 +45,20 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         if (!offer.isActive()) {
             throw new InvalidOfferStatusException();
         }
+
+        if (offer.getCoinType().equals(CoinType.REAL)) {
+            throw new InvalidPaymentException();
+        }
     }
 
     private void processPayment(User user, Offer offer) {
         user.getWallet().pay(offer.getCoinType(), offer.getPrice());
 
-        user.getInventory().unlock(offer.getCosmetic());
+        processRewards(user, offer);
+    }
+
+    private void processRewards(User user, Offer offer) {
+        offer.getRewards().forEach(reward ->
+                reward.reward().deliver(user));
     }
 }
