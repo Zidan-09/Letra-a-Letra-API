@@ -2,10 +2,10 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
-import com.letraaletra.api.features.user.application.usecase.ChangeCosmeticUseCase;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeCosmeticResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +18,11 @@ import java.util.UUID;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class ChangeCosmeticController {
-    private final ChangeCosmeticUseCase changeCosmeticUseCase;
+    private final UseCase<ChangeCosmeticInput, ChangeCosmeticOutput> changeCosmeticUseCase;
 
-    public ChangeCosmeticController(ChangeCosmeticUseCase changeCosmeticUseCase) {
+    public ChangeCosmeticController(
+            UseCase<ChangeCosmeticInput, ChangeCosmeticOutput> changeCosmeticUseCase
+    ) {
         this.changeCosmeticUseCase = changeCosmeticUseCase;
     }
 

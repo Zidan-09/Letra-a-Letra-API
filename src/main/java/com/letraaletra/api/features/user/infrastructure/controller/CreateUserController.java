@@ -2,9 +2,9 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
-import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.CreateUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.CreateUserMapper;
@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class CreateUserController {
-    private final CreateUserUseCase createUserUseCase;
+    private final UseCase<CreateUserInput, CreateUserOutput> createUserUseCase;
 
-    public CreateUserController(CreateUserUseCase createUserUseCase) {
+    public CreateUserController(UseCase<CreateUserInput, CreateUserOutput> createUserUseCase) {
         this.createUserUseCase = createUserUseCase;
     }
 
