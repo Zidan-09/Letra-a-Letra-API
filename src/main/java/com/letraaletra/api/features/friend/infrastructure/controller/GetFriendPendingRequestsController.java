@@ -2,10 +2,10 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.GetFriendPendingRequestsInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
-import com.letraaletra.api.features.friend.application.usecase.GetFriendPendingRequestsUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendPendingRequestsResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendPendingRequestsMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +20,10 @@ import java.util.UUID;
 @RequestMapping(path = "/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class GetFriendPendingRequestsController {
-    private final GetFriendPendingRequestsUseCase useCase;
+    private final UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> useCase;
 
     public GetFriendPendingRequestsController(
-            GetFriendPendingRequestsUseCase useCase
+            UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> useCase
     ) {
         this.useCase = useCase;
     }

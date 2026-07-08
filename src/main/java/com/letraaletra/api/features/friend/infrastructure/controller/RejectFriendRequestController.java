@@ -1,10 +1,10 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.RejectFriendRequestInput;
-import com.letraaletra.api.features.friend.application.usecase.RejectFriendRequestUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.RejectFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RejectFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +21,10 @@ import java.util.UUID;
 @RequestMapping("/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class RejectFriendRequestController {
-    private final RejectFriendRequestUseCase useCase;
+    private final UseCase<RejectFriendRequestInput, Void> useCase;
 
     public RejectFriendRequestController(
-            RejectFriendRequestUseCase useCase
+            UseCase<RejectFriendRequestInput, Void> useCase
     ) {
         this.useCase = useCase;
     }
