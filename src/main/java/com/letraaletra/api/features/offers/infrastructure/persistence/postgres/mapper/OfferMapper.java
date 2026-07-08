@@ -1,11 +1,13 @@
 package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferJpaEntity;
 
+import java.util.List;
+
 public class OfferMapper {
-    public static Offer toDomain(OfferJpaEntity entity, Cosmetic cosmetic) {
+    public static Offer toDomain(OfferJpaEntity entity, List<OfferReward> rewards) {
         if (entity == null) return null;
 
         return new Offer(
@@ -13,11 +15,10 @@ public class OfferMapper {
                 entity.getTitle(),
                 entity.getCoinType(),
                 entity.getPrice(),
-                cosmetic,
-                entity.getRewardSoftCoins(),
-                entity.getRewardHardGems(),
+                rewards,
                 entity.isActive(),
-                entity.getExpiresAt()
+                entity.getExpiresAt(),
+                entity.getCreatedAt()
         );
     }
 
@@ -30,11 +31,9 @@ public class OfferMapper {
         entity.setTitle(domain.getTitle());
         entity.setCoinType(domain.getCoinType());
         entity.setPrice(domain.getPrice());
-        entity.setCosmeticId(domain.getCosmetic() != null ? domain.getCosmetic().getId() : null);
-        entity.setRewardSoftCoins(domain.getRewardSoftCoins());
-        entity.setRewardHardGems(domain.getRewardHardGems());
         entity.setActive(domain.isActive());
         entity.setExpiresAt(domain.getExpiresAt());
+        entity.setCreatedAt(domain.getCreatedAt());
 
         return entity;
     }
