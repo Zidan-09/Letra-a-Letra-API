@@ -2,10 +2,10 @@ package com.letraaletra.api.features.shop.infrastructure.controller;
 
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
-import com.letraaletra.api.features.shop.application.usecase.BuyOfferUseCase;
 import com.letraaletra.api.features.shop.infrastructure.presentation.dto.response.BuyStoreOfferResponse;
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.BuyStoreOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +18,10 @@ import java.util.UUID;
 @RequestMapping(path = "/shop/offers")
 @Tag(name = "Shop", description = "Rotas relacionadas a funcionalidade da loja do jogo")
 public class BuyStoreOfferController {
-    private final BuyOfferUseCase useCase;
+    private final UseCase<BuyOfferInput, BuyOfferOutput> useCase;
 
     public BuyStoreOfferController(
-            BuyOfferUseCase useCase
+            UseCase<BuyOfferInput, BuyOfferOutput> useCase
     ) {
         this.useCase = useCase;
     }
