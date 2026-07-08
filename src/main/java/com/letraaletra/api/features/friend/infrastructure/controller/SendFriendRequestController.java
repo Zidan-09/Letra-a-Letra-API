@@ -2,11 +2,11 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.SendFriendRequestInput;
 import com.letraaletra.api.features.friend.application.output.SendFriendRequestOutput;
-import com.letraaletra.api.features.friend.application.usecase.SendFriendRequestUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.SendFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.SendFriendRequestResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,10 +23,10 @@ import java.util.UUID;
 @RequestMapping("/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class SendFriendRequestController {
-    private final SendFriendRequestUseCase useCase;
+    private final UseCase<SendFriendRequestInput, SendFriendRequestOutput> useCase;
 
     public SendFriendRequestController(
-            SendFriendRequestUseCase useCase
+            UseCase<SendFriendRequestInput, SendFriendRequestOutput> useCase
     ) {
         this.useCase = useCase;
     }

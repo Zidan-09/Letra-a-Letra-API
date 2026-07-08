@@ -1,10 +1,10 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
-import com.letraaletra.api.features.friend.application.usecase.RemoveFriendUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.RemoveFriendRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RemoveFriendMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +21,10 @@ import java.util.UUID;
 @RequestMapping(path = "/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class RemoveFriendController {
-    private final RemoveFriendUseCase useCase;
+    private final UseCase<RemoveFriendInput, Void> useCase;
 
     public RemoveFriendController(
-            RemoveFriendUseCase useCase
+            UseCase<RemoveFriendInput, Void> useCase
     ) {
         this.useCase = useCase;
     }
