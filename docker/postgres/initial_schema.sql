@@ -69,16 +69,22 @@ CREATE TABLE "user_inventory" (
                         PRIMARY KEY ("user_id", "cosmetic_id")
 );
 
-CREATE TABLE "store_offer" (
+CREATE TABLE "offer" (
                        "offer_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                        "title" varchar(100) NOT NULL,
                        "coin_type" varchar(50) NOT NULL,
                        "price" integer NOT NULL CHECK ("price" > 0),
-                       "target_cosmetic_id" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
-                       "reward_soft_coins" integer DEFAULT 0,
-                       "reward_hard_gems" integer DEFAULT 0,
                        "active" boolean NOT NULL DEFAULT true,
-                       "expires_at" timestamptz
+                       "expires_at" timestamptz,
+                       "created_at" timestampz
+);
+
+CREATE TABLE "offer_reward" (
+                        "offer_reward_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                        "offer_id" uuid REFERENCES "offer" ("offer_id") ON DELETE CASCADE,
+                        "reward_type" varchar(50) NOT NULL,
+                        "reward_reference" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
+                        "quantity" integer NOT NULL DEFAULT 1
 );
 
 CREATE TABLE "wallet_log" (

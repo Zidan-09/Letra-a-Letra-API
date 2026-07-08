@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.offers.infrastructure.presentation.dto.request;
 
-import com.letraaletra.api.features.user.domain.wallet.CoinType;
+import com.letraaletra.api.features.offers.domain.CoinType;
+
+import java.util.List;
 
 public record RegisterOfferRequest(
         String title,
         CoinType coinType,
         int price,
-        String cosmeticId,
-        int rewardSoftCoins,
-        int rewardHardGems,
+        List<RegisterOfferRewardRequest> rewards,
         long expiresIn
 ) {
 }

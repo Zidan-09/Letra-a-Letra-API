@@ -1,19 +1,20 @@
 package com.letraaletra.api.features.shop.application.usecase;
 
-import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
-import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
+import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
+import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
+import com.letraaletra.api.features.offers.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
+import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.InsufficientBalanceException;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
-import com.letraaletra.api.features.user.domain.wallet.CoinType;
-import com.letraaletra.api.features.user.domain.wallet.Wallet;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,7 +46,6 @@ class BuyOfferUseCaseTest {
     private UUID userId;
     private User mockUser;
     private Wallet mockWallet;
-    private Inventory mockInventory;
     private Offer mockOffer;
 
     @BeforeEach
@@ -54,19 +55,19 @@ class BuyOfferUseCaseTest {
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
-        mockInventory = mock(Inventory.class);
         mockOffer = mock(Offer.class);
-        Cosmetic mockCosmetic = mock(Cosmetic.class);
+
+        OfferReward mockOfferReward = mock(OfferReward.class);
 
         input = new BuyOfferInput(userId, offerId);
 
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
-        lenient().when(mockOffer.getCosmetic()).thenReturn(mockCosmetic);
-        lenient().when(mockCosmetic.getId()).thenReturn(UUID.randomUUID());
-        lenient().when(mockOffer.getCoinType()).thenReturn(CoinType.HARD);
+
         lenient().when(mockOffer.getPrice()).thenReturn(100);
-        lenient().when(mockUser.getInventory()).thenReturn(mockInventory);
+        lenient().when(mockOffer.getRewards()).thenReturn(List.of(mockOfferReward));
+
+        lenient().when(mockOfferReward.reward()).thenReturn(new SoftCoinsReward(100));
     }
 
     @Test
@@ -75,26 +76,38 @@ class BuyOfferUseCaseTest {
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 
         BuyOfferOutput output = useCase.execute(input);
 
         assertNotNull(output);
         assertEquals(mockOffer, output.offer());
 
-        verify(mockWallet, times(1)).pay(CoinType.HARD, 100);
-        verify(userRepository, times(1)).save(mockUser);
-        verify(mockInventory, times(1)).unlock(mockOffer.getCosmetic());
-        verify(mockUser, times(1)).getInventory();
+        verify(mockWallet).pay(CoinType.SOFT, 100);
+        verify(userRepository).save(mockUser);
     }
 
     @Test
-    @DisplayName("should throw an OfferNotFoundException when offer don't exists")
+    @DisplayName("should throw an OfferNotFoundException when offer doesn't exist")
     void shouldThrowOfferNotFoundExceptionWhenOfferDoesNotExist() {
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.empty());
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));
 
         verify(userRepository, never()).save(any());
+        verifyNoInteractions(mockWallet);
+    }
+
+    @Test
+    @DisplayName("should throw an UserNotFoundException when user doesn't exist")
+    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
+
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(mockWallet);
     }
 
     @Test
@@ -111,14 +124,29 @@ class BuyOfferUseCaseTest {
     }
 
     @Test
+    @DisplayName("should throw an InvalidPaymentException when CoinType is REAL")
+    void shouldThrowInvalidPaymentExceptionWhenCoinTypeIsReal() {
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+        when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.REAL);
+
+        assertThrows(InvalidPaymentException.class, () -> useCase.execute(input));
+
+        verify(mockWallet, never()).pay(any(), anyInt());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("should throw an InsufficientBalanceException when user balance is insufficient")
     void shouldPropagateExceptionWhenWalletPaymentFails() {
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 
         doThrow(new InsufficientBalanceException())
-                .when(mockWallet).pay(CoinType.HARD, 100);
+                .when(mockWallet).pay(CoinType.SOFT, 100);
 
         assertThrows(InsufficientBalanceException.class, () -> useCase.execute(input));
 

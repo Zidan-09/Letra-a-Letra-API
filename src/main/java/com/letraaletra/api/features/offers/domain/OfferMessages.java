@@ -3,6 +3,7 @@ package com.letraaletra.api.features.offers.domain;
 import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum OfferMessages implements MessageCode {
+    INVALID_PAYMENT_TYPE("invalid_payment_type"),
     INVALID_OFFER_STATUS("invalid_offer_status"),
     OFFER_NOT_FOUND("offer_not_found");
 
