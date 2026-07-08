@@ -7,6 +7,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.De
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,7 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/offer")
-
+@Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
 public class DeleteOfferController {
     private final UseCase<DeleteOfferInput, DeleteOfferOutput> useCase;
 

@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(path = "/store")
-@Tag(name = "Store", description = "Rotas relacionadas ao gerenciamento da loja do jogo")
+@RequestMapping(path = "/offer")
+@Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
 public class RegisterOfferController {
     private final UseCase<RegisterOfferInput, RegisterOfferOutput> useCase;
 

@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface FindLevel {
     Optional<Level> find(UUID id);
+    Optional<Level> findByLevel(int level);
+    int findBiggestLevel();
 }

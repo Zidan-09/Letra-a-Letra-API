@@ -72,6 +72,21 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
+    public Optional<Level> findByLevel(int level) {
+        return repository.findByLevel(level)
+                .map(entity -> LevelMapper.toDomain(
+                        entity,
+                        loadRewards(entity.getId())
+                ));
+    }
+
+    @Override
+    public int findBiggestLevel() {
+        return Optional.ofNullable(repository.findBiggestLevel())
+                .orElse(0);
+    }
+
+    @Override
     public void save(Level level) {
 
     }
