@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.matchmaking.domain.repository;
+package com.letraaletra.api.shared.domain.repository;
 
 import java.util.UUID;
 

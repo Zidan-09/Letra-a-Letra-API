@@ -8,8 +8,12 @@ import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.matchmaking.application.service.MatchmakingAssembler;
+import com.letraaletra.api.features.matchmaking.application.usecase.ExitMatchmakingQueueUseCase;
+import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
+import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.shared.application.port.QueueChecker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +39,32 @@ public class MatchmakingConfig {
                 userRepository,
                 gameRepository,
                 actorManager
+        );
+    }
+
+    @Bean
+    public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
+            MatchmakingRepository matchmakingRepository,
+            UserRepository userRepository,
+            QueueChecker queueChecker
+    ) {
+        return new JoinMatchmakingQueueUseCase(
+                matchmakingRepository,
+                userRepository,
+                queueChecker
+        );
+    }
+
+    @Bean
+    public ExitMatchmakingQueueUseCase exitMatchmakingQueueUseCase(
+            MatchmakingRepository matchmakingRepository,
+            UserRepository userRepository,
+            QueueChecker queueChecker
+    ) {
+        return new ExitMatchmakingQueueUseCase(
+                matchmakingRepository,
+                userRepository,
+                queueChecker
         );
     }
 }

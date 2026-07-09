@@ -1,32 +1,33 @@
-package com.letraaletra.api.features.matchmaking.application.usecase;
+package com.letraaletra.api.features.ranking.application.usecase;
 
-import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.shared.application.port.QueueChecker;
-import com.letraaletra.api.shared.domain.OnlineUser;
 import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
+import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.OnlineUser;
 
-public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput, Void> {
-    private final MatchmakingRepository matchmakingRepository;
+public class JoinRankingUseCase implements UseCase<JoinRankingInput, Void> {
+    private final RankingRepository rankingRepository;
     private final UserRepository userRepository;
     private final QueueChecker queueChecker;
 
-    public JoinMatchmakingQueueUseCase(
-            MatchmakingRepository matchmakingRepository,
+    public JoinRankingUseCase(
+            RankingRepository rankingRepository,
             UserRepository userRepository,
             QueueChecker queueChecker
     ) {
-        this.matchmakingRepository = matchmakingRepository;
+        this.rankingRepository = rankingRepository;
         this.userRepository = userRepository;
         this.queueChecker = queueChecker;
     }
 
-    public Void execute(JoinMatchmakingInput input) {
+    @Override
+    public Void execute(JoinRankingInput input) {
         OnlineUser onlineUser = input.onlineUser();
 
         User user = userRepository.find(onlineUser.userId())
@@ -38,7 +39,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
         if (alreadyOnQueue) throw new UserAlreadyOnQueueException();
 
-        matchmakingRepository.add(onlineUser, input.gameMode());
+        rankingRepository.add(onlineUser);
 
         return null;
     }
