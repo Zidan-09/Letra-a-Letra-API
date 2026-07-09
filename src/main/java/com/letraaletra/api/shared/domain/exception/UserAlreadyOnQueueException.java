@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.matchmaking.domain.exception;
+package com.letraaletra.api.shared.domain.exception;
 
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingMessages;
 import com.letraaletra.api.shared.domain.DomainException;
