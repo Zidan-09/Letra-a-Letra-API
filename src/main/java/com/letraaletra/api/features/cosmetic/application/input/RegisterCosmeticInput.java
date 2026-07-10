@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public record RegisterCosmeticInput(
         UUID auth,
-    String name,
-    CosmeticTypes type,
-    MultipartFile asset
+        String name,
+        CosmeticTypes type,
+        MultipartFile asset
 ) {
 }
