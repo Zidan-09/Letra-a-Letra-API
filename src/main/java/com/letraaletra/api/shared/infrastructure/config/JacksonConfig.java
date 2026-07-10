@@ -13,6 +13,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionWsRequest;
+import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.JoinRankingGameWsRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,6 +31,7 @@ public class JacksonConfig {
                         new NamedType(CreateGameWsRequest.class, "CREATE_GAME"),
                         new NamedType(DiscardPowerWsRequest.class, "DISCARD_POWER"),
                         new NamedType(JoinGameWsRequest.class, "JOIN_GAME"),
+                        new NamedType(JoinRankingGameWsRequest.class, "RANKING_GAME"),
                         new NamedType(JoinMatchmakingGameWsRequest.class, "MATCHMAKING_GAME"),
                         new NamedType(LeftGameWsRequest.class, "LEFT_GAME"),
                         new NamedType(PlayerActionWsRequest.class, "PLAYER_ACTION"),

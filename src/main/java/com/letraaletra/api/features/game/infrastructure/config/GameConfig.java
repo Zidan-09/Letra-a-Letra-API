@@ -19,9 +19,7 @@ import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
-import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
@@ -124,17 +122,6 @@ public class GameConfig {
     @Bean
     public PickRandomThemeWordsService pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
         return new PickRandomThemeWordsService(themeRepository, new Random());
-    }
-
-    @Bean
-    public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
-            MatchmakingRepository matchmakingRepository,
-            UserRepository userRepository
-    ) {
-        return new JoinMatchmakingQueueUseCase(
-                matchmakingRepository,
-                userRepository
-        );
     }
 
     @Bean

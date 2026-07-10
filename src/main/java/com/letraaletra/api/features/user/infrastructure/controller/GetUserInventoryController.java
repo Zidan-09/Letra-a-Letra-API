@@ -2,10 +2,10 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.GetUserInventoryInput;
 import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
-import com.letraaletra.api.features.user.application.usecase.GetUserInventoryUseCase;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.GetUserInventoryResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUserInventoryMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +20,10 @@ import java.util.UUID;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GetUserInventoryController {
-    private final GetUserInventoryUseCase useCase;
+    private final UseCase<GetUserInventoryInput, GetUserInventoryOutput> useCase;
 
     public GetUserInventoryController(
-            GetUserInventoryUseCase useCase
+            UseCase<GetUserInventoryInput, GetUserInventoryOutput> useCase
     ) {
         this.useCase = useCase;
     }

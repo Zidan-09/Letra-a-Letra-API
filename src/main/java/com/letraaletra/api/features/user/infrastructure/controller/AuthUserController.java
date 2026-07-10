@@ -2,9 +2,9 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
-import com.letraaletra.api.features.user.application.usecase.AuthUserUseCase;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.AuthUserRequest;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class AuthUserController {
-    private final AuthUserUseCase authUserUseCase;
+    private final UseCase<SignInInput, SignInOutput> authUserUseCase;
 
-    public AuthUserController(AuthUserUseCase authUserUseCase) {
+    public AuthUserController(
+            UseCase<SignInInput, SignInOutput> authUserUseCase
+    ) {
         this.authUserUseCase = authUserUseCase;
     }
 

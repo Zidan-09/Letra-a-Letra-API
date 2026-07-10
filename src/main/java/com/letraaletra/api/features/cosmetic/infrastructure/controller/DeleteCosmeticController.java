@@ -2,10 +2,10 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
-import com.letraaletra.api.features.cosmetic.application.usecase.DeleteCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.DeleteCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -22,10 +22,10 @@ import java.util.UUID;
 @RequestMapping(path = "/cosmetic")
 @Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class DeleteCosmeticController {
-    private final DeleteCosmeticUseCase useCase;
+    private final UseCase<DeleteCosmeticInput, DeleteCosmeticOutput> useCase;
 
     public DeleteCosmeticController(
-            DeleteCosmeticUseCase useCase
+            UseCase<DeleteCosmeticInput, DeleteCosmeticOutput> useCase
     ) {
         this.useCase = useCase;
     }

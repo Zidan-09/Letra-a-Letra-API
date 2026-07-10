@@ -1,10 +1,10 @@
 package com.letraaletra.api.features.matchmaking.application.input;
 
 import com.letraaletra.api.features.game.domain.state.GameMode;
-import com.letraaletra.api.features.matchmaking.domain.MatchUserData;
+import com.letraaletra.api.shared.domain.OnlineUser;
 
 public record JoinMatchmakingInput(
-    MatchUserData matchUserData,
+    OnlineUser onlineUser,
     GameMode gameMode
 ) {
 }

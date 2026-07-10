@@ -1,10 +1,10 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
-import com.letraaletra.api.features.friend.application.usecase.AcceptFriendRequestUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.AcceptFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,10 +22,10 @@ import java.util.UUID;
 @RequestMapping("/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class AcceptFriendRequestController {
-    private final AcceptFriendRequestUseCase useCase;
+    private final UseCase<AcceptFriendRequestInput, Void> useCase;
 
     public AcceptFriendRequestController(
-            AcceptFriendRequestUseCase useCase
+            UseCase<AcceptFriendRequestInput, Void> useCase
     ) {
         this.useCase = useCase;
     }

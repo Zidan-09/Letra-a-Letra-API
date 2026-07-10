@@ -2,9 +2,9 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.AuthInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
-import com.letraaletra.api.features.user.application.usecase.GoogleAuthUseCase;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.GoogleAuthRequest;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GoogleAuthMapper;
@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GoogleAuthController {
-    private final GoogleAuthUseCase googleAuthUseCase;
+    private final UseCase<AuthInput, SignInOutput> googleAuthUseCase;
 
-    public GoogleAuthController(GoogleAuthUseCase googleAuthUseCase) {
+    public GoogleAuthController(UseCase<AuthInput, SignInOutput> googleAuthUseCase) {
         this.googleAuthUseCase = googleAuthUseCase;
     }
 
