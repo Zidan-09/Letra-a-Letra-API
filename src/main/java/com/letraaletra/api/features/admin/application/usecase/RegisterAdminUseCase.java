@@ -5,23 +5,29 @@ import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 
 public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, RegisterAdminOutput> {
     private final AdminRepository adminRepository;
     private final PasswordService passwordService;
+    private final AdminChecker adminChecker;
 
     public RegisterAdminUseCase(
             AdminRepository adminRepository,
-            PasswordService passwordService
+            PasswordService passwordService,
+            AdminChecker adminChecker
     ) {
         this.adminRepository = adminRepository;
         this.passwordService = passwordService;
+        this.adminChecker = adminChecker;
     }
 
     @Override
     public RegisterAdminOutput execute(RegisterAdminInput input) {
+        adminChecker.check(input.auth());
+
         validateEmail(input.email());
 
         Admin admin = Admin.create(

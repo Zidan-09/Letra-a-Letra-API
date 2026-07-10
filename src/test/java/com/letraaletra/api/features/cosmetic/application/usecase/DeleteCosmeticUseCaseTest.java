@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,68 +36,93 @@ class DeleteCosmeticUseCaseTest {
     private AdminChecker adminChecker;
 
     @InjectMocks
-    private DeleteCosmeticUseCase deleteCosmeticUseCase;
+    private DeleteCosmeticUseCase useCase;
 
     private UUID auth;
+    private UUID cosmeticId;
+    private String assetPath;
+    private Cosmetic cosmetic;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         auth = UUID.randomUUID();
+        cosmeticId = UUID.randomUUID();
+        assetPath = "assets/cosmetics/skin.png";
+
+        cosmetic = mock(Cosmetic.class);
+        lenient().when(cosmetic.getAssetPath()).thenReturn(assetPath);
     }
 
     @Test
-    @DisplayName("should delete the cosmetic correctly")
-    void shouldDeleteCosmeticWithSuccessWhenUserIsAdminAndCosmeticExists() {
-        UUID cosmeticId = UUID.randomUUID();
-        String assetPath = "path/to/cosmetic/asset.png";
-
-        doNothing().when(adminChecker).check(auth);
-
-        Cosmetic cosmetic = mock(Cosmetic.class);
-        when(cosmetic.getAssetPath()).thenReturn(assetPath);
-
+    @DisplayName("Deve deletar o cosmético com sucesso quando as permissões e dados forem válidos")
+    void execute_ShouldDeleteCosmeticAndStorageAsset_WhenInputIsValid() {
         DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
+        doNothing().when(adminChecker).check(auth);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
-        DeleteCosmeticOutput output = deleteCosmeticUseCase.execute(input);
+        DeleteCosmeticOutput output = useCase.execute(input);
 
         assertNotNull(output);
         assertEquals(cosmetic, output.cosmetic());
 
-        verify(storageGateway, times(1)).delete(assetPath);
-        verify(cosmeticRepository, times(1)).delete(cosmetic);
+        InOrder inOrder = inOrder(adminChecker, cosmeticRepository, storageGateway);
+        inOrder.verify(adminChecker).check(auth);
+        inOrder.verify(cosmeticRepository).find(cosmeticId);
+        inOrder.verify(storageGateway).delete(assetPath);
+        inOrder.verify(cosmeticRepository).delete(cosmetic);
     }
 
     @Test
-    @DisplayName("should throw an UserIsNotAdminException when user is not admin")
-    void shouldThrowUserIsNotAdminExceptionWhenUserIsNotAdmin() {
-        UUID cosmeticId = UUID.randomUUID();
-
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(auth);
-
+    @DisplayName("Deve lançar exceção e interromper fluxo se o usuário não for administrador")
+    void execute_ShouldThrowException_WhenUserIsNotAdmin() {
         DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
 
-        assertThrows(UserIsNotAdminException.class, () -> deleteCosmeticUseCase.execute(input));
+        doThrow(new UserIsNotAdminException())
+                .when(adminChecker).check(auth);
 
-        verifyNoInteractions(cosmeticRepository);
-        verifyNoInteractions(storageGateway);
+        assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
+
+        verify(cosmeticRepository, never()).find(any());
+        verify(storageGateway, never()).delete(any());
+        verify(cosmeticRepository, never()).delete(any());
     }
 
     @Test
-    @DisplayName("should throw a CosmeticNotFoundException when cosmetic is not found")
-    void shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist() {
-        UUID cosmeticId = UUID.randomUUID();
-
-        doNothing().when(adminChecker).check(auth);
-
+    @DisplayName("Deve lançar CosmeticNotFoundException se o cosmético não for encontrado")
+    void execute_ShouldThrowCosmeticNotFoundException_WhenCosmeticDoesNotExist() {
         DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.empty());
 
-        assertThrows(CosmeticNotFoundException.class, () -> deleteCosmeticUseCase.execute(input));
+        assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
 
-        verify(storageGateway, never()).delete(anyString());
-        verify(cosmeticRepository, never()).delete(any(Cosmetic.class));
+        verify(adminChecker).check(auth);
+        verify(storageGateway, never()).delete(any());
+        verify(cosmeticRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("Deve falhar e propagar erro caso a deleção no storage falhe")
+    void execute_ShouldThrowException_WhenStorageGatewayFails() {
+        DeleteCosmeticInput input = new DeleteCosmeticInput(cosmeticId, auth);
+
+        when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
+        doThrow(new RuntimeException("Storage communication failure")).when(storageGateway).delete(assetPath);
+
+        assertThrows(RuntimeException.class, () -> useCase.execute(input));
+
+        verify(cosmeticRepository, never()).delete(cosmetic);
+    }
+
+    @Test
+    @DisplayName("Deve falhar e propagar erro caso a remoção do banco de dados falhe")
+    void execute_ShouldThrowException_WhenRepositoryDeleteFails() {
+        DeleteCosmeticInput input = new DeleteCosmeticInput(cosmeticId, auth);
+
+        when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
+        doThrow(new RuntimeException("Database error")).when(cosmeticRepository).delete(cosmetic);
+
+        assertThrows(RuntimeException.class, () -> useCase.execute(input));
     }
 }

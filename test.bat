@@ -28,6 +28,7 @@ echo [5] API pronta!
 echo [6] Iniciando testes javascript...
 
 call node tools\apiMatchmakingTestAuto.js
+call node tools\apiRankingTestAuto.js
 call node tools\apiTestAuto.js
 call node tools\apiFriendTestAuto.js
 

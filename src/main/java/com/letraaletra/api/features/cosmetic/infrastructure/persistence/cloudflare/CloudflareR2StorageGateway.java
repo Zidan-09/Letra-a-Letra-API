@@ -56,7 +56,7 @@ public class CloudflareR2StorageGateway implements AssetStorageGateway {
     }
 
     @Override
-    public String move(String oldPath, String newName, CosmeticTypes newType) {
+    public String copy(String oldPath, String newName, CosmeticTypes newType) {
         try {
             String nameSaved = newType + "/" + newName + ".webp";
 
@@ -68,8 +68,6 @@ public class CloudflareR2StorageGateway implements AssetStorageGateway {
                             .destinationKey(nameSaved)
                             .build()
             );
-
-            delete(oldPath);
 
             return nameSaved;
 

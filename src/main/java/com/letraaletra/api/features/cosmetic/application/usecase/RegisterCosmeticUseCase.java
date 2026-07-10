@@ -38,11 +38,15 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
 
         String assetPath = storageGateway.upload(image, input.name(), input.type());
 
-        Cosmetic cosmetic = buildCosmetic(input, assetPath);
+        try {
+            Cosmetic cosmetic = buildCosmetic(input, assetPath);
+            cosmeticRepository.save(cosmetic);
+            return buildOutput(cosmetic);
 
-        cosmeticRepository.save(cosmetic);
-
-        return buildOutput(cosmetic);
+        } catch (Exception e) {
+            storageGateway.delete(assetPath);
+            throw e;
+        }
     }
 
     private RegisterCosmeticOutput buildOutput(Cosmetic cosmetic) {

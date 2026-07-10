@@ -3,6 +3,7 @@ package com.letraaletra.api.features.admin.infrastructure.config;
 import com.letraaletra.api.features.admin.application.usecase.AuthAdminUseCase;
 import com.letraaletra.api.features.admin.application.usecase.RegisterAdminUseCase;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import org.springframework.context.annotation.Bean;
@@ -13,11 +14,13 @@ public class AdminConfig {
     @Bean
     public RegisterAdminUseCase registerAdminUseCase(
             AdminRepository adminRepository,
-            PasswordService passwordService
+            PasswordService passwordService,
+            AdminChecker adminChecker
     ) {
         return new RegisterAdminUseCase(
                 adminRepository,
-                passwordService
+                passwordService,
+                adminChecker
         );
     }
 

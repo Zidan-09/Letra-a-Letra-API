@@ -17,7 +17,6 @@ public class AuthAdminUseCase implements UseCase<AuthAdminInput, AuthAdminOutput
     private final PasswordService passwordService;
     private final TokenService tokenService;
 
-
     public AuthAdminUseCase(
             AdminRepository adminRepository,
             PasswordService passwordService,

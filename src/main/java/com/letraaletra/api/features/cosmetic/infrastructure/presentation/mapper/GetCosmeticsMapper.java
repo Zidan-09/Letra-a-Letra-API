@@ -5,14 +5,21 @@ import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutp
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.GetCosmeticsResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 public class GetCosmeticsMapper {
     public static GetCosmeticsInput toInput(Pageable pageable) {
+
+        Pageable pages = pageable == null ?
+                PageRequest.of(0, 20, Sort.Direction.ASC) :
+                pageable;
+
         return new GetCosmeticsInput(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSort()
+                pages.getPageNumber(),
+                pages.getPageSize(),
+                pages.getSort()
         );
     }
 
