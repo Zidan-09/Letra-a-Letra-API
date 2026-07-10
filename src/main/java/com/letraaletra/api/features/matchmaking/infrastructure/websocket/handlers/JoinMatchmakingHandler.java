@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
+package com.letraaletra.api.features.matchmaking.infrastructure.websocket.handlers;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;

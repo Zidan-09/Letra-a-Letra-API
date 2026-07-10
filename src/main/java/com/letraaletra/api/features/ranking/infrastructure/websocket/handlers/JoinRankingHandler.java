@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
+package com.letraaletra.api.features.ranking.infrastructure.websocket.handlers;
 
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
