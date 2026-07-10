@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.friend.domain;
 
 import com.letraaletra.api.features.friend.domain.exception.CanNotDeclineTheRequestException;
-import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.exception.CanNotAcceptTheRequestException;
 
