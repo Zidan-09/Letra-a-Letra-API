@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.infrastructure.presentation.mapper.game;
+package com.letraaletra.api.features.matchmaking.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.game.domain.state.GameMode;

@@ -52,4 +52,14 @@ public enum GameMode {
     public Map<PowerRarity, Double> getPercentages() {
         return percentages;
     }
+
+    public GameMode next() {
+        return switch (this) {
+            case EASY -> NORMAL;
+            case NORMAL -> HARD;
+            case HARD -> INSANE;
+            case INSANE -> CATACLYSM;
+            case CATACLYSM -> EASY;
+        };
+    }
 }

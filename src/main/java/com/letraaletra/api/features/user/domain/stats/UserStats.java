@@ -66,7 +66,7 @@ public class UserStats {
     }
 
     private void incrementPoints(int userPoints, int opponentPoints) {
-        points += Math.max(userPoints, opponentPoints) - Math.min(userPoints, opponentPoints);
+        points += (userPoints - opponentPoints) * 10;
     }
 
     private void advanceLevel(int maxLevel) {
@@ -75,6 +75,6 @@ public class UserStats {
 
         int newLevel = (int) Math.floor(Math.pow((experience / multiplier), factor));
 
-        level = Math.clamp(newLevel, 1, maxLevel);
+        level = Math.min(newLevel, maxLevel);
     }
 }
