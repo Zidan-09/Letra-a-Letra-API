@@ -5,6 +5,8 @@ import com.letraaletra.api.shared.domain.OnlineUser;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
 import com.letraaletra.api.features.matchmaking.domain.QueuedUser;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
+import com.letraaletra.api.shared.domain.QueueMatch;
+import com.letraaletra.api.shared.domain.QueueType;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -19,6 +21,8 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     private final Map<GameMode, Queue<OnlineUser>> queues = new ConcurrentHashMap<>();
     private final Map<UUID, QueuedUser> queuedUser = new ConcurrentHashMap<>();
     private final Map<UUID, OnlineUser> users = new ConcurrentHashMap<>();
+
+    private GameMode nextMode = GameMode.EASY;
 
     public InMemoryMatchmakingRepository() {
         for (GameMode mode : GameMode.values()) {
@@ -51,8 +55,10 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
     }
 
     @Override
-    public Optional<MatchmakingPair> pollPair(GameMode gameMode) {
-        Queue<OnlineUser> queue = queues.get(gameMode);
+    public Optional<QueueMatch> pollPair() {
+        Queue<OnlineUser> queue = queues.get(nextMode);
+
+        nextMode = nextMode.next();
 
         synchronized (queue) {
             if (queue.size() < 2) {
@@ -67,7 +73,13 @@ public class InMemoryMatchmakingRepository implements MatchmakingRepository {
             users.remove(first.userId());
             users.remove(second.userId());
 
-            return Optional.of(new MatchmakingPair(first, second));
+            return Optional.of(
+                    new QueueMatch(
+                            new MatchmakingPair(first, second),
+                            nextMode,
+                            QueueType.CASUAL
+                    )
+            );
         }
     }
 }

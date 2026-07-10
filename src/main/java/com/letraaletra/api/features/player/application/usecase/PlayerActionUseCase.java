@@ -13,6 +13,8 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,7 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
+    private final Logger logger = LoggerFactory.getLogger(PlayerActionUseCase.class);
 
     public PlayerActionUseCase(
             GameTimeoutManager gameTimeoutManager,
@@ -48,7 +51,11 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
 
         PlayerActionResult result = future.join();
 
-        gameOverHandler.handle(result.game(), result.gameOverResult());
+        try {
+            gameOverHandler.handle(result.game(), result.gameOverResult());
+        } catch (Exception e) {
+            logger.error("Failed to process GameOverHandler", e);
+        }
 
         return buildOutput(result.game(), result.gameOverResult(), result.events());
     }

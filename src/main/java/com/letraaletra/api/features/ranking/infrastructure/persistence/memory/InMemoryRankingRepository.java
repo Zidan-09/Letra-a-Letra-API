@@ -1,8 +1,11 @@
 package com.letraaletra.api.features.ranking.infrastructure.persistence.memory;
 
+import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
 import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.shared.domain.OnlineUser;
+import com.letraaletra.api.shared.domain.QueueMatch;
+import com.letraaletra.api.shared.domain.QueueType;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -39,7 +42,7 @@ public class InMemoryRankingRepository implements RankingRepository {
     }
 
     @Override
-    public Optional<MatchmakingPair> pollPair() {
+    public Optional<QueueMatch> pollPair() {
         synchronized (queue) {
             if (queue.size() < 2) {
                 return Optional.empty();
@@ -53,7 +56,13 @@ public class InMemoryRankingRepository implements RankingRepository {
             users.remove(first.userId());
             users.remove(second.userId());
 
-            return Optional.of(new MatchmakingPair(first, second));
+            return Optional.of(
+                    new QueueMatch(
+                            new MatchmakingPair(first, second),
+                            GameMode.HARD,
+                            QueueType.RANKING
+                    )
+            );
         }
     }
 }

@@ -5,7 +5,7 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.JoinMatchmakingMapper;
+import com.letraaletra.api.features.matchmaking.infrastructure.presentation.mapper.JoinMatchmakingMapper;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;

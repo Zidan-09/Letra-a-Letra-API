@@ -52,7 +52,9 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
                 handleTurnTimeout(next);
 
             } catch (Exception e) {
-                logger.warn("Error on process end of turn {}-{}", e.getMessage(), e.getStackTrace());
+                if (!e.getMessage().equals("game_not_found")) {
+                    logger.warn("Error on process end of turn {}-{}", e.getMessage(), e.getStackTrace());
+                }
             }
         }
     }
