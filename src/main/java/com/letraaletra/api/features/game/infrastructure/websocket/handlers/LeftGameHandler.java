@@ -2,25 +2,25 @@ package com.letraaletra.api.features.game.infrastructure.websocket.handlers;
 
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
 import com.letraaletra.api.features.game.application.output.LeftGameOutput;
-import com.letraaletra.api.features.game.application.usecase.LeftGameUseCase;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.LeftGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.LeftGameMapper;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
-    private final LeftGameUseCase leftGame;
+    private final UseCase<LeftGameInput, LeftGameOutput> useCase;
     private final GameNotifier gameNotifier;
 
     public LeftGameHandler(
-            LeftGameUseCase leftGame,
+            UseCase<LeftGameInput, LeftGameOutput> useCase,
             GameNotifier gameNotifier
     ) {
-        this.leftGame = leftGame;
+        this.useCase = useCase;
         this.gameNotifier = gameNotifier;
     }
 
@@ -28,7 +28,7 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
         LeftGameInput command = LeftGameMapper.toInput(request, session.getId());
 
-        LeftGameOutput output = leftGame.execute(command);
+        LeftGameOutput output = useCase.execute(command);
 
         LeftGameResponse dto = LeftGameMapper.toResponse(output);
 
