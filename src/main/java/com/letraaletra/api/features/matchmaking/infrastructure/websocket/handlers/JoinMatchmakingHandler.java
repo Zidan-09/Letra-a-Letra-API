@@ -2,10 +2,10 @@ package com.letraaletra.api.features.matchmaking.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.mapper.JoinMatchmakingMapper;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,14 +14,14 @@ import java.util.UUID;
 
 @Component
 public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakingGameWsRequest> {
-    private final JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase;
+    private final UseCase<JoinMatchmakingInput, Void> useCase;
     private final GameNotifier gameNotifier;
 
     public JoinMatchmakingHandler(
-            JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase,
+            UseCase<JoinMatchmakingInput, Void> useCase,
             GameNotifier gameNotifier
     ) {
-        this.joinMatchmakingQueueUseCase = joinMatchmakingQueueUseCase;
+        this.useCase = useCase;
         this.gameNotifier = gameNotifier;
     }
 
@@ -31,7 +31,7 @@ public class JoinMatchmakingHandler implements RoomRequestHandler<JoinMatchmakin
 
         JoinMatchmakingInput input = JoinMatchmakingMapper.toInput(userId, session.getId(), request.gameMode());
 
-        joinMatchmakingQueueUseCase.execute(input);
+        useCase.execute(input);
 
         JoinMatchmakingResponse dto = JoinMatchmakingMapper.toResponse();
 
