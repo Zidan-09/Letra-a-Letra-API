@@ -6,6 +6,7 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.request
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.JoinGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.StartGameWsRequest;
+import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.ExitMatchmakingGameWsRequest;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
@@ -13,6 +14,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionWsRequest;
+import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.ExitRankingGameWsRequest;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.JoinRankingGameWsRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +35,8 @@ public class JacksonConfig {
                         new NamedType(JoinGameWsRequest.class, "JOIN_GAME"),
                         new NamedType(JoinRankingGameWsRequest.class, "RANKING_GAME"),
                         new NamedType(JoinMatchmakingGameWsRequest.class, "MATCHMAKING_GAME"),
+                        new NamedType(ExitRankingGameWsRequest.class, "EXIT_RANKING"),
+                        new NamedType(ExitMatchmakingGameWsRequest.class, "EXIT_MATCHMAKING"),
                         new NamedType(LeftGameWsRequest.class, "LEFT_GAME"),
                         new NamedType(PlayerActionWsRequest.class, "PLAYER_ACTION"),
                         new NamedType(StartGameWsRequest.class, "START_GAME")
