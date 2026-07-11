@@ -25,7 +25,7 @@ public class GetActiveOffersController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<GetActiveOffersResponse>> getActiveOffers() {
+    public ResponseEntity<SuccessResponse<GetActiveOffersResponse>> handle() {
         GetActiveOffersOutput output = useCase.execute(null);
 
         GetActiveOffersResponse dto = GetActiveOffersMapper.toResponse(output);
