@@ -44,6 +44,4 @@ public class RegisterOfferController {
 
         return ApiResponseService.success(dto);
     }
-
-
 }
