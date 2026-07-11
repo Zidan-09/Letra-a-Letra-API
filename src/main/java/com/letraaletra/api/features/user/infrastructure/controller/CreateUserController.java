@@ -28,7 +28,7 @@ public class CreateUserController {
     }
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(
+    public ResponseEntity<SuccessResponse<CreateUserResponse>> handle(
             @Valid @RequestBody CreateUserRequest request
     ) {
         CreateUserInput input = CreateUserMapper.toInput(request);

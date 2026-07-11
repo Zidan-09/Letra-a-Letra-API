@@ -29,7 +29,7 @@ public class AuthUserController {
     }
 
     @PostMapping(path = "/auth")
-    public ResponseEntity<SuccessResponse<AuthUserResponse>> signIn(
+    public ResponseEntity<SuccessResponse<AuthUserResponse>> handle(
             @Valid @RequestBody AuthUserRequest request
     ) {
         SignInInput input = AuthUserMapper.toInput(request);
