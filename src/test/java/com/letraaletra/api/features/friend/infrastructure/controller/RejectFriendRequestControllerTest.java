@@ -61,7 +61,7 @@ class RejectFriendRequestControllerTest {
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<Void>> response = controller.rejectFriendRequest(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<Void>> response = controller.handle(mockAuthId, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,7 +82,7 @@ class RejectFriendRequestControllerTest {
             doThrow(new RuntimeException("Friend request not found or condition unmet"))
                     .when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.rejectFriendRequest(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
         }
     }
 }
