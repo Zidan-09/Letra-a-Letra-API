@@ -61,7 +61,7 @@ class GetFriendListControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.getFriends(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(mockAuthId);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -79,7 +79,7 @@ class GetFriendListControllerTest {
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId.toString())).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Database timeout or internal breakdown"));
 
-            assertThrows(RuntimeException.class, () -> controller.getFriends(mockAuthId));
+            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId));
 
             mapperMock.verify(() -> GetFriendListMapper.toResponse(any()), never());
         }
@@ -93,7 +93,7 @@ class GetFriendListControllerTest {
             mapperMock.when(() -> GetFriendListMapper.toInput(anyString()))
                     .thenThrow(new IllegalArgumentException("Invalid string identity context"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.getFriends(mockAuthId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(mockAuthId));
 
             verify(useCase, never()).execute(any());
         }
@@ -114,7 +114,7 @@ class GetFriendListControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.getFriends(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(mockAuthId);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

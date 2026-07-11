@@ -32,7 +32,7 @@ public class SendFriendRequestController {
     }
 
     @PostMapping(path = "/request")
-    public ResponseEntity<SuccessResponse<SendFriendRequestResponse>> sendFriendRequest(
+    public ResponseEntity<SuccessResponse<SendFriendRequestResponse>> handle(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody SendFriendRequestRequest request
     ) {
