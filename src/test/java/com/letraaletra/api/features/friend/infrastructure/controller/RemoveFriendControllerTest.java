@@ -60,7 +60,7 @@ class RemoveFriendControllerTest {
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<Void>> response = controller.removeFriend(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<Void>> response = controller.handle(mockAuthId, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -78,7 +78,7 @@ class RemoveFriendControllerTest {
             mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId.toString(), mockFriendId)).thenReturn(mockInput);
             doThrow(new RuntimeException("Friendship relationship not found or already broken")).when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.removeFriend(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
         }
     }
 }

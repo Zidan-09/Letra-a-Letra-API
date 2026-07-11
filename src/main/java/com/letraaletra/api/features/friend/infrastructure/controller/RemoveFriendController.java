@@ -30,7 +30,7 @@ public class RemoveFriendController {
     }
 
     @PatchMapping("/remove")
-    public ResponseEntity<SuccessResponse<Void>> removeFriend(
+    public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody RemoveFriendRequest request
     ) {

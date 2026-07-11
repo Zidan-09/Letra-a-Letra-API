@@ -30,7 +30,7 @@ public class RejectFriendRequestController {
     }
 
     @PatchMapping(path = "/reject")
-    public ResponseEntity<SuccessResponse<Void>> rejectFriendRequest(
+    public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody RejectFriendRequestRequest request
             ) {

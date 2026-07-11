@@ -64,7 +64,7 @@ class AcceptFriendRequestControllerTest {
             apiResponseMock.when(() -> ApiResponseService.success(null, HttpStatus.NO_CONTENT))
                     .thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<Void>> response = controller.acceptFriendRequest(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<Void>> response = controller.handle(mockAuthId, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
@@ -85,7 +85,7 @@ class AcceptFriendRequestControllerTest {
             doThrow(new RuntimeException("Friend request not found or unauthorized"))
                     .when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.acceptFriendRequest(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
         }
     }
 }

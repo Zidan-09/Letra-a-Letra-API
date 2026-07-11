@@ -69,7 +69,7 @@ class SendFriendRequestControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.sendFriendRequest(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(mockAuthId, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -87,7 +87,7 @@ class SendFriendRequestControllerTest {
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             doThrow(new RuntimeException("Users are already friends or request is pending")).when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.sendFriendRequest(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
 
             mapperMock.verify(() -> SendFriendRequestMapper.toResponse(any()), never());
         }
@@ -108,7 +108,7 @@ class SendFriendRequestControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.sendFriendRequest(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(mockAuthId, mockRequest);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

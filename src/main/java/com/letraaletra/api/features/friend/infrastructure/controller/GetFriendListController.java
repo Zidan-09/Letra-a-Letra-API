@@ -29,7 +29,7 @@ public class GetFriendListController {
     }
 
     @GetMapping
-    public ResponseEntity<SuccessResponse<GetFriendListResponse>> getFriends(
+    public ResponseEntity<SuccessResponse<GetFriendListResponse>> handle(
             @AuthenticationPrincipal UUID auth
     ) {
         GetFriendListInput input = GetFriendListMapper.toInput(auth.toString());

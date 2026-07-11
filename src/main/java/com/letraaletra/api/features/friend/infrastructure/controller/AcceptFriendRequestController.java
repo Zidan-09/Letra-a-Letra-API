@@ -31,7 +31,7 @@ public class AcceptFriendRequestController {
     }
 
     @PatchMapping(path = "/accept")
-    public ResponseEntity<SuccessResponse<Void>> acceptFriendRequest(
+    public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody AcceptFriendRequestRequest request
     ) {
