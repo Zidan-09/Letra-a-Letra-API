@@ -3,8 +3,8 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 import com.letraaletra.api.features.participant.application.input.UnbanParticipantInput;
 import com.letraaletra.api.features.participant.application.output.UnbanParticipantOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
-import com.letraaletra.api.features.participant.application.usecase.UnbanUserUseCase;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.UnbanParticipantMapper;
@@ -15,14 +15,14 @@ import java.util.UUID;
 
 @Component
 public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticipantWsRequest> {
-    private final UnbanUserUseCase unbanUser;
+    private final UseCase<UnbanParticipantInput, UnbanParticipantOutput> useCase;
     private final GameNotifier gameNotifier;
 
     public UnbanParticipantHandler(
-            UnbanUserUseCase unbanUser,
+            UseCase<UnbanParticipantInput, UnbanParticipantOutput> unbanUser,
             GameNotifier gameNotifier
     ) {
-        this.unbanUser = unbanUser;
+        this.useCase = unbanUser;
         this.gameNotifier = gameNotifier;
     }
 
@@ -32,7 +32,7 @@ public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticip
 
         UnbanParticipantInput command = UnbanParticipantMapper.toInput(request, userId);
 
-        UnbanParticipantOutput output = unbanUser.execute(command);
+        UnbanParticipantOutput output = useCase.execute(command);
 
         UnbanParticipantResponse dto = UnbanParticipantMapper.toResponse(output);
 
