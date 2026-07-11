@@ -6,6 +6,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DisableOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +35,8 @@ class DisableOfferControllerTest {
     private DisableOfferController controller;
 
     private UUID authAdminId;
-    private String offerIdStr;
+    private AuthenticatedUser principal;
+    private UUID offerIdStr;
     private DisableOfferInput mockInput;
     private DisableOfferOutput mockOutput;
     private DisableOfferResponse mockResponseDto;
@@ -43,7 +45,8 @@ class DisableOfferControllerTest {
     @BeforeEach
     void setUp() {
         authAdminId = UUID.randomUUID();
-        offerIdStr = UUID.randomUUID().toString();
+        principal = new AuthenticatedUser(authAdminId, "admin", true);
+        offerIdStr = UUID.randomUUID();
         mockInput = mock(DisableOfferInput.class);
         mockOutput = mock(DisableOfferOutput.class);
         mockResponseDto = mock(DisableOfferResponse.class);
@@ -63,7 +66,7 @@ class DisableOfferControllerTest {
             mapperMock.when(() -> DisableOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<DisableOfferResponse>> response = controller.disableOffer(authAdminId, offerIdStr);
+            ResponseEntity<SuccessResponse<DisableOfferResponse>> response = controller.disableOffer(principal, offerIdStr);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -78,7 +81,7 @@ class DisableOfferControllerTest {
             mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
-            assertThrows(SecurityException.class, () -> controller.disableOffer(authAdminId, offerIdStr));
+            assertThrows(SecurityException.class, () -> controller.disableOffer(principal, offerIdStr));
         }
     }
 
@@ -90,7 +93,7 @@ class DisableOfferControllerTest {
             mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into disabling structural criteria models"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.disableOffer(authAdminId, offerIdStr));
+            assertThrows(IllegalArgumentException.class, () -> controller.disableOffer(principal, offerIdStr));
             verifyNoInteractions(useCase);
         }
     }
@@ -105,7 +108,7 @@ class DisableOfferControllerTest {
             mapperMock.when(() -> DisableOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));
 
-            assertThrows(IllegalStateException.class, () -> controller.disableOffer(authAdminId, offerIdStr));
+            assertThrows(IllegalStateException.class, () -> controller.disableOffer(principal, offerIdStr));
         }
     }
 }

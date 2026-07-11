@@ -6,6 +6,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.EnableOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,10 @@ public class EnableOfferController {
 
     @PatchMapping(path = "/enable/{offerId}")
     public ResponseEntity<SuccessResponse<EnableOfferResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        EnableOfferInput input = EnableOfferMapper.toInput(auth, offerId);
+        EnableOfferInput input = EnableOfferMapper.toInput(principal.auth(), offerId);
 
         EnableOfferOutput output = useCase.execute(input);
 

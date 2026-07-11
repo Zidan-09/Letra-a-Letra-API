@@ -6,6 +6,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.EnableOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class EnableOfferControllerTest {
     private EnableOfferController controller;
 
     private UUID authAdminId;
+    private AuthenticatedUser principal;
     private UUID offerId;
     private EnableOfferInput mockInput;
     private EnableOfferOutput mockOutput;
@@ -43,6 +45,7 @@ class EnableOfferControllerTest {
     @BeforeEach
     void setUp() {
         authAdminId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authAdminId, "Admin", true);
         offerId = UUID.randomUUID();
         mockInput = mock(EnableOfferInput.class);
         mockOutput = mock(EnableOfferOutput.class);
@@ -63,7 +66,7 @@ class EnableOfferControllerTest {
             mapperMock.when(() -> EnableOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<EnableOfferResponse>> response = controller.handle(authAdminId, offerId);
+            ResponseEntity<SuccessResponse<EnableOfferResponse>> response = controller.handle(principal, offerId);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -78,7 +81,7 @@ class EnableOfferControllerTest {
             mapperMock.when(() -> EnableOfferMapper.toInput(authAdminId, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
-            assertThrows(SecurityException.class, () -> controller.handle(authAdminId, offerId));
+            assertThrows(SecurityException.class, () -> controller.handle(principal, offerId));
         }
     }
 
@@ -90,7 +93,7 @@ class EnableOfferControllerTest {
             mapperMock.when(() -> EnableOfferMapper.toInput(authAdminId, offerId))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into enabling structural criteria models"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authAdminId, offerId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, offerId));
             verifyNoInteractions(useCase);
         }
     }
@@ -105,7 +108,7 @@ class EnableOfferControllerTest {
             mapperMock.when(() -> EnableOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));
 
-            assertThrows(IllegalStateException.class, () -> controller.handle(authAdminId, offerId));
+            assertThrows(IllegalStateException.class, () -> controller.handle(principal, offerId));
         }
     }
 }

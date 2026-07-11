@@ -10,4 +10,8 @@ public record BanParticipantWsRequest(
         @NotBlank
         String participantId
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "ban participant from game";
+        }
 }

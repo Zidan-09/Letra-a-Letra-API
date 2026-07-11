@@ -10,4 +10,8 @@ public record KickParticipantWsRequest(
         @NotBlank
         String participantId
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "kick participant from game";
+        }
 }

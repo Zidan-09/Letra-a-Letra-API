@@ -6,6 +6,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DeleteOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,10 @@ public class DeleteOfferController {
 
     @DeleteMapping(path = "/{offerId}")
     public ResponseEntity<SuccessResponse<DeleteOfferResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        DeleteOfferInput input = DeleteOfferMapper.toInput(auth, offerId);
+        DeleteOfferInput input = DeleteOfferMapper.toInput(principal.auth(), offerId);
 
         DeleteOfferOutput output = useCase.execute(input);
 

@@ -6,6 +6,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class GetFriendListControllerTest {
     private GetFriendListController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private GetFriendListInput mockInput;
     private GetFriendListOutput mockOutput;
     private GetFriendListResponse mockResponseDto;
@@ -41,6 +43,7 @@ class GetFriendListControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "User", false);
         mockInput = mock(GetFriendListInput.class);
         mockOutput = mock(GetFriendListOutput.class);
         mockResponseDto = mock(GetFriendListResponse.class);
@@ -53,7 +56,7 @@ class GetFriendListControllerTest {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
 
-            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId.toString())).thenReturn(mockInput);
+            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
@@ -61,7 +64,7 @@ class GetFriendListControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(principal);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -76,10 +79,10 @@ class GetFriendListControllerTest {
     void getFriends_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class)) {
 
-            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId.toString())).thenReturn(mockInput);
+            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Database timeout or internal breakdown"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal));
 
             mapperMock.verify(() -> GetFriendListMapper.toResponse(any()), never());
         }
@@ -90,10 +93,10 @@ class GetFriendListControllerTest {
     void getFriends_ShouldThrowException_WhenMapperToInputThrowsException() {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class)) {
 
-            mapperMock.when(() -> GetFriendListMapper.toInput(anyString()))
+            mapperMock.when(() -> GetFriendListMapper.toInput(any()))
                     .thenThrow(new IllegalArgumentException("Invalid string identity context"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(mockAuthId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal));
 
             verify(useCase, never()).execute(any());
         }
@@ -105,7 +108,7 @@ class GetFriendListControllerTest {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
 
-            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId.toString())).thenReturn(mockInput);
+            mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput)).thenReturn(null);
 
@@ -114,7 +117,7 @@ class GetFriendListControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(principal);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

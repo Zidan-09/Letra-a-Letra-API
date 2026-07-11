@@ -15,4 +15,8 @@ public record PlayerActionWsRequest(
         @NotNull
         PlayerActionRequest action
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "execute a " + action.getClass().getSimpleName();
+        }
 }

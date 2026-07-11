@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUserInventoryMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class GetUserInventoryControllerTest {
     private GetUserInventoryController controller;
 
     private UUID authUserId;
+    private AuthenticatedUser principal;
     private GetUserInventoryInput mockInput;
     private GetUserInventoryOutput mockOutput;
     private GetUserInventoryResponse mockResponseDto;
@@ -42,6 +44,7 @@ class GetUserInventoryControllerTest {
     @BeforeEach
     void setUp() {
         authUserId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authUserId, "User", false);
         mockInput = mock(GetUserInventoryInput.class);
         mockOutput = mock(GetUserInventoryOutput.class);
         mockResponseDto = mock(GetUserInventoryResponse.class);
@@ -61,7 +64,7 @@ class GetUserInventoryControllerTest {
             mapperMock.when(() -> GetUserInventoryMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetUserInventoryResponse>> response = controller.handle(authUserId);
+            ResponseEntity<SuccessResponse<GetUserInventoryResponse>> response = controller.handle(principal);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -76,7 +79,7 @@ class GetUserInventoryControllerTest {
             mapperMock.when(() -> GetUserInventoryMapper.toInput(authUserId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Database timeout or entity not found"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(authUserId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal));
         }
     }
 
@@ -88,20 +91,8 @@ class GetUserInventoryControllerTest {
             mapperMock.when(() -> GetUserInventoryMapper.toInput(authUserId))
                     .thenThrow(new IllegalArgumentException("Failed to construct input parameter object"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authUserId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal));
             verifyNoInteractions(useCase);
-        }
-    }
-
-    @Test
-    @DisplayName("Should handle edge case gracefully when authentication principal reference evaluation evaluates to null")
-    void shouldHandleNullAuthenticationPrincipalContext() {
-        try (MockedStatic<GetUserInventoryMapper> mapperMock = mockStatic(GetUserInventoryMapper.class)) {
-
-            mapperMock.when(() -> GetUserInventoryMapper.toInput(null)).thenReturn(null);
-            when(useCase.execute(null)).thenThrow(new IllegalArgumentException("Authentication required"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null));
         }
     }
 }

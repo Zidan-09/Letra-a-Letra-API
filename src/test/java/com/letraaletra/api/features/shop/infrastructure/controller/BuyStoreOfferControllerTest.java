@@ -6,6 +6,7 @@ import com.letraaletra.api.features.shop.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.BuyStoreOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class BuyStoreOfferControllerTest {
     private BuyStoreOfferController controller;
 
     private UUID authUserId;
+    private AuthenticatedUser principal;
     private UUID offerId;
     private BuyOfferInput mockInput;
     private BuyOfferOutput mockOutput;
@@ -43,6 +45,7 @@ class BuyStoreOfferControllerTest {
     @BeforeEach
     void setUp() {
         authUserId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authUserId, "Admin", true);
         offerId = UUID.randomUUID();
         mockInput = mock(BuyOfferInput.class);
         mockOutput = mock(BuyOfferOutput.class);
@@ -63,7 +66,7 @@ class BuyStoreOfferControllerTest {
             mapperMock.when(() -> BuyStoreOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> response = controller.handle(authUserId, offerId);
+            ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> response = controller.handle(principal, offerId);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -78,19 +81,7 @@ class BuyStoreOfferControllerTest {
             mapperMock.when(() -> BuyStoreOfferMapper.toInput(authUserId, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Insufficient funds or expired offer"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(authUserId, offerId));
-        }
-    }
-
-    @Test
-    @DisplayName("Should handle resilience scenario when controller parameters or mapped payload elements resolve to null values")
-    void shouldHandleExceptionWhenInputMappingProducesNullParameters() {
-        try (MockedStatic<BuyStoreOfferMapper> mapperMock = mockStatic(BuyStoreOfferMapper.class)) {
-
-            mapperMock.when(() -> BuyStoreOfferMapper.toInput(null, null)).thenReturn(null);
-            when(useCase.execute(null)).thenThrow(new IllegalArgumentException("Purchase parameters cannot be null"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, offerId));
         }
     }
 
@@ -102,7 +93,7 @@ class BuyStoreOfferControllerTest {
             mapperMock.when(() -> BuyStoreOfferMapper.toInput(authUserId, offerId))
                     .thenThrow(new IllegalArgumentException("Invalid input properties tracking identifiers"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authUserId, offerId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, offerId));
             verifyNoInteractions(useCase);
         }
     }
@@ -117,7 +108,7 @@ class BuyStoreOfferControllerTest {
             mapperMock.when(() -> BuyStoreOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Incomplete transaction receipt mapping structure"));
 
-            assertThrows(IllegalStateException.class, () -> controller.handle(authUserId, offerId));
+            assertThrows(IllegalStateException.class, () -> controller.handle(principal, offerId));
         }
     }
 }

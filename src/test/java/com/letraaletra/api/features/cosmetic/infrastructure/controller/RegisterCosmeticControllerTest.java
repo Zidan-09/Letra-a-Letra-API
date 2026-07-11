@@ -7,6 +7,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class RegisterCosmeticControllerTest {
     private RegisterCosmeticController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private RegisterCosmeticRequest mockRequest;
     private RegisterCosmeticInput mockInput;
     private RegisterCosmeticOutput mockOutput;
@@ -43,6 +45,7 @@ class RegisterCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockRequest = mock(RegisterCosmeticRequest.class);
         mockInput = mock(RegisterCosmeticInput.class);
         mockOutput = mock(RegisterCosmeticOutput.class);
@@ -64,7 +67,7 @@ class RegisterCosmeticControllerTest {
                     ResponseEntity.ok(successResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(principal, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,7 +85,7 @@ class RegisterCosmeticControllerTest {
             mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Validation, conversion or storage error"));
 
-            assertThrows(RuntimeException.class, () -> controller.registerCosmetic(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.registerCosmetic(principal, mockRequest));
 
             mapperMock.verify(() -> RegisterCosmeticMapper.toResponse(any()), never());
         }
@@ -117,7 +120,7 @@ class RegisterCosmeticControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(principal, mockRequest);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

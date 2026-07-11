@@ -7,6 +7,7 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.RegisterOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,7 @@ class RegisterOfferControllerTest {
     private RegisterOfferController controller;
 
     private UUID authAdminId;
+    private AuthenticatedUser principal;
     private RegisterOfferRequest mockRequest;
     private RegisterOfferInput mockInput;
     private RegisterOfferOutput mockOutput;
@@ -44,6 +46,7 @@ class RegisterOfferControllerTest {
     @BeforeEach
     void setUp() {
         authAdminId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authAdminId, "Admin", true);
         mockRequest = mock(RegisterOfferRequest.class);
         mockInput = mock(RegisterOfferInput.class);
         mockOutput = mock(RegisterOfferOutput.class);
@@ -64,7 +67,7 @@ class RegisterOfferControllerTest {
             mapperMock.when(() -> RegisterOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<RegisterOfferResponse>> response = controller.registerOffer(authAdminId, mockRequest);
+            ResponseEntity<SuccessResponse<RegisterOfferResponse>> response = controller.registerOffer(principal, mockRequest);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -79,7 +82,7 @@ class RegisterOfferControllerTest {
             mapperMock.when(() -> RegisterOfferMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or structural constraint violation"));
 
-            assertThrows(SecurityException.class, () -> controller.registerOffer(authAdminId, mockRequest));
+            assertThrows(SecurityException.class, () -> controller.registerOffer(principal, mockRequest));
         }
     }
 
@@ -91,7 +94,7 @@ class RegisterOfferControllerTest {
             mapperMock.when(() -> RegisterOfferMapper.toInput(authAdminId, mockRequest))
                     .thenThrow(new IllegalArgumentException("Failed to convert request body data into registration structural input models"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.registerOffer(authAdminId, mockRequest));
+            assertThrows(IllegalArgumentException.class, () -> controller.registerOffer(principal, mockRequest));
             verifyNoInteractions(useCase);
         }
     }
@@ -106,7 +109,7 @@ class RegisterOfferControllerTest {
             mapperMock.when(() -> RegisterOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing serialization parameters"));
 
-            assertThrows(IllegalStateException.class, () -> controller.registerOffer(authAdminId, mockRequest));
+            assertThrows(IllegalStateException.class, () -> controller.registerOffer(principal, mockRequest));
         }
     }
 }

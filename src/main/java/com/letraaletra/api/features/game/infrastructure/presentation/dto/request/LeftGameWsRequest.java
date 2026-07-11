@@ -8,4 +8,9 @@ import jakarta.validation.constraints.NotBlank;
 public record LeftGameWsRequest(
         @NotBlank
         String gameId
-) implements WsRequest {}
+) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "left game";
+        }
+}

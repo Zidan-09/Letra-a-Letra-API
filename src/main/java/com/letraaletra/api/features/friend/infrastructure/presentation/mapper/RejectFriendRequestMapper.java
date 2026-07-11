@@ -5,9 +5,9 @@ import com.letraaletra.api.features.friend.application.input.RejectFriendRequest
 import java.util.UUID;
 
 public class RejectFriendRequestMapper {
-    public static RejectFriendRequestInput toInput(String userId, String friendId) {
+    public static RejectFriendRequestInput toInput(UUID userId, String friendId) {
         return new RejectFriendRequestInput(
-                UUID.fromString(userId),
+                userId,
                 UUID.fromString(friendId)
         );
     }

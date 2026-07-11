@@ -6,6 +6,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendPendingRequestsMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class GetFriendPendingRequestsControllerTest {
     private GetFriendPendingRequestsController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private GetFriendPendingRequestsInput mockInput;
     private GetFriendPendingRequestsOutput mockOutput;
     private GetFriendPendingRequestsResponse mockResponseDto;
@@ -41,6 +43,7 @@ class GetFriendPendingRequestsControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "User", false);
         mockInput = mock(GetFriendPendingRequestsInput.class);
         mockOutput = mock(GetFriendPendingRequestsOutput.class);
         mockResponseDto = mock(GetFriendPendingRequestsResponse.class);
@@ -61,7 +64,7 @@ class GetFriendPendingRequestsControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(principal);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -79,7 +82,7 @@ class GetFriendPendingRequestsControllerTest {
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Database timeout or communication failure"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal));
 
             mapperMock.verify(() -> GetFriendPendingRequestsMapper.toResponse(any()), never());
         }
@@ -114,7 +117,7 @@ class GetFriendPendingRequestsControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(mockAuthId);
+            ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(principal);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

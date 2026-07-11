@@ -6,6 +6,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/cosmetic")
@@ -32,10 +31,10 @@ public class DeleteCosmeticController {
 
     @DeleteMapping(path = "/{cosmeticId}")
     public ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        DeleteCosmeticInput input = DeleteCosmeticMapper.toInput(auth, cosmeticId);
+        DeleteCosmeticInput input = DeleteCosmeticMapper.toInput(principal.auth(), cosmeticId);
 
         DeleteCosmeticOutput output = useCase.execute(input);
 

@@ -7,6 +7,7 @@ import com.letraaletra.api.features.levels.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.UpdateLevelMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,11 +31,11 @@ public class UpdateLevelController {
 
     @PutMapping(path = "/{levelId}")
     public ResponseEntity<SuccessResponse<UpdateLevelResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID levelId,
             @Valid @RequestBody UpdateLevelRequest request
     ) {
-        UpdateLevelInput input = UpdateLevelMapper.toInput(auth, levelId, request);
+        UpdateLevelInput input = UpdateLevelMapper.toInput(principal.auth(), levelId, request);
 
         UpdateLevelOutput output = useCase.execute(input);
 

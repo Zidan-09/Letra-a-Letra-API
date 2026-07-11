@@ -15,4 +15,8 @@ public record StartGameWsRequest(
         @Valid
         GameSettingsDTO settings
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "started game";
+        }
 }

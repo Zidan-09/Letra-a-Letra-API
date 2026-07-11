@@ -5,6 +5,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.reque
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RejectFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ class RejectFriendRequestControllerTest {
     private RejectFriendRequestController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockFriendId;
     private RejectFriendRequestRequest mockRequest;
     private RejectFriendRequestInput mockInput;
@@ -40,6 +42,7 @@ class RejectFriendRequestControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockFriendId = UUID.randomUUID().toString();
 
         mockRequest = mock(RejectFriendRequestRequest.class);
@@ -55,13 +58,13 @@ class RejectFriendRequestControllerTest {
         try (MockedStatic<RejectFriendRequestMapper> mapperMock = mockStatic(RejectFriendRequestMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
 
-            mapperMock.when(() -> RejectFriendRequestMapper.toInput(mockAuthId.toString(), mockFriendId))
+            mapperMock.when(() -> RejectFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<Void>> response = controller.handle(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -76,13 +79,13 @@ class RejectFriendRequestControllerTest {
     void rejectFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RejectFriendRequestMapper> mapperMock = mockStatic(RejectFriendRequestMapper.class)) {
 
-            mapperMock.when(() -> RejectFriendRequestMapper.toInput(mockAuthId.toString(), mockFriendId))
+            mapperMock.when(() -> RejectFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
 
             doThrow(new RuntimeException("Friend request not found or condition unmet"))
                     .when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
         }
     }
 }

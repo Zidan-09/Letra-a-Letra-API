@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,10 @@ public class ChangeCosmeticController {
 
     @PatchMapping(path = "/cosmetic/{cosmeticId}")
     public ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID cosmeticId
     ) {
-        ChangeCosmeticInput input = ChangeCosmeticMapper.toInput(cosmeticId, auth);
+        ChangeCosmeticInput input = ChangeCosmeticMapper.toInput(cosmeticId, principal.auth());
 
         ChangeCosmeticOutput output = changeCosmeticUseCase.execute(input);
 
