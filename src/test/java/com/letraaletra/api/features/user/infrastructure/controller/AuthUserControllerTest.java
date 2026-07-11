@@ -47,7 +47,7 @@ class AuthUserControllerTest {
         when(authUserUseCase.execute(any(SignInInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<AuthUserResponse>> responseEntity = controller.signIn(request);
+        ResponseEntity<SuccessResponse<AuthUserResponse>> responseEntity = controller.handle(request);
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
