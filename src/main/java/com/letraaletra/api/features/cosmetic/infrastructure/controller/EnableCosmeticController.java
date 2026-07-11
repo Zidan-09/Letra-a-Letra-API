@@ -6,6 +6,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.EnableCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/cosmetic")
@@ -32,10 +31,10 @@ public class EnableCosmeticController {
 
     @PatchMapping(path = "/enable/{cosmeticId}")
     public ResponseEntity<SuccessResponse<EnableCosmeticResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        EnableCosmeticInput input = EnableCosmeticMapper.toInput(auth, cosmeticId);
+        EnableCosmeticInput input = EnableCosmeticMapper.toInput(principal.auth(), cosmeticId);
 
         EnableCosmeticOutput output = useCase.execute(input);
 

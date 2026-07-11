@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUserInventoryMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -30,9 +29,9 @@ public class GetUserInventoryController {
 
     @GetMapping(path = "/inventory")
     public ResponseEntity<SuccessResponse<GetUserInventoryResponse>> handle(
-            @AuthenticationPrincipal UUID auth
+            @AuthenticationPrincipal AuthenticatedUser principal
         ) {
-        GetUserInventoryInput input = GetUserInventoryMapper.toInput(auth);
+        GetUserInventoryInput input = GetUserInventoryMapper.toInput(principal.auth());
 
         GetUserInventoryOutput output = useCase.execute(input);
 

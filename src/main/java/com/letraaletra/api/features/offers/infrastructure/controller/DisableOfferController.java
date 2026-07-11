@@ -6,9 +6,9 @@ import com.letraaletra.api.features.offers.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DisableOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,10 +32,10 @@ public class DisableOfferController {
 
     @PatchMapping(path = "/disable/{offerId}")
     public ResponseEntity<SuccessResponse<DisableOfferResponse>> disableOffer(
-            @AuthenticationPrincipal UUID auth,
-            @PathVariable @NotBlank String offerId
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @PathVariable UUID offerId
     ) {
-        DisableOfferInput input = DisableOfferMapper.toInput(auth, offerId);
+        DisableOfferInput input = DisableOfferMapper.toInput(principal.auth(), offerId);
 
         DisableOfferOutput output = useCase.execute(input);
 

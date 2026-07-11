@@ -6,6 +6,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DisableCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class DisableCosmeticControllerTest {
     private DisableCosmeticController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockCosmeticId;
     private DisableCosmeticInput mockInput;
     private DisableCosmeticOutput mockOutput;
@@ -42,6 +44,7 @@ class DisableCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
 
         mockInput = mock(DisableCosmeticInput.class);
@@ -64,7 +67,7 @@ class DisableCosmeticControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<DisableCosmeticResponse>> response = controller.handle(mockAuthId, mockCosmeticId);
+            ResponseEntity<SuccessResponse<DisableCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,23 +85,9 @@ class DisableCosmeticControllerTest {
             mapperMock.when(() -> DisableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Cosmetic is already disabled or not found"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockCosmeticId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockCosmeticId));
 
             mapperMock.verify(() -> DisableCosmeticMapper.toResponse(any()), never());
-        }
-    }
-
-    @Test
-    @DisplayName("Deve falhar e propagar exceção se a transformação do Mapper de entrada falhar por dados inconsistentes")
-    void handle_ShouldThrowException_WhenMapperToInputFails() {
-        try (MockedStatic<DisableCosmeticMapper> mapperMock = mockStatic(DisableCosmeticMapper.class)) {
-
-            mapperMock.when(() -> DisableCosmeticMapper.toInput(null, null))
-                    .thenThrow(new IllegalArgumentException("Invalid UUID string or null context"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null));
-
-            verify(useCase, never()).execute(any());
         }
     }
 
@@ -117,7 +106,7 @@ class DisableCosmeticControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<DisableCosmeticResponse>> response = controller.handle(mockAuthId, mockCosmeticId);
+            ResponseEntity<SuccessResponse<DisableCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

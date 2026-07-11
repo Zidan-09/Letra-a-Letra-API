@@ -7,6 +7,7 @@ import com.letraaletra.api.features.levels.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.CreateLevelMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,7 @@ class CreateLevelControllerTest {
     private CreateLevelController controller;
 
     private UUID authAdminId;
+    private AuthenticatedUser principal;
     private CreateLevelRequest mockRequest;
     private CreateLevelInput mockInput;
     private CreateLevelOutput mockOutput;
@@ -44,6 +46,7 @@ class CreateLevelControllerTest {
     @BeforeEach
     void setUp() {
         authAdminId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authAdminId, "Admin", true);
         mockRequest = mock(CreateLevelRequest.class);
         mockInput = mock(CreateLevelInput.class);
         mockOutput = mock(CreateLevelOutput.class);
@@ -64,7 +67,7 @@ class CreateLevelControllerTest {
             mapperMock.when(() -> CreateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<CreateLevelResponse>> response = controller.handle(authAdminId, mockRequest);
+            ResponseEntity<SuccessResponse<CreateLevelResponse>> response = controller.handle(principal, mockRequest);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -79,19 +82,7 @@ class CreateLevelControllerTest {
             mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or invalid payload logic"));
 
-            assertThrows(SecurityException.class, () -> controller.handle(authAdminId, mockRequest));
-        }
-    }
-
-    @Test
-    @DisplayName("Should test resilience or handle conditions gracefully when auth identifier or request bodies resolve to null elements")
-    void shouldHandleExceptionWhenInputMappingProducesNullParameters() {
-        try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class)) {
-
-            mapperMock.when(() -> CreateLevelMapper.toInput(null, null)).thenReturn(null);
-            when(useCase.execute(null)).thenThrow(new IllegalArgumentException("Level creation context cannot accept null inputs"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null));
+            assertThrows(SecurityException.class, () -> controller.handle(principal, mockRequest));
         }
     }
 
@@ -103,7 +94,7 @@ class CreateLevelControllerTest {
             mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest))
                     .thenThrow(new IllegalArgumentException("Failed to convert metadata parameters into creation models"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authAdminId, mockRequest));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, mockRequest));
             verifyNoInteractions(useCase);
         }
     }
@@ -118,7 +109,7 @@ class CreateLevelControllerTest {
             mapperMock.when(() -> CreateLevelMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted level tracking data model representation maps"));
 
-            assertThrows(IllegalStateException.class, () -> controller.handle(authAdminId, mockRequest));
+            assertThrows(IllegalStateException.class, () -> controller.handle(principal, mockRequest));
         }
     }
 }

@@ -15,4 +15,9 @@ public record CreateGameWsRequest(
         @NotNull
         RoomSettingsDTO settings
 ) implements WsRequest {
+
+        @Override
+        public String getAudit() {
+                return "create game";
+        }
 }

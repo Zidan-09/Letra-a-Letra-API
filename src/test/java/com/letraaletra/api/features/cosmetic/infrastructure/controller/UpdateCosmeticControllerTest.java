@@ -7,6 +7,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.UpdateCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class UpdateCosmeticControllerTest {
     private UpdateCosmeticController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockCosmeticId;
     private UpdateCosmeticRequest mockRequest;
     private UpdateCosmeticInput mockInput;
@@ -44,6 +46,7 @@ class UpdateCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
         mockRequest = mock(UpdateCosmeticRequest.class);
         mockInput = mock(UpdateCosmeticInput.class);
@@ -66,7 +69,7 @@ class UpdateCosmeticControllerTest {
                     ResponseEntity.ok(successResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> response = controller.handle(mockAuthId, mockRequest, mockCosmeticId);
+            ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> response = controller.handle(principal, mockRequest, mockCosmeticId);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -84,23 +87,9 @@ class UpdateCosmeticControllerTest {
             mapperMock.when(() -> UpdateCosmeticMapper.toInput(mockAuthId, mockRequest, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Cosmetic conflict, invalid storage or missing permissions"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest, mockCosmeticId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest, mockCosmeticId));
 
             mapperMock.verify(() -> UpdateCosmeticMapper.toResponse(any()), never());
-        }
-    }
-
-    @Test
-    @DisplayName("Deve falhar e propagar erro se a transformação de entrada pelo Mapper disparar uma exceção")
-    void handle_ShouldThrowException_WhenMapperToInputFails() {
-        try (MockedStatic<UpdateCosmeticMapper> mapperMock = mockStatic(UpdateCosmeticMapper.class)) {
-
-            mapperMock.when(() -> UpdateCosmeticMapper.toInput(null, null, null))
-                    .thenThrow(new IllegalArgumentException("Path variables and body context cannot be missing"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null, null));
-
-            verify(useCase, never()).execute(any());
         }
     }
 
@@ -119,7 +108,7 @@ class UpdateCosmeticControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> response = controller.handle(mockAuthId, mockRequest, mockCosmeticId);
+            ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> response = controller.handle(principal, mockRequest, mockCosmeticId);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

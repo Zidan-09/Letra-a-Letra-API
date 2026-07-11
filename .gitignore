@@ -35,3 +35,6 @@ build/
 
 ### TOOLS ###
 node_modules/
+
+### LOGS ###
+logs/

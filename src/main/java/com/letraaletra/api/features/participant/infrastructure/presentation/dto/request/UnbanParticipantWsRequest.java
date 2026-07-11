@@ -10,4 +10,8 @@ public record UnbanParticipantWsRequest(
         @NotBlank
         String userId
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "unbanned user from game";
+        }
 }

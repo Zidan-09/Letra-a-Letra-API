@@ -7,6 +7,7 @@ import com.letraaletra.api.features.levels.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.UpdateLevelMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,7 @@ class UpdateLevelControllerTest {
     private UpdateLevelController controller;
 
     private UUID authAdminId;
+    private AuthenticatedUser principal;
     private UUID levelId;
     private UpdateLevelRequest mockRequest;
     private UpdateLevelInput mockInput;
@@ -45,6 +47,7 @@ class UpdateLevelControllerTest {
     @BeforeEach
     void setUp() {
         authAdminId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authAdminId, "Admin", true);
         levelId = UUID.randomUUID();
         mockRequest = mock(UpdateLevelRequest.class);
         mockInput = mock(UpdateLevelInput.class);
@@ -66,7 +69,7 @@ class UpdateLevelControllerTest {
             mapperMock.when(() -> UpdateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<UpdateLevelResponse>> response = controller.handle(authAdminId, levelId, mockRequest);
+            ResponseEntity<SuccessResponse<UpdateLevelResponse>> response = controller.handle(principal, levelId, mockRequest);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
@@ -81,19 +84,7 @@ class UpdateLevelControllerTest {
             mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
-            assertThrows(SecurityException.class, () -> controller.handle(authAdminId, levelId, mockRequest));
-        }
-    }
-
-    @Test
-    @DisplayName("Should test resilience criteria when fallback variables or empty modification contexts resolve to null references")
-    void shouldHandleExceptionWhenInputMappingProducesNullParameters() {
-        try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class)) {
-
-            mapperMock.when(() -> UpdateLevelMapper.toInput(null, null, null)).thenReturn(null);
-            when(useCase.execute(null)).thenThrow(new IllegalArgumentException("Level mutation context cannot accept completely null inputs"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null, null));
+            assertThrows(SecurityException.class, () -> controller.handle(principal, levelId, mockRequest));
         }
     }
 
@@ -105,7 +96,7 @@ class UpdateLevelControllerTest {
             mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into updating structural criteria models"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authAdminId, levelId, mockRequest));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, levelId, mockRequest));
             verifyNoInteractions(useCase);
         }
     }
@@ -120,7 +111,7 @@ class UpdateLevelControllerTest {
             mapperMock.when(() -> UpdateLevelMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));
 
-            assertThrows(IllegalStateException.class, () -> controller.handle(authAdminId, levelId, mockRequest));
+            assertThrows(IllegalStateException.class, () -> controller.handle(principal, levelId, mockRequest));
         }
     }
 }

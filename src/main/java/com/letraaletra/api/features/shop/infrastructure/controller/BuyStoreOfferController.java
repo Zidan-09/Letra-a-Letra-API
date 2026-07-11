@@ -6,6 +6,7 @@ import com.letraaletra.api.features.shop.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.BuyStoreOfferMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,10 @@ public class BuyStoreOfferController {
 
     @PostMapping(path = "/{offerId}/buy")
     public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        BuyOfferInput input = BuyStoreOfferMapper.toInput(auth, offerId);
+        BuyOfferInput input = BuyStoreOfferMapper.toInput(principal.auth(), offerId);
 
         BuyOfferOutput output = useCase.execute(input);
 

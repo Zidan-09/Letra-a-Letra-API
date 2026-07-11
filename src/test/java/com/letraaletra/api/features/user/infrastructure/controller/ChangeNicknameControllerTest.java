@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.application.usecase.ChangeNicknameUseCa
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.ChangeNicknameRequest;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeNicknameResponse;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +41,7 @@ class ChangeNicknameControllerTest {
         Mockito.when(changeNicknameUseCase.execute(Mockito.any(ChangeNicknameInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(UUID.randomUUID(), request);
+        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(new AuthenticatedUser(UUID.randomUUID(), "User", false), request);
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

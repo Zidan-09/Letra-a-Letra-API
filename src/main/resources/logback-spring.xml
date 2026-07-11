@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOG_PATH" value="logs"/>
+
+    <property name="AUDIT_PATTERN"
+              value="[%d{HH:mm:ss}] [%level]: %msg%n"/>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{10}: %msg%n
+            </pattern>
+        </encoder>
+
+    </appender>
+
+
+    <appender name="AUDIT_ADMIN_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/audit/admin/latest.log</file>
+
+        <encoder>
+            <pattern>${AUDIT_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <fileNamePattern>
+                ${LOG_PATH}/audit/admin/%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+
+            <maxHistory>90</maxHistory>
+
+        </rollingPolicy>
+
+    </appender>
+
+
+    <appender name="AUDIT_GAME_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/audit/game/latest.log</file>
+
+        <encoder>
+            <pattern>${AUDIT_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <fileNamePattern>
+                ${LOG_PATH}/audit/game/%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+
+            <maxHistory>90</maxHistory>
+
+        </rollingPolicy>
+
+    </appender>
+
+
+    <logger name="AUDIT_ADMIN"
+            level="INFO"
+            additivity="false">
+
+        <appender-ref ref="AUDIT_ADMIN_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+
+    <logger name="AUDIT_GAME"
+            level="INFO"
+            additivity="false">
+
+        <appender-ref ref="AUDIT_GAME_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+
+    <root level="INFO">
+
+        <appender-ref ref="CONSOLE"/>
+
+    </root>
+
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
+</configuration>
