@@ -7,6 +7,8 @@ import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.ExpireTurnService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
+import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.concurrent.DelayQueue;
 @Service
 public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
+    private final GameResponseAssembler gameResponseAssembler;
 
     private final DelayQueue<GameTurn> queue = new DelayQueue<>();
 
@@ -24,8 +27,13 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
     private final Logger logger = LoggerFactory.getLogger(DelayQueueTurnTimeoutManager.class);
 
-    public DelayQueueTurnTimeoutManager(ExpireTurnService expireTurnService, GameNotifier gameNotifier) {
+    public DelayQueueTurnTimeoutManager(
+            ExpireTurnService expireTurnService,
+            GameResponseAssembler gameResponseAssembler,
+            GameNotifier gameNotifier
+    ) {
         this.expireTurnService = expireTurnService;
+        this.gameResponseAssembler = gameResponseAssembler;
         this.gameNotifier = gameNotifier;
         startScheduler();
     }
@@ -83,7 +91,9 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
         }
 
         if (result.gameOverResult().finished()) {
-            gameNotifier.notifierGameOver(result.game(), result.gameOverResult());
+            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), result.gameOverResult());
+
+            gameNotifier.notifierGameOver(result.game(), dto);
         }
 
         if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {

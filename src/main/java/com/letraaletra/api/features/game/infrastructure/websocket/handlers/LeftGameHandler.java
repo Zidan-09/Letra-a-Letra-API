@@ -6,7 +6,9 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.LeftGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.LeftGameMapper;
+import com.letraaletra.api.shared.application.port.GameResponseAssembler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,13 +16,16 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     private final UseCase<LeftGameInput, LeftGameOutput> useCase;
+    private final GameResponseAssembler gameResponseAssembler;
     private final GameNotifier gameNotifier;
 
     public LeftGameHandler(
             UseCase<LeftGameInput, LeftGameOutput> useCase,
+            GameResponseAssembler gameResponseAssembler,
             GameNotifier gameNotifier
     ) {
         this.useCase = useCase;
+        this.gameResponseAssembler = gameResponseAssembler;
         this.gameNotifier = gameNotifier;
     }
 
@@ -35,7 +40,9 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
         gameNotifier.notifierAll(output.game(), dto);
 
         if (output.gameOverResult() != null) {
-            gameNotifier.notifierGameOver(output.game(), output.gameOverResult());
+            WsResponse gameOverDto = gameResponseAssembler.assembleGameOver(output.game(), output.gameOverResult());
+
+            gameNotifier.notifierGameOver(output.game(), gameOverDto);
         }
     }
 

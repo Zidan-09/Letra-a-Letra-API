@@ -17,6 +17,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.shared.domain.QueueType;
 
 import java.util.List;
 
@@ -52,7 +53,8 @@ public class MatchmakingAssembler {
 
     public Game create(
             MatchmakingPair users,
-            GameMode gameMode
+            GameMode gameMode,
+            QueueType queueType
     ) {
         User user1 = userRepository.find(users.first().userId())
                 .orElseThrow(UserNotFoundException::new);
@@ -65,7 +67,9 @@ public class MatchmakingAssembler {
 
         String code = getCode();
 
-        DefaultGameResult result = gameFactory.generate(participant1, participant2, code);
+        DefaultGameResult result = queueType.equals(QueueType.RANKING) ?
+                gameFactory.rank(participant1, participant2, code) :
+                gameFactory.match(participant1, participant2, code);
 
         actorManager.create(result.game().getId(), result.game());
 

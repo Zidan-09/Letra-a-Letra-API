@@ -7,13 +7,21 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.RevealActionRequest;
+import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RevealActionHandler extends AbstractPlayerActionHandler<RevealActionRequest> {
+    private final GameResponseAssembler gameResponseAssembler;
 
-    public RevealActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public RevealActionHandler(
+            PlayerActionUseCase useCase,
+            GameNotifier notifier,
+            GameResponseAssembler gameResponseAssembler
+    ) {
         super(useCase, notifier);
+        this.gameResponseAssembler = gameResponseAssembler;
     }
 
     @Override
@@ -25,9 +33,11 @@ public class RevealActionHandler extends AbstractPlayerActionHandler<RevealActio
 
     @Override
     protected void afterHandle(PlayerActionOutput output) {
-        output.gameOver().ifPresent(
-                gameOver -> notifier.notifierGameOver(output.game(), gameOver)
-        );
+        output.gameOver().ifPresent(gameOver -> {
+            WsResponse dto = gameResponseAssembler.assembleGameOver(output.game(), gameOver);
+
+            notifier.notifierGameOver(output.game(), dto);
+        });
     }
 
     @Override

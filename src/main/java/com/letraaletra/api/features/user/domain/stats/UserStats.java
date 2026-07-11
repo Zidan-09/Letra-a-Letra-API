@@ -65,8 +65,14 @@ public class UserStats {
         winStreak = 0;
     }
 
-    private void incrementPoints(int userPoints, int opponentPoints) {
-        points += (userPoints - opponentPoints) * 10;
+    public int incrementPoints(int userPoints, int opponentPoints) {
+        int pointsToIncrement = userPoints == 3 ?
+                40 - opponentPoints * 10 :
+                -30 + (userPoints * 10) + (userPoints > 0 ? 5 : 0);
+
+        points = Math.max(0, points + pointsToIncrement);
+
+        return pointsToIncrement;
     }
 
     private void advanceLevel(int maxLevel) {

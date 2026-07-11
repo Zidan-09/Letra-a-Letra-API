@@ -1,17 +1,15 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
-import com.letraaletra.api.features.game.application.service.ExpireTurnService;
+import com.letraaletra.api.features.game.application.service.*;
 import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
+import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.application.usecase.*;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
-import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
@@ -22,6 +20,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -180,5 +179,16 @@ public class GameConfig {
     @Bean
     public DefaultGameFactory defaultGameGenerator() {
         return new DefaultGameFactory();
+    }
+
+    @Bean
+    public GameResponseAssemblerService gameResponseAssemblerService(
+            UserRepository userRepository,
+            UpdateRankingPointsService rankingPointsService
+    ) {
+        return new GameResponseAssemblerService(
+                userRepository,
+                rankingPointsService
+        );
     }
 }
