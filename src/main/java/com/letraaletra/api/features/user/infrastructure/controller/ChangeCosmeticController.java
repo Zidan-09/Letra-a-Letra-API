@@ -27,7 +27,7 @@ public class ChangeCosmeticController {
     }
 
     @PatchMapping(path = "/cosmetic/{cosmeticId}")
-    public ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> changeCosmetic(
+    public ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> handle(
             @AuthenticationPrincipal UUID auth,
             @PathVariable UUID cosmeticId
     ) {

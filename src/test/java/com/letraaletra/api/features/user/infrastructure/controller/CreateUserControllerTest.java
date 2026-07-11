@@ -61,7 +61,7 @@ class CreateUserControllerTest {
                 .execute(any(CreateUserInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<CreateUserResponse>> responseEntity = controller.createUser(request);
+        ResponseEntity<SuccessResponse<CreateUserResponse>> responseEntity = controller.handle(request);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());

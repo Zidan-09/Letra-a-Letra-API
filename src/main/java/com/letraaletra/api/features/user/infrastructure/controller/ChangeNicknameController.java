@@ -27,7 +27,7 @@ public class ChangeNicknameController {
     }
 
     @PatchMapping("/nickname")
-    public ResponseEntity<SuccessResponse<ChangeNicknameResponse>> updateNickname(
+    public ResponseEntity<SuccessResponse<ChangeNicknameResponse>> handle(
             @AuthenticationPrincipal UUID auth,
             @Valid @RequestBody ChangeNicknameRequest request
     ) {
