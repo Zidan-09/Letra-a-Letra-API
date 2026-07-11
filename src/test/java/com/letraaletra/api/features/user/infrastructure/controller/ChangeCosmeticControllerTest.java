@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class ChangeCosmeticControllerTest {
     private ChangeCosmeticController controller;
 
     private UUID authUserId;
+    private AuthenticatedUser principal;
     private UUID cosmeticId;
     private ChangeCosmeticInput mockInput;
     private ChangeCosmeticOutput mockOutput;
@@ -43,6 +45,7 @@ class ChangeCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         authUserId = UUID.randomUUID();
+        principal = new AuthenticatedUser(authUserId, "User", false);
         cosmeticId = UUID.randomUUID();
         mockInput = mock(ChangeCosmeticInput.class);
         mockOutput = mock(ChangeCosmeticOutput.class);
@@ -63,7 +66,7 @@ class ChangeCosmeticControllerTest {
             mapperMock.when(() -> ChangeCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> response = controller.handle(authUserId, cosmeticId);
+            ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> response = controller.handle(principal, cosmeticId);
 
             assertEquals(mockResponseEntity, response);
             verify(changeCosmeticUseCase, times(1)).execute(mockInput);
@@ -78,19 +81,7 @@ class ChangeCosmeticControllerTest {
             mapperMock.when(() -> ChangeCosmeticMapper.toInput(cosmeticId, authUserId)).thenReturn(mockInput);
             when(changeCosmeticUseCase.execute(mockInput)).thenThrow(new RuntimeException("Business rule violation"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(authUserId, cosmeticId));
-        }
-    }
-
-    @Test
-    @DisplayName("Should handle edge case where auth token principal details or mapping context returns null parameters gracefully")
-    void shouldThrowExceptionWhenMappingProducesNullInput() {
-        try (MockedStatic<ChangeCosmeticMapper> mapperMock = mockStatic(ChangeCosmeticMapper.class)) {
-
-            mapperMock.when(() -> ChangeCosmeticMapper.toInput(null, null)).thenReturn(null);
-            when(changeCosmeticUseCase.execute(null)).thenThrow(new IllegalArgumentException("Input cannot be null"));
-
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(null, null));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, cosmeticId));
         }
     }
 
@@ -102,7 +93,7 @@ class ChangeCosmeticControllerTest {
             mapperMock.when(() -> ChangeCosmeticMapper.toInput(cosmeticId, authUserId))
                     .thenThrow(new IllegalArgumentException("Invalid UUID parameters mapping"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(authUserId, cosmeticId));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, cosmeticId));
             verifyNoInteractions(changeCosmeticUseCase);
         }
     }

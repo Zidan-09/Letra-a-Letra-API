@@ -7,6 +7,7 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/admin")
@@ -33,10 +32,10 @@ public class RegisterAdminController {
 
     @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterAdminResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterAdminRequest request
     ) {
-        RegisterAdminInput input = RegisterAdminMapper.toInput(auth, request);
+        RegisterAdminInput input = RegisterAdminMapper.toInput(principal.auth(), request);
 
         RegisterAdminOutput output = useCase.execute(input);
 

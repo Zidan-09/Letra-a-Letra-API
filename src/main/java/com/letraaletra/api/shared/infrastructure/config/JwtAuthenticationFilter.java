@@ -6,6 +6,7 @@ import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .orElseThrow(UserNotFoundException::new);
 
                         authentication = new UsernamePasswordAuthenticationToken(
-                            user.getId(),
+                            new AuthenticatedUser(user.getId(), user.getNickname(), false),
                             null,
                             Collections.emptyList()
                         );
@@ -67,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .orElseThrow(AdminNotFoundException::new);
 
                         authentication = new UsernamePasswordAuthenticationToken(
-                            admin.getId(),
+                            new AuthenticatedUser(admin.getId(), admin.getName(), true),
                             null,
                             Collections.emptyList()
                         );

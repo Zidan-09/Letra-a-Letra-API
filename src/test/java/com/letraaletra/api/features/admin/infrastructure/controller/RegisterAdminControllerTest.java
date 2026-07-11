@@ -9,6 +9,7 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,7 @@ class RegisterAdminControllerTest {
     private MockedStatic<ApiResponseService> apiResponseServiceMockedStatic;
 
     private UUID requesterId;
+    private AuthenticatedUser principal;
     private RegisterAdminRequest request;
     private RegisterAdminInput input;
     private RegisterAdminOutput output;
@@ -53,6 +55,7 @@ class RegisterAdminControllerTest {
         apiResponseServiceMockedStatic = mockStatic(ApiResponseService.class);
 
         requesterId = UUID.randomUUID();
+        principal = new AuthenticatedUser(requesterId, "Admin", true);
         request = new RegisterAdminRequest("Novo Admin", "novo.admin@letraaletra.com", "SecretPassword2026!");
         input = new RegisterAdminInput(requesterId, "Novo Admin", "novo.admin@letraaletra.com", "SecretPassword2026!");
 
@@ -78,7 +81,7 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toResponse(output)).thenReturn(responseDto);
         apiResponseServiceMockedStatic.when(() -> ApiResponseService.success(responseDto)).thenReturn(expectedResponseEntity);
 
-        ResponseEntity<SuccessResponse<RegisterAdminResponse>> result = registerAdminController.handle(requesterId, request);
+        ResponseEntity<SuccessResponse<RegisterAdminResponse>> result = registerAdminController.handle(principal, request);
 
         assertNotNull(result);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -96,7 +99,7 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(requesterId, request)).thenReturn(input);
         when(useCase.execute(input)).thenThrow(new EmailAlreadyInUseException());
 
-        assertThrows(EmailAlreadyInUseException.class, () -> registerAdminController.handle(requesterId, request));
+        assertThrows(EmailAlreadyInUseException.class, () -> registerAdminController.handle(principal, request));
 
         verify(useCase, times(1)).execute(input);
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toInput(requesterId, request), times(1));
@@ -110,21 +113,10 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(requesterId, request)).thenReturn(input);
         when(useCase.execute(input)).thenThrow(new SecurityException("Requester permissions are insufficient"));
 
-        assertThrows(SecurityException.class, () -> registerAdminController.handle(requesterId, request));
+        assertThrows(SecurityException.class, () -> registerAdminController.handle(principal, request));
 
         verify(useCase, times(1)).execute(input);
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toInput(requesterId, request), times(1));
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when authentication principal UUID is missing (Expected Missing Behavior)")
-    void shouldThrowExceptionWhenAuthenticationPrincipalIsNull() {
-        registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(null, request))
-                .thenThrow(new IllegalArgumentException("Authenticated user identity context cannot be missing"));
-
-        assertThrows(IllegalArgumentException.class, () -> registerAdminController.handle(null, request));
-
-        verifyNoInteractions(useCase);
     }
 
     @Test
@@ -133,7 +125,7 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(requesterId, null))
                 .thenThrow(new NullPointerException("Request structure mapping target references null body"));
 
-        assertThrows(NullPointerException.class, () -> registerAdminController.handle(requesterId, null));
+        assertThrows(NullPointerException.class, () -> registerAdminController.handle(principal, null));
 
         verifyNoInteractions(useCase);
     }
@@ -144,7 +136,7 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(requesterId, request))
                 .thenThrow(new IllegalArgumentException("Structural field data extraction error"));
 
-        assertThrows(IllegalArgumentException.class, () -> registerAdminController.handle(requesterId, request));
+        assertThrows(IllegalArgumentException.class, () -> registerAdminController.handle(principal, request));
 
         verifyNoInteractions(useCase);
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toInput(requesterId, request), times(1));

@@ -5,6 +5,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.reque
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RemoveFriendMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ class RemoveFriendControllerTest {
     private RemoveFriendController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockFriendId;
     private RemoveFriendRequest mockRequest;
     private RemoveFriendInput mockInput;
@@ -40,6 +42,7 @@ class RemoveFriendControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockFriendId = UUID.randomUUID().toString();
 
         mockRequest = mock(RemoveFriendRequest.class);
@@ -55,12 +58,12 @@ class RemoveFriendControllerTest {
         try (MockedStatic<RemoveFriendMapper> mapperMock = mockStatic(RemoveFriendMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
 
-            mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId.toString(), mockFriendId)).thenReturn(mockInput);
+            mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<Void>> response = controller.handle(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -75,10 +78,10 @@ class RemoveFriendControllerTest {
     void removeFriend_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RemoveFriendMapper> mapperMock = mockStatic(RemoveFriendMapper.class)) {
 
-            mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId.toString(), mockFriendId)).thenReturn(mockInput);
+            mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             doThrow(new RuntimeException("Friendship relationship not found or already broken")).when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
         }
     }
 }

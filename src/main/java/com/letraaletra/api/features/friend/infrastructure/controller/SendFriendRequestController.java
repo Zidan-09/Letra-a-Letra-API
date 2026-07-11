@@ -7,6 +7,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/friend")
@@ -33,10 +32,10 @@ public class SendFriendRequestController {
 
     @PostMapping(path = "/request")
     public ResponseEntity<SuccessResponse<SendFriendRequestResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody SendFriendRequestRequest request
     ) {
-        SendFriendRequestInput input = SendFriendRequestMapper.toInput(auth, request.friendId());
+        SendFriendRequestInput input = SendFriendRequestMapper.toInput(principal.auth(), request.friendId());
 
         SendFriendRequestOutput output = useCase.execute(input);
 

@@ -6,6 +6,7 @@ import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.res
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class DeleteCosmeticControllerTest {
     private DeleteCosmeticController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockCosmeticId;
     private DeleteCosmeticInput mockInput;
     private DeleteCosmeticOutput mockOutput;
@@ -42,6 +44,7 @@ class DeleteCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
 
         mockInput = mock(DeleteCosmeticInput.class);
@@ -64,7 +67,7 @@ class DeleteCosmeticControllerTest {
                     ResponseEntity.ok(successResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(mockAuthId, mockCosmeticId);
+            ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,7 +85,7 @@ class DeleteCosmeticControllerTest {
             mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Internal error or business restriction"));
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockCosmeticId));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockCosmeticId));
 
             mapperMock.verify(() -> DeleteCosmeticMapper.toResponse(any()), never());
         }
@@ -117,7 +120,7 @@ class DeleteCosmeticControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(mockAuthId, mockCosmeticId);
+            ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

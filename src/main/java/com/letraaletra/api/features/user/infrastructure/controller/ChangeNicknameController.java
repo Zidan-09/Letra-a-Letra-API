@@ -7,14 +7,13 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeNicknameMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -28,10 +27,10 @@ public class ChangeNicknameController {
 
     @PatchMapping("/nickname")
     public ResponseEntity<SuccessResponse<ChangeNicknameResponse>> handle(
-            @AuthenticationPrincipal UUID auth,
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody ChangeNicknameRequest request
     ) {
-        ChangeNicknameInput input = ChangeNicknameMapper.toInput(auth, request);
+        ChangeNicknameInput input = ChangeNicknameMapper.toInput(principal.auth(), request);
 
         ChangeNicknameOutput output = changeNicknameUseCase.execute(input);
 

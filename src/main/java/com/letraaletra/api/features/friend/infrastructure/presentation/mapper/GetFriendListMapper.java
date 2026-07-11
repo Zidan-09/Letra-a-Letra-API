@@ -7,9 +7,9 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import java.util.UUID;
 
 public class GetFriendListMapper {
-    public static GetFriendListInput toInput(String userId) {
+    public static GetFriendListInput toInput(UUID userId) {
         return new GetFriendListInput(
-                UUID.fromString(userId)
+                userId
         );
     }
 

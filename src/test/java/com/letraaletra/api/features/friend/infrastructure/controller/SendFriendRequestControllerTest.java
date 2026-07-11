@@ -7,6 +7,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ class SendFriendRequestControllerTest {
     private SendFriendRequestController controller;
 
     private UUID mockAuthId;
+    private AuthenticatedUser principal;
     private String mockFriendId;
     private SendFriendRequestRequest mockRequest;
     private SendFriendRequestInput mockInput;
@@ -44,6 +46,7 @@ class SendFriendRequestControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", false);
         mockFriendId = UUID.randomUUID().toString();
 
         mockRequest = mock(SendFriendRequestRequest.class);
@@ -69,7 +72,7 @@ class SendFriendRequestControllerTest {
                     ResponseEntity.ok(mockSuccessResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -87,7 +90,7 @@ class SendFriendRequestControllerTest {
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             doThrow(new RuntimeException("Users are already friends or request is pending")).when(useCase).execute(mockInput);
 
-            assertThrows(RuntimeException.class, () -> controller.handle(mockAuthId, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
 
             mapperMock.verify(() -> SendFriendRequestMapper.toResponse(any()), never());
         }
@@ -108,7 +111,7 @@ class SendFriendRequestControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(mockAuthId, mockRequest);
+            ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);

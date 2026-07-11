@@ -5,4 +5,9 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequ
 
 @JsonTypeName("EXIT_MATCHMAKING")
 public record ExitMatchmakingGameWsRequest()
-        implements WsRequest {}
+        implements WsRequest {
+    @Override
+    public String getAudit() {
+        return "exited of matchmaking queue";
+    }
+}

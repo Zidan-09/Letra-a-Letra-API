@@ -6,4 +6,8 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequ
 @JsonTypeName("EXIT_RANKING")
 public record ExitRankingGameWsRequest()
         implements WsRequest {
+    @Override
+    public String getAudit() {
+        return "exited from ranking queue";
+    }
 }
