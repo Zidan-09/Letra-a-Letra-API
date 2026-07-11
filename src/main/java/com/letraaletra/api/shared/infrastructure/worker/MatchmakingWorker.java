@@ -53,7 +53,7 @@ public class MatchmakingWorker {
     }
 
     private void startGame(MatchmakingPair pair, GameMode mode, QueueType type) {
-        Game game = assembler.create(pair, mode);
+        Game game = assembler.create(pair, mode, type);
 
         timeoutManager.start(game);
 

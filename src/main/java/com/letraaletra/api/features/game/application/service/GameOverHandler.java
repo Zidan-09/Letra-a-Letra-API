@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.application.service;
 
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
@@ -10,8 +11,6 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-
-import java.util.Optional;
 
 public class GameOverHandler {
     private final GameRepository gameRepository;
@@ -37,6 +36,12 @@ public class GameOverHandler {
     public void handle(Game game, GameOverResult result) {
         if (!result.finished()) return;
 
+        User userWinner = userRepository.find(result.winner().getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
+        User userLoser = userRepository.find(result.loser().getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
         updateStatsService.execute(result.winner(), true);
         updateStatsService.execute(result.loser(), false);
 
@@ -47,22 +52,14 @@ public class GameOverHandler {
 
         if (game.getGameStatus().equals(GameStatus.CLOSED)) {
             actorManager.remove(game.getId());
-            removeAllParticipantsFromGame(game);
+
+            userWinner.leaveGame();
+            userLoser.leaveGame();
+
+            userRepository.save(userWinner);
+            userRepository.save(userLoser);
         }
 
         gameRepository.save(game);
-    }
-
-    private void removeAllParticipantsFromGame(Game game) {
-        game.getParticipants().forEach(participant -> {
-                    Optional<User> user = userRepository.find(participant.getUserId());
-
-                    if (user.isPresent()) {
-                        user.get().leaveGame();
-
-                        userRepository.save(user.get());
-                    }
-                }
-        );
     }
 }
