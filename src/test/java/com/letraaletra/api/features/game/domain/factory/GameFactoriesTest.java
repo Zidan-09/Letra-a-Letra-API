@@ -45,12 +45,12 @@ class GameFactoriesTest {
 
         @Test
         @DisplayName("Deve gerar um jogo de Matchmaking com dois jogadores e configurações padrão de privacidade")
-        void shouldGenerateDefaultGameForMatchmaking() {
+        void shouldMatchDefaultGameForMatchmaking() {
             Participant player1 = new Participant(userId1, "sess-1", "PlayerOne", List.of());
             Participant player2 = new Participant(userId2, "sess-2", "PlayerTwo", List.of());
             String roomCode = "MATCH1";
 
-            DefaultGameResult result = factory.generate(player1, player2, roomCode);
+            DefaultGameResult result = factory.match(player1, player2, roomCode);
 
             assertNotNull(result);
             Game game = result.game();

@@ -5,9 +5,7 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -74,9 +72,7 @@ public class BroadcastService implements GameNotifier {
     }
 
     @Override
-    public void notifierGameOver(Game game, GameOverResult gameOverResult) {
-        GameOverResponse dto = GameOverMapper.toResponse(gameOverResult, game);
-
+    public void notifierGameOver(Game game, WsResponse dto) {
         notifierAll(game, dto);
     }
 
