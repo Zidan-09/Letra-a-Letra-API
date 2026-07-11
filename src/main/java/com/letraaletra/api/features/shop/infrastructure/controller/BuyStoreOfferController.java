@@ -27,7 +27,7 @@ public class BuyStoreOfferController {
     }
 
     @PostMapping(path = "/{offerId}/buy")
-    public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> buyOffer(
+    public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> handle(
             @AuthenticationPrincipal UUID auth,
             @PathVariable UUID offerId
     ) {

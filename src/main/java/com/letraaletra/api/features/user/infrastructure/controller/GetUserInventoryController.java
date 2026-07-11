@@ -29,7 +29,7 @@ public class GetUserInventoryController {
     }
 
     @GetMapping(path = "/inventory")
-    public ResponseEntity<SuccessResponse<GetUserInventoryResponse>> getUserInventory(
+    public ResponseEntity<SuccessResponse<GetUserInventoryResponse>> handle(
             @AuthenticationPrincipal UUID auth
         ) {
         GetUserInventoryInput input = GetUserInventoryMapper.toInput(auth);
