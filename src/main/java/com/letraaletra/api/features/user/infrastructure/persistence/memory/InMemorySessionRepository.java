@@ -90,4 +90,9 @@ public class InMemorySessionRepository implements SessionRepository {
             lock.unlock();
         }
     }
+
+    @Override
+    public long playersOnline() {
+        return sessionsBySessionId.size();
+    }
 }

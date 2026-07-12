@@ -8,4 +8,5 @@ public interface ActorManager<T> {
     Actor get(UUID id);
     List<Actor> getAllActors();
     void remove(UUID id);
+    long count();
 }

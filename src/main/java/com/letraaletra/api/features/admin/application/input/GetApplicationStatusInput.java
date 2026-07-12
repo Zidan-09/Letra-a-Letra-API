@@ -2,7 +2,7 @@ package com.letraaletra.api.features.admin.application.input;
 
 import java.util.UUID;
 
-public record GetSystemStatusInput(
+public record GetApplicationStatusInput(
         UUID auth
 ) {
 }

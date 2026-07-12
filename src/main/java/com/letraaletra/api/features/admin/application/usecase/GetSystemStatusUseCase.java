@@ -5,34 +5,32 @@ import com.letraaletra.api.features.admin.application.output.CpuOutput;
 import com.letraaletra.api.features.admin.application.output.GetSystemStatusOutput;
 import com.letraaletra.api.features.admin.application.output.MemoryOutput;
 import com.letraaletra.api.features.admin.application.output.StorageOutput;
+import com.letraaletra.api.features.admin.application.port.HealthChecker;
+import com.letraaletra.api.features.admin.application.port.MeterChecker;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 
 public class GetSystemStatusUseCase implements UseCase<GetSystemStatusInput, GetSystemStatusOutput> {
-    private final MeterRegistry meterRegistry;
-    private final HealthEndpoint healthEndpoint;
+    private final MeterChecker meterChecker;
+    private final HealthChecker healthChecker;
     private final AdminChecker adminChecker;
 
     public GetSystemStatusUseCase(
-            MeterRegistry meterRegistry,
-            HealthEndpoint healthEndpoint,
+            MeterChecker meterChecker,
+            HealthChecker healthChecker,
             AdminChecker adminChecker
     ) {
-        this.meterRegistry = meterRegistry;
-        this.healthEndpoint = healthEndpoint;
+        this.meterChecker = meterChecker;
+        this.healthChecker = healthChecker;
         this.adminChecker = adminChecker;
     }
 
     @Override
     public GetSystemStatusOutput execute(GetSystemStatusInput input) {
-        adminChecker.check(input.principal().auth());
+        adminChecker.check(input.auth());
 
-        String health = healthEndpoint.health()
-                .getStatus()
-                .getCode();
+        String health = healthChecker.getStatus();
 
         double systemCpuUsage = metric("system.cpu.usage");
         double processCpuUsage = metric("process.cpu.usage");
@@ -58,11 +56,27 @@ public class GetSystemStatusUseCase implements UseCase<GetSystemStatusInput, Get
     }
 
     private double metric(String name) {
-        Gauge gauge = meterRegistry.find(name).gauge();
+        Gauge gauge = meterChecker.find(name);
 
         return gauge == null
                 ? 0
                 : gauge.value();
+    }
+
+    private double percentage(double used, double total) {
+        if (Double.isNaN(total)
+                || Double.isInfinite(total)
+                || total <= 0) {
+            return 0;
+        }
+
+        double percentage = (used / total) * 100;
+
+        if (Double.isNaN(percentage) || Double.isInfinite(percentage)) {
+            return 0;
+        }
+
+        return Math.clamp(percentage, 0, 100);
     }
 
     private GetSystemStatusOutput buildOutput(
@@ -78,7 +92,7 @@ public class GetSystemStatusUseCase implements UseCase<GetSystemStatusInput, Get
 
         long totalStorage = (long) diskTotal;
         long freeStorage = (long) diskFree;
-        long usedStorage = totalStorage - freeStorage;
+        long usedStorage = Math.max(0, totalStorage - freeStorage);
 
         return new GetSystemStatusOutput(
                 (long) uptime,
@@ -89,17 +103,13 @@ public class GetSystemStatusUseCase implements UseCase<GetSystemStatusInput, Get
                 new MemoryOutput(
                         (long) memoryUsed,
                         (long) memoryMax,
-                        memoryMax == 0 ?
-                                0 :
-                                (memoryUsed / memoryMax) * 100
+                        percentage(memoryUsed, memoryMax)
                 ),
                 new StorageOutput(
                         usedStorage,
                         freeStorage,
                         totalStorage,
-                        diskTotal == 0 ?
-                                0 :
-                                ((diskTotal - diskFree) / diskTotal) * 100
+                        percentage(usedStorage, diskTotal)
                 ),
                 health
         );

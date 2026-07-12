@@ -51,4 +51,9 @@ public class GameActorManager implements ActorManager<Game> {
     public void remove(UUID id) {
         actors.remove(id);
     }
+
+    @Override
+    public long count() {
+        return actors.size();
+    }
 }
