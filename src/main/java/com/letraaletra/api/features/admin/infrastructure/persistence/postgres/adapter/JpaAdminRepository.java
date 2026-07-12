@@ -46,4 +46,9 @@ public class JpaAdminRepository implements AdminRepository {
     public void save(Admin admin) {
         repository.save(AdminMapper.toEntity(admin));
     }
+
+    @Override
+    public long count() {
+        return repository.count();
+    }
 }
