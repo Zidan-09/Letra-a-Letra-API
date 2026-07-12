@@ -87,4 +87,9 @@ public class JpaUserRepository implements UserRepository {
     public boolean existsByNickname(String nickname) {
         return repository.existsByUsername(nickname);
     }
+
+    @Override
+    public long countUsers() {
+        return repository.count();
+    }
 }
