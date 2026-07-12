@@ -1,8 +1,16 @@
 package com.letraaletra.api.features.admin.infrastructure.config;
 
+import com.letraaletra.api.features.admin.application.port.HealthChecker;
+import com.letraaletra.api.features.admin.application.port.MeterChecker;
 import com.letraaletra.api.features.admin.application.usecase.AuthAdminUseCase;
+import com.letraaletra.api.features.admin.application.usecase.GetApplicationStatusUseCase;
+import com.letraaletra.api.features.admin.application.usecase.GetSystemStatusUseCase;
 import com.letraaletra.api.features.admin.application.usecase.RegisterAdminUseCase;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
@@ -34,6 +42,34 @@ public class AdminConfig {
                 adminRepository,
                 passwordService,
                 tokenService
+        );
+    }
+
+    @Bean
+    public GetSystemStatusUseCase getSystemStatusUseCase(
+            MeterChecker meterChecker,
+            HealthChecker healthChecker,
+            AdminChecker adminChecker
+    ) {
+        return new GetSystemStatusUseCase(
+                meterChecker,
+                healthChecker,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetApplicationStatusUseCase getApplicationStatusUseCase(
+            UserRepository userRepository,
+            SessionRepository sessionRepository,
+            ActorManager<Game> actorManager,
+            AdminChecker adminChecker
+    ) {
+        return new GetApplicationStatusUseCase(
+                userRepository,
+                sessionRepository,
+                actorManager,
+                adminChecker
         );
     }
 }

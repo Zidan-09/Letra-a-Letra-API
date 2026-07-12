@@ -1,24 +1,22 @@
-package com.letraaletra.api.shared.infrastructure.persistence.memory;
+package com.letraaletra.api.features.admin.infrastructure.persistence.memory;
 
-import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.features.admin.application.port.AdminSessionRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Repository
-public class InMemorySessionRepository implements SessionRepository {
+public class InMemoryAdminSessionRepository implements AdminSessionRepository {
     private final Map<String, WebSocketSession> sessionsBySessionId = new ConcurrentHashMap<>();
-    private final Map<String, String> sessionIdByUserId = new ConcurrentHashMap<>();
+    private final Map<String, String> sessionIdByAdminId = new ConcurrentHashMap<>();
     private final Map<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
-
-    private ReentrantLock lockFor(String userId) {
-        return userLocks.computeIfAbsent(userId, k -> new ReentrantLock());
-    }
 
     @Override
     public void save(WebSocketSession session) {
@@ -26,13 +24,13 @@ public class InMemorySessionRepository implements SessionRepository {
                 new ConcurrentWebSocketSessionDecorator(session, 10_000, 8192);
 
         String sessionId = decorated.getId();
-        String userId = (String) session.getAttributes().get("userId");
+        String adminId = (String) session.getAttributes().get("adminId");
 
-        ReentrantLock lock = lockFor(userId);
+        ReentrantLock lock = lockFor(adminId);
         lock.lock();
 
         try {
-            String oldSessionId = sessionIdByUserId.put(userId, sessionId);
+            String oldSessionId = sessionIdByAdminId.put(adminId, sessionId);
 
             if (oldSessionId != null && !oldSessionId.equals(sessionId)) {
                 WebSocketSession oldSession = sessionsBySessionId.remove(oldSessionId);
@@ -54,40 +52,52 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public WebSocketSession find(String sessionId) {
-        return sessionsBySessionId.get(sessionId);
+    public Optional<WebSocketSession> find(String sessionId) {
+        return Optional.of(sessionsBySessionId.get(sessionId));
     }
 
     @Override
-    public WebSocketSession findByUserId(UUID userId) {
-        String sessionId = sessionIdByUserId.get(userId.toString());
-        if (sessionId == null) return null;
-        return sessionsBySessionId.get(sessionId);
+    public Optional<WebSocketSession> findByAdminId(UUID adminId) {
+        String sessionId = sessionIdByAdminId.get(adminId.toString());
+
+        if (sessionId == null) return Optional.empty();
+
+        return Optional.of(sessionsBySessionId.get(sessionId));
+    }
+
+    @Override
+    public List<WebSocketSession> get() {
+        return sessionsBySessionId.values()
+                .stream().toList();
     }
 
     @Override
     public void remove(WebSocketSession session) {
         String sessionId = session.getId();
-        String userId = (String) session.getAttributes().get("userId");
+        String adminId = (String) session.getAttributes().get("adminId");
 
-        if (userId == null) {
+        if (adminId == null) {
             sessionsBySessionId.remove(sessionId);
             return;
         }
 
-        ReentrantLock lock = lockFor(userId);
+        ReentrantLock lock = lockFor(adminId);
         lock.lock();
 
         try {
             sessionsBySessionId.remove(sessionId);
 
-            String current = sessionIdByUserId.get(userId);
+            String current = sessionIdByAdminId.get(adminId);
             if (sessionId.equals(current)) {
-                sessionIdByUserId.remove(userId);
+                sessionIdByAdminId.remove(adminId);
             }
 
         } finally {
             lock.unlock();
         }
+    }
+
+    private ReentrantLock lockFor(String userId) {
+        return userLocks.computeIfAbsent(userId, k -> new ReentrantLock());
     }
 }

@@ -31,7 +31,7 @@ public class AuditInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler,
             @Nullable Exception ex
-    ) throws Exception {
+    ) {
         if (!(handler instanceof HandlerMethod handlerMethod)) {
             return;
         }
