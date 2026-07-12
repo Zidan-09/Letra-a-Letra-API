@@ -6,6 +6,9 @@
     <property name="AUDIT_PATTERN"
               value="[%d{HH:mm:ss}] [%level]: %msg%n"/>
 
+    <appender name="WEBSOCKET"
+              class="com.letraaletra.api.shared.infrastructure.audit.WebSocketAppender"/>
+
     <appender name="CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
 
@@ -63,13 +66,13 @@
 
     </appender>
 
-
     <logger name="AUDIT_ADMIN"
             level="INFO"
             additivity="false">
 
         <appender-ref ref="AUDIT_ADMIN_FILE"/>
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="WEBSOCKET"/>
     </logger>
 
 
@@ -79,6 +82,7 @@
 
         <appender-ref ref="AUDIT_GAME_FILE"/>
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="WEBSOCKET"/>
     </logger>
 
 
