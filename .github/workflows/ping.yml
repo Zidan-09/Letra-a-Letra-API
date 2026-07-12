@@ -1,0 +1,22 @@
+name: Ping Api
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-loop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Loop de Pings a cada 30 segundos
+        run: |
+          echo "Starting ping cycle..."
+          for i in {1..10}
+          do
+            echo "sending ping $i de 10..."
+            curl -s -o /dev/null -w "%{http_code}" https://sua-api.onrender.com/
+            echo ""
+            sleep 30
+          done
+          echo "Waiting next Github start"
