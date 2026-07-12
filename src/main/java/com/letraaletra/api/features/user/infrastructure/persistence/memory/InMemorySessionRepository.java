@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.infrastructure.persistence.memory;
+package com.letraaletra.api.features.user.infrastructure.persistence.memory;
 
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import org.springframework.stereotype.Repository;

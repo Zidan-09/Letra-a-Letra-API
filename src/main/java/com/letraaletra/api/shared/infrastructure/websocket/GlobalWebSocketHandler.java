@@ -18,6 +18,7 @@ import jakarta.validation.Validator;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -106,7 +107,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(@NonNull WebSocketSession session, org.springframework.web.socket.@NonNull CloseStatus status) {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         sessionRepository.remove(session);
 
         disconnectParticipantHandler.handler(session);
