@@ -11,6 +11,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.Succe
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ public class GetApplicationStatusController {
         this.useCase = useCase;
     }
 
+    @GetMapping(path = "/application")
     public ResponseEntity<SuccessResponse<GetApplicationStatusResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal
     ) {
