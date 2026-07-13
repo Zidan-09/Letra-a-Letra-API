@@ -15,7 +15,9 @@ public class GetApplicationStatusMapper {
 
     public static GetApplicationStatusResponse toResponse(GetApplicationStatusOutput output) {
         return new GetApplicationStatusResponse(
-
+                output.users(),
+                output.usersOnline(),
+                output.games()
         );
     }
 }
