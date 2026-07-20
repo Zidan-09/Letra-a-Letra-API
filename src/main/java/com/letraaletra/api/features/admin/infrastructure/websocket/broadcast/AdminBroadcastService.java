@@ -2,7 +2,7 @@ package com.letraaletra.api.features.admin.infrastructure.websocket.broadcast;
 
 import com.letraaletra.api.features.admin.application.port.AdminNotifier;
 import com.letraaletra.api.features.admin.application.port.AdminSessionRepository;
-import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.MetricsWsResponse;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.WsAdminResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,12 +26,12 @@ public class AdminBroadcastService implements AdminNotifier {
     }
 
     @Override
-    public void updateConsole(String message) {
+    public void updateConsole(WsAdminResponse dto) {
         adminSessionRepository.get().forEach(session -> {
             if (!session.isOpen()) return;
 
             try {
-                String json = objectMapper.writeValueAsString(message);
+                String json = objectMapper.writeValueAsString(dto);
                 send(session, json);
             } catch (Exception e) {
                 logger.warn("Error serializing message for admin: {}, error on logs", e.getMessage());
@@ -40,7 +40,7 @@ public class AdminBroadcastService implements AdminNotifier {
     }
 
     @Override
-    public void updateMetrics(MetricsWsResponse dto) {
+    public void updateMetrics(WsAdminResponse dto) {
         adminSessionRepository.get().forEach(session -> {
             if (!session.isOpen()) return;
 
