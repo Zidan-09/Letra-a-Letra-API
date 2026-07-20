@@ -1,10 +1,9 @@
 package com.letraaletra.api.features.admin.application.usecase;
 
-import com.letraaletra.api.features.admin.application.input.GetSystemStatusInput;
 import com.letraaletra.api.features.admin.application.output.GetSystemStatusOutput;
 import com.letraaletra.api.features.admin.application.port.HealthChecker;
 import com.letraaletra.api.features.admin.application.port.MeterChecker;
-import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
 import io.micrometer.core.instrument.Gauge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,22 +12,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GetSystemStatusUseCaseTest {
+class GetSystemStatusServiceTest {
 
     @Mock
     private MeterChecker meterChecker;
 
     @Mock
     private HealthChecker healthChecker;
-
-    @Mock
-    private AdminChecker adminChecker;
 
     @Mock
     private Gauge systemCpuGauge;
@@ -51,13 +45,11 @@ class GetSystemStatusUseCaseTest {
     @Mock
     private Gauge uptimeGauge;
 
-    private GetSystemStatusUseCase useCase;
-    private GetSystemStatusInput validInput;
+    private GetSystemStatusService service;
 
     @BeforeEach
     void setUp() {
-        useCase = new GetSystemStatusUseCase(meterChecker, healthChecker, adminChecker);
-        validInput = new GetSystemStatusInput(UUID.randomUUID());
+        service = new GetSystemStatusService(meterChecker, healthChecker);
 
         lenient().when(meterChecker.find(anyString())).thenReturn(null);
         lenient().when(healthChecker.getStatus()).thenReturn("UNKNOWN");
@@ -89,9 +81,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("process.uptime")).thenReturn(uptimeGauge);
         when(uptimeGauge.value()).thenReturn(3600.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
-
-        verify(adminChecker, times(1)).check(validInput.auth());
+        GetSystemStatusOutput output = service.handle();
 
         assertNotNull(output);
         assertEquals(3600L, output.uptime());
@@ -111,22 +101,11 @@ class GetSystemStatusUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should throw exception and block execution when admin verification fails")
-    void shouldThrowExceptionWhenAdminCheckFails() {
-        doThrow(new SecurityException("Unauthorized")).when(adminChecker).check(validInput.auth());
-
-        assertThrows(SecurityException.class, () -> useCase.execute(validInput));
-
-        verifyNoInteractions(healthChecker);
-        verifyNoInteractions(meterChecker);
-    }
-
-    @Test
     @DisplayName("Should return zero values safely when all metric gauges are null")
     void shouldReturnZeroValuesWhenGaugesAreNull() {
         when(healthChecker.getStatus()).thenReturn("UNKNOWN");
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertNotNull(output);
         assertEquals(0L, output.uptime());
@@ -156,7 +135,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("jvm.memory.max")).thenReturn(memoryMaxGauge);
         when(memoryMaxGauge.value()).thenReturn(0.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertEquals(100L, output.memory().used());
         assertEquals(0L, output.memory().max());
@@ -174,7 +153,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("disk.total")).thenReturn(diskTotalGauge);
         when(diskTotalGauge.value()).thenReturn(0.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertEquals(0L, output.storage().total());
         assertEquals(50L, output.storage().free());
@@ -193,7 +172,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("system.cpu.usage")).thenReturn(systemCpuGauge);
         when(systemCpuGauge.value()).thenReturn(-0.5);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertEquals(-10L, output.uptime());
         assertEquals(-0.5, output.cpu().systemUsage());
@@ -214,7 +193,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("jvm.memory.max")).thenReturn(memoryMaxGauge);
         when(memoryMaxGauge.value()).thenReturn(1000.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertEquals(1234L, output.uptime());
         assertEquals(500L, output.memory().used());
@@ -229,7 +208,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("disk.total")).thenReturn(diskTotalGauge);
         when(diskTotalGauge.value()).thenReturn(100.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertTrue(output.storage().used() >= 0, "Storage used should be guarded against negative numbers");
     }
@@ -243,7 +222,7 @@ class GetSystemStatusUseCaseTest {
         when(meterChecker.find("jvm.memory.max")).thenReturn(memoryMaxGauge);
         when(memoryMaxGauge.value()).thenReturn(1000.0);
 
-        GetSystemStatusOutput output = useCase.execute(validInput);
+        GetSystemStatusOutput output = service.handle();
 
         assertTrue(output.memory().usage() <= 100.0, "Percentage should be capped at 100%");
     }
