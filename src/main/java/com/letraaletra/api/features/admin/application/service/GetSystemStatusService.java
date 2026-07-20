@@ -1,35 +1,26 @@
-package com.letraaletra.api.features.admin.application.usecase;
+package com.letraaletra.api.features.admin.application.service;
 
-import com.letraaletra.api.features.admin.application.input.GetSystemStatusInput;
 import com.letraaletra.api.features.admin.application.output.CpuOutput;
 import com.letraaletra.api.features.admin.application.output.GetSystemStatusOutput;
 import com.letraaletra.api.features.admin.application.output.MemoryOutput;
 import com.letraaletra.api.features.admin.application.output.StorageOutput;
 import com.letraaletra.api.features.admin.application.port.HealthChecker;
 import com.letraaletra.api.features.admin.application.port.MeterChecker;
-import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.usecase.UseCase;
 import io.micrometer.core.instrument.Gauge;
 
-public class GetSystemStatusUseCase implements UseCase<GetSystemStatusInput, GetSystemStatusOutput> {
+public class GetSystemStatusService {
     private final MeterChecker meterChecker;
     private final HealthChecker healthChecker;
-    private final AdminChecker adminChecker;
 
-    public GetSystemStatusUseCase(
+    public GetSystemStatusService(
             MeterChecker meterChecker,
-            HealthChecker healthChecker,
-            AdminChecker adminChecker
+            HealthChecker healthChecker
     ) {
         this.meterChecker = meterChecker;
         this.healthChecker = healthChecker;
-        this.adminChecker = adminChecker;
     }
 
-    @Override
-    public GetSystemStatusOutput execute(GetSystemStatusInput input) {
-        adminChecker.check(input.auth());
-
+    public GetSystemStatusOutput handle() {
         String health = healthChecker.getStatus();
 
         double systemCpuUsage = metric("system.cpu.usage");
