@@ -4,6 +4,8 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.letraaletra.api.features.admin.application.port.AdminNotifier;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.LogWsResponse;
+import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.LogMapper;
 
 public class WebSocketAppender extends AppenderBase<ILoggingEvent> {
     private static AdminNotifier notifier;
@@ -25,6 +27,8 @@ public class WebSocketAppender extends AppenderBase<ILoggingEvent> {
 
         String text = layout.doLayout(event);
 
-        notifier.updateConsole(text);
+        LogWsResponse dto = LogMapper.toResponse(text);
+
+        notifier.updateConsole(dto);
     }
 }
