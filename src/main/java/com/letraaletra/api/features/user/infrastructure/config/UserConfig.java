@@ -74,4 +74,13 @@ public class UserConfig {
                 inventoryRepository
         );
     }
+
+    @Bean
+    public GetMyProfileUseCase getMyProfileUseCase(
+            UserRepository userRepository
+    ) {
+        return new GetMyProfileUseCase(
+                userRepository
+        );
+    }
 }
