@@ -5,6 +5,7 @@ import com.letraaletra.api.features.admin.application.port.MeterChecker;
 import com.letraaletra.api.features.admin.application.usecase.AuthAdminUseCase;
 import com.letraaletra.api.features.admin.application.service.GetApplicationStatusService;
 import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
+import com.letraaletra.api.features.admin.application.usecase.GetMyAdminProfileUseCase;
 import com.letraaletra.api.features.admin.application.usecase.RegisterAdminUseCase;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.game.domain.Game;
@@ -66,6 +67,15 @@ public class AdminConfig {
                 userRepository,
                 sessionRepository,
                 actorManager
+        );
+    }
+
+    @Bean
+    public GetMyAdminProfileUseCase getMyAdminProfileUseCase(
+            AdminRepository adminRepository
+    ) {
+        return new GetMyAdminProfileUseCase(
+                adminRepository
         );
     }
 }
