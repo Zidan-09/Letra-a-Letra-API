@@ -4,6 +4,7 @@ import com.letraaletra.api.features.game.application.service.*;
 import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
+import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -112,10 +113,9 @@ public class GameConfig {
     @Bean
     public ExpireTurnService expireTurnUseCase(
             GameActorManager gameActorManager,
-            GameOverHandler gameOverHandler,
-            UserRepository userRepository
+            GameOverHandler gameOverHandler
     ) {
-        return new ExpireTurnService(gameActorManager, gameOverHandler, userRepository);
+        return new ExpireTurnService(gameActorManager, gameOverHandler);
     }
 
     @Bean
@@ -184,10 +184,12 @@ public class GameConfig {
     @Bean
     public GameResponseAssemblerService gameResponseAssemblerService(
             UserRepository userRepository,
+            SessionRepository sessionRepository,
             UpdateRankingPointsService rankingPointsService
     ) {
         return new GameResponseAssemblerService(
                 userRepository,
+                sessionRepository,
                 rankingPointsService
         );
     }

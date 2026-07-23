@@ -2,10 +2,11 @@ package com.letraaletra.api.features.player.application.usecase;
 
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
 import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
 import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.domain.Player;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,11 +63,13 @@ class PlayerActionUseCaseTest {
         UUID userId = UUID.randomUUID();
 
         PlayerActionInput input = new PlayerActionInput(gameId.toString(), userId, mockGameAction);
-
-        GameOverResult activeGameResult = new GameOverResult(false, null, null);
         List<Event> events = List.of(mockEvent);
 
-        PlayerActionResult actionResult = new PlayerActionResult(events, activeGameResult, mockGame);
+        PlayerActionResult actionResult = new PlayerActionResult(
+                events,
+                Optional.empty(),
+                mockGame
+        );
 
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
@@ -78,7 +82,7 @@ class PlayerActionUseCaseTest {
         assertEquals(events, output.events());
         assertTrue(output.gameOver().isEmpty(), "O Optional 'gameOver' deveria estar vazio");
 
-        verify(gameOverHandler, times(1)).handle(mockGame, activeGameResult);
+        verifyNoInteractions(gameOverHandler);
 
         ArgumentCaptor<PlayerActionActorCommand> commandCaptor = ArgumentCaptor.forClass(PlayerActionActorCommand.class);
         verify(actor).enqueueCommand(commandCaptor.capture());
@@ -95,9 +99,18 @@ class PlayerActionUseCaseTest {
         UUID userId = UUID.randomUUID();
         PlayerActionInput input = new PlayerActionInput(gameId.toString(), userId, mockGameAction);
 
-        GameOverResult finishedGameResult = new GameOverResult(true, mockPlayer, mockPlayer);
+        GameOver finishedGameResult = new GameOver(
+                GameOverReasons.SCORE,
+                mockPlayer,
+                mockPlayer
+        );
+
         List<Event> events = List.of();
-        PlayerActionResult actionResult = new PlayerActionResult(events, finishedGameResult, mockGame);
+        PlayerActionResult actionResult = new PlayerActionResult(
+                events,
+                Optional.of(finishedGameResult),
+                mockGame
+        );
 
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))

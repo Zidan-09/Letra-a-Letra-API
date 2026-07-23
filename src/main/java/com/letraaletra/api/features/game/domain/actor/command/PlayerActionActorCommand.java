@@ -16,12 +16,13 @@ import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult> {
@@ -53,9 +54,9 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             events = new ArrayList<>();
         }
 
-        GameOverResult gameOverResult = state.gameOverChecker();
+        Optional<GameOver> gameOver = state.gameOverBecauseScore();
 
-        if (gameOverResult.finished()) {
+        if (gameOver.isPresent()) {
             if (game.getGameType().equals(GameType.CUSTOM)) {
                 game.setGameStatus(GameStatus.WAITING);
                 gameTimeoutManager.start(game);
@@ -64,7 +65,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
                 game.setGameStatus(GameStatus.CLOSED);
             }
 
-            return new PlayerActionResult(events, gameOverResult, game);
+            return new PlayerActionResult(events, gameOver, game);
         }
 
         Player current;
@@ -86,7 +87,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
         turnTimeoutManager.start(game);
 
-        return new PlayerActionResult(events, gameOverResult, game);
+        return new PlayerActionResult(events, gameOver, game);
     }
 
     private void validatePlayer(UUID userId, Game game) {

@@ -8,6 +8,7 @@ import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.resp
 
 public class RankingMatchResultMapper {
     public static RankedMatchResult toDto(Player player, Participant participant, UpdateRankingPoints points) {
+        System.out.println(participant);
         return new RankedMatchResult(
                 PlayerDTOMapper.toDTO(player, participant),
                 points.before(),
