@@ -5,9 +5,7 @@ import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +32,6 @@ class ExpireTurnServiceTest {
     private GameOverHandler gameOverHandler;
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
     private Actor actor;
 
     @InjectMocks
@@ -61,7 +56,7 @@ class ExpireTurnServiceTest {
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
         ExpireTurnResult result = mock(ExpireTurnResult.class);
-        GameOverResult gameOverResult = mock(GameOverResult.class);
+        GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
@@ -70,8 +65,7 @@ class ExpireTurnServiceTest {
 
         when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
-        when(result.gameOverResult()).thenReturn(gameOverResult);
-        when(result.removedBecauseAfk()).thenReturn(false);
+        when(result.gameOver()).thenReturn(Optional.of(gameOver));
 
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
@@ -82,8 +76,7 @@ class ExpireTurnServiceTest {
         assertEquals(userId1, output.user());
         assertEquals(userId2, output.currentPlayerTurnId());
         assertEquals(game, output.game());
-        assertEquals(gameOverResult, output.gameOverResult());
-        assertFalse(output.removedBecauseAfk());
+        assertEquals(Optional.of(gameOver), output.gameOver());
 
         verify(gameActorManager).get(gameId);
         verify(actor).enqueueCommand(any(ExpireTurnActorCommand.class));
@@ -96,10 +89,8 @@ class ExpireTurnServiceTest {
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
-        User user = mock(User.class);
-
         ExpireTurnResult result = mock(ExpireTurnResult.class);
-        GameOverResult gameOverResult = mock(GameOverResult.class);
+        GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
@@ -108,18 +99,13 @@ class ExpireTurnServiceTest {
 
         when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
-        when(result.gameOverResult()).thenReturn(gameOverResult);
-        when(result.removedBecauseAfk()).thenReturn(true);
+        when(result.gameOver()).thenReturn(Optional.of(gameOver));
 
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        when(userRepository.find(userId1)).thenReturn(Optional.of(user));
 
         service.execute(input);
-
-        verify(user).leaveGame();
-        verify(userRepository).save(user);
     }
 
     @Test
@@ -130,7 +116,7 @@ class ExpireTurnServiceTest {
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
         ExpireTurnResult result = mock(ExpireTurnResult.class);
-        GameOverResult gameOverResult = mock(GameOverResult.class);
+        GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
@@ -139,17 +125,14 @@ class ExpireTurnServiceTest {
 
         when(result.whoPassed()).thenReturn(userId1);
         when(result.game()).thenReturn(game);
-        when(result.gameOverResult()).thenReturn(gameOverResult);
-        when(result.removedBecauseAfk()).thenReturn(false);
+        when(result.gameOver()).thenReturn(Optional.of(gameOver));
 
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        when(gameOverResult.finished()).thenReturn(true);
-
         service.execute(input);
 
-        verify(gameOverHandler).handle(game, gameOverResult);
+        verify(gameOverHandler).handle(game, gameOver);
     }
 
     @Test
@@ -165,6 +148,5 @@ class ExpireTurnServiceTest {
 
         assertTrue(output.isEmpty());
         verifyNoInteractions(gameOverHandler);
-        verifyNoInteractions(userRepository);
     }
 }

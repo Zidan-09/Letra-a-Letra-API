@@ -1,7 +1,8 @@
 package com.letraaletra.api.features.game.domain.state;
 
+import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.board.Board;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,70 +128,124 @@ class GameStateTest {
     }
 
     @Nested
-    @DisplayName("Testes do Verificador de Fim de Jogo (GameOverChecker)")
-    class GameOverCheckerTests {
+    @DisplayName("Testes de Fim de Jogo")
+    class GameOverTests {
 
         @Test
-        @DisplayName("Deve declarar Fim de Jogo sem vencedor se a lista de jogadores estiver vazia (W.O. Duplo / Erro)")
-        void shouldReturnFinishedWithNoWinnerWhenPlayersIsEmpty() {
-            gameState.removePlayer(userId1);
-            gameState.removePlayer(userId2);
+        @DisplayName("Deve encerrar a partida porque um jogador saiu")
+        void shouldFinishBecausePlayerLeft() {
+            Optional<GameOver> result = gameState.gameOverBecausePlayerLeft(userId2);
 
-            GameOverResult result = gameState.gameOverChecker();
+            assertTrue(result.isPresent());
 
-            assertTrue(result.finished());
-            assertNull(result.winner());
-            assertNull(result.loser());
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.PLAYER_LEFT, gameOver.reason());
+            assertEquals(mockPlayer1, gameOver.winner());
+            assertEquals(mockPlayer2, gameOver.loser());
         }
 
         @Test
-        @DisplayName("Deve declarar o último jogador restante como vencedor se o oponente for removido (Desconexão/W.O.)")
-        void shouldDeclareLastRemainingPlayerAsWinner() {
-            gameState.removePlayer(userId2);
+        @DisplayName("Deve encerrar a partida porque um jogador desconectou")
+        void shouldFinishBecausePlayerDisconnected() {
+            Optional<GameOver> result = gameState.gameOverBecauseDisconnection(userId2);
 
-            GameOverResult result = gameState.gameOverChecker();
+            assertTrue(result.isPresent());
 
-            assertTrue(result.finished());
-            assertEquals(mockPlayer1, result.winner(), "O jogador restante deve ser coroado vencedor");
-            assertNull(result.loser());
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.PLAYER_DISCONNECTED, gameOver.reason());
+            assertEquals(mockPlayer1, gameOver.winner());
+            assertEquals(mockPlayer2, gameOver.loser());
         }
 
         @Test
-        @DisplayName("Deve continuar com a partida ativa se nenhum jogador atingiu a meta de 3 pontos")
-        void shouldKeepGameActiveWhenScoresAreBelowThreshold() {
-            when(mockPlayer1.getScore()).thenReturn(0);
+        @DisplayName("Não deve encerrar a partida se ninguém alcançou 3 pontos")
+        void shouldNotFinishWhenNobodyReachedThreePoints() {
+            when(mockPlayer1.getScore()).thenReturn(1);
             when(mockPlayer2.getScore()).thenReturn(2);
 
-            GameOverResult result = gameState.gameOverChecker();
+            Optional<GameOver> result = gameState.gameOverBecauseScore();
 
-            assertFalse(result.finished(), "O jogo não deveria terminar");
-            assertNull(result.winner());
-            assertNull(result.loser());
+            assertTrue(result.isEmpty());
         }
 
         @Test
-        @DisplayName("Deve encerrar o jogo declarando Player 1 como vencedor se ele bater 3 pontos")
-        void shouldFinishGameWhenPlayerOneReachesThreePoints() {
+        @DisplayName("Deve declarar Player 1 vencedor ao atingir 3 pontos")
+        void shouldFinishWhenPlayerOneReachesThreePoints() {
             when(mockPlayer1.getScore()).thenReturn(3);
 
-            GameOverResult result = gameState.gameOverChecker();
+            Optional<GameOver> result = gameState.gameOverBecauseScore();
 
-            assertTrue(result.finished());
-            assertEquals(mockPlayer1, result.winner());
-            assertEquals(mockPlayer2, result.loser());
+            assertTrue(result.isPresent());
+
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.SCORE, gameOver.reason());
+            assertEquals(mockPlayer1, gameOver.winner());
+            assertEquals(mockPlayer2, gameOver.loser());
         }
 
         @Test
-        @DisplayName("Deve encerrar o jogo declarando Player 2 como vencedor se ele bater 3 pontos")
-        void shouldFinishGameWhenPlayerTwoReachesThreePoints() {
+        @DisplayName("Deve declarar Player 2 vencedor ao atingir 3 pontos")
+        void shouldFinishWhenPlayerTwoReachesThreePoints() {
             when(mockPlayer1.getScore()).thenReturn(1);
             when(mockPlayer2.getScore()).thenReturn(3);
 
-            GameOverResult result = gameState.gameOverChecker();
+            Optional<GameOver> result = gameState.gameOverBecauseScore();
 
-            assertTrue(result.finished());
-            assertEquals(mockPlayer2, result.winner());
-            assertEquals(mockPlayer1, result.loser());
+            assertTrue(result.isPresent());
+
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.SCORE, gameOver.reason());
+            assertEquals(mockPlayer2, gameOver.winner());
+            assertEquals(mockPlayer1, gameOver.loser());
+        }
+
+        @Test
+        @DisplayName("Não deve encerrar a partida por AFK antes de 3 turnos")
+        void shouldNotFinishBecauseAfkBeforeLimit() {
+            when(mockPlayer1.getPassedTurn()).thenReturn(2);
+            when(mockPlayer2.getPassedTurn()).thenReturn(1);
+
+            Optional<GameOver> result = gameState.gameOverBecauseAfk();
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        @DisplayName("Deve encerrar a partida quando Player 2 ficar AFK")
+        void shouldFinishWhenPlayerOneIsAfk() {
+            when(mockPlayer1.getPassedTurn()).thenReturn(0);
+            when(mockPlayer2.getPassedTurn()).thenReturn(3);
+
+            Optional<GameOver> result = gameState.gameOverBecauseAfk();
+
+            assertTrue(result.isPresent());
+
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.PLAYER_AFK, gameOver.reason());
+            assertEquals(mockPlayer1, gameOver.winner());
+            assertEquals(mockPlayer2, gameOver.loser());
+        }
+
+        @Test
+        @DisplayName("Deve encerrar a partida quando Player 2 ficar AFK")
+        void shouldFinishWhenPlayerTwoIsAfk() {
+            when(mockPlayer1.getPassedTurn()).thenReturn(0);
+            when(mockPlayer2.getPassedTurn()).thenReturn(3);
+
+            Optional<GameOver> result = gameState.gameOverBecauseAfk();
+
+            assertTrue(result.isPresent());
+
+            GameOver gameOver = result.get();
+
+            assertEquals(GameOverReasons.PLAYER_AFK, gameOver.reason());
+            assertEquals(mockPlayer1, gameOver.winner());
+            assertEquals(mockPlayer2, gameOver.loser());
         }
     }
 }

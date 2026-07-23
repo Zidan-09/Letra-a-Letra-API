@@ -7,7 +7,12 @@ import { run as room } from "./tests/room.test.js";
 import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
-    
+    profile,
+    friends,
+    matchmaking,
+    ranking,
+    casual,
+    room,
     turn
 ];
 

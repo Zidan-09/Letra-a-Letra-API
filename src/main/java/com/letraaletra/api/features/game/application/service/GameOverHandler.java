@@ -6,7 +6,7 @@ import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -33,9 +33,7 @@ public class GameOverHandler {
         this.updateStatsService = updateStatsService;
     }
 
-    public void handle(Game game, GameOverResult result) {
-        if (!result.finished()) return;
-
+    public void handle(Game game, GameOver result) {
         User userWinner = userRepository.find(result.winner().getUserId())
                 .orElseThrow(UserNotFoundException::new);
 

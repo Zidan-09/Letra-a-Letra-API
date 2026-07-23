@@ -5,7 +5,10 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
     private final String session;
@@ -19,24 +22,27 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         Participant participant = game.findBySession(session);
         validateParticipant(participant);
 
-        game.remove(participant.getUserId());
+        UUID participantId = participant.getUserId();
 
         if (game.getGameStatus().equals(GameStatus.WAITING)) {
             return new LeftGameResult(
                     game,
                     participant.getUserId(),
                     game.getParticipants().isEmpty(),
-                    null
+                    Optional.empty()
             );
         }
 
-        GameOverResult gameOverResult = game.getGameState().gameOverChecker();
+        Optional<GameOver> gameOver = game.getGameState()
+                .gameOverBecausePlayerLeft(participantId);
+
+        game.remove(participantId);
 
         return new LeftGameResult(
                 game,
-                participant.getUserId(),
+                participantId,
                 game.getParticipants().isEmpty(),
-                gameOverResult
+                gameOver
         );
     }
 

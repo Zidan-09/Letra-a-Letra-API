@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
 import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -64,7 +64,8 @@ class LeftGameUseCaseTest {
     void shouldLeaveGameSuccessfully() {
         Game game = mock(Game.class);
         User user = mock(User.class);
-        GameOverResult gameOverResult = mock(GameOverResult.class);
+        GameOver gameOver = mock(GameOver.class);
+        Optional<GameOver> gameOverResult = Optional.of(gameOver);
         LeftGameResult result = mock(LeftGameResult.class);
 
         when(actorManager.get(gameId))
@@ -79,7 +80,7 @@ class LeftGameUseCaseTest {
         when(result.game())
                 .thenReturn(game);
 
-        when(result.gameOverResult())
+        when(result.gameOver())
                 .thenReturn(gameOverResult);
 
         when(result.isEmpty())
@@ -92,7 +93,8 @@ class LeftGameUseCaseTest {
 
         assertNotNull(output);
         assertEquals(game, output.game());
-        assertEquals(gameOverResult, output.gameOverResult());
+        assertTrue(output.gameOver().isPresent());
+        assertEquals(gameOver, output.gameOver().get());
 
         verify(user).leaveGame();
         verify(userRepository).save(user);

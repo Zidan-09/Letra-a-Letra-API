@@ -39,11 +39,11 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
 
         gameNotifier.notifierAll(output.game(), dto);
 
-        if (output.gameOverResult() != null) {
-            WsResponse gameOverDto = gameResponseAssembler.assembleGameOver(output.game(), output.gameOverResult());
+        output.gameOver().ifPresent(gameOver -> {
+            WsResponse gameOverDto = gameResponseAssembler.assembleGameOver(output.game(), gameOver);
 
             gameNotifier.notifierGameOver(output.game(), gameOverDto);
-        }
+        });
     }
 
     @Override
