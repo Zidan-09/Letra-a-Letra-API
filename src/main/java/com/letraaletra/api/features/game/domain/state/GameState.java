@@ -1,9 +1,11 @@
 package com.letraaletra.api.features.game.domain.state;
 
+import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.board.Board;
+import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 
 import java.time.Instant;
 import java.util.*;
@@ -83,33 +85,97 @@ public class GameState {
         return now.isAfter(turnEndsAt);
     }
 
-    public GameOverResult gameOverChecker() {
+    public void removePlayer(UUID playerId) {
+        players.remove(playerId);
+    }
+
+    public Optional<GameOver> gameOverBecausePlayerLeft(UUID whoLeft) {
+        Player winner = players.values().stream()
+                .filter(player -> !player.getUserId().equals(whoLeft))
+                .findFirst()
+                .orElseThrow(UserNotInGameException::new);
+
+        Player loser = Optional.ofNullable(players.get(whoLeft))
+                .orElseThrow(UserNotInGameException::new);
+
+        return Optional.of(new GameOver(
+                GameOverReasons.PLAYER_LEFT,
+                winner,
+                loser
+        ));
+    }
+
+    public Optional<GameOver> gameOverBecauseScore() {
         List<Player> playersList = players.values().stream().toList();
-
-        if (players.isEmpty()) {
-            return new GameOverResult(true, null, null);
-        }
-
-        if (players.size() == 1) {
-            Player winner = playersList.getFirst();
-            return new GameOverResult(true, winner, null);
-        }
 
         Player p1 = playersList.getFirst();
         Player p2 = playersList.get(1);
 
-        if (p1.getScore() == 3) {
-            return new GameOverResult(true, p1, p2);
+        if (p1 == null || p2 == null) {
+            throw new UserNotInGameException();
         }
 
-        if (p2.getScore() == 3) {
-            return new GameOverResult(true, p2, p1);
+        if (p1.getScore() >= 3) {
+            return Optional.of(new GameOver(
+                    GameOverReasons.SCORE,
+                    p1,
+                    p2
+            ));
         }
 
-        return new GameOverResult(false, null, null);
+        if (p2.getScore() >= 3) {
+            return Optional.of(new GameOver(
+                    GameOverReasons.SCORE,
+                    p2,
+                    p1
+            ));
+        }
+
+        return Optional.empty();
     }
 
-    public void removePlayer(UUID playerId) {
-        players.remove(playerId);
+    public Optional<GameOver> gameOverBecauseAfk() {
+        List<Player> playersList = players.values().stream().toList();
+
+        Player p1 = playersList.getFirst();
+        Player p2 = playersList.get(1);
+
+        if (p1 == null || p2 == null) {
+            throw new UserNotInGameException();
+        }
+
+        if (p1.getPassedTurn() >= 3) {
+            return Optional.of(new GameOver(
+                    GameOverReasons.PLAYER_AFK,
+                    p2,
+                    p1
+            ));
+        }
+
+        if (p2.getPassedTurn() >= 3) {
+            return Optional.of(new GameOver(
+                    GameOverReasons.PLAYER_AFK,
+                    p1,
+                    p2
+            ));
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<GameOver> gameOverBecauseDisconnection(UUID whoDisconnect) {
+        Player winner = players.values().stream()
+                .filter(player -> !player.getUserId().equals(whoDisconnect))
+                .findFirst()
+                .orElseThrow(UserNotInGameException::new);
+
+        Player loser = Optional.ofNullable(players.get(whoDisconnect))
+                .orElseThrow(UserNotInGameException::new);
+
+        return Optional.of(new GameOver(
+                GameOverReasons.PLAYER_DISCONNECTED,
+                winner,
+                loser
+        ));
     }
 }

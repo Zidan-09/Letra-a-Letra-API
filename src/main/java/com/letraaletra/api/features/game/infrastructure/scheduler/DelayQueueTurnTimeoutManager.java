@@ -78,23 +78,21 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
         TurnExpired data = new TurnExpired(
                 result.event(),
-                new TurnExpired.ExpiredData(result.user().toString(), result.currentPlayerTurnId().toString())
+                new TurnExpired.ExpiredData(result.user(), result.currentPlayerTurnId())
         );
 
         gameNotifier.notifierAll(result.game(), data);
 
-        if (result.removedBecauseAfk()) {
+        result.gameOver().ifPresent(over -> {
             gameNotifier.notifierOne(
                     result.user(),
                     new RemovedBecauseInactivity("REMOVED_BECAUSE_INACTIVITY")
             );
-        }
 
-        if (result.gameOverResult().finished()) {
-            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), result.gameOverResult());
+            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), over);
 
             gameNotifier.notifierGameOver(result.game(), dto);
-        }
+        });
 
         if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {
             start(result.game());

@@ -8,7 +8,6 @@ import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.GameStatus;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.domain.Game;
@@ -37,8 +36,8 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
 
         LeftGameResult result = future.join();
 
-        User user = userRepository.find(result.user()).orElse(null);
-        validateUser(user);
+        User user = userRepository.find(result.user())
+                .orElseThrow(UserNotFoundException::new);
 
         user.leaveGame();
         userRepository.save(user);
@@ -51,19 +50,13 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
             gameRepository.save(result.game());
         }
 
-        return buildOutput(result.game(), result.gameOverResult());
+        return buildOutput(result);
     }
 
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new UserNotFoundException();
-        }
-    }
-
-    private LeftGameOutput buildOutput(Game game, GameOverResult gameOverResult) {
+    private LeftGameOutput buildOutput(LeftGameResult result) {
         return new LeftGameOutput(
-                game,
-                gameOverResult
+                result.game(),
+                result.gameOver()
         );
     }
 }

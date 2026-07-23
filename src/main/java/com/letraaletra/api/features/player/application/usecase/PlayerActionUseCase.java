@@ -11,13 +11,7 @@ import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +20,6 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
-    private final Logger logger = LoggerFactory.getLogger(PlayerActionUseCase.class);
 
     public PlayerActionUseCase(
             GameTimeoutManager gameTimeoutManager,
@@ -51,20 +44,16 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
 
         PlayerActionResult result = future.join();
 
-        try {
-            gameOverHandler.handle(result.game(), result.gameOverResult());
-        } catch (Exception e) {
-            logger.error("Failed to process GameOverHandler", e);
-        }
+        result.gameOver().ifPresent(over -> gameOverHandler.handle(result.game(), over));
 
-        return buildOutput(result.game(), result.gameOverResult(), result.events());
+        return buildOutput(result);
     }
 
-    private PlayerActionOutput buildOutput(Game game, GameOverResult gameOverResult, List<Event> events) {
+    private PlayerActionOutput buildOutput(PlayerActionResult result) {
         return new PlayerActionOutput(
-                game,
-                events,
-                gameOverResult.finished() ? Optional.of(gameOverResult) : Optional.empty()
+                result.game(),
+                result.events(),
+                result.gameOver()
         );
     }
 }

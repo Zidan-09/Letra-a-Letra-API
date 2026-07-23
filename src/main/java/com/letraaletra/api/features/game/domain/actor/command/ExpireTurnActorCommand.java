@@ -5,7 +5,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.service.GameOver;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -43,21 +43,16 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
         Player player = state.getPlayerOrThrow(whoPassed);
         player.passedTurn();
 
-        boolean shouldRemove = player.getPassedTurn() >= 3;
+        Optional<GameOver> gameOver = state.gameOverBecauseAfk();
 
-        if (shouldRemove) {
-            game.remove(whoPassed);
-        } else {
-            state.nextTurn(now.plusSeconds(45));
-        }
+        gameOver.ifPresent(result -> game.remove(whoPassed));
 
-        GameOverResult gameOverResult = state.gameOverChecker();
+        state.nextTurn(now.plusSeconds(45));
 
         return Optional.of(new ExpireTurnResult(
                 whoPassed,
                 game,
-                gameOverResult,
-                shouldRemove
+                gameOver
         ));
     }
 }
