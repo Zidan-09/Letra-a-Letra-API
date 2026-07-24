@@ -20,7 +20,7 @@ public class BanParticipantActorCommand implements ActorCommand<Game> {
             throw new OnlyHostCanModerateException();
         }
 
-        game.addToBlackList(user);
+        game.getParticipants().addToBlackList(user);
         game.remove(user);
 
         return game;

@@ -1,0 +1,192 @@
+package com.letraaletra.api.features.game.domain.participants;
+
+import com.letraaletra.api.features.game.domain.RoomSettings;
+import com.letraaletra.api.features.game.domain.exception.RoomFullException;
+import com.letraaletra.api.features.game.domain.exception.UserBannedException;
+import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.domain.ParticipantRole;
+import com.letraaletra.api.features.participant.domain.exception.InvalidRoomPositionException;
+import com.letraaletra.api.features.participant.domain.exception.ParticipantAlreadyBannedException;
+import com.letraaletra.api.features.participant.domain.exception.ParticipantNotBannedException;
+import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
+
+import java.util.*;
+
+public class Participants {
+    private final Map<UUID, Participant> participants = new HashMap<>();
+    private final Map<Integer, UUID> positions = new HashMap<>();
+    private final Set<UUID> blacklist = new HashSet<>();
+
+    public Participants() {}
+
+    public List<Participant> getParticipants() {
+        return List.copyOf(participants.values());
+    }
+
+    public Participant getParticipantByUserId(UUID userId) {
+        return participants.get(userId);
+    }
+
+    public Map<Integer, UUID> getPositions() {
+        return Map.copyOf(positions);
+    }
+
+    public int getAmountPlayers() {
+        return (int) participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .count();
+    }
+
+    public void join(Participant participant, RoomSettings roomSettings) {
+        UUID userId = participant.getUserId();
+
+        if (isBlackListed(userId)) {
+            throw new UserBannedException();
+        }
+
+        if (participants.containsKey(userId)) {
+            throw new UserAlreadyInGameException();
+        }
+
+        int size = participants.size();
+
+        boolean isFullWithoutSpectators = !roomSettings.roomAllowSpectators() && size >= 2;
+        boolean isFullWithSpectators = size >= 7;
+
+        if (isFullWithoutSpectators || isFullWithSpectators) {
+            throw new RoomFullException();
+        }
+
+        ParticipantRole role = determineRole();
+        participant.changeRole(role);
+
+        if (role == ParticipantRole.PLAYER) {
+            assertMaxPlayers();
+        }
+
+        participants.put(userId, participant);
+        positions.put(nextAvailablePosition(), userId);
+    }
+
+    public Participant remove(
+            UUID userId
+    ) {
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
+        participants.remove(userId);
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+
+        return participant;
+    }
+
+    public Participant findBySession(String sessionId) {
+        return participants.values().stream()
+                .filter(p -> p.getSocketId().equals(sessionId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public UUID findNextParticipant() {
+        return participants.keySet().iterator().next();
+    }
+
+    public void changePosition(UUID userId, int position) {
+        if (position < 0 || position > 6) {
+            throw new InvalidRoomPositionException();
+        }
+
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
+        if (positions.containsKey(position)) {
+            throw new InvalidRoomPositionException();
+        }
+
+        ParticipantRole newRole = position >= 2
+                ? ParticipantRole.SPECTATOR
+                : ParticipantRole.PLAYER;
+
+        if (newRole == ParticipantRole.PLAYER) {
+            assertMaxPlayersExcluding(userId);
+        }
+
+        participant.changeRole(newRole);
+
+        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
+        positions.put(position, userId);
+    }
+
+    private void assertMaxPlayersExcluding(UUID userId) {
+        long players = participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .filter(p -> !p.getUserId().equals(userId))
+                .count();
+
+        if (players >= 2) {
+            throw new RoomFullException();
+        }
+    }
+
+    private int nextAvailablePosition() {
+        for (int i = 0; i < 7; i++) {
+            if (!positions.containsKey(i)) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("no_available_positions");
+    }
+
+    public boolean isBlackListed(UUID userId) {
+        return blacklist.contains(userId);
+    }
+
+    public void reconnect(UUID userId, String sessionId) {
+        Participant participant = participants.get(userId);
+
+        if (participant == null) {
+            throw new UserNotInGameException();
+        }
+
+        participant.connect(sessionId);
+    }
+
+    public void addToBlackList(UUID userId) {
+        if (blacklist.contains(userId)) {
+            throw new ParticipantAlreadyBannedException();
+        }
+
+        blacklist.add(userId);
+    }
+
+    public void removeFromBlackList(UUID userId) {
+        if (!blacklist.contains(userId)) {
+            throw new ParticipantNotBannedException();
+        }
+
+        blacklist.remove(userId);
+    }
+
+    private ParticipantRole determineRole() {
+        long players = participants.values().stream()
+                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .count();
+
+        return players >= 2
+                ? ParticipantRole.SPECTATOR
+                : ParticipantRole.PLAYER;
+    }
+
+    private void assertMaxPlayers() {
+        if (getAmountPlayers() >= 2) {
+            throw new RoomFullException();
+        }
+    }
+}

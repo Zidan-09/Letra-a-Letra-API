@@ -12,8 +12,10 @@ public class GameDTOMapper {
         return new GameDTO(
                 game.getId().toString(),
                 game.getRoomName(),
+                game.getGameType(),
+                game.getGameStatus(),
                 MapParticipantsMapper.execute(game),
-                game.getPositions().entrySet()
+                game.getParticipants().getPositions().entrySet()
                         .stream()
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,

@@ -1,11 +1,9 @@
 package com.letraaletra.api.features.game.application.output;
 
-import com.letraaletra.api.features.game.domain.Game;
-
-import java.util.List;
-import java.util.Map;
+import com.letraaletra.api.features.game.domain.GameHistory;
+import org.springframework.data.domain.Page;
 
 public record GetGamesOutput(
-        List<Game> games
+        Page<GameHistory> games
 ) {
 }

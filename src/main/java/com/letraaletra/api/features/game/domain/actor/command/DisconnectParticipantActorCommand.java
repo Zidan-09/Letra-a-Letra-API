@@ -18,7 +18,7 @@ public class DisconnectParticipantActorCommand implements ActorCommand<Optional<
 
     @Override
     public Optional<Game> execute(Game game) {
-        Participant participant = game.getParticipantByUserId(userId);
+        Participant participant = game.getParticipants().getParticipantByUserId(userId);
 
         if (participant != null) {
             disconnectScheduler.start(userId, game.getId());

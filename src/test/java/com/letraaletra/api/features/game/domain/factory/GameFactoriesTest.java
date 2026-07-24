@@ -5,6 +5,7 @@ import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.RoomSettings;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.participant.domain.Participant;
@@ -60,7 +61,7 @@ class GameFactoriesTest {
             assertEquals(GameType.MATCHMAKING, game.getGameType());
             assertEquals("default-name", game.getRoomName());
             assertEquals(userId1, game.getHostId(), "O player1 deve iniciar como Host");
-            assertEquals(2, game.getAmountPlayers(), "A sala deve possuir exatamente 2 jogadores ativos");
+            assertEquals(2, game.getParticipants().getAmountPlayers(), "A sala deve possuir exatamente 2 jogadores ativos");
 
             RoomSettings settings = game.getRoomSettings();
             assertTrue(settings.roomAllowSpectators());
@@ -125,6 +126,7 @@ class GameFactoriesTest {
         @Mock private Game mockGame;
         @Mock private Board mockBoard;
         @Mock private GameState mockGameState;
+        @Mock private Participants participants;
 
         @InjectMocks
         private DefaultGameStateFactory defaultGameStateFactory;
@@ -136,7 +138,8 @@ class GameFactoriesTest {
             List<String> words = List.of("java", "spring", "godot");
             List<Participant> mockParticipantsList = List.of();
 
-            when(mockGame.getParticipants()).thenReturn(mockParticipantsList);
+            when(mockGame.getParticipants()).thenReturn(participants);
+            when(participants.getParticipants()).thenReturn(mockParticipantsList);
             when(boardGenerator.generate(words, gameMode)).thenReturn(mockBoard);
             when(gameStateFactory.generate(mockParticipantsList, mockBoard)).thenReturn(mockGameState);
 

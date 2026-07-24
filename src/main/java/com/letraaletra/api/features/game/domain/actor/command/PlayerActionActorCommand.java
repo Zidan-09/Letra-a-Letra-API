@@ -91,7 +91,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
     }
 
     private void validatePlayer(UUID userId, Game game) {
-        Participant participant = game.getParticipantByUserId(userId);
+        Participant participant = game.getParticipants().getParticipantByUserId(userId);
 
         if (participant == null) {
             throw new PlayerNotInGameException();

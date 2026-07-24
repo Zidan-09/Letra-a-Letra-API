@@ -19,6 +19,6 @@ public class DefaultGameStateFactory {
 
     public GameState generate(Game game, GameMode gameMode, List<String> words) {
         Board board = boardGenerator.generate(words, gameMode);
-        return gameStateFactory.generate(game.getParticipants(), board);
+        return gameStateFactory.generate(game.getParticipants().getParticipants(), board);
     }
 }

@@ -32,7 +32,7 @@ public class CloseRoomDueToTimeoutService implements UseCase<CloseRoomInput, Clo
     public CloseRoomOutput execute(CloseRoomInput input) {
         Game game = input.game();
 
-        game.getParticipants().forEach(p -> {
+        game.getParticipants().getParticipants().forEach(p -> {
             UUID userId = p.getUserId();
 
             User user = userRepository.find(userId).orElse(null);

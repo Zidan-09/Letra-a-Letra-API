@@ -21,6 +21,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -191,6 +192,28 @@ public class GameConfig {
                 userRepository,
                 sessionRepository,
                 rankingPointsService
+        );
+    }
+
+    @Bean
+    public GetGamesUseCase getGamesUseCase(
+            GameRepository gameRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetGamesUseCase(
+                gameRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetActiveGamesUseCase getActiveGamesUseCase(
+            GameQueryService gameQueryService,
+            AdminChecker adminChecker
+    ) {
+        return new GetActiveGamesUseCase(
+                gameQueryService,
+                adminChecker
         );
     }
 }

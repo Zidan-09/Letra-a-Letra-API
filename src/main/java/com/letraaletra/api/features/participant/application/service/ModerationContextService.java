@@ -25,7 +25,7 @@ public class ModerationContextService {
         validateUser(hostId, game);
         validateAction(targetId, hostId);
 
-        Participant participant = game.getParticipantByUserId(targetId);
+        Participant participant = game.getParticipants().getParticipantByUserId(targetId);
 
         validateParticipant(participant);
 
