@@ -64,6 +64,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(adminId);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         UpdateLevelOutput output = useCase.execute(input);
 
@@ -88,6 +90,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(adminId);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         UpdateLevelOutput output = useCase.execute(input);
@@ -104,6 +108,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(adminId);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         UpdateLevelOutput output = useCase.execute(input);
 
@@ -148,6 +154,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(adminId);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));

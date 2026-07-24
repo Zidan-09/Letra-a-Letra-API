@@ -5,8 +5,8 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
-import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -62,10 +62,11 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(coinRewardInput));
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
-        CreateLevelOutput output = useCase.execute(input);
+        useCase.execute(input);
 
-        assertNull(output);
         verify(adminChecker, times(1)).check(adminId);
         verify(levelRepository, times(1)).save(levelCaptor.capture());
         verifyNoInteractions(cosmeticRepository);
@@ -81,6 +82,8 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(gemsRewardInput));
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         useCase.execute(input);
 
@@ -97,6 +100,8 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(cosmeticRewardInput));
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         useCase.execute(input);
@@ -117,6 +122,8 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         useCase.execute(input);
@@ -131,6 +138,8 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, Collections.emptyList());
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         useCase.execute(input);
 
@@ -151,6 +160,19 @@ class CreateLevelUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should throw LevelAlreadyExistsException when exists a level with the same value that the input")
+    void shouldThrowLevelAlreadyExistsException() {
+        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, Collections.emptyList());
+
+        doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(true);
+
+        assertThrows(LevelAlreadyExistsException.class, () ->
+                useCase.execute(input));
+    }
+
+    @Test
     @DisplayName("Should throw CosmeticNotFoundException when reward type is COSMETIC but reference cannot be resolved")
     void shouldThrowExceptionWhenCosmeticNotFound() {
         UUID nonExistentCosmeticId = UUID.randomUUID();
@@ -158,11 +180,11 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(cosmeticRewardInput));
 
         doNothing().when(adminChecker).check(adminId);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
-
-        verifyNoInteractions(levelRepository);
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelJpaEntity;
+import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.jpa.SpringDataLevelRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.jpa.SpringDataLevelRewardRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelMapper;
@@ -19,6 +20,7 @@ import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +58,11 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
+    public boolean existsByLevel(int level) {
+        return repository.findByLevel(level).isPresent();
+    }
+
+    @Override
     public void delete(Level level) {
         LevelJpaEntity entity = LevelMapper.toEntity(level);
 
@@ -87,8 +94,18 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
+    @Transactional
     public void save(Level level) {
+        repository.save(LevelMapper.toEntity(level));
 
+        levelRewardRepository.deleteByLevelId(level.getLevelId());
+
+        List<LevelRewardJpaEntity> rewards = level.getRewards()
+                .stream()
+                .map(reward -> LevelRewardMapper.toEntity(level.getLevelId(), reward))
+                .toList();
+
+        levelRewardRepository.saveAll(rewards);
     }
 
     private List<LevelReward> loadRewards(UUID levelId) {

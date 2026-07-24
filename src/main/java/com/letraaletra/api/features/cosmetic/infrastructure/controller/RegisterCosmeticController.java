@@ -28,7 +28,7 @@ public class RegisterCosmeticController {
     }
 
     @PostMapping()
-    public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> registerCosmetic(
+    public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {

@@ -67,7 +67,7 @@ class RegisterCosmeticControllerTest {
                     ResponseEntity.ok(successResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(principal, mockRequest);
+            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -85,7 +85,7 @@ class RegisterCosmeticControllerTest {
             mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Validation, conversion or storage error"));
 
-            assertThrows(RuntimeException.class, () -> controller.registerCosmetic(principal, mockRequest));
+            assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
 
             mapperMock.verify(() -> RegisterCosmeticMapper.toResponse(any()), never());
         }
@@ -99,7 +99,7 @@ class RegisterCosmeticControllerTest {
             mapperMock.when(() -> RegisterCosmeticMapper.toInput(null, null))
                     .thenThrow(new NullPointerException("Request and context parameters cannot be missing"));
 
-            assertThrows(NullPointerException.class, () -> controller.registerCosmetic(null, null));
+            assertThrows(NullPointerException.class, () -> controller.handle(null, null));
 
             verify(useCase, never()).execute(any());
         }
@@ -120,7 +120,7 @@ class RegisterCosmeticControllerTest {
 
             apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
 
-            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.registerCosmetic(principal, mockRequest);
+            ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
             verify(useCase).execute(mockInput);
