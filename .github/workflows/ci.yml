@@ -59,7 +59,7 @@ jobs:
           JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
           CLIENT_ID: "google-client-id-ficticio-para-o-teste"
         run: |
-          nohup java -jar target/*.jar > api.log 2>&1 &
+          nohup java -jar target/*.jar --spring.profiles.active=test > api.log 2>&1 &
           echo $! > api.pid
 
       - name: Wait API
