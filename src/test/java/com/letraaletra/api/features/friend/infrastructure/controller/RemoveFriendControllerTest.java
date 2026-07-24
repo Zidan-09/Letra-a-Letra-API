@@ -49,7 +49,7 @@ class RemoveFriendControllerTest {
         when(mockRequest.friendId()).thenReturn(mockFriendId);
 
         mockInput = mock(RemoveFriendInput.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, null);
     }
 
     @Test
@@ -74,7 +74,7 @@ class RemoveFriendControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção original sem interceptação local quando a execução do UseCase falhar")
+    @DisplayName("Deve propagar a exceção original sem interceptor local quando a execução do UseCase falhar")
     void removeFriend_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RemoveFriendMapper> mapperMock = mockStatic(RemoveFriendMapper.class)) {
 

@@ -49,7 +49,7 @@ class AcceptFriendRequestControllerTest {
         when(mockRequest.friendId()).thenReturn(mockFriendId);
 
         mockInput = mock(AcceptFriendRequestInput.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, null);
     }
 
     @Test
@@ -78,7 +78,7 @@ class AcceptFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção sem interceptar caso a execução do UseCase falhe por regra de domínio")
+    @DisplayName("Deve propagar a exceção sem interceptor caso a execução do UseCase falhe por regra de domínio")
     void acceptFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<AcceptFriendRequestMapper> mapperMock = mockStatic(AcceptFriendRequestMapper.class)) {
 

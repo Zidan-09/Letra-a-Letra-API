@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -37,8 +39,8 @@ class GetCosmeticsControllerTest {
     private Pageable pageable;
     private GetCosmeticsInput input;
     private GetCosmeticsOutput output;
-    private PageResponse responseDto;
-    private SuccessResponse successResponse;
+    private PageResponse<CosmeticDTO> responseDto;
+    private SuccessResponse<PageResponse<CosmeticDTO>> successResponse;
 
     @BeforeEach
     void setUp() {
@@ -46,9 +48,17 @@ class GetCosmeticsControllerTest {
 
         input = mock(GetCosmeticsInput.class);
         output = mock(GetCosmeticsOutput.class);
-        responseDto = mock(PageResponse.class);
+        responseDto = new PageResponse<>(
+                List.of(),
+                0,
+                20,
+                0,
+                0,
+                true,
+                true
+        );
 
-        successResponse = new SuccessResponse<PageResponse>(
+        successResponse = new SuccessResponse<>(
                 true,
                 responseDto
         );
@@ -70,7 +80,7 @@ class GetCosmeticsControllerTest {
             mapperMock.when(() -> GetCosmeticsMapper.toResponse(output))
                     .thenReturn(responseDto);
 
-            ResponseEntity<SuccessResponse> expected =
+            ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> expected =
                     ResponseEntity.ok(successResponse);
 
             apiResponseMock.when(() -> ApiResponseService.success(responseDto))

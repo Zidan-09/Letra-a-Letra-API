@@ -47,7 +47,7 @@ class GetFriendListControllerTest {
         mockInput = mock(GetFriendListInput.class);
         mockOutput = mock(GetFriendListOutput.class);
         mockResponseDto = mock(GetFriendListResponse.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
     }
 
     @Test
@@ -75,7 +75,7 @@ class GetFriendListControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar erro sem interceptação local caso o UseCase falhe")
+    @DisplayName("Deve propagar erro sem interceptor local caso o UseCase falhe")
     void getFriends_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class)) {
 

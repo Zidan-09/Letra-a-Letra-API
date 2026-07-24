@@ -55,11 +55,11 @@ class SendFriendRequestControllerTest {
         mockInput = mock(SendFriendRequestInput.class);
         mockOutput = mock(SendFriendRequestOutput.class);
         mockResponseDto = mock(SendFriendRequestResponse.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
     }
 
     @Test
-    @DisplayName("Deve enviar uma solicitação de amizade com sucesso retornando status 200 OK e o payload envelopado")
+    @DisplayName("Deve enviar uma solicitação de amizade com sucesso retornando status 200 OK e o payload envelope")
     void sendFriendRequest_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<SendFriendRequestMapper> mapperMock = mockStatic(SendFriendRequestMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
@@ -83,7 +83,7 @@ class SendFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção original sem interceptação local quando a execução do UseCase falhar")
+    @DisplayName("Deve propagar a exceção original sem interceptor local quando a execução do UseCase falhar")
     void sendFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<SendFriendRequestMapper> mapperMock = mockStatic(SendFriendRequestMapper.class)) {
 
