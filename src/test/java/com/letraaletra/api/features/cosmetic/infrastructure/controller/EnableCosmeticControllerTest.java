@@ -39,7 +39,7 @@ class EnableCosmeticControllerTest {
     private EnableCosmeticInput mockInput;
     private EnableCosmeticOutput mockOutput;
     private EnableCosmeticResponse mockResponseDto;
-    private SuccessResponse<EnableCosmeticResponse> mockSuccessResponse;
+    private SuccessResponse<EnableCosmeticResponse> successResponse;
 
     @BeforeEach
     void setUp() {
@@ -50,11 +50,11 @@ class EnableCosmeticControllerTest {
         mockInput = mock(EnableCosmeticInput.class);
         mockOutput = mock(EnableCosmeticOutput.class);
         mockResponseDto = mock(EnableCosmeticResponse.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        successResponse = new SuccessResponse<>(true, mockResponseDto);
     }
 
     @Test
-    @DisplayName("Deve habilitar o cosmético com sucesso retornando 200 OK e a resposta envelopada")
+    @DisplayName("Deve habilitar o cosmético com sucesso retornando 200 OK e a resposta envelope")
     void handle_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class);
              MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
@@ -64,14 +64,14 @@ class EnableCosmeticControllerTest {
             mapperMock.when(() -> EnableCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> expectedResponseEntity =
-                    ResponseEntity.ok(mockSuccessResponse);
+                    ResponseEntity.ok(successResponse);
             apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
             assertNotNull(response);
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertEquals(mockSuccessResponse, response.getBody());
+            assertEquals(successResponse, response.getBody());
 
             verify(useCase).execute(mockInput);
         }

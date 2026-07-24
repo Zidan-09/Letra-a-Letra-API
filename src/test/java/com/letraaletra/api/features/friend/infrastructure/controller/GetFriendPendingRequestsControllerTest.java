@@ -47,7 +47,7 @@ class GetFriendPendingRequestsControllerTest {
         mockInput = mock(GetFriendPendingRequestsInput.class);
         mockOutput = mock(GetFriendPendingRequestsOutput.class);
         mockResponseDto = mock(GetFriendPendingRequestsResponse.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
     }
 
     @Test
@@ -75,7 +75,7 @@ class GetFriendPendingRequestsControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar erro original sem interceptação local caso o UseCase falhe")
+    @DisplayName("Deve propagar erro original sem interceptor local caso o UseCase falhe")
     void handle_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<GetFriendPendingRequestsMapper> mapperMock = mockStatic(GetFriendPendingRequestsMapper.class)) {
 

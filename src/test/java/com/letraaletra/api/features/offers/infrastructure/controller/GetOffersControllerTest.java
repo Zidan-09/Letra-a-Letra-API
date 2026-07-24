@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -45,7 +47,15 @@ class GetOffersControllerTest {
         mockInput = mock(GetOffersInput.class);
         mockOutput = mock(GetOffersOutput.class);
 
-        mockResponseDto = mock(PageResponse.class);
+        mockResponseDto = new PageResponse<>(
+                List.of(),
+                0,
+                20,
+                0,
+                0,
+                true,
+                true
+        );
 
         SuccessResponse<PageResponse<Offer>> successResponse =
                 new SuccessResponse<>(true, mockResponseDto);
