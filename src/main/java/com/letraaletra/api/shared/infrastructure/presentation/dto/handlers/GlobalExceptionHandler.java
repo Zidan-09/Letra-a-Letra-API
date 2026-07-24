@@ -4,6 +4,8 @@ import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ServerMessages;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @SuppressWarnings("unused")
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleHttpException(DomainException ex) {
@@ -64,7 +68,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        System.out.println(ex.getMessage());
+        logger.error("An internal error has been threw:", ex);
 
         return ResponseEntity
                 .status(500)

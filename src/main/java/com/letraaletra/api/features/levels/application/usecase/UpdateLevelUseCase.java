@@ -8,6 +8,7 @@ import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
+import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -40,6 +41,9 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
 
         Level level = levelRepository.find(input.levelId())
                 .orElseThrow(LevelNotFoundException::new);
+
+        if (levelRepository.existsByLevel(input.level()))
+            throw new LevelAlreadyExistsException();
 
         level.setLevel(input.level());
         level.setRewards(buildRewards(input.rewards()));

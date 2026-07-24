@@ -8,6 +8,7 @@ import com.letraaletra.api.features.levels.application.input.CreateLevelRewardIn
 import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
+import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -37,11 +38,13 @@ public class CreateLevelUseCase implements UseCase<CreateLevelInput, CreateLevel
     public CreateLevelOutput execute(CreateLevelInput input) {
         adminChecker.check(input.auth());
 
+        if (levelRepository.existsByLevel(input.level())) throw new LevelAlreadyExistsException();
+
         Level level = buildLevel(input);
 
         levelRepository.save(level);
 
-        return null;
+        return new CreateLevelOutput(level);
     }
 
     private Level buildLevel(CreateLevelInput input) {
