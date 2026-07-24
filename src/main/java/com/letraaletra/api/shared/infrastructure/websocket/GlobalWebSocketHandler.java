@@ -5,7 +5,6 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorWsResponse;
@@ -16,7 +15,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -37,8 +35,6 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private final JsonMapper jsonMapper;
     private final Validator validator;
 
-    private final AuditService auditService;
-
     public GlobalWebSocketHandler(
             SessionRepository sessionRepository,
             UserRepository userRepository,
@@ -47,8 +43,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
             DisconnectParticipantHandler disconnectParticipantHandler,
             GameNotifier gameNotifier,
             JsonMapper jsonMapper,
-            Validator validator,
-            AuditService auditService
+            Validator validator
     ) {
         this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
@@ -58,7 +53,6 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         this.gameNotifier = gameNotifier;
         this.jsonMapper = jsonMapper;
         this.validator = validator;
-        this.auditService = auditService;
     }
 
     @Override
@@ -75,7 +69,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         User user = userRepository.find(UUID.fromString(userId))
                 .orElse(null);
 
-        WsRequest request = null;
+        WsRequest request;
 
         try {
             request = jsonMapper.readValue(
@@ -91,18 +85,8 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
             roomRequestDispatcher.dispatch(request, session);
 
-            auditService.game(
-                    Level.INFO,
-                    "{} {} (success)",
-                    user != null ? user.getNickname() : "anonymous",
-                    request.getAudit()
-                            .replace("Request", "")
-                            .replaceAll("([a-z])([A-Z])", "$1 $2")
-                            .toLowerCase()
-            );
-
         } catch (Exception e) {
-            sendError(e, user, request);
+            sendError(e, user);
         }
     }
 
@@ -113,16 +97,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         disconnectParticipantHandler.handler(session);
     }
 
-    private void sendError(Exception ex, User user, WsRequest request) {
-        auditService.game(
-                Level.ERROR,
-                "{} {} (error)",
-                user != null ? user.getNickname() : "anonymous",
-                request != null ? request.getAudit()
-                        .replace("Request", "")
-                        .replaceAll("([a-z])([A-Z])", "$1 $2")
-                        .toLowerCase() : ""
-        );
+    private void sendError(Exception ex, User user) {
 
         Throwable cause = ex;
 
