@@ -2,6 +2,8 @@ import { TestContext } from "../context/TestsContext.js";
 import { runFlow } from "../flows/room.flow.js";
 
 export async function run() {
+    console.log("\n--------Init Room Tests--------\n");
+
     const context = new TestContext();
 
     try {

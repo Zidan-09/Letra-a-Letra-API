@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.controller;
 
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
-import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetActiveGamesMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -30,7 +30,7 @@ public class GetActiveGamesController {
     }
 
     @GetMapping(path = "/active")
-    public ResponseEntity<SuccessResponse<PageResponse<GameHistory>>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<GameDTO>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
@@ -38,7 +38,7 @@ public class GetActiveGamesController {
 
         GetActiveGamesOutput output = useCase.execute(input);
 
-        PageResponse<GameHistory> dto = GetActiveGamesMapper.toResponse(output);
+        PageResponse<GameDTO> dto = GetActiveGamesMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
     }
