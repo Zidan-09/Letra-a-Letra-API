@@ -82,7 +82,6 @@
 
         <appender-ref ref="AUDIT_GAME_FILE"/>
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="WEBSOCKET"/>
     </logger>
 
 
