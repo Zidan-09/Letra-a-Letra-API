@@ -44,11 +44,11 @@ jobs:
           cache: maven
 
       - name: Configure Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: tools/tests/package-lock.json
 
       - name: Build API
         run: mvn clean package -DskipTests
