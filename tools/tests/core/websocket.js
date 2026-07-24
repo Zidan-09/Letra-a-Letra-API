@@ -22,9 +22,6 @@ export function connect(user, events) {
                     ...message,
                     user: user.nickname
                 });
-
-                console.log(`Jogador: ${user.id} recebeu a mensagem:`);
-                console.log(message);
             }
         });
     });
