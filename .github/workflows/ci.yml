@@ -1,28 +1,92 @@
-name: "CI pipeline"
+name: CI pipeline
 
 on:
   pull_request:
     branches:
-      - "develop"
-      - "main"
+      - develop
+      - main
     types: [opened, synchronize, reopened]
 
 jobs:
-  build-and-test:
+  unit-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout of Code
+      - name: Checkout
         uses: actions/checkout@v5
 
       - name: Configure JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
 
-      - name: Compile and Test
+      - name: Unit Tests
         env:
           JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
           CLIENT_ID: "google-client-id-ficticio-para-o-teste"
         run: mvn clean test
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/tests/package-lock.json
+
+      - name: Build API
+        run: mvn clean package -DskipTests
+
+      - name: Start API
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
+          CLIENT_ID: "google-client-id-ficticio-para-o-teste"
+        run: |
+          nohup java -jar target/*.jar --spring.profiles.active=test > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Wait API
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/actuator/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "API não iniciou"
+          cat api.log
+          exit 1
+
+      - name: Install integration test dependencies
+        working-directory: tools/tests
+        run: npm install
+
+      - name: Run integration tests
+        working-directory: tools/tests
+        run: node runner.js
+
+      - name: Show API log on failure
+        if: failure()
+        run: cat api.log
+
+      - name: Stop API
+        if: always()
+        run: kill $(cat api.pid)
