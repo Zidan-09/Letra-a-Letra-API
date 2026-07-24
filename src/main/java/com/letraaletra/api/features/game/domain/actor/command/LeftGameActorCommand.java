@@ -25,6 +25,8 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         UUID participantId = participant.getUserId();
 
         if (game.getGameStatus().equals(GameStatus.WAITING)) {
+            game.remove(participantId);
+
             return new LeftGameResult(
                     game,
                     participant.getUserId(),

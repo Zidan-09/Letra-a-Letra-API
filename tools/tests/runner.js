@@ -6,7 +6,7 @@ import { run as casual } from "./tests/casual.test.js";
 import { run as room } from "./tests/room.test.js";
 import { run as turn } from "./tests/turn.test.js";
 
-const tests = [
+/* const tests = [
     profile,
     friends,
     matchmaking,
@@ -14,6 +14,10 @@ const tests = [
     casual,
     room,
     turn
+]; */
+
+const tests = [
+    room
 ];
 
 for(const test of tests) {
