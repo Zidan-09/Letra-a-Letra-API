@@ -2,6 +2,7 @@ package com.letraaletra.api.features.participant.application.service;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.application.output.ModerationContext;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
@@ -43,6 +44,9 @@ class ModerationContextServiceTest {
     @Mock
     private Participant mockParticipant;
 
+    @Mock
+    private Participants participants;
+
     @BeforeEach
     void setUp() {
         gameId = UUID.randomUUID();
@@ -56,17 +60,19 @@ class ModerationContextServiceTest {
         when(actorManager.get(gameId)).thenReturn(mockActor);
         when(mockActor.getGame()).thenReturn(mockGame);
         when(mockGame.getHostId()).thenReturn(hostId);
-        when(mockGame.getParticipantByUserId(targetId)).thenReturn(mockParticipant);
+        when(mockGame.getParticipants()).thenReturn(participants);
+        when(participants.getParticipantByUserId(targetId)).thenReturn(mockParticipant);
 
         ModerationContext context = service.resolve(gameId, targetId, hostId);
 
         assertNotNull(context);
-        assertEquals(mockGame, context.game()); // Assumindo record component ou getter .game()
-        assertEquals(mockParticipant, context.participant()); // Assumindo record component ou getter .participant()
+        assertEquals(mockGame, context.game());
+        assertEquals(mockParticipant, context.participant());
 
         verify(actorManager, times(1)).get(gameId);
         verify(mockGame, times(1)).getHostId();
-        verify(mockGame, times(1)).getParticipantByUserId(targetId);
+        verify(mockGame).getParticipants();
+        verify(participants).getParticipantByUserId(targetId);
     }
 
     @Test
@@ -75,11 +81,11 @@ class ModerationContextServiceTest {
         UUID nonHostId = UUID.randomUUID();
         when(actorManager.get(gameId)).thenReturn(mockActor);
         when(mockActor.getGame()).thenReturn(mockGame);
-        when(mockGame.getHostId()).thenReturn(hostId); // O host real é diferente de nonHostId
+        when(mockGame.getHostId()).thenReturn(hostId);
 
         assertThrows(OnlyHostCanModerateException.class, () -> service.resolve(gameId, targetId, nonHostId));
 
-        verify(mockGame, never()).getParticipantByUserId(any());
+        verify(participants, never()).getParticipantByUserId(any());
     }
 
     @Test
@@ -91,7 +97,7 @@ class ModerationContextServiceTest {
 
         assertThrows(InvalidModerateActionException.class, () -> service.resolve(gameId, hostId, hostId));
 
-        verify(mockGame, never()).getParticipantByUserId(any());
+        verify(participants, never()).getParticipantByUserId(any());
     }
 
     @Test
@@ -100,7 +106,8 @@ class ModerationContextServiceTest {
         when(actorManager.get(gameId)).thenReturn(mockActor);
         when(mockActor.getGame()).thenReturn(mockGame);
         when(mockGame.getHostId()).thenReturn(hostId);
-        when(mockGame.getParticipantByUserId(targetId)).thenReturn(null);
+        when(mockGame.getParticipants()).thenReturn(participants);
+        when(participants.getParticipantByUserId(targetId)).thenReturn(null);
 
         assertThrows(UserNotInGameException.class, () -> service.resolve(gameId, targetId, hostId));
     }

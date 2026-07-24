@@ -20,6 +20,9 @@ public class GameJpaEntity {
     @Column(name = "host_id")
     private UUID hostId;
 
+    @Column(name = "room_name")
+    private String roomName;
+
     @Column(name = "created_by_id")
     private UUID creatorId;
 
@@ -29,6 +32,12 @@ public class GameJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "game_type", nullable = false)
     private GameType gameType;
+
+    @Column(name = "allow_spectators")
+    private boolean allowSpectators;
+
+    @Column(name = "private_game")
+    private boolean privateGame;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

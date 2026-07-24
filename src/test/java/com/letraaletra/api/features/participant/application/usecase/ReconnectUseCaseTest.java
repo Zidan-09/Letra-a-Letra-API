@@ -2,6 +2,7 @@ package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.domain.Participant;
@@ -55,6 +56,9 @@ class ReconnectUseCaseTest {
     @Mock
     private Participant mockParticipant;
 
+    @Mock
+    private Participants participants;
+
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -105,16 +109,17 @@ class ReconnectUseCaseTest {
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
         when(actorManager.get(gameId)).thenReturn(mockActor);
         when(mockActor.getGame()).thenReturn(mockGame);
-        when(mockGame.getParticipantByUserId(userId)).thenReturn(mockParticipant);
+        when(mockGame.getParticipants()).thenReturn(participants);
+        when(participants.getParticipantByUserId(userId)).thenReturn(mockParticipant);
         when(mockGame.getId()).thenReturn(gameId);
 
         Optional<ReconnectParticipantOutput> result = useCase.execute(input);
 
         assertTrue(result.isPresent());
-        assertEquals(mockGame, result.get().game()); // Assumindo record component ou getter .game()
+        assertEquals(mockGame, result.get().game());
 
         verify(disconnectScheduler, times(1)).cancel(userId, gameId);
-        verify(mockGame, times(1)).reconnect(userId, sessionToken);
+        verify(participants).reconnect(userId, sessionToken);
         verify(userRepository, never()).save(any());
     }
 
@@ -126,7 +131,8 @@ class ReconnectUseCaseTest {
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
         when(actorManager.get(gameId)).thenReturn(mockActor);
         when(mockActor.getGame()).thenReturn(mockGame);
-        when(mockGame.getParticipantByUserId(userId)).thenReturn(null);
+        when(mockGame.getParticipants()).thenReturn(participants);
+        when(participants.getParticipantByUserId(userId)).thenReturn(null);
 
         Optional<ReconnectParticipantOutput> result = useCase.execute(input);
 

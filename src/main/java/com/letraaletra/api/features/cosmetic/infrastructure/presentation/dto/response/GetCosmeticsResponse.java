@@ -1,16 +1,9 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response;
 
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
-
-import java.util.List;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 
 public record GetCosmeticsResponse(
-        List<CosmeticDTO> cosmetics,
-        int page,
-        int size,
-        long totalElements,
-        int totalPages,
-        boolean first,
-        boolean last
+        PageResponse<CosmeticDTO> cosmetics
 ) {
 }

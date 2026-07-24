@@ -14,7 +14,7 @@ public class DefaultGameFactory {
 
         Game game = new Game(gameId, code, "default-name", settings, player1, GameType.MATCHMAKING);
 
-        game.join(player2);
+        game.getParticipants().join(player2, settings);
 
         return builtResult(game);
     }
@@ -25,7 +25,7 @@ public class DefaultGameFactory {
 
         Game game = new Game(gameId, code, "default-name", settings, player1, GameType.RANKING);
 
-        game.join(player2);
+        game.getParticipants().join(player2, settings);
 
         return builtResult(game);
     }

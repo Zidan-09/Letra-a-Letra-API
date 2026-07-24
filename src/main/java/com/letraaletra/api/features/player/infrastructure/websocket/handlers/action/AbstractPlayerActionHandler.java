@@ -56,7 +56,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .getPlayers().values()
                 .stream().toList();
 
-        List<Participant> spectators = output.game().getParticipants().stream()
+        List<Participant> spectators = output.game().getParticipants().getParticipants().stream()
                 .filter(participant -> participant.getRole().equals(ParticipantRole.SPECTATOR))
                 .toList();
 

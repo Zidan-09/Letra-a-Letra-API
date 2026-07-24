@@ -44,7 +44,7 @@ public class BroadcastService implements GameNotifier {
             return;
         }
 
-        for (Participant participant : game.getParticipants()) {
+        for (Participant participant : game.getParticipants().getParticipants()) {
             WebSocketSession session = sessionRepository.find(participant.getSocketId());
 
             if (session == null || !session.isOpen()) {

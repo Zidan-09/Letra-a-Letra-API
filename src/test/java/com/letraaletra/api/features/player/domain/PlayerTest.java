@@ -20,7 +20,7 @@ class PlayerTest {
     @BeforeEach
     void setUp() {
         UUID userId = UUID.randomUUID();
-        player = new Player(userId);
+        player = new Player(userId, "player");
     }
 
     @Test
@@ -85,7 +85,7 @@ class PlayerTest {
         player.addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay(), "Deveria conseguir jogar pois possui UNFREEZE");
 
-        Player anotherPlayer = new Player(UUID.randomUUID());
+        Player anotherPlayer = new Player(UUID.randomUUID(), "player");
         anotherPlayer.applyEffect(new FreezeEffect());
         anotherPlayer.addToInventory(PowerType.IMMUNITY);
         assertFalse(anotherPlayer.canNotPlay(), "Deveria conseguir jogar pois possui IMMUNITY");

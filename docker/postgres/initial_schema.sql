@@ -29,9 +29,12 @@ CREATE TABLE "user_wallet" (
 CREATE TABLE "game" (
                         "game_id" uuid PRIMARY KEY NOT NULL,
                         "host_id" uuid REFERENCES "user" ("user_id"),
+                        "room_name" varchar(50) NOT NULL,
                         "created_by_id" uuid REFERENCES "user" ("user_id"),
                         "room_code" varchar(50) NOT NULL,
                         "game_type" varchar(50) NOT NULL,
+                        "allow_spectators" boolean DEFAULT true,
+                        "private_game" boolean default false,
                         "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                         "status" varchar(50)
 );
@@ -47,6 +50,7 @@ CREATE TABLE "matches" (
 CREATE TABLE "match_players" (
                         "match_id" uuid NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
                         "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "nickname" varchar(15) UNIQUE NOT NULL,
                         "score" integer DEFAULT 0,
                         "is_winner" boolean DEFAULT false,
                         PRIMARY KEY ("match_id", "user_id")

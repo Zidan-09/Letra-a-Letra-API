@@ -20,7 +20,8 @@ public class GameStateFactory {
                 .stream().filter(p -> p.getRole() == ParticipantRole.PLAYER)
                 .forEach(p -> {
                     Player player = new Player(
-                            p.getUserId()
+                            p.getUserId(),
+                            p.getNickname()
                     );
 
                     players.put(p.getUserId(), player);

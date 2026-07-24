@@ -2,10 +2,11 @@ package com.letraaletra.api.features.offers.infrastructure.controller;
 
 import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
-import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.GetOffersResponse;
+import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.GetOffersMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
@@ -27,14 +28,14 @@ public class GetOffersController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<GetOffersResponse>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<Offer>>> handle(
             Pageable pageable
     ) {
         GetOffersInput input = GetOffersMapper.toInput(pageable);
 
         GetOffersOutput output = useCase.execute(input);
 
-        GetOffersResponse dto = GetOffersMapper.toResponse(output);
+        PageResponse<Offer> dto = GetOffersMapper.toResponse(output);
 
         return ApiResponseService.success(dto);
     }
