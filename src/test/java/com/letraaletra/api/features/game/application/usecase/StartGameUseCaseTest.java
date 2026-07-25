@@ -8,6 +8,7 @@ import com.letraaletra.api.features.game.domain.actor.command.StartGameActorComm
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameSettings;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StartGameUseCaseTest {
+
+    @Mock
+    private GameRepository gameRepository;
 
     @Mock
     private ThemeRepository themeRepository;

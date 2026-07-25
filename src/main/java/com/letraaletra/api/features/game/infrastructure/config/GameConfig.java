@@ -93,6 +93,7 @@ public class GameConfig {
 
     @Bean
     public StartGameUseCase startGameUseCase(
+            GameRepository gameRepository,
              GameStateFactory gameStateFactory,
              ThemeRepository themeRepository,
              GameTimeoutManager gameTimeoutManager,
@@ -102,6 +103,7 @@ public class GameConfig {
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
+                gameRepository,
                 gameStateFactory,
                 themeRepository,
                 gameTimeoutManager,

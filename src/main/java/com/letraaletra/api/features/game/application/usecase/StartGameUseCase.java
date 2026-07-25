@@ -2,6 +2,7 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.domain.actor.command.StartGameActorCommand;
 import com.letraaletra.api.features.game.application.input.StartGameInput;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {
+    private final GameRepository gameRepository;
     private final GameStateFactory gameStateFactory;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;
@@ -31,6 +33,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     private final ActorManager<Game> gameActorManager;
 
     public StartGameUseCase(
+            GameRepository gameRepository,
             GameStateFactory gameStateFactory,
             ThemeRepository themeRepository,
             GameTimeoutManager gameTimeoutManager,
@@ -39,6 +42,7 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager
     ) {
+        this.gameRepository = gameRepository;
         this.gameStateFactory = gameStateFactory;
         this.themeRepository = themeRepository;
         this.gameTimeoutManager = gameTimeoutManager;
@@ -64,6 +68,8 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(input.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
 
         Game game = future.join();
+
+        gameRepository.save(game);
 
         return buildOutput(game);
     }
