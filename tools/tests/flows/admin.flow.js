@@ -39,6 +39,18 @@ export async function runFlow(context) {
         );
     }
 
+    res = await http(
+        "GET",
+        "/admin/logs/admin",
+        undefined,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get admin logs list"
+    )
     // Fluxo 2: Buscar logs de administração
 
     res = await download(
@@ -50,7 +62,7 @@ export async function runFlow(context) {
     ensureStatus(
         res,
         200,
-        "Get admin logs"
+        "Get admin latest log"
     );
 
     if (!res.data) {
@@ -59,7 +71,151 @@ export async function runFlow(context) {
         );
     }
 
-    // Fluxo 3: Registrar novo administrador
+    // Fluxo 3: Buscar datas dos logs de partidas
+
+    res = await http(
+        "GET",
+        "/admin/logs/game",
+        null,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get game log dates"
+    );
+
+    if (!Array.isArray(res.body)) {
+        throw new Error(
+            "Get game log dates: invalid response"
+        );
+    }
+
+    // Fluxo 4: Buscar partidas de uma data
+
+    if (res.body.length > 0) {
+
+        const date = res.body[0];
+
+        res = await http(
+            "GET",
+            `/admin/logs/game/${date}`,
+            null,
+            admin.token
+        );
+
+        ensureStatus(
+            res,
+            200,
+            "Get game logs by date"
+        );
+
+        if (!Array.isArray(res.body)) {
+            throw new Error(
+                "Get game logs by date: invalid response"
+            );
+        }
+
+        // Fluxo 5: Buscar arquivos de uma partida
+
+        if (res.body.length > 0) {
+
+            const gameId = res.body[0];
+
+            res = await http(
+                "GET",
+                `/admin/logs/game/${date}/${gameId}`,
+                null,
+                admin.token
+            );
+
+            ensureStatus(
+                res,
+                200,
+                "Get game log files"
+            );
+
+            if (!Array.isArray(res.body)) {
+                throw new Error(
+                    "Get game log files: invalid response"
+                );
+            }
+
+            // Fluxo 6: Baixar um arquivo da partida
+
+            if (res.body.length > 0) {
+
+                const file = res.body[0];
+
+                res = await download(
+                    "GET",
+                    `/admin/logs/game/${date}/${gameId}/${file}`,
+                    admin.token
+                );
+
+                ensureStatus(
+                    res,
+                    200,
+                    "Download game log"
+                );
+
+                if (!res.data) {
+                    throw new Error(
+                        "Download game log: empty response"
+                    );
+                }
+            }
+        }
+    }
+
+    // Fluxo 7: Buscar arquivos untracked
+
+    res = await http(
+        "GET",
+        "/admin/logs/game/untracked",
+        null,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get untracked game logs"
+    );
+
+    if (!Array.isArray(res.body)) {
+        throw new Error(
+            "Get untracked game logs: invalid response"
+        );
+    }
+
+    // Fluxo 8: Baixar um arquivo untracked
+
+    if (res.body.length > 0) {
+
+        const file = res.body[0];
+
+        res = await download(
+            "GET",
+            `/admin/logs/game/untracked/${file}`,
+            admin.token
+        );
+
+        ensureStatus(
+            res,
+            200,
+            "Download untracked game log"
+        );
+
+        if (!res.data) {
+            throw new Error(
+                "Download untracked game log: empty response"
+            );
+        }
+    }
+
+    // Fluxo 8: Registrar novo administrador
 
     const newAdmin = {
         name: `integration.admin.${Date.now()}`,
@@ -82,7 +238,7 @@ export async function runFlow(context) {
     );
 
 
-    // Fluxo 4: Autenticar novo administrador
+    // Fluxo 9: Autenticar novo administrador
 
     res = await http(
         "POST",
@@ -110,7 +266,7 @@ export async function runFlow(context) {
     const newAdminToken = res.body.data.token;
 
 
-    // Fluxo 5: Validar perfil do novo administrador
+    // Fluxo 10: Validar perfil do novo administrador
 
     res = await http(
         "GET",

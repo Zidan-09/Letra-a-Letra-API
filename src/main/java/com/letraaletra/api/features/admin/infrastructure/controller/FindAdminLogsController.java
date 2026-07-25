@@ -19,28 +19,50 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
-@RequestMapping(path = "/admin/logs")
-@Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
-public class FindLogsController {
-    private final Path logDirectory = Paths.get("logs");
+@RequestMapping("/admin/logs/admin")
+@Tag(name = "Admin", description = "Rotas relacionadas aos logs administrativos")
+public class FindAdminLogsController {
 
-    @GetMapping("/{type}/{file}")
-    public ResponseEntity<Resource> handle(
-            @AuthenticationPrincipal AuthenticatedUser principal,
-            @PathVariable @NotBlank String type,
-            @PathVariable @NotBlank String file
+    private final Path root = Paths.get("logs", "admin");
+
+    @GetMapping
+    public List<String> findLogs(
+            @AuthenticationPrincipal AuthenticatedUser principal
     ) throws IOException {
-        if (!principal.isAdmin()) {
-            throw new UserIsNotAdminException();
+
+        validateAdmin(principal);
+
+        if (!Files.exists(root)) {
+            return List.of();
         }
 
-        Path filePath = logDirectory
-                .resolve("audit")
-                .resolve(type)
+        try (Stream<Path> stream = Files.list(root)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    .sorted(Comparator.naturalOrder())
+                    .toList();
+        }
+    }
+
+    @GetMapping("/{file}")
+    public ResponseEntity<Resource> download(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @PathVariable @NotBlank String file
+    ) {
+
+        validateAdmin(principal);
+
+        Path filePath = root
                 .resolve(file)
                 .normalize();
+
+        validatePath(filePath);
 
         if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
             return ResponseEntity.notFound().build();
@@ -55,5 +77,19 @@ public class FindLogsController {
                         "attachment; filename=\"" + file + "\""
                 )
                 .body(resource);
+    }
+
+    private void validateAdmin(AuthenticatedUser principal) {
+        if (!principal.isAdmin()) {
+            throw new UserIsNotAdminException();
+        }
+    }
+
+    private void validatePath(Path path) {
+        Path normalizedRoot = root.toAbsolutePath().normalize();
+
+        if (!path.toAbsolutePath().normalize().startsWith(normalizedRoot)) {
+            throw new IllegalArgumentException("Invalid path.");
+        }
     }
 }

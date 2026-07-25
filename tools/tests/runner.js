@@ -36,5 +36,6 @@ for(const test of tests) {
 
         console.error(e);
 
+        throw e;
     }
 }
