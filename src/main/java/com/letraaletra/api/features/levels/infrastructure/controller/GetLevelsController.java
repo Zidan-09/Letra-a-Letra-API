@@ -3,7 +3,6 @@ package com.letraaletra.api.features.levels.infrastructure.controller;
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
 import com.letraaletra.api.features.levels.domain.Level;
-import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.GetLevelsResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
 import com.letraaletra.api.shared.application.service.ApiResponseService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
