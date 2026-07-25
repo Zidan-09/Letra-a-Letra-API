@@ -83,13 +83,7 @@ public class PlayerActionRequestDispatcher {
             return null;
         }
 
-        String rawMatchId = game.getGameState().getMatchId().toString();
-
-        if (rawMatchId.startsWith("match-")) {
-            return rawMatchId;
-        }
-
-        return "match-" + rawMatchId;
+        return game.getGameState().getMatchId().toString();
     }
 
     private String getUserDisplay(WebSocketSession session) {

@@ -40,14 +40,17 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
         User loser = userRepository.find(gameOver.loser().getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
+        String winnerSessionId = sessionRepository.findByUserId(winner.getId()).getId();
+        String loserSessionId = sessionRepository.findByUserId(loser.getId()).getId();
+
         Participant winnerParticipant = Participant.create(
                 winner,
-                sessionRepository.findByUserId(winner.getId()).getId()
+                winnerSessionId != null ? winnerSessionId : ""
         );
 
         Participant loserParticipant = Participant.create(
                 loser,
-                sessionRepository.findByUserId(loser.getId()).getId()
+                loserSessionId != null ? loserSessionId : ""
         );
 
         if (game.getGameType().equals(GameType.RANKING)) {

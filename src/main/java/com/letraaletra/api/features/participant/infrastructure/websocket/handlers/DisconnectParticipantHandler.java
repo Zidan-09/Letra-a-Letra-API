@@ -27,9 +27,9 @@ public class DisconnectParticipantHandler {
     public void handler(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        DisconnectParticipantInput command = DisconnectParticipantMapper.toInput(userId, session.getId());
+        DisconnectParticipantInput input = DisconnectParticipantMapper.toInput(userId, session.getId());
 
-        Optional<DisconnectParticipantOutput> output = useCase.execute(command);
+        Optional<DisconnectParticipantOutput> output = useCase.execute(input);
 
         output.ifPresent(out -> {
             DisconnectParticipantResponse dto = DisconnectParticipantMapper.toResponse(out);
