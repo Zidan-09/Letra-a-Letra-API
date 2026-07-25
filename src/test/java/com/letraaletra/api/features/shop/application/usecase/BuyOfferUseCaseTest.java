@@ -7,6 +7,8 @@ import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusEx
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
+import com.letraaletra.api.features.user.domain.repository.WalletTransactionRepository;
+import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
@@ -39,6 +41,9 @@ class BuyOfferUseCaseTest {
     @Mock
     private OfferRepository offerRepository;
 
+    @Mock
+    private WalletTransactionRepository walletTransactionRepository;
+
     @InjectMocks
     private BuyOfferUseCase useCase;
 
@@ -46,6 +51,7 @@ class BuyOfferUseCaseTest {
     private UUID userId;
     private User mockUser;
     private Wallet mockWallet;
+    private Balance mockBalance;
     private Offer mockOffer;
 
     @BeforeEach
@@ -55,6 +61,7 @@ class BuyOfferUseCaseTest {
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
+        mockBalance = mock(Balance.class);
         mockOffer = mock(Offer.class);
 
         OfferReward mockOfferReward = mock(OfferReward.class);
@@ -75,6 +82,8 @@ class BuyOfferUseCaseTest {
     void shouldBuyOfferWithSuccess() {
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+        when(mockUser.getWallet()).thenReturn(mockWallet);
+        when(mockWallet.getBalance()).thenReturn(mockBalance);
         when(mockOffer.isActive()).thenReturn(true);
         when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 

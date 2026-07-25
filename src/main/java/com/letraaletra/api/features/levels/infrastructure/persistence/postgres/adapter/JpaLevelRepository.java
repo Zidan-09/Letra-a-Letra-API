@@ -17,6 +17,7 @@ import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
 import com.letraaletra.api.shared.domain.rewards.Reward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -43,18 +44,17 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
-    public List<Level> get(GetLevelsInput input) {
+    public Page<Level> get(GetLevelsInput input) {
         Pageable pageable = PageRequest.of(
                 input.page(),
                 input.size(),
                 input.sort()
         );
 
-        return repository.findAll(pageable).stream()
+        return repository.findAll(pageable)
                 .map(entity -> LevelMapper.toDomain(
                         entity,
-                        loadRewards(entity.getId())))
-                .toList();
+                        loadRewards(entity.getId())));
     }
 
     @Override

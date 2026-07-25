@@ -2,9 +2,8 @@ package com.letraaletra.api.features.levels.domain.repository;
 
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.domain.Level;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface GetLevels {
-    List<Level> get(GetLevelsInput input);
+    Page<Level> get(GetLevelsInput input);
 }

@@ -11,8 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,21 +42,23 @@ class GetLevelsUseCaseTest {
     @Test
     @DisplayName("Should successfully return GetLevelsOutput containing a populated list of levels when repository finds records")
     void shouldReturnPopulatedLevelsOutputSuccessfully() {
-        List<Level> expectedLevels = List.of(mockLevel1, mockLevel2);
+        Page<Level> expectedLevels = new PageImpl<>(List.of(mockLevel1, mockLevel2));
         when(levelRepository.get(mockInput)).thenReturn(expectedLevels);
 
         GetLevelsOutput output = useCase.execute(mockInput);
 
         assertNotNull(output);
-        assertEquals(expectedLevels, output.levels()); // Assumindo record component ou getter .levels()
-        assertEquals(2, output.levels().size());
+        assertEquals(expectedLevels, output.levels());
+        assertEquals(2, output.levels().getTotalElements());
         verify(levelRepository, times(1)).get(mockInput);
     }
 
     @Test
     @DisplayName("Should successfully return GetLevelsOutput containing an empty list when no levels match the input criteria")
     void shouldReturnEmptyLevelsOutputSuccessfully() {
-        when(levelRepository.get(mockInput)).thenReturn(Collections.emptyList());
+        Page<Level> expectedPage = new PageImpl<>(List.of());
+
+        when(levelRepository.get(mockInput)).thenReturn(expectedPage);
 
         GetLevelsOutput output = useCase.execute(mockInput);
 

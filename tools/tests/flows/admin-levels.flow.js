@@ -63,7 +63,7 @@ export async function runFlow(context) {
 
     ensureStatus(res, 200, "Get levels");
 
-    if (!res.body.data.levels.some(l => l.levelId === levelId)) {
+    if (!res.body.data.content.some(l => l.levelId === levelId)) {
         throw new Error("Created level not found");
     }
 
@@ -98,7 +98,7 @@ export async function runFlow(context) {
 
     ensureStatus(res, 200, "Get updated levels");
 
-    const updated = res.body.data.levels.find(l => l.levelId === levelId);
+    const updated = res.body.data.content.find(l => l.levelId === levelId);
 
     if (!updated) {
         throw new Error("Updated level not found");

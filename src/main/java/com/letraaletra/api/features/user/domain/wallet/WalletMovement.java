@@ -2,11 +2,8 @@ package com.letraaletra.api.features.user.domain.wallet;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
 
-public record WalletLog(
-        String logId,
+public record WalletMovement(
         CoinType coinType,
         int amount,
-        int balanceAfter,
-        TransactionType reason
-) {
-}
+        OperationType operation
+) {}
