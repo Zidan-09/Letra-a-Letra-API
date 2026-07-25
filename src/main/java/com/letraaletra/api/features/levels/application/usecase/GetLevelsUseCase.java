@@ -5,8 +5,7 @@ import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public class GetLevelsUseCase implements UseCase<GetLevelsInput, GetLevelsOutput> {
     private final LevelRepository levelRepository;
@@ -19,7 +18,7 @@ public class GetLevelsUseCase implements UseCase<GetLevelsInput, GetLevelsOutput
 
     @Override
     public GetLevelsOutput execute(GetLevelsInput input) {
-        List<Level> levels = levelRepository.get(input);
+        Page<Level> levels = levelRepository.get(input);
 
         return new GetLevelsOutput(levels);
     }

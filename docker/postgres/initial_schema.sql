@@ -91,14 +91,25 @@ CREATE TABLE "offer_reward" (
                         "quantity" integer NOT NULL DEFAULT 1
 );
 
-CREATE TABLE "wallet_log" (
-                      "log_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                      "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                      "coin_type" varchar(50) NOT NULL,
-                      "amount" integer NOT NULL,
-                      "balance_after" integer NOT NULL,
-                      "reason" varchar(50) NOT NULL,
-                      "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE wallet_transaction (
+                        transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+                        user_id uuid NOT NULL REFERENCES "user"(user_id),
+
+                        coin_type varchar(50) NOT NULL,
+
+                        amount integer NOT NULL,
+
+                        balance_before integer NOT NULL,
+                        balance_after integer NOT NULL,
+
+                        operation varchar(20) NOT NULL,
+
+                        reason varchar(50) NOT NULL,
+
+                        reference_id uuid NULL,
+
+                        created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "friend" (
