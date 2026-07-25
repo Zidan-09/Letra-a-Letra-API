@@ -47,6 +47,7 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
 
         if (gameOver.isPresent()) {
             game.remove(whoPassed);
+
         } else {
             state.nextTurn(now.plusSeconds(45));
         }

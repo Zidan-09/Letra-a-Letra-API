@@ -46,6 +46,8 @@ public class GameOverHandler {
         if (game.getGameType().equals(GameType.CUSTOM)) {
             game.setGameStatus(GameStatus.WAITING);
             gameTimeoutManager.start(game);
+        } else {
+            game.setGameStatus(GameStatus.CLOSED);
         }
 
         if (game.getGameStatus().equals(GameStatus.CLOSED)) {

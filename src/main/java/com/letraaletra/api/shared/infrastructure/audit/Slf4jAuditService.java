@@ -34,7 +34,7 @@ public class Slf4jAuditService implements AuditService {
 
         String relativePath;
         if (matchId != null && !matchId.isBlank()) {
-            relativePath = String.format("%s/%s/%s.log", today, gameId, matchId);
+            relativePath = String.format("%s/%s/%s.log", today, gameId, "match-" + matchId);
         } else {
             relativePath = String.format("%s/%s/game.log", today, gameId);
         }

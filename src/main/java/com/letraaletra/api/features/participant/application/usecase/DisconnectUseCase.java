@@ -52,15 +52,15 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
                 new DisconnectParticipantActorCommand(userId, disconnectScheduler)
         );
 
-        Optional<Game> gameOpt = future.join();
+        Optional<Game> game = future.join();
 
-        if (gameOpt.isEmpty()) {
+        if (game.isEmpty()) {
             user.leaveGame();
             userRepository.save(user);
             return Optional.empty();
         }
 
-        return buildReturn(gameOpt.get(), userId);
+        return buildReturn(game.get(), userId);
     }
 
     private Optional<DisconnectParticipantOutput> buildReturn(Game game, UUID user) {

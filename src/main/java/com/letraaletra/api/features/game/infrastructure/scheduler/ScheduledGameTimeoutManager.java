@@ -6,6 +6,8 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.shared.application.port.AuditService;
+import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,13 +18,16 @@ import java.util.concurrent.*;
 public class ScheduledGameTimeoutManager implements GameTimeoutManager {
     private final CloseRoomDueToTimeoutService closeRoomDueToTimeoutService;
     private final GameNotifier gameNotifier;
+    private final AuditService auditService;
 
     public ScheduledGameTimeoutManager(
             CloseRoomDueToTimeoutService closeRoomDueToTimeoutService,
-            GameNotifier gameNotifier
+            GameNotifier gameNotifier,
+            AuditService auditService
     ) {
         this.closeRoomDueToTimeoutService = closeRoomDueToTimeoutService;
         this.gameNotifier = gameNotifier;
+        this.auditService = auditService;
     }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
@@ -53,6 +58,13 @@ public class ScheduledGameTimeoutManager implements GameTimeoutManager {
         );
 
         RoomClosed data = new RoomClosed(output.event(), output.reason());
+
+        auditService.game(
+                game.getId().toString(),
+                null,
+                Level.INFO,
+                "A sala foi fechada por inatividade"
+        );
 
         gameNotifier.notifierAll(output.game(), data);
     }
