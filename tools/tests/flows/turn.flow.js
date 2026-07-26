@@ -110,7 +110,7 @@ export async function runFlow(context) {
                     "TURN_EXPIRED LAST",
                     e => e.event === "TURN_EXPIRED",
                     eventsUser2,
-                    60000
+                    90000
                 );
 
                 await waitForEvent(

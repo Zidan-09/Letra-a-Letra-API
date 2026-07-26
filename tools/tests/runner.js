@@ -9,6 +9,14 @@ import { run as adminRoutes } from "./tests/admin-routes.test.js";
 import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
+    profile,
+    friends,
+    matchmaking,
+    ranking,
+    casual,
+    room,
+    admin,
+    adminRoutes,
     turn
 ];
 
