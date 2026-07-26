@@ -15,7 +15,9 @@ public class GetUserInventoryMapper {
 
     public static GetUserInventoryResponse toResponse(GetUserInventoryOutput output) {
         return new GetUserInventoryResponse(
-                output.inventory()
+                output.inventory().stream()
+                        .map(InventoryItemResponseMapper::toResponse)
+                        .toList()
         );
     }
 }
