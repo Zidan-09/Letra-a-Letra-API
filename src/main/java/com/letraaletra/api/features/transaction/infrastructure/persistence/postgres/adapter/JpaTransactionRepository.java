@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
+import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.jpa.SpringDataTransactionRepository;
@@ -31,11 +31,11 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public Page<Transaction> get(GetTransactionsInput input) {
+    public Page<Transaction> get(TransactionsPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable)
