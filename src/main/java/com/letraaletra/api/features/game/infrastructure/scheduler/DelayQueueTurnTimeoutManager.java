@@ -10,7 +10,7 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
-import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

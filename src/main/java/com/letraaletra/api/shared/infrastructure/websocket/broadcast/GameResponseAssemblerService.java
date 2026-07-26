@@ -9,7 +9,7 @@ import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.resp
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverMapper;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.user.domain.User;
