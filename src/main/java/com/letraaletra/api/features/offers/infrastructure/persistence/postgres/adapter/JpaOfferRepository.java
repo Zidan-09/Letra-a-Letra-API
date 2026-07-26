@@ -3,9 +3,9 @@ package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
-import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
+import com.letraaletra.api.features.offers.domain.OffersPage;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
@@ -50,11 +50,11 @@ public class JpaOfferRepository implements OfferRepository {
     }
 
     @Override
-    public Page<Offer> get(GetOffersInput input) {
+    public Page<Offer> get(OffersPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable)

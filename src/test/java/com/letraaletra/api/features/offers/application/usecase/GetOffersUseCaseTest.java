@@ -3,6 +3,7 @@ package com.letraaletra.api.features.offers.application.usecase;
 import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.domain.OffersPage;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ class GetOffersUseCaseTest {
     private GetOffersUseCase useCase;
 
     private GetOffersInput mockInput;
+    private OffersPage mockPages;
 
     @Mock
     private Offer mockOffer1;
@@ -40,6 +42,7 @@ class GetOffersUseCaseTest {
     @BeforeEach
     void setUp() {
         mockInput = mock(GetOffersInput.class);
+        mockPages = new OffersPage(mockInput.page(), mockInput.size(), mockInput.sort());
     }
 
     @Test
@@ -52,7 +55,7 @@ class GetOffersUseCaseTest {
                 2
         );
 
-        when(offerRepository.get(mockInput))
+        when(offerRepository.get(mockPages))
                 .thenReturn(expectedOffers);
 
         GetOffersOutput output = useCase.execute(mockInput);
@@ -61,14 +64,14 @@ class GetOffersUseCaseTest {
         assertEquals(expectedOffers, output.offers());
         assertEquals(2, output.offers().getContent().size());
 
-        verify(offerRepository).get(mockInput);
+        verify(offerRepository).get(mockPages);
     }
 
     @Test
     @DisplayName("Should successfully return empty offers page")
     void shouldReturnEmptyOffersOutputSuccessfully() {
 
-        when(offerRepository.get(mockInput))
+        when(offerRepository.get(mockPages))
                 .thenReturn(Page.empty());
 
         GetOffersOutput output = useCase.execute(mockInput);
@@ -76,14 +79,14 @@ class GetOffersUseCaseTest {
         assertNotNull(output);
         assertTrue(output.offers().isEmpty());
 
-        verify(offerRepository).get(mockInput);
+        verify(offerRepository).get(mockPages);
     }
 
     @Test
     @DisplayName("Should propagate repository exceptions")
     void shouldPropagateRepositoryExceptions() {
 
-        when(offerRepository.get(mockInput))
+        when(offerRepository.get(mockPages))
                 .thenThrow(new RuntimeException("Database connectivity failure"));
 
         assertThrows(
