@@ -4,16 +4,15 @@ import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.domain.GameHistory;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.UUID;
-
 public class GetGamesMapper {
-    public static GetGamesInput toInput(UUID auth, Pageable pageable) {
+    public static GetGamesInput toInput(AuthenticatedUser principal, Pageable pageable) {
         return new GetGamesInput(
-            auth,
+            principal,
             pageable.getPageNumber(),
             pageable.getPageSize(),
             pageable.getSort()

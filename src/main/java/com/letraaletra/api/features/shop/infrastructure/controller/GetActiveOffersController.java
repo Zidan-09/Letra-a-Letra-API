@@ -3,7 +3,7 @@ package com.letraaletra.api.features.shop.infrastructure.controller;
 import com.letraaletra.api.features.shop.application.output.GetActiveOffersOutput;
 import com.letraaletra.api.features.shop.infrastructure.presentation.dto.response.GetActiveOffersResponse;
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.GetActiveOffersMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +30,6 @@ public class GetActiveOffersController {
 
         GetActiveOffersResponse dto = GetActiveOffersMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

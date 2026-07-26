@@ -3,7 +3,7 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.RemoveFriendRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RemoveFriendMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -56,12 +56,12 @@ class RemoveFriendControllerTest {
     @DisplayName("Deve remover o amigo com sucesso retornando status 200 OK")
     void removeFriend_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<RemoveFriendMapper> mapperMock = mockStatic(RemoveFriendMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> RemoveFriendMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);
 

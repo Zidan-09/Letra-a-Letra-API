@@ -5,7 +5,7 @@ import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.RegisterAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.RegisterAdminResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class RegisterAdminController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterAdminRequest request
     ) {
-        RegisterAdminInput input = RegisterAdminMapper.toInput(principal.auth(), request);
+        RegisterAdminInput input = RegisterAdminMapper.toInput(principal, request);
 
         RegisterAdminOutput output = useCase.execute(input);
 
         RegisterAdminResponse dto = RegisterAdminMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

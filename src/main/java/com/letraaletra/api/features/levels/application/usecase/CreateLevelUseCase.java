@@ -36,7 +36,7 @@ public class CreateLevelUseCase implements UseCase<CreateLevelInput, CreateLevel
 
     @Override
     public CreateLevelOutput execute(CreateLevelInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         if (levelRepository.existsByLevel(input.level())) throw new LevelAlreadyExistsException();
 

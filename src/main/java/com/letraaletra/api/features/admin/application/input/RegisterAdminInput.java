@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.admin.application.input;
 
-import java.util.UUID;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public record RegisterAdminInput(
-        UUID auth,
+        AuthenticatedUser principal,
         String name,
         String email,
         String password

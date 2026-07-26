@@ -23,7 +23,7 @@ public class GetTransactionsUseCase implements UseCase<GetTransactionsInput, Get
 
     @Override
     public GetTransactionsOutput execute(GetTransactionsInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Page<Transaction> transactions = transactionRepository.get(
                 new TransactionsPage(

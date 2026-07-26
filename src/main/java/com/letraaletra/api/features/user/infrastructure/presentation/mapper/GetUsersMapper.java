@@ -4,22 +4,21 @@ import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.UUID;
-
 public class GetUsersMapper {
-    public static GetUsersInput toInput(UUID auth, Pageable pageable) {
+    public static GetUsersInput toInput(AuthenticatedUser principal, Pageable pageable) {
         Pageable pages = pageable == null ?
                 PageRequest.of(0, 20, Sort.Direction.ASC) :
                 pageable;
 
         return new GetUsersInput(
-                auth,
+                principal,
                 pages.getPageNumber(),
                 pages.getPageSize(),
                 pages.getSort()

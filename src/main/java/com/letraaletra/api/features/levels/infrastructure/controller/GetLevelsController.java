@@ -4,7 +4,7 @@ import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class GetLevelsController {
 
         PageResponse<Level> dto = GetLevelsMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -29,7 +29,7 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
 
     @Override
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Cosmetic exists = cosmeticRepository.findByName(input.name()).orElse(null);
         validateIfExists(exists);

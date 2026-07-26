@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.DeleteOfferInput;
 import com.letraaletra.api.features.offers.application.output.DeleteOfferOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.DeleteOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DeleteOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,7 +34,6 @@ class DeleteOfferControllerTest {
     @InjectMocks
     private DeleteOfferController controller;
 
-    private UUID authAdminId;
     private AuthenticatedUser principal;
     private UUID offerId;
     private DeleteOfferInput mockInput;
@@ -44,7 +43,7 @@ class DeleteOfferControllerTest {
 
     @BeforeEach
     void setUp() {
-        authAdminId = UUID.randomUUID();
+        UUID authAdminId = UUID.randomUUID();
         principal = new AuthenticatedUser(authAdminId, "Admin", true);
         offerId = UUID.randomUUID();
         mockInput = mock(DeleteOfferInput.class);
@@ -59,12 +58,12 @@ class DeleteOfferControllerTest {
     @DisplayName("Should successfully handle deletion path, map payloads, execute use case and return wrapped success response")
     void shouldDeleteOfferSuccessfully() {
         try (MockedStatic<DeleteOfferMapper> mapperMock = mockStatic(DeleteOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DeleteOfferMapper.toInput(authAdminId, offerId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteOfferMapper.toInput(principal, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<DeleteOfferResponse>> response = controller.handle(principal, offerId);
 
@@ -78,7 +77,7 @@ class DeleteOfferControllerTest {
     void shouldPropagateUseCaseExceptions() {
         try (MockedStatic<DeleteOfferMapper> mapperMock = mockStatic(DeleteOfferMapper.class)) {
 
-            mapperMock.when(() -> DeleteOfferMapper.toInput(authAdminId, offerId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteOfferMapper.toInput(principal, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
             assertThrows(SecurityException.class, () -> controller.handle(principal, offerId));
@@ -90,7 +89,7 @@ class DeleteOfferControllerTest {
     void shouldPropagateInputMapperExceptions() {
         try (MockedStatic<DeleteOfferMapper> mapperMock = mockStatic(DeleteOfferMapper.class)) {
 
-            mapperMock.when(() -> DeleteOfferMapper.toInput(authAdminId, offerId))
+            mapperMock.when(() -> DeleteOfferMapper.toInput(principal, offerId))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into deleting structural criteria models"));
 
             assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, offerId));
@@ -103,7 +102,7 @@ class DeleteOfferControllerTest {
     void shouldPropagateResponseMapperExceptions() {
         try (MockedStatic<DeleteOfferMapper> mapperMock = mockStatic(DeleteOfferMapper.class)) {
 
-            mapperMock.when(() -> DeleteOfferMapper.toInput(authAdminId, offerId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteOfferMapper.toInput(principal, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));

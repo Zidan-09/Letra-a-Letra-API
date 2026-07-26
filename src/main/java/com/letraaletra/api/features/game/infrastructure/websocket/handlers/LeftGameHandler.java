@@ -6,7 +6,7 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.LeftGameResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.LeftGameMapper;
-import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;

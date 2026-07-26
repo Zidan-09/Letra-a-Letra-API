@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetActiveGamesMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -34,12 +34,12 @@ public class GetActiveGamesController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetActiveGamesInput input = GetActiveGamesMapper.toInput(principal.auth(), pageable);
+        GetActiveGamesInput input = GetActiveGamesMapper.toInput(principal, pageable);
 
         GetActiveGamesOutput output = useCase.execute(input);
 
         PageResponse<GameDTO> dto = GetActiveGamesMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

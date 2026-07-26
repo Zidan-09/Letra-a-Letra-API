@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.application.port;
 
-import java.util.UUID;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public interface AdminChecker {
-    void check(UUID id);
+    void check(AuthenticatedUser principal);
 }

@@ -22,7 +22,7 @@ public class GetGamesUseCase implements UseCase<GetGamesInput, GetGamesOutput> {
 
     @Override
     public GetGamesOutput execute(GetGamesInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Page<GameHistory> games = gameRepository.get(input);
 

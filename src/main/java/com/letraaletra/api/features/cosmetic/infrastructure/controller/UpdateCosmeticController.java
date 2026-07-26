@@ -5,7 +5,7 @@ import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOu
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.UpdateCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.UpdateCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.UpdateCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,12 +34,12 @@ public class UpdateCosmeticController {
             @Valid @RequestBody UpdateCosmeticRequest request,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(principal.auth(), request, cosmeticId);
+        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(principal, request, cosmeticId);
 
         UpdateCosmeticOutput output = useCase.execute(input);
 
         UpdateCosmeticResponse dto = UpdateCosmeticMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.GetOffersMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class GetOffersController {
 
         PageResponse<Offer> dto = GetOffersMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

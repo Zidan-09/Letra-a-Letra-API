@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUsersMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -34,12 +34,12 @@ public class GetUsersController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetUsersInput input = GetUsersMapper.toInput(principal.auth(), pageable);
+        GetUsersInput input = GetUsersMapper.toInput(principal, pageable);
 
         GetUsersOutput output = useCase.execute(input);
 
         PageResponse<UserResponse> dto = GetUsersMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

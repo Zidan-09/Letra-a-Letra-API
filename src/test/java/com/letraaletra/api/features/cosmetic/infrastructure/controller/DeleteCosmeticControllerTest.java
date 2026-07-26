@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInp
 import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.DeleteCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -33,7 +33,6 @@ class DeleteCosmeticControllerTest {
     @InjectMocks
     private DeleteCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private String mockCosmeticId;
     private DeleteCosmeticInput mockInput;
@@ -43,7 +42,7 @@ class DeleteCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
 
@@ -57,15 +56,15 @@ class DeleteCosmeticControllerTest {
     @DisplayName("Deve deletar cosmético com sucesso retornando 200 OK e o DTO correspondente")
     void handle_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.ok(successResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
@@ -82,7 +81,7 @@ class DeleteCosmeticControllerTest {
     void handle_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Internal error or business restriction"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockCosmeticId));
@@ -109,16 +108,16 @@ class DeleteCosmeticControllerTest {
     @DisplayName("Deve garantir comportamento consistente caso a transformação de saída retorne nulo (Comportamento Desejado/Ausente)")
     void handle_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 
             ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 

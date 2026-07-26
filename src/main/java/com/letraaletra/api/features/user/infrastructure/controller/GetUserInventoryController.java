@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.GetUserInventoryInput
 import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.GetUserInventoryResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUserInventoryMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class GetUserInventoryController {
 
         GetUserInventoryResponse dto = GetUserInventoryMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.controller;
 import com.letraaletra.api.features.game.application.input.FindByCodeInput;
 import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.FindByCodeMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.FindByCodeResponse;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,6 +35,6 @@ public class FindGameByCodeController {
 
         FindByCodeResponse dto = FindByCodeMapper.toResponseDTO(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

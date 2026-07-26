@@ -5,7 +5,7 @@ import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.CreateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.CreateLevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.CreateLevelMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class CreateLevelController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody CreateLevelRequest request
     ) {
-        CreateLevelInput input = CreateLevelMapper.toInput(principal.auth(), request);
+        CreateLevelInput input = CreateLevelMapper.toInput(principal, request);
 
         CreateLevelOutput output = useCase.execute(input);
 
         CreateLevelResponse dto = CreateLevelMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -7,6 +7,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,14 +39,14 @@ class DeleteCosmeticUseCaseTest {
     @InjectMocks
     private DeleteCosmeticUseCase useCase;
 
-    private UUID auth;
+    private AuthenticatedUser principal;
     private UUID cosmeticId;
     private String assetPath;
     private Cosmetic cosmetic;
 
     @BeforeEach
     void setUp() {
-        auth = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         cosmeticId = UUID.randomUUID();
         assetPath = "assets/cosmetics/skin.png";
 
@@ -56,8 +57,8 @@ class DeleteCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve deletar o cosmético com sucesso quando as permissões e dados forem válidos")
     void execute_ShouldDeleteCosmeticAndStorageAsset_WhenInputIsValid() {
-        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
-        doNothing().when(adminChecker).check(auth);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
+        doNothing().when(adminChecker).check(principal);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
@@ -67,7 +68,7 @@ class DeleteCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, storageGateway);
-        inOrder.verify(adminChecker).check(auth);
+        inOrder.verify(adminChecker).check(principal);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(storageGateway).delete(assetPath);
         inOrder.verify(cosmeticRepository).delete(cosmetic);
@@ -76,10 +77,10 @@ class DeleteCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar exceção e interromper fluxo se o usuário não for administrador")
     void execute_ShouldThrowException_WhenUserIsNotAdmin() {
-        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
 
         doThrow(new UserIsNotAdminException())
-                .when(adminChecker).check(auth);
+                .when(adminChecker).check(principal);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -91,13 +92,13 @@ class DeleteCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar CosmeticNotFoundException se o cosmético não for encontrado")
     void execute_ShouldThrowCosmeticNotFoundException_WhenCosmeticDoesNotExist() {
-        DeleteCosmeticInput input = new DeleteCosmeticInput(auth, cosmeticId);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
 
-        verify(adminChecker).check(auth);
+        verify(adminChecker).check(principal);
         verify(storageGateway, never()).delete(any());
         verify(cosmeticRepository, never()).delete(any());
     }
@@ -105,7 +106,7 @@ class DeleteCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve falhar e propagar erro caso a deleção no storage falhe")
     void execute_ShouldThrowException_WhenStorageGatewayFails() {
-        DeleteCosmeticInput input = new DeleteCosmeticInput(cosmeticId, auth);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
         doThrow(new RuntimeException("Storage communication failure")).when(storageGateway).delete(assetPath);
@@ -118,7 +119,7 @@ class DeleteCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve falhar e propagar erro caso a remoção do banco de dados falhe")
     void execute_ShouldThrowException_WhenRepositoryDeleteFails() {
-        DeleteCosmeticInput input = new DeleteCosmeticInput(cosmeticId, auth);
+        DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
         doThrow(new RuntimeException("Database error")).when(cosmeticRepository).delete(cosmetic);

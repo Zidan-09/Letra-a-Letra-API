@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.ChangeCosmeticResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.ChangeCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -59,12 +59,12 @@ class ChangeCosmeticControllerTest {
     @DisplayName("Should successfully process request, execute use case and return success response wrapper")
     void shouldSuccessfullyChangeCosmetic() {
         try (MockedStatic<ChangeCosmeticMapper> mapperMock = mockStatic(ChangeCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> ChangeCosmeticMapper.toInput(cosmeticId, authUserId)).thenReturn(mockInput);
             when(changeCosmeticUseCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> ChangeCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<ChangeCosmeticResponse>> response = controller.handle(principal, cosmeticId);
 

@@ -4,7 +4,7 @@ import com.letraaletra.api.features.admin.application.input.GetMyAdminProfileInp
 import com.letraaletra.api.features.admin.application.output.GetMyAdminProfileOutput;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.GetMyAdminProfileResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.GetMyAdminProfileMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class GetMyAdminProfileController {
 
         GetMyAdminProfileResponse dto = GetMyAdminProfileMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

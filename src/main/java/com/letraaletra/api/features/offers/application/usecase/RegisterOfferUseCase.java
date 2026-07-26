@@ -36,7 +36,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
 
     @Override
     public RegisterOfferOutput execute(RegisterOfferInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Offer offer = buildOffer(input);
 

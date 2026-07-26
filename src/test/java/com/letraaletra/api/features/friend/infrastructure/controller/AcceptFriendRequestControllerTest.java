@@ -3,7 +3,7 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.AcceptFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -56,7 +56,7 @@ class AcceptFriendRequestControllerTest {
     @DisplayName("Deve aceitar a solicitação com sucesso retornando 204 No Content")
     void acceptFriendRequest_ShouldReturnNoContent_WhenValidParametersAreProvided() {
         try (MockedStatic<AcceptFriendRequestMapper> mapperMock = mockStatic(AcceptFriendRequestMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> AcceptFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
@@ -64,7 +64,7 @@ class AcceptFriendRequestControllerTest {
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity =
                     ResponseEntity.status(HttpStatus.NO_CONTENT).body(mockSuccessResponse);
 
-            apiResponseMock.when(() -> ApiResponseService.success(null, HttpStatus.NO_CONTENT))
+            apiResponseMock.when(() -> ApiResponseHandler.success(null, HttpStatus.NO_CONTENT))
                     .thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);

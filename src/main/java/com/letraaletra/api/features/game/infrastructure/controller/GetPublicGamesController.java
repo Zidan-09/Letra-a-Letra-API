@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.application.input.GetPublicGamesInput;
 import com.letraaletra.api.features.game.application.output.GetPublicGamesOutput;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GetPublicGamesMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,6 +35,6 @@ public class GetPublicGamesController {
 
         PageResponse<GameDTO> dto = GetPublicGamesMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

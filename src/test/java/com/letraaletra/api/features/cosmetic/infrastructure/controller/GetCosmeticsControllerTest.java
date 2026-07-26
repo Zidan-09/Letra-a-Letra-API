@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.GetCosmeticsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -69,7 +69,7 @@ class GetCosmeticsControllerTest {
     void handle_ShouldReturnCosmeticsList_WhenPageableIsValid() {
 
         try (MockedStatic<GetCosmeticsMapper> mapperMock = mockStatic(GetCosmeticsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetCosmeticsMapper.toInput(pageable))
                     .thenReturn(input);
@@ -83,7 +83,7 @@ class GetCosmeticsControllerTest {
             ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> expected =
                     ResponseEntity.ok(successResponse);
 
-            apiResponseMock.when(() -> ApiResponseService.success(responseDto))
+            apiResponseMock.when(() -> ApiResponseHandler.success(responseDto))
                     .thenReturn(expected);
 
             ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> response =
@@ -143,7 +143,7 @@ class GetCosmeticsControllerTest {
     void handle_ShouldReturnSuccessWithEmptyData_WhenNoCosmeticsAreFound() {
 
         try (MockedStatic<GetCosmeticsMapper> mapperMock = mockStatic(GetCosmeticsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetCosmeticsMapper.toInput(pageable))
                     .thenReturn(input);
@@ -157,7 +157,7 @@ class GetCosmeticsControllerTest {
             ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> expected =
                     ResponseEntity.ok(successResponse);
 
-            apiResponseMock.when(() -> ApiResponseService.success(responseDto))
+            apiResponseMock.when(() -> ApiResponseHandler.success(responseDto))
                     .thenReturn(expected);
 
             ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> response =

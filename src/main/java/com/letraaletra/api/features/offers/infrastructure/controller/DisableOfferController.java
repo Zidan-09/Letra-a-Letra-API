@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.DisableOfferInput;
 import com.letraaletra.api.features.offers.application.output.DisableOfferOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.DisableOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DisableOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class DisableOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        DisableOfferInput input = DisableOfferMapper.toInput(principal.auth(), offerId);
+        DisableOfferInput input = DisableOfferMapper.toInput(principal, offerId);
 
         DisableOfferOutput output = useCase.execute(input);
 
         DisableOfferResponse dto = DisableOfferMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

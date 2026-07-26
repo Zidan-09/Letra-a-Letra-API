@@ -5,7 +5,7 @@ import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmetic
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,7 +34,6 @@ class RegisterCosmeticControllerTest {
     @InjectMocks
     private RegisterCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private RegisterCosmeticRequest mockRequest;
     private RegisterCosmeticInput mockInput;
@@ -44,7 +43,7 @@ class RegisterCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockRequest = mock(RegisterCosmeticRequest.class);
         mockInput = mock(RegisterCosmeticInput.class);
@@ -57,15 +56,15 @@ class RegisterCosmeticControllerTest {
     @DisplayName("Deve registrar um cosmético com sucesso retornando status 200 OK e o payload mapeado")
     void registerCosmetic_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> RegisterCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.ok(successResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.handle(principal, mockRequest);
 
@@ -82,7 +81,7 @@ class RegisterCosmeticControllerTest {
     void registerCosmetic_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Validation, conversion or storage error"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
@@ -109,16 +108,16 @@ class RegisterCosmeticControllerTest {
     @DisplayName("Deve garantir comportamento estrutural correto se o Mapper de resposta retornar nulo (Comportamento Desejado/Ausente)")
     void registerCosmetic_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> RegisterCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 
             ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> response = controller.handle(principal, mockRequest);
 

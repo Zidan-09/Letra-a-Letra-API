@@ -4,7 +4,7 @@ import com.letraaletra.api.features.transaction.application.input.GetTransaction
 import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.GetTransactionsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -34,12 +34,12 @@ public class GetTransactionsController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetTransactionsInput input = GetTransactionsMapper.toInput(principal.auth(), pageable);
+        GetTransactionsInput input = GetTransactionsMapper.toInput(principal, pageable);
 
         GetTransactionsOutput output = useCase.execute(input);
 
         PageResponse<Transaction> dto = GetTransactionsMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.application.port;
+package com.letraaletra.api.shared.infrastructure.presentation.dto.assembler;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GameOver;

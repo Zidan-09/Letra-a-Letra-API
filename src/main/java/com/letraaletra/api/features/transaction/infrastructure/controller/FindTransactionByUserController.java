@@ -4,7 +4,7 @@ import com.letraaletra.api.features.transaction.application.input.FindTransactio
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserOutput;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.FindTransactionsByUserResponse;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.FindTransactionsByUserMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class FindTransactionByUserController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID userId
     ) {
-        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal.auth(), userId);
+        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal, userId);
 
         FindTransactionsByUserOutput output = useCase.execute(input);
 
         FindTransactionsByUserResponse dto = FindTransactionsByUserMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -5,7 +5,7 @@ import com.letraaletra.api.features.admin.application.output.AuthAdminOutput;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.AuthAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.AuthAdminResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.AuthAdminMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +36,6 @@ public class AuthAdminController {
 
         AuthAdminResponse dto = AuthAdminMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -1,10 +1,10 @@
-package com.letraaletra.api.shared.application.service;
+package com.letraaletra.api.shared.infrastructure.presentation.dto.handlers;
 
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class ApiResponseService {
+public class ApiResponseHandler {
     public static <T> ResponseEntity<SuccessResponse<T>> success(
             T data,
             HttpStatus status

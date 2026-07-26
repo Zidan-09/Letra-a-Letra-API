@@ -6,13 +6,12 @@ import com.letraaletra.api.features.offers.application.output.RegisterOfferOutpu
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.request.RegisterOfferRewardRequest;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.RegisterOfferResponse;
-
-import java.util.UUID;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public class RegisterOfferMapper {
-    public static RegisterOfferInput toInput(UUID auth, RegisterOfferRequest request) {
+    public static RegisterOfferInput toInput(AuthenticatedUser principal, RegisterOfferRequest request) {
         return new RegisterOfferInput(
-                auth,
+                principal,
                 request.title(),
                 request.coinType(),
                 request.price(),
