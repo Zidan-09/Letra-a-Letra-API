@@ -7,7 +7,7 @@ import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusEx
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
-import com.letraaletra.api.features.user.domain.repository.WalletTransactionRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
@@ -42,7 +42,7 @@ class BuyOfferUseCaseTest {
     private OfferRepository offerRepository;
 
     @Mock
-    private WalletTransactionRepository walletTransactionRepository;
+    private TransactionRepository walletTransactionRepository;
 
     @InjectMocks
     private BuyOfferUseCase useCase;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.wallet;
+package com.letraaletra.api.features.transaction.domain;
 
 public enum TransactionReason {
     SHOP_PURCHASE,

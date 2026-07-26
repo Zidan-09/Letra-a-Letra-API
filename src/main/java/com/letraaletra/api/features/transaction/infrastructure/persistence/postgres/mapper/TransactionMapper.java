@@ -1,11 +1,11 @@
-package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
+package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.user.domain.wallet.WalletTransaction;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.WalletTransactionJpaEntity;
+import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.entity.TransactionJpaEntity;
 
-public class WalletTransactionMapper {
-    public static WalletTransaction toDomain(WalletTransactionJpaEntity entity) {
-        return new WalletTransaction(
+public class TransactionMapper {
+    public static Transaction toDomain(TransactionJpaEntity entity) {
+        return new Transaction(
                 entity.getTransactionId(),
                 entity.getUserId(),
                 entity.getCoinType(),
@@ -19,8 +19,8 @@ public class WalletTransactionMapper {
         );
     }
 
-    public static WalletTransactionJpaEntity toEntity(WalletTransaction domain) {
-        WalletTransactionJpaEntity entity = new WalletTransactionJpaEntity();
+    public static TransactionJpaEntity toEntity(Transaction domain) {
+        TransactionJpaEntity entity = new TransactionJpaEntity();
 
         entity.setTransactionId(domain.transactionId());
         entity.setUserId(domain.userId());

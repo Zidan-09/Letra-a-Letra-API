@@ -91,7 +91,7 @@ CREATE TABLE "offer_reward" (
                         "quantity" integer NOT NULL DEFAULT 1
 );
 
-CREATE TABLE wallet_transaction (
+CREATE TABLE transaction (
                         transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
                         user_id uuid NOT NULL REFERENCES "user"(user_id),

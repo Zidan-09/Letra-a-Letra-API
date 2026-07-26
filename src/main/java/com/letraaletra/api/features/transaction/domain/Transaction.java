@@ -1,11 +1,11 @@
-package com.letraaletra.api.features.user.domain.wallet;
+package com.letraaletra.api.features.transaction.domain;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record WalletTransaction(
+public record Transaction(
         UUID transactionId,
         UUID userId,
         CoinType coinType,
@@ -17,7 +17,7 @@ public record WalletTransaction(
         UUID referenceId,
         LocalDateTime createdAt
 ) {
-    public static WalletTransaction create(
+    public static Transaction create(
             UUID userId,
             CoinType coinType,
             int amount,
@@ -27,7 +27,7 @@ public record WalletTransaction(
             TransactionReason reason,
             UUID referenceId
     ) {
-        return new WalletTransaction(
+        return new Transaction(
                 UUID.randomUUID(),
                 userId,
                 coinType,

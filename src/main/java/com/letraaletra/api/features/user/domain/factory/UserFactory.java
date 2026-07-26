@@ -6,7 +6,6 @@ import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserFactory {
@@ -18,9 +17,9 @@ public class UserFactory {
                 passwordHash,
                 null,
                 true,
-                getInitialStats(),
-                getInitialCosmetics(),
-                getInitialWallet(),
+                UserStats.create(),
+                Inventory.create(),
+                Wallet.create(),
                 LocalDateTime.now()
         );
     }
@@ -33,22 +32,10 @@ public class UserFactory {
                 null,
                 googleId,
                 true,
-                getInitialStats(),
-                getInitialCosmetics(),
-                getInitialWallet(),
+                UserStats.create(),
+                Inventory.create(),
+                Wallet.create(),
                 LocalDateTime.now()
         );
-    }
-
-    private UserStats getInitialStats() {
-        return new UserStats(0, 0, 0, 1, 0, 0);
-    }
-
-    private Inventory getInitialCosmetics() {
-        return new Inventory(new ArrayList<>());
-    }
-
-    private Wallet getInitialWallet() {
-        return new Wallet(0, 0);
     }
 }

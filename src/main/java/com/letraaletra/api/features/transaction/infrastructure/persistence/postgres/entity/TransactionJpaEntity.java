@@ -1,8 +1,8 @@
-package com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity;
+package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.entity;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
-import com.letraaletra.api.features.user.domain.wallet.OperationType;
-import com.letraaletra.api.features.user.domain.wallet.TransactionReason;
+import com.letraaletra.api.features.transaction.domain.OperationType;
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +13,8 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "\"wallet_transaction\"")
-public class WalletTransactionJpaEntity {
+@Table(name = "\"transaction\"")
+public class TransactionJpaEntity {
     @Id
     @Column(name = "transaction_id")
     private UUID transactionId;

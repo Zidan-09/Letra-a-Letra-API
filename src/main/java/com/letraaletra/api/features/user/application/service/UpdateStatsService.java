@@ -8,23 +8,23 @@ import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.WalletTransactionRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
-import com.letraaletra.api.features.user.domain.wallet.TransactionReason;
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
-import com.letraaletra.api.features.user.domain.wallet.WalletTransaction;
+import com.letraaletra.api.features.transaction.domain.Transaction;
 
 import java.util.Optional;
 
 public class UpdateStatsService {
     private final UserRepository userRepository;
     private final LevelRepository levelRepository;
-    private final WalletTransactionRepository walletTransactionRepository;
+    private final TransactionRepository walletTransactionRepository;
 
     public UpdateStatsService(
             UserRepository userRepository,
             LevelRepository levelRepository,
-            WalletTransactionRepository walletTransactionRepository
+            TransactionRepository walletTransactionRepository
     ) {
         this.userRepository = userRepository;
         this.levelRepository = levelRepository;
@@ -57,7 +57,7 @@ public class UpdateStatsService {
                 Optional<WalletMovement> movement = levelReward.reward().deliver(user);
 
                 movement.ifPresent(walletMovement -> walletTransactionRepository.save(
-                        WalletTransaction.create(
+                        Transaction.create(
                                 user.getId(),
                                 walletMovement.coinType(),
                                 walletMovement.amount(),
