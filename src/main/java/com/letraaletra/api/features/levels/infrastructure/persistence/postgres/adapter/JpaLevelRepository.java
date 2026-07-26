@@ -3,9 +3,9 @@ package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
-import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
+import com.letraaletra.api.features.levels.domain.LevelsPage;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelJpaEntity;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
@@ -44,11 +44,11 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
-    public Page<Level> get(GetLevelsInput input) {
+    public Page<Level> get(LevelsPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable)
