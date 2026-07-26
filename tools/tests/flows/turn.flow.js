@@ -107,7 +107,7 @@ export async function runFlow(context) {
 
             if (i === script.length - 1) {
                 await waitForEvent(
-                    "TURN_EXPIRED",
+                    "TURN_EXPIRED LAST",
                     e => e.event === "TURN_EXPIRED",
                     eventsUser2,
                     60000
@@ -129,7 +129,7 @@ export async function runFlow(context) {
             }
             
             const expired = await waitForEvent(
-                "TURN_EXPIRED",
+                "TURN_EXPIRED GENERAL",
                 e => e.event === "TURN_EXPIRED",
                 eventsUser2,
                 60000
