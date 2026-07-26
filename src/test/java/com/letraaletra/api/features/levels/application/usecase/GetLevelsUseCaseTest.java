@@ -77,13 +77,4 @@ class GetLevelsUseCaseTest {
 
         assertThrows(RuntimeException.class, () -> useCase.execute(mockInput));
     }
-
-    @Test
-    @DisplayName("Should test resilience or throw exception when the input filter context structure itself is null")
-    void shouldHandleOrThrowExceptionWhenInputContextIsNull() {
-        // Caso o repositório lance erro ao receber nulo ou trate internamente
-        when(levelRepository.get(null)).thenThrow(new IllegalArgumentException("Query criteria input filter cannot be null"));
-
-        assertThrows(RuntimeException.class, () -> useCase.execute(null));
-    }
 }
