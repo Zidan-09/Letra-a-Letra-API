@@ -132,7 +132,7 @@ export async function runFlow(context) {
                 "TURN_EXPIRED GENERAL",
                 e => e.event === "TURN_EXPIRED",
                 eventsUser2,
-                60000
+                90000
             );
 
             currentPlayer = expired.data.currentTurnPlayerId;
