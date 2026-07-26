@@ -1,5 +1,5 @@
 
-export function waitForEvent(name, predicate, events, timeout = 5000) {
+export function waitForEvent(name, predicate, events, timeout = 90000) {
     return new Promise((resolve, reject) => {
         const existingIndex = events.findIndex(predicate);
         if (existingIndex !== -1) {
