@@ -37,7 +37,7 @@ class GetLevelsUseCaseTest {
     @BeforeEach
     void setUp() {
         mockInput = mock(GetLevelsInput.class);
-        mockPage = mock(LevelsPage.class);
+        mockPage = new LevelsPage(mockInput.page(), mockInput.size(), mockInput.sort());
         mockLevel1 = mock(Level.class);
         mockLevel2 = mock(Level.class);
     }
