@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.config;
 
+import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
@@ -94,6 +95,17 @@ public class UserConfig {
     ) {
         return new GetTransactionsUseCase(
                 transactionRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetUsersUseCase getUsersUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetUsersUseCase(
+                userRepository,
                 adminChecker
         );
     }
