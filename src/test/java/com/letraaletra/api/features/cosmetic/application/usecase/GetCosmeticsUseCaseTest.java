@@ -3,6 +3,7 @@ package com.letraaletra.api.features.cosmetic.application.usecase;
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
+import com.letraaletra.api.features.cosmetic.domain.CosmeticsPage;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,14 +41,16 @@ class GetCosmeticsUseCaseTest {
                     Sort.unsorted()
         );
 
+        CosmeticsPage page = new CosmeticsPage(input.page(), input.size(), input.sort());
+
         Page<Cosmetic> expectedPage = new PageImpl<>(List.of());
 
-        when(cosmeticRepository.get(input))
+        when(cosmeticRepository.get(page))
                 .thenReturn(expectedPage);
 
         GetCosmeticsOutput output = useCase.execute(input);
 
-        verify(cosmeticRepository).get(input);
+        verify(cosmeticRepository).get(page);
         verifyNoMoreInteractions(cosmeticRepository);
 
         assertSame(expectedPage, output.cosmetics());
