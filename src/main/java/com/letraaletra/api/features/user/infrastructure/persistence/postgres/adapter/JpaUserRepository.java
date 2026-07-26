@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
@@ -12,6 +13,9 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.map
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -91,5 +95,17 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public long countUsers() {
         return repository.count();
+    }
+
+    @Override
+    public Page<User> get(UsersPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.findAll(pageable)
+                .map(this::assembleUser);
     }
 }

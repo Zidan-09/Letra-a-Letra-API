@@ -16,7 +16,10 @@ public class ChangeCosmeticMapper {
 
     public static ChangeCosmeticResponse toResponse(ChangeCosmeticOutput output) {
         return new ChangeCosmeticResponse(
-                output.user().getInventory().getItems()
+                output.user().getInventory()
+                        .getItems().stream()
+                        .map(InventoryItemResponseMapper::toResponse)
+                        .toList()
         );
     }
 }
