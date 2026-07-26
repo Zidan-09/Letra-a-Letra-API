@@ -11,11 +11,11 @@ import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.user.domain.repository.WalletTransactionRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
-import com.letraaletra.api.features.user.domain.wallet.TransactionReason;
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
-import com.letraaletra.api.features.user.domain.wallet.WalletTransaction;
+import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.Optional;
@@ -23,12 +23,12 @@ import java.util.Optional;
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
-    private final WalletTransactionRepository walletTransactionRepository;
+    private final TransactionRepository walletTransactionRepository;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
             OfferRepository offerRepository,
-            WalletTransactionRepository walletTransactionRepository
+            TransactionRepository walletTransactionRepository
     ) {
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
@@ -74,7 +74,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
             Optional<WalletMovement> movement = offerReward.reward().deliver(user);
 
             movement.ifPresent(walletMovement -> walletTransactionRepository.save(
-                    WalletTransaction.create(
+                    Transaction.create(
                             user.getId(),
                             walletMovement.coinType(),
                             walletMovement.amount(),

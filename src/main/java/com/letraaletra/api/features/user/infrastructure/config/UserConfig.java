@@ -1,7 +1,10 @@
 package com.letraaletra.api.features.user.infrastructure.config;
 
+import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.application.service.SelectNicknameService;
@@ -81,6 +84,17 @@ public class UserConfig {
     ) {
         return new GetMyProfileUseCase(
                 userRepository
+        );
+    }
+
+    @Bean
+    public GetTransactionsUseCase getTransactionsUseCase(
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetTransactionsUseCase(
+                transactionRepository,
+                adminChecker
         );
     }
 }

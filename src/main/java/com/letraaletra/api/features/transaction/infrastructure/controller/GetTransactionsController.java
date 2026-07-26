@@ -1,0 +1,45 @@
+package com.letraaletra.api.features.transaction.infrastructure.controller;
+
+import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
+import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
+import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.GetTransactionsMapper;
+import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(path = "/transaction")
+@Tag(name = "Transaction", description = "Rotas relacionadas a funcionalidade de transações dos usuários")
+public class GetTransactionsController {
+    private final UseCase<GetTransactionsInput, GetTransactionsOutput> useCase;
+
+    public GetTransactionsController(
+            UseCase<GetTransactionsInput, GetTransactionsOutput> useCase
+    ) {
+        this.useCase = useCase;
+    }
+
+    @GetMapping(path = "/")
+    public ResponseEntity<SuccessResponse<PageResponse<Transaction>>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            Pageable pageable
+    ) {
+        GetTransactionsInput input = GetTransactionsMapper.toInput(principal.auth(), pageable);
+
+        GetTransactionsOutput output = useCase.execute(input);
+
+        PageResponse<Transaction> dto = GetTransactionsMapper.toResponse(output);
+
+        return ApiResponseService.success(dto);
+    }
+}

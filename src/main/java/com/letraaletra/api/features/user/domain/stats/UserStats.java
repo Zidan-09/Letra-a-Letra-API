@@ -24,6 +24,17 @@ public class UserStats {
         this.points = points;
     }
 
+    public static UserStats create() {
+        return new UserStats(
+                0,
+                0,
+                0,
+                1,
+                0,
+                0
+        );
+    }
+
     public int getTotalMatches() {
         return totalMatches;
     }

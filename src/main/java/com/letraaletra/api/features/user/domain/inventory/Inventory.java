@@ -4,6 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,6 +13,12 @@ public class Inventory {
 
     public Inventory(List<InventoryItem> inventory) {
         this.inventory = inventory;
+    }
+
+    public static Inventory create() {
+        return new Inventory(
+                new ArrayList<>()
+        );
     }
 
     public List<InventoryItem> getItems() {

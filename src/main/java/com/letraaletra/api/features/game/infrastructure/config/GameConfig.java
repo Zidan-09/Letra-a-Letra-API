@@ -5,7 +5,7 @@ import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.user.domain.repository.WalletTransactionRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -148,7 +148,7 @@ public class GameConfig {
     public UpdateStatsService updateStatsService(
             UserRepository userRepository,
             LevelRepository levelRepository,
-            WalletTransactionRepository walletTransactionRepository
+            TransactionRepository walletTransactionRepository
     ) {
         return new UpdateStatsService(
                 userRepository,
