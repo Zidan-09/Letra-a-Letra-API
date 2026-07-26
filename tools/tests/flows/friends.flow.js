@@ -31,7 +31,7 @@ export async function runFlow(context) {
     await waitForEvent(
         "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
-        context.events
+        context.events.get(pombao)
     );
 
     res = await http(
@@ -176,7 +176,7 @@ export async function runFlow(context) {
     await waitForEvent(
         "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
-        context.events
+        context.events.get(torugo)
     );
 
     res = await http(
@@ -253,7 +253,7 @@ export async function runFlow(context) {
     await waitForEvent(
         "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
-        context.events
+        context.events.get(torugo)
     );
 
     res = await http(

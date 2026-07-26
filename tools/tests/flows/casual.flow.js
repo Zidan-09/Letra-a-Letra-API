@@ -5,6 +5,7 @@ export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
+    const events = context.events.get(users[0]);
 
     send(ws1, {
         type: "CREATE_GAME",
@@ -15,7 +16,7 @@ export async function runFlow(context) {
         }
     });
 
-    const created = await waitForEvent("GAME_CREATED", e => (e.event === "GAME_CREATED"), context.events);
+    const created = await waitForEvent("GAME_CREATED", e => (e.event === "GAME_CREATED"), events);
 
     const gameId = created.data.gameId;
 
@@ -24,7 +25,7 @@ export async function runFlow(context) {
         gameId: gameId
     });
 
-    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events);
+    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), events);
 
     send(ws1, {
         type: "START_GAME",
@@ -35,7 +36,7 @@ export async function runFlow(context) {
         }
     });
 
-    const started = await waitForEvent("GAME_STARTED", e => (e.event === "GAME_STARTED"), context.events);
+    const started = await waitForEvent("GAME_STARTED", e => (e.event === "GAME_STARTED"), events);
 
     let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -75,7 +76,7 @@ export async function runFlow(context) {
                     e.event === "PLAYER_ACTION_RESULT" &&
                     e.data.currentTurnPlayerId !== currentPlayer
                 ),
-                context.events
+                events
         );
 
         if (result.event === "GAME_OVER") {

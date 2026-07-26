@@ -5,6 +5,7 @@ export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
+    const events = context.events.get(users[0]);
 
     send(ws1, {
         type: "MATCHMAKING_GAME",
@@ -16,7 +17,7 @@ export async function runFlow(context) {
         gameMode: "NORMAL"
     });
 
-    const started = await waitForEvent("MATCHMAKING_GAME", e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), context.events);
+    const started = await waitForEvent("MATCHMAKING_GAME", e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), events);
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -57,7 +58,7 @@ export async function runFlow(context) {
                     e.event === "PLAYER_ACTION_RESULT" &&
                     e.data.currentTurnPlayerId !== currentPlayer
                 ),
-                context.events
+                events
         );
 
         if (result.event === "GAME_OVER") {
