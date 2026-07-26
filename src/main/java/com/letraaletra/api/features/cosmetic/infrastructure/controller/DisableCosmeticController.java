@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.application.input.DisableCosmeticIn
 import com.letraaletra.api.features.cosmetic.application.output.DisableCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.DisableCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DisableCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,12 +34,12 @@ public class DisableCosmeticController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        DisableCosmeticInput input = DisableCosmeticMapper.toInput(principal.auth(), cosmeticId);
+        DisableCosmeticInput input = DisableCosmeticMapper.toInput(principal, cosmeticId);
 
         DisableCosmeticOutput output = useCase.execute(input);
 
         DisableCosmeticResponse dto = DisableCosmeticMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

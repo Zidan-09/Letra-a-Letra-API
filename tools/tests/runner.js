@@ -4,6 +4,8 @@ import { run as matchmaking } from "./tests/matchmaking.test.js";
 import { run as ranking } from "./tests/ranking.test.js";
 import { run as casual } from "./tests/casual.test.js";
 import { run as room } from "./tests/room.test.js";
+import { run as admin } from "./tests/admin.test.js";
+import { run as adminRoutes } from "./tests/admin-routes.test.js";
 import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
@@ -13,6 +15,8 @@ const tests = [
     ranking,
     casual,
     room,
+    admin,
+    adminRoutes,
     turn
 ];
 
@@ -32,5 +36,6 @@ for(const test of tests) {
 
         console.error(e);
 
+        throw e;
     }
 }

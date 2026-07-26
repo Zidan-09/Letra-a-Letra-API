@@ -6,6 +6,7 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class DisableOfferUseCaseTest {
     @InjectMocks
     private DisableOfferUseCase useCase;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private UUID offerId;
     private DisableOfferInput input;
 
@@ -41,15 +42,15 @@ class DisableOfferUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         offerId = UUID.randomUUID();
-        input = new DisableOfferInput(adminId, offerId);
+        input = new DisableOfferInput(principal, offerId);
     }
 
     @Test
     @DisplayName("Should successfully disable the offer and save changes when authorized as admin and offer exists")
     void shouldDisableOfferSuccessfully() {
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(mockOffer));
 
         DisableOfferOutput output = useCase.execute(input);
@@ -57,7 +58,7 @@ class DisableOfferUseCaseTest {
         assertNotNull(output);
         assertEquals(mockOffer, output.offer());
 
-        verify(adminChecker, times(1)).check(adminId);
+        verify(adminChecker, times(1)).check(principal);
         verify(offerRepository, times(1)).findById(offerId);
         verify(mockOffer, times(1)).disable();
         verify(offerRepository, times(1)).save(mockOffer);
@@ -66,7 +67,7 @@ class DisableOfferUseCaseTest {
     @Test
     @DisplayName("Should propagate exception and halt processing when admin security verification criteria fails")
     void shouldPropagateExceptionWhenAdminCheckFails() {
-        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(adminId);
+        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal);
 
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
@@ -76,7 +77,7 @@ class DisableOfferUseCaseTest {
     @Test
     @DisplayName("Should throw OfferNotFoundException when the offer identifier cannot be found in the repository")
     void shouldThrowOfferNotFoundExceptionWhenOfferDoesNotExist() {
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
         when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));

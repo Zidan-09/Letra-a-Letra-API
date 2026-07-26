@@ -11,6 +11,7 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,12 +43,12 @@ class RegisterOfferUseCaseTest {
     @InjectMocks
     private RegisterOfferUseCase useCase;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private RegisterOfferInput baseInput;
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
     }
 
     @Test
@@ -57,7 +58,7 @@ class RegisterOfferUseCaseTest {
         RegisterOfferRewardInput gemsReward = new RegisterOfferRewardInput(RewardType.GEMS, null, 50);
 
         baseInput = new RegisterOfferInput(
-                adminId,
+                principal,
                 "Starter Pack",
                 CoinType.REAL,
                 100,
@@ -65,14 +66,14 @@ class RegisterOfferUseCaseTest {
                 48
         );
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
 
         RegisterOfferOutput output = useCase.execute(baseInput);
 
         assertNotNull(output);
         assertNotNull(output.offer()); // Assumindo record component ou getter .offer()
 
-        verify(adminChecker, times(1)).check(adminId);
+        verify(adminChecker, times(1)).check(principal);
         verify(offerRepository, times(1)).save(any(Offer.class));
         verifyNoInteractions(cosmeticRepository);
     }
@@ -85,7 +86,7 @@ class RegisterOfferUseCaseTest {
         RegisterOfferRewardInput cosmeticReward = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
 
         baseInput = new RegisterOfferInput(
-                adminId,
+                principal,
                 "Skin Bundle",
                 CoinType.HARD,
                 150,
@@ -93,7 +94,7 @@ class RegisterOfferUseCaseTest {
                 24
         );
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         RegisterOfferOutput output = useCase.execute(baseInput);
@@ -107,7 +108,7 @@ class RegisterOfferUseCaseTest {
     @DisplayName("Should successfully register an offer that contains an empty list of rewards")
     void shouldRegisterOfferWithNoRewardsSuccessfully() {
         baseInput = new RegisterOfferInput(
-                adminId,
+                principal,
                 "Empty Box",
                 CoinType.SOFT,
                 100,
@@ -115,7 +116,7 @@ class RegisterOfferUseCaseTest {
                 12
         );
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
 
         RegisterOfferOutput output = useCase.execute(baseInput);
 
@@ -126,9 +127,9 @@ class RegisterOfferUseCaseTest {
     @Test
     @DisplayName("Should propagate exception and halt processing when admin security verification criteria fails")
     void shouldPropagateExceptionWhenAdminCheckFails() {
-        baseInput = new RegisterOfferInput(adminId, "Pack", CoinType.HARD, 10, Collections.emptyList(), 1);
+        baseInput = new RegisterOfferInput(principal, "Pack", CoinType.HARD, 10, Collections.emptyList(), 1);
 
-        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(adminId);
+        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal);
 
         assertThrows(SecurityException.class, () -> useCase.execute(baseInput));
 
@@ -143,7 +144,7 @@ class RegisterOfferUseCaseTest {
         RegisterOfferRewardInput cosmeticReward = new RegisterOfferRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
 
         baseInput = new RegisterOfferInput(
-                adminId,
+                principal,
                 "Premium Bundle",
                 CoinType.REAL,
                 300,
@@ -151,7 +152,7 @@ class RegisterOfferUseCaseTest {
                 72
         );
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(baseInput));

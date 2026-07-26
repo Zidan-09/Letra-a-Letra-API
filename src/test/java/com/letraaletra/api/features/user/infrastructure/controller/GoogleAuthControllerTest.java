@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.request
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.AuthUserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GoogleAuthMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,12 +55,12 @@ class GoogleAuthControllerTest {
     void shouldAuthenticateWithGoogleSuccessfully() {
         try (MockedStatic<GoogleAuthMapper> googleMapperMock = mockStatic(GoogleAuthMapper.class);
              MockedStatic<AuthUserMapper> authMapperMock = mockStatic(AuthUserMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             googleMapperMock.when(() -> GoogleAuthMapper.toInput(mockRequest)).thenReturn(mockInput);
             when(googleAuthUseCase.execute(mockInput)).thenReturn(mockOutput);
             authMapperMock.when(() -> AuthUserMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<AuthUserResponse>> response = controller.handle(mockRequest);
 

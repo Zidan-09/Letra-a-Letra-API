@@ -11,18 +11,28 @@ import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
+import com.letraaletra.api.features.user.domain.wallet.Balance;
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
+import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
+import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+
+import java.util.Optional;
 
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
+    private final TransactionRepository walletTransactionRepository;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
-            OfferRepository offerRepository
+            OfferRepository offerRepository,
+            TransactionRepository walletTransactionRepository
     ) {
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
     }
 
     @Override
@@ -58,7 +68,33 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     private void processRewards(User user, Offer offer) {
-        offer.getRewards().forEach(reward ->
-                reward.reward().deliver(user));
+        offer.getRewards().forEach(offerReward -> {
+            Balance balanceBefore = user.getWallet().getBalance();
+
+            Optional<WalletMovement> movement = offerReward.reward().deliver(user);
+
+            movement.ifPresent(walletMovement -> walletTransactionRepository.save(
+                    Transaction.create(
+                            user.getId(),
+                            walletMovement.coinType(),
+                            walletMovement.amount(),
+                            getBalance(balanceBefore, walletMovement.coinType()),
+                            getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                            walletMovement.operation(),
+                            TransactionReason.SHOP_PURCHASE,
+                            offer.getOfferId()
+                    )
+            ));
+        });
+    }
+
+    private int getBalance(Balance balance, CoinType coinType) {
+        return switch (coinType) {
+            case SOFT -> (int) balance.coins();
+            case HARD -> (int) balance.gems();
+            case REAL -> throw new IllegalStateException(
+                    "Wallet movements cannot use REAL coin type."
+            );
+        };
     }
 }

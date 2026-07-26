@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.FindOfferInput;
 import com.letraaletra.api.features.offers.application.output.FindOfferOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.FindOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.FindOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,12 +54,12 @@ class FindOfferControllerTest {
     @DisplayName("Should successfully handle find path, map payload, execute use case and return wrapped success response")
     void shouldFindOfferSuccessfully() {
         try (MockedStatic<FindOfferMapper> mapperMock = mockStatic(FindOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> FindOfferMapper.toInput(offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> FindOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<FindOfferResponse>> response = controller.handle(offerId);
 

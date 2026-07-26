@@ -6,7 +6,7 @@ import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundExceptio
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.AuthAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.AuthAdminResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.AuthAdminMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -38,7 +38,7 @@ class AuthAdminControllerTest {
     private AuthAdminController authAdminController;
 
     private MockedStatic<AuthAdminMapper> authAdminMapperMockedStatic;
-    private MockedStatic<ApiResponseService> apiResponseServiceMockedStatic;
+    private MockedStatic<ApiResponseHandler> apiResponseServiceMockedStatic;
 
     private AuthAdminRequest request;
     private AuthAdminInput input;
@@ -49,7 +49,7 @@ class AuthAdminControllerTest {
     @BeforeEach
     void setUp() {
         authAdminMapperMockedStatic = mockStatic(AuthAdminMapper.class);
-        apiResponseServiceMockedStatic = mockStatic(ApiResponseService.class);
+        apiResponseServiceMockedStatic = mockStatic(ApiResponseHandler.class);
 
         request = new AuthAdminRequest("admin@letraaletra.com", "SecurePass2026!");
         input = new AuthAdminInput("admin@letraaletra.com", "SecurePass2026!");
@@ -75,7 +75,7 @@ class AuthAdminControllerTest {
         authAdminMapperMockedStatic.when(() -> AuthAdminMapper.toInput(request)).thenReturn(input);
         when(useCase.execute(input)).thenReturn(output);
         authAdminMapperMockedStatic.when(() -> AuthAdminMapper.toResponse(output)).thenReturn(responseDto);
-        apiResponseServiceMockedStatic.when(() -> ApiResponseService.success(responseDto)).thenReturn(expectedResponseEntity);
+        apiResponseServiceMockedStatic.when(() -> ApiResponseHandler.success(responseDto)).thenReturn(expectedResponseEntity);
 
         ResponseEntity<SuccessResponse<AuthAdminResponse>> result = authAdminController.handle(request);
 
@@ -86,7 +86,7 @@ class AuthAdminControllerTest {
         verify(useCase, times(1)).execute(input);
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toInput(request), times(1));
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toResponse(output), times(1));
-        apiResponseServiceMockedStatic.verify(() -> ApiResponseService.success(responseDto), times(1));
+        apiResponseServiceMockedStatic.verify(() -> ApiResponseHandler.success(responseDto), times(1));
     }
 
     @Test
@@ -100,7 +100,7 @@ class AuthAdminControllerTest {
         verify(useCase, times(1)).execute(input);
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toInput(request), times(1));
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toResponse(any()), never());
-        apiResponseServiceMockedStatic.verify(() -> ApiResponseService.success(any()), never());
+        apiResponseServiceMockedStatic.verify(() -> ApiResponseHandler.success(any()), never());
     }
 
     @Test
@@ -114,7 +114,7 @@ class AuthAdminControllerTest {
         verify(useCase, times(1)).execute(input);
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toInput(request), times(1));
         authAdminMapperMockedStatic.verify(() -> AuthAdminMapper.toResponse(any()), never());
-        apiResponseServiceMockedStatic.verify(() -> ApiResponseService.success(any()), never());
+        apiResponseServiceMockedStatic.verify(() -> ApiResponseHandler.success(any()), never());
     }
 
     @Test

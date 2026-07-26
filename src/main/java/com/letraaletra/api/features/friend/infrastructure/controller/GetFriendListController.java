@@ -4,7 +4,7 @@ import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendListResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class GetFriendListController {
 
         GetFriendListResponse dto = GetFriendListMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

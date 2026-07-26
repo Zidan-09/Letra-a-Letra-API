@@ -22,14 +22,14 @@ public class JoinGameActorCommand implements ActorCommand<Game> {
 
         Participant participant = Participant.create(user, session);
 
-        game.join(participant);
+        game.getParticipants().join(participant, game.getRoomSettings());
         user.enterGame(game.getId());
 
         return game;
     }
 
     private void checkIfBlackListed(Game game, UUID userId) {
-        if (game.isBlackListed(userId)) {
+        if (game.getParticipants().isBlackListed(userId)) {
             throw new UserBannedException();
         }
     }

@@ -3,9 +3,9 @@ package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
-import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
+import com.letraaletra.api.features.offers.domain.OffersPage;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
@@ -16,6 +16,7 @@ import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.j
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRewardRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper.OfferMapper;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper.OfferRewardMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -49,20 +50,18 @@ public class JpaOfferRepository implements OfferRepository {
     }
 
     @Override
-    public List<Offer> get(GetOffersInput input) {
+    public Page<Offer> get(OffersPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable)
-                .stream()
                 .map(entity -> OfferMapper.toDomain(
                         entity,
                         loadRewards(entity.getId())
-                ))
-                .toList();
+                ));
     }
 
     @Override

@@ -29,7 +29,7 @@ public class RemoveParticipantActorCommand implements ActorCommand<Optional<Game
 
         validateGame(game);
 
-        Participant participant = game.getParticipantByUserId(userId);
+        Participant participant = game.getParticipants().getParticipantByUserId(userId);
 
         if (participant == null || participant.isConnected()) return Optional.empty();
 

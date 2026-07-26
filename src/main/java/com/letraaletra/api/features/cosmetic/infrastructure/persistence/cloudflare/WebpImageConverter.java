@@ -2,8 +2,6 @@ package com.letraaletra.api.features.cosmetic.infrastructure.persistence.cloudfl
 
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +14,6 @@ import java.util.Objects;
 
 @Component
 public class WebpImageConverter implements ImageConverter {
-    private final Logger logger = LoggerFactory.getLogger(WebpImageConverter.class);
 
     @Override
     public byte[] convertToWebp(MultipartFile image) {
@@ -54,7 +51,6 @@ public class WebpImageConverter implements ImageConverter {
             }
 
         } catch (Exception e) {
-            logger.error("Error to convert image to webp:", e);
             throw new RuntimeException("failed_to_convert_image", e);
         }
     }

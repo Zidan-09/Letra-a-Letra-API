@@ -7,7 +7,7 @@ import com.letraaletra.api.features.power.domain.actions.GameAction;
 import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.RevealActionRequest;
-import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.springframework.stereotype.Component;
 

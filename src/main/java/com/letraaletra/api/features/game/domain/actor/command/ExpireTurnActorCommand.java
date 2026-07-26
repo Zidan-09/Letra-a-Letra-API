@@ -45,9 +45,12 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
 
         Optional<GameOver> gameOver = state.gameOverBecauseAfk();
 
-        gameOver.ifPresent(result -> game.remove(whoPassed));
+        if (gameOver.isPresent()) {
+            game.remove(whoPassed);
 
-        state.nextTurn(now.plusSeconds(45));
+        } else {
+            state.nextTurn(now.plusSeconds(45));
+        }
 
         return Optional.of(new ExpireTurnResult(
                 whoPassed,

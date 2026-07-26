@@ -5,7 +5,7 @@ import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.UpdateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.UpdateLevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.UpdateLevelMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class UpdateLevelController {
             @PathVariable UUID levelId,
             @Valid @RequestBody UpdateLevelRequest request
     ) {
-        UpdateLevelInput input = UpdateLevelMapper.toInput(principal.auth(), levelId, request);
+        UpdateLevelInput input = UpdateLevelMapper.toInput(principal, levelId, request);
 
         UpdateLevelOutput output = useCase.execute(input);
 
         UpdateLevelResponse dto = UpdateLevelMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

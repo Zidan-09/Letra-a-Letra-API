@@ -4,7 +4,7 @@ import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.shop.infrastructure.presentation.dto.response.BuyStoreOfferResponse;
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.BuyStoreOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -59,12 +59,12 @@ class BuyStoreOfferControllerTest {
     @DisplayName("Should successfully purchase a store offer, execute use case and return wrapped response data")
     void shouldSuccessfullyBuyStoreOffer() {
         try (MockedStatic<BuyStoreOfferMapper> mapperMock = mockStatic(BuyStoreOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> BuyStoreOfferMapper.toInput(authUserId, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> BuyStoreOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> response = controller.handle(principal, offerId);
 

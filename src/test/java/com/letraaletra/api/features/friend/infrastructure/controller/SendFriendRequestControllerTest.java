@@ -5,7 +5,7 @@ import com.letraaletra.api.features.friend.application.output.SendFriendRequestO
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.SendFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.SendFriendRequestResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -55,14 +55,14 @@ class SendFriendRequestControllerTest {
         mockInput = mock(SendFriendRequestInput.class);
         mockOutput = mock(SendFriendRequestOutput.class);
         mockResponseDto = mock(SendFriendRequestResponse.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
     }
 
     @Test
-    @DisplayName("Deve enviar uma solicitação de amizade com sucesso retornando status 200 OK e o payload envelopado")
+    @DisplayName("Deve enviar uma solicitação de amizade com sucesso retornando status 200 OK e o payload envelope")
     void sendFriendRequest_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<SendFriendRequestMapper> mapperMock = mockStatic(SendFriendRequestMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -70,7 +70,7 @@ class SendFriendRequestControllerTest {
 
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(principal, mockRequest);
 
@@ -83,7 +83,7 @@ class SendFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção original sem interceptação local quando a execução do UseCase falhar")
+    @DisplayName("Deve propagar a exceção original sem interceptor local quando a execução do UseCase falhar")
     void sendFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<SendFriendRequestMapper> mapperMock = mockStatic(SendFriendRequestMapper.class)) {
 
@@ -100,7 +100,7 @@ class SendFriendRequestControllerTest {
     @DisplayName("Deve garantir comportamento estrutural resiliente caso o Mapper de resposta retorne nulo (Comportamento Desejado/Ausente)")
     void sendFriendRequest_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<SendFriendRequestMapper> mapperMock = mockStatic(SendFriendRequestMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -109,7 +109,7 @@ class SendFriendRequestControllerTest {
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> response = controller.handle(principal, mockRequest);
 

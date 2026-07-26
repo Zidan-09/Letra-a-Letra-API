@@ -18,6 +18,7 @@ public class MatchPlayerMapper {
         id.setUserId(domain.getUserId());
 
         entity.setMatchPlayerId(id);
+        entity.setNickname(domain.getNickname());
         entity.setScore(domain.getScore());
         entity.setWinner(domain.getScore() == 3);
 

@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
@@ -31,7 +32,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
     }
 
     @Override
-    public void handle(T request, WebSocketSession session, String gameId) {
+    public Game handle(T request, WebSocketSession session, String gameId) {
         UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         GameAction action = createAction(request);
@@ -44,6 +45,8 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         send(output);
 
         afterHandle(output);
+
+        return output.game();
     }
 
     protected abstract GameAction createAction(T request);
@@ -56,7 +59,7 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .getPlayers().values()
                 .stream().toList();
 
-        List<Participant> spectators = output.game().getParticipants().stream()
+        List<Participant> spectators = output.game().getParticipants().getParticipants().stream()
                 .filter(participant -> participant.getRole().equals(ParticipantRole.SPECTATOR))
                 .toList();
 

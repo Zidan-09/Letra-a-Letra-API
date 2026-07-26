@@ -45,12 +45,12 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
 
             Game game = actor.getGame();
 
-            Participant participant = game.getParticipantByUserId(userId);
+            Participant participant = game.getParticipants().getParticipantByUserId(userId);
             if (participant == null) return Optional.empty();
 
             disconnectScheduler.cancel(userId, game.getId());
 
-            game.reconnect(userId, input.session());
+            game.getParticipants().reconnect(userId, input.session());
 
             return buildReturn(game);
 

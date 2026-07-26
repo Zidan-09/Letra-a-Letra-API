@@ -32,7 +32,7 @@ public class StartGameActorCommand implements ActorCommand<Game> {
     @Override
     public Game execute(Game game) {
 
-        Participant participant = game.findBySession(session);
+        Participant participant = game.getParticipants().findBySession(session);
         validateParticipant(participant);
         validateHost(participant, game.getHostId());
 
@@ -40,7 +40,7 @@ public class StartGameActorCommand implements ActorCommand<Game> {
             throw new GameIsRunningException();
         }
 
-        if (game.getAmountPlayers() < 2) {
+        if (game.getParticipants().getAmountPlayers() < 2) {
             throw new InsufficientPlayersException();
         }
 

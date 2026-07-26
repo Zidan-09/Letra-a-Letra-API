@@ -6,13 +6,12 @@ import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.CreateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.CreateLevelRewardRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.CreateLevelResponse;
-
-import java.util.UUID;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public class CreateLevelMapper {
-    public static CreateLevelInput toInput(UUID auth, CreateLevelRequest request) {
+    public static CreateLevelInput toInput(AuthenticatedUser principal, CreateLevelRequest request) {
         return new CreateLevelInput(
-                auth,
+                principal,
                 request.level(),
                 request.rewards().stream()
                         .map(CreateLevelMapper::toRewardInput)

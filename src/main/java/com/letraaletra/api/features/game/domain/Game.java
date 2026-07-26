@@ -2,17 +2,11 @@ package com.letraaletra.api.features.game.domain;
 
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
-import com.letraaletra.api.features.game.domain.exception.RoomFullException;
-import com.letraaletra.api.features.game.domain.exception.UserBannedException;
-import com.letraaletra.api.features.participant.domain.exception.InvalidRoomPositionException;
-import com.letraaletra.api.features.participant.domain.exception.ParticipantAlreadyBannedException;
-import com.letraaletra.api.features.participant.domain.exception.ParticipantNotBannedException;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
-import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
-import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 
 import java.util.*;
 
@@ -20,29 +14,50 @@ public class Game {
     private final UUID id;
     private final String code;
     private final String roomName;
-    private final Map<UUID, Participant> participants = new HashMap<>();
-    private final Map<Integer, UUID> positions = new HashMap<>();
+    private final Participants participants = new Participants();
     private final RoomSettings roomSettings;
-    private final Set<UUID> blacklist = new HashSet<>();
     private final GameType gameType;
     private final UUID createdById;
     private UUID hostId;
     private GameStatus gameStatus;
     private GameState gameState;
 
-    public Game(UUID id, String code, String roomName, RoomSettings roomSettings, Participant host, GameType gameType) {
+    public Game(
+            UUID id,
+            String code,
+            String roomName,
+            RoomSettings roomSettings,
+            Participant host,
+            GameType gameType
+    ) {
         this.id = id;
         this.code = code;
         this.roomName = roomName;
         host.changeRole(ParticipantRole.PLAYER);
-        this.participants.put(host.getUserId(), host);
+        participants.join(host, roomSettings);
         this.gameType = gameType;
         this.createdById = host.getUserId();
         this.hostId = host.getUserId();
-        this.positions.put(0, host.getUserId());
         this.gameStatus = GameStatus.WAITING;
         this.roomSettings = roomSettings;
+    }
 
+    public static Game create(
+            UUID id,
+            String code,
+            String roomName,
+            RoomSettings roomSettings,
+            Participant host,
+            GameType gameType
+    ) {
+        return new Game(
+                id,
+                code,
+                roomName,
+                roomSettings,
+                host,
+                gameType
+        );
     }
 
     public UUID getId() {
@@ -61,8 +76,8 @@ public class Game {
         return gameType;
     }
 
-    public List<Participant> getParticipants() {
-        return List.copyOf(participants.values());
+    public Participants getParticipants() {
+        return participants;
     }
 
     public UUID getCreatedById() {
@@ -85,83 +100,11 @@ public class Game {
         return roomSettings;
     }
 
-    public Participant getParticipantByUserId(UUID userId) {
-        return participants.get(userId);
-    }
-
-    public Map<Integer, UUID> getPositions() {
-        return Map.copyOf(positions);
-    }
-
     public void start(Board board, GameStateFactory stateGenerator) {
-        GameState state = stateGenerator.generate(participants.values().stream().toList(), board);
+        GameState state = stateGenerator.generate(participants.getParticipants(), board);
 
         this.gameStatus = GameStatus.RUNNING;
         this.gameState = state;
-    }
-
-    public void join(Participant participant) {
-        UUID userId = participant.getUserId();
-
-        if (isBlackListed(userId)) {
-            throw new UserBannedException();
-        }
-
-        if (participants.containsKey(userId)) {
-            throw new UserAlreadyInGameException();
-        }
-
-        int size = participants.size();
-
-        boolean isFullWithoutSpectators = !roomSettings.roomAllowSpectators() && size >= 2;
-        boolean isFullWithSpectators = size >= 7;
-
-        if (isFullWithoutSpectators || isFullWithSpectators) {
-            throw new RoomFullException();
-        }
-
-        ParticipantRole role = determineRole();
-        participant.changeRole(role);
-
-        if (role == ParticipantRole.PLAYER) {
-            assertMaxPlayers();
-        }
-
-        participants.put(userId, participant);
-        positions.put(nextAvailablePosition(), userId);
-    }
-
-    public void remove(UUID userId) {
-        Participant participant = participants.get(userId);
-
-        if (participant == null) {
-            throw new UserNotInGameException();
-        }
-
-        participants.remove(userId);
-        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
-
-        if (gameStatus.equals(GameStatus.RUNNING)) {
-            gameState.removePlayer(userId);
-        }
-
-        if (participants.isEmpty()) {
-            return;
-        }
-
-        if (participant.getUserId().equals(hostId)) {
-            hostId = participants.keySet().iterator().next();
-        }
-    }
-
-    public void reconnect(UUID userId, String sessionId) {
-        Participant participant = participants.get(userId);
-
-        if (participant == null) {
-            throw new UserNotInGameException();
-        }
-
-        participant.connect(sessionId);
     }
 
     public void changePosition(UUID userId, int position) {
@@ -169,32 +112,23 @@ public class Game {
             throw new GameIsRunningException();
         }
 
-        if (position < 0 || position > 6) {
-            throw new InvalidRoomPositionException();
+        participants.changePosition(userId, position);
+    }
+
+    public void remove(UUID userId) {
+        Participant participant = participants.remove(userId);
+
+        if (gameStatus.equals(GameStatus.RUNNING)) {
+            gameState.removePlayer(userId);
         }
 
-        Participant participant = participants.get(userId);
-
-        if (participant == null) {
-            throw new UserNotInGameException();
+        if (participants.getParticipants().isEmpty()) {
+            return;
         }
 
-        if (positions.containsKey(position)) {
-            throw new InvalidRoomPositionException();
+        if (participant.getUserId().equals(hostId)) {
+            hostId = participants.findNextParticipant();
         }
-
-        ParticipantRole newRole = position >= 2
-                ? ParticipantRole.SPECTATOR
-                : ParticipantRole.PLAYER;
-
-        if (newRole == ParticipantRole.PLAYER) {
-            assertMaxPlayersExcluding(userId);
-        }
-
-        participant.changeRole(newRole);
-
-        positions.entrySet().removeIf(entry -> entry.getValue().equals(userId));
-        positions.put(position, userId);
     }
 
     public void setGameStatus(GameStatus gameStatus) {
@@ -203,74 +137,5 @@ public class Game {
 
     public void updateGameState(GameState gameState) {
         this.gameState = gameState;
-    }
-
-    public Participant findBySession(String sessionId) {
-        return participants.values().stream()
-                .filter(p -> p.getSocketId().equals(sessionId))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public boolean isBlackListed(UUID userId) {
-        return blacklist.contains(userId);
-    }
-
-    public void addToBlackList(UUID userId) {
-        if (blacklist.contains(userId)) {
-            throw new ParticipantAlreadyBannedException();
-        }
-
-        blacklist.add(userId);
-    }
-
-    public void removeFromBlackList(UUID userId) {
-        if (!blacklist.contains(userId)) {
-            throw new ParticipantNotBannedException();
-        }
-
-        blacklist.remove(userId);
-    }
-
-    public int getAmountPlayers() {
-        return (int) participants.values().stream()
-                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .count();
-    }
-
-    private ParticipantRole determineRole() {
-        long players = participants.values().stream()
-                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .count();
-
-        return players >= 2
-                ? ParticipantRole.SPECTATOR
-                : ParticipantRole.PLAYER;
-    }
-
-    private void assertMaxPlayers() {
-        if (getAmountPlayers() >= 2) {
-            throw new RoomFullException();
-        }
-    }
-
-    private void assertMaxPlayersExcluding(UUID userId) {
-        long players = participants.values().stream()
-                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .filter(p -> !p.getUserId().equals(userId))
-                .count();
-
-        if (players >= 2) {
-            throw new RoomFullException();
-        }
-    }
-
-    private int nextAvailablePosition() {
-        for (int i = 0; i < 7; i++) {
-            if (!positions.containsKey(i)) {
-                return i;
-            }
-        }
-        throw new IllegalStateException("no_available_positions");
     }
 }

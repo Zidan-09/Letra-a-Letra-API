@@ -13,6 +13,13 @@ public class Wallet {
         this.hardGems = hardGems;
     }
 
+    public static Wallet create() {
+        return new Wallet(
+                0,
+                0
+        );
+    }
+
     public Balance getBalance() {
         return new Balance(
                 softCoins,

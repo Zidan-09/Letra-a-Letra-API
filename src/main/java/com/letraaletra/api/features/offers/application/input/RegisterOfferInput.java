@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.offers.application.input;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 import java.util.List;
-import java.util.UUID;
 
 public record RegisterOfferInput(
-        UUID auth,
+        AuthenticatedUser principal,
         String title,
         CoinType coinType,
         int price,

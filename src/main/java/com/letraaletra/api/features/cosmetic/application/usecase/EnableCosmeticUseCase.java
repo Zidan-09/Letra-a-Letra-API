@@ -22,7 +22,7 @@ public class EnableCosmeticUseCase implements UseCase<EnableCosmeticInput, Enabl
 
     @Override
     public EnableCosmeticOutput execute(EnableCosmeticInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);

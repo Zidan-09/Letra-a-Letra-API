@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.DisableOfferInput;
 import com.letraaletra.api.features.offers.application.output.DisableOfferOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.DisableOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DisableOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -34,7 +34,6 @@ class DisableOfferControllerTest {
     @InjectMocks
     private DisableOfferController controller;
 
-    private UUID authAdminId;
     private AuthenticatedUser principal;
     private UUID offerIdStr;
     private DisableOfferInput mockInput;
@@ -44,7 +43,7 @@ class DisableOfferControllerTest {
 
     @BeforeEach
     void setUp() {
-        authAdminId = UUID.randomUUID();
+        UUID authAdminId = UUID.randomUUID();
         principal = new AuthenticatedUser(authAdminId, "admin", true);
         offerIdStr = UUID.randomUUID();
         mockInput = mock(DisableOfferInput.class);
@@ -59,12 +58,12 @@ class DisableOfferControllerTest {
     @DisplayName("Should successfully handle modification patch path, map payloads, execute use case and return wrapped success response")
     void shouldDisableOfferSuccessfully() {
         try (MockedStatic<DisableOfferMapper> mapperMock = mockStatic(DisableOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr)).thenReturn(mockInput);
+            mapperMock.when(() -> DisableOfferMapper.toInput(principal, offerIdStr)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DisableOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<DisableOfferResponse>> response = controller.disableOffer(principal, offerIdStr);
 
@@ -78,7 +77,7 @@ class DisableOfferControllerTest {
     void shouldPropagateUseCaseExceptions() {
         try (MockedStatic<DisableOfferMapper> mapperMock = mockStatic(DisableOfferMapper.class)) {
 
-            mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr)).thenReturn(mockInput);
+            mapperMock.when(() -> DisableOfferMapper.toInput(principal, offerIdStr)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
             assertThrows(SecurityException.class, () -> controller.disableOffer(principal, offerIdStr));
@@ -90,7 +89,7 @@ class DisableOfferControllerTest {
     void shouldPropagateInputMapperExceptions() {
         try (MockedStatic<DisableOfferMapper> mapperMock = mockStatic(DisableOfferMapper.class)) {
 
-            mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr))
+            mapperMock.when(() -> DisableOfferMapper.toInput(principal, offerIdStr))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into disabling structural criteria models"));
 
             assertThrows(IllegalArgumentException.class, () -> controller.disableOffer(principal, offerIdStr));
@@ -103,7 +102,7 @@ class DisableOfferControllerTest {
     void shouldPropagateResponseMapperExceptions() {
         try (MockedStatic<DisableOfferMapper> mapperMock = mockStatic(DisableOfferMapper.class)) {
 
-            mapperMock.when(() -> DisableOfferMapper.toInput(authAdminId, offerIdStr)).thenReturn(mockInput);
+            mapperMock.when(() -> DisableOfferMapper.toInput(principal, offerIdStr)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DisableOfferMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));

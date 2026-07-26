@@ -5,11 +5,12 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
-import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,12 +47,12 @@ class CreateLevelUseCaseTest {
     @Captor
     private ArgumentCaptor<Level> levelCaptor;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private int targetLevel;
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         targetLevel = 10;
     }
 
@@ -59,14 +60,15 @@ class CreateLevelUseCaseTest {
     @DisplayName("Should successfully create a level with COIN reward type when authorized as admin")
     void shouldCreateLevelWithCoinRewardSuccessfully() {
         CreateLevelRewardInput coinRewardInput = new CreateLevelRewardInput(RewardType.COIN, null, 500);
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(coinRewardInput));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinRewardInput));
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
-        CreateLevelOutput output = useCase.execute(input);
+        useCase.execute(input);
 
-        assertNull(output);
-        verify(adminChecker, times(1)).check(adminId);
+        verify(adminChecker, times(1)).check(principal);
         verify(levelRepository, times(1)).save(levelCaptor.capture());
         verifyNoInteractions(cosmeticRepository);
 
@@ -78,9 +80,11 @@ class CreateLevelUseCaseTest {
     @DisplayName("Should successfully create a level with GEMS reward type when authorized as admin")
     void shouldCreateLevelWithGemsRewardSuccessfully() {
         CreateLevelRewardInput gemsRewardInput = new CreateLevelRewardInput(RewardType.GEMS, null, 50);
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(gemsRewardInput));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(gemsRewardInput));
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         useCase.execute(input);
 
@@ -94,9 +98,11 @@ class CreateLevelUseCaseTest {
         UUID cosmeticId = UUID.randomUUID();
         Cosmetic mockCosmetic = mock(Cosmetic.class);
         CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(cosmeticRewardInput));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         useCase.execute(input);
@@ -114,9 +120,11 @@ class CreateLevelUseCaseTest {
         CreateLevelRewardInput gemsReward = new CreateLevelRewardInput(RewardType.GEMS, null, 10);
         CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
 
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         useCase.execute(input);
@@ -128,9 +136,11 @@ class CreateLevelUseCaseTest {
     @Test
     @DisplayName("Should successfully create a level with an empty list of rewards")
     void shouldCreateLevelWithNoRewardsSuccessfully() {
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, Collections.emptyList());
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
 
         useCase.execute(input);
 
@@ -140,9 +150,9 @@ class CreateLevelUseCaseTest {
     @Test
     @DisplayName("Should propagate exception when admin security verification criteria fails")
     void shouldPropagateExceptionWhenAdminCheckFails() {
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, Collections.emptyList());
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
-        doThrow(new SecurityException("Unauthorized access")).when(adminChecker).check(adminId);
+        doThrow(new SecurityException("Unauthorized access")).when(adminChecker).check(principal);
 
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
@@ -151,18 +161,31 @@ class CreateLevelUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should throw LevelAlreadyExistsException when exists a level with the same value that the input")
+    void shouldThrowLevelAlreadyExistsException() {
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
+
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(true);
+
+        assertThrows(LevelAlreadyExistsException.class, () ->
+                useCase.execute(input));
+    }
+
+    @Test
     @DisplayName("Should throw CosmeticNotFoundException when reward type is COSMETIC but reference cannot be resolved")
     void shouldThrowExceptionWhenCosmeticNotFound() {
         UUID nonExistentCosmeticId = UUID.randomUUID();
         CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
-        CreateLevelInput input = new CreateLevelInput(adminId, targetLevel, List.of(cosmeticRewardInput));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
 
-        doNothing().when(adminChecker).check(adminId);
+        doNothing().when(adminChecker).check(principal);
+        when(levelRepository.existsByLevel(input.level()))
+                .thenReturn(false);
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
-
-        verifyNoInteractions(levelRepository);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.letraaletra.api.features.shop.application.usecase.BuyOfferUseCase;
 import com.letraaletra.api.features.shop.application.usecase.GetActiveOffersUseCase;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,11 +22,13 @@ public class StoreConfig {
     @Bean
     public BuyOfferUseCase buyOfferUseCase(
             UserRepository userRepository,
-            OfferRepository offerRepository
+            OfferRepository offerRepository,
+            TransactionRepository walletTransactionRepository
     ) {
         return new BuyOfferUseCase(
                 userRepository,
-                offerRepository
+                offerRepository,
+                walletTransactionRepository
         );
     }
 }

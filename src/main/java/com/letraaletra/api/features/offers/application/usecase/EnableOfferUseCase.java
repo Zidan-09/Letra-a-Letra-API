@@ -22,7 +22,7 @@ public class EnableOfferUseCase implements UseCase<EnableOfferInput, EnableOffer
 
     @Override
     public EnableOfferOutput execute(EnableOfferInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

@@ -4,5 +4,6 @@ public interface UserRepository extends
         SaveUser,
         FindUser,
         CheckIfExists,
-        CountUsers
+        CountUsers,
+        GetUsers
 {}

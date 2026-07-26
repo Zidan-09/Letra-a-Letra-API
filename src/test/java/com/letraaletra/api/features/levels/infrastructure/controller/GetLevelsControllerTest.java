@@ -2,10 +2,11 @@ package com.letraaletra.api.features.levels.infrastructure.controller;
 
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
-import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.GetLevelsResponse;
+import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,17 +39,25 @@ class GetLevelsControllerTest {
     private Pageable pageable;
     private GetLevelsInput mockInput;
     private GetLevelsOutput mockOutput;
-    private GetLevelsResponse mockResponseDto;
-    private ResponseEntity<SuccessResponse<GetLevelsResponse>> mockResponseEntity;
+    private PageResponse<Level> responseDto;
+    private ResponseEntity<SuccessResponse<PageResponse<Level>>> mockResponseEntity;
 
     @BeforeEach
     void setUp() {
         pageable = PageRequest.of(0, 20);
         mockInput = mock(GetLevelsInput.class);
         mockOutput = mock(GetLevelsOutput.class);
-        mockResponseDto = mock(GetLevelsResponse.class);
+        responseDto = new PageResponse<>(
+                List.of(),
+                0,
+                20,
+                0,
+                0,
+                true,
+                true
+        );
 
-        SuccessResponse<GetLevelsResponse> successResponse = new SuccessResponse<>(true, mockResponseDto);
+        SuccessResponse<PageResponse<Level>> successResponse = new SuccessResponse<>(true, responseDto);
         mockResponseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
@@ -54,14 +65,14 @@ class GetLevelsControllerTest {
     @DisplayName("Should successfully handle pagination parameters, execute query use case and return wrapped page contents")
     void shouldGetLevelsSuccessfully() {
         try (MockedStatic<GetLevelsMapper> mapperMock = mockStatic(GetLevelsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetLevelsMapper.toInput(pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetLevelsMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            mapperMock.when(() -> GetLevelsMapper.toResponse(mockOutput)).thenReturn(responseDto);
+            apiResponseMock.when(() -> ApiResponseHandler.success(responseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<GetLevelsResponse>> response = controller.handle(pageable);
+            ResponseEntity<SuccessResponse<PageResponse<Level>>> response = controller.handle(pageable);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);

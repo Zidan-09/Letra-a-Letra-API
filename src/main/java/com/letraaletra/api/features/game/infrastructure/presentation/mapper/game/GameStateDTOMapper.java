@@ -23,7 +23,7 @@ public class GameStateDTOMapper {
                 game.getGameState().getPlayers().values().stream()
                         .map(player -> PlayerDTOMapper.toDTO(
                                 player,
-                                game.getParticipantByUserId(player.getUserId())
+                                game.getParticipants().getParticipantByUserId(player.getUserId())
                         ))
                         .toList(),
                 BoardViewDTOMapper.toDTO(boardView),
@@ -37,7 +37,7 @@ public class GameStateDTOMapper {
                 game.getGameState().getPlayers().values().stream()
                         .map(player -> PlayerDTOMapper.toDTO(
                                 player,
-                                game.getParticipantByUserId(player.getUserId())
+                                game.getParticipants().getParticipantByUserId(player.getUserId())
                         ))
                         .toList(),
                 BoardDTOMapper.toDTO(game.getGameState().getBoard()),

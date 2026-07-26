@@ -7,7 +7,7 @@ import java.util.List;
 
 public class MapParticipantsMapper {
     public static List<ParticipantDTO> execute(Game game) {
-        return game.getParticipants().stream()
+        return game.getParticipants().getParticipants().stream()
                 .map(ParticipantDTOMapper::toDTO)
                 .toList();
     }

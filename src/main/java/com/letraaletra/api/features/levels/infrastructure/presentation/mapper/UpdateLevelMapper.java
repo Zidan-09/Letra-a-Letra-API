@@ -6,13 +6,14 @@ import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.UpdateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.UpdateLevelRewardRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.UpdateLevelResponse;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 import java.util.UUID;
 
 public class UpdateLevelMapper {
-    public static UpdateLevelInput toInput(UUID auth, UUID levelId, UpdateLevelRequest request) {
+    public static UpdateLevelInput toInput(AuthenticatedUser principal, UUID levelId, UpdateLevelRequest request) {
         return new UpdateLevelInput(
-                auth,
+                principal,
                 levelId,
                 request.level(),
                 request.rewards().stream()

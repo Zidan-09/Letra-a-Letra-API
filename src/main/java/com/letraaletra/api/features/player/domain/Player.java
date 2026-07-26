@@ -9,17 +9,23 @@ import java.util.*;
 
 public class Player {
     private final UUID userId;
+    private final String nickname;
     private final LinkedHashMap<String, PowerType> inventory = new LinkedHashMap<>();
     private int score = 0;
     private final List<PlayerEffect> effects = new ArrayList<>();
     private int passedTurn = 0;
 
-    public Player(UUID userId) {
+    public Player(UUID userId, String nickname) {
         this.userId = userId;
+        this.nickname = nickname;
     }
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 
     public void addToInventory(PowerType powerType) {

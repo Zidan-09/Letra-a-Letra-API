@@ -5,6 +5,7 @@ import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
@@ -21,6 +22,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -91,6 +93,7 @@ public class GameConfig {
 
     @Bean
     public StartGameUseCase startGameUseCase(
+            GameRepository gameRepository,
              GameStateFactory gameStateFactory,
              ThemeRepository themeRepository,
              GameTimeoutManager gameTimeoutManager,
@@ -100,6 +103,7 @@ public class GameConfig {
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
+                gameRepository,
                 gameStateFactory,
                 themeRepository,
                 gameTimeoutManager,
@@ -143,11 +147,13 @@ public class GameConfig {
     @Bean
     public UpdateStatsService updateStatsService(
             UserRepository userRepository,
-            LevelRepository levelRepository
+            LevelRepository levelRepository,
+            TransactionRepository walletTransactionRepository
     ) {
         return new UpdateStatsService(
                 userRepository,
-                levelRepository
+                levelRepository,
+                walletTransactionRepository
         );
     }
 
@@ -191,6 +197,28 @@ public class GameConfig {
                 userRepository,
                 sessionRepository,
                 rankingPointsService
+        );
+    }
+
+    @Bean
+    public GetGamesUseCase getGamesUseCase(
+            GameRepository gameRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetGamesUseCase(
+                gameRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetActiveGamesUseCase getActiveGamesUseCase(
+            GameQueryService gameQueryService,
+            AdminChecker adminChecker
+    ) {
+        return new GetActiveGamesUseCase(
+                gameQueryService,
+                adminChecker
         );
     }
 }

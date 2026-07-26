@@ -3,11 +3,12 @@ package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
-import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
+import com.letraaletra.api.features.levels.domain.LevelsPage;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelJpaEntity;
+import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.jpa.SpringDataLevelRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.jpa.SpringDataLevelRewardRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelMapper;
@@ -16,9 +17,11 @@ import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
 import com.letraaletra.api.shared.domain.rewards.Reward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,18 +44,22 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
-    public List<Level> get(GetLevelsInput input) {
+    public Page<Level> get(LevelsPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
-        return repository.findAll(pageable).stream()
+        return repository.findAll(pageable)
                 .map(entity -> LevelMapper.toDomain(
                         entity,
-                        loadRewards(entity.getId())))
-                .toList();
+                        loadRewards(entity.getId())));
+    }
+
+    @Override
+    public boolean existsByLevel(int level) {
+        return repository.findByLevel(level).isPresent();
     }
 
     @Override
@@ -87,8 +94,18 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     @Override
+    @Transactional
     public void save(Level level) {
+        repository.save(LevelMapper.toEntity(level));
 
+        levelRewardRepository.deleteByLevelId(level.getLevelId());
+
+        List<LevelRewardJpaEntity> rewards = level.getRewards()
+                .stream()
+                .map(reward -> LevelRewardMapper.toEntity(level.getLevelId(), reward))
+                .toList();
+
+        levelRewardRepository.saveAll(rewards);
     }
 
     private List<LevelReward> loadRewards(UUID levelId) {

@@ -34,7 +34,7 @@ public class RemoveParticipantUseCase implements UseCase<RemoveParticipantInput,
         Optional<Game> game = future.join();
 
         game.ifPresent(g -> {
-            if (g.getParticipants().isEmpty()) {
+            if (g.getParticipants().getPositions().isEmpty()) {
                 g.setGameStatus(GameStatus.CLOSED);
 
                 gameRepository.save(g);

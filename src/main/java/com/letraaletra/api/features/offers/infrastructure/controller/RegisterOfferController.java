@@ -5,7 +5,7 @@ import com.letraaletra.api.features.offers.application.output.RegisterOfferOutpu
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.RegisterOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.RegisterOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -35,12 +35,12 @@ public class RegisterOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterOfferRequest request
     ) {
-        RegisterOfferInput input = RegisterOfferMapper.toInput(principal.auth(), request);
+        RegisterOfferInput input = RegisterOfferMapper.toInput(principal, request);
 
         RegisterOfferOutput output = useCase.execute(input);
 
         RegisterOfferResponse dto = RegisterOfferMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

@@ -15,7 +15,7 @@ public class GetMyProfileMapper {
 
     public static GetMyProfileResponse toResponse(GetMyProfileOutput output) {
         return new GetMyProfileResponse(
-                UserDTOMapper.toDto(output.user())
+                UserProfileResponseMapper.toResponse(output.user())
         );
     }
 }

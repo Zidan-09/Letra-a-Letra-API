@@ -9,7 +9,7 @@ import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.resp
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverMapper;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.shared.application.port.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.user.domain.User;
@@ -40,14 +40,17 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
         User loser = userRepository.find(gameOver.loser().getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
+        String winnerSessionId = sessionRepository.findByUserId(winner.getId()).getId();
+        String loserSessionId = sessionRepository.findByUserId(loser.getId()).getId();
+
         Participant winnerParticipant = Participant.create(
                 winner,
-                sessionRepository.findByUserId(winner.getId()).getId()
+                winnerSessionId != null ? winnerSessionId : ""
         );
 
         Participant loserParticipant = Participant.create(
                 loser,
-                sessionRepository.findByUserId(loser.getId()).getId()
+                loserSessionId != null ? loserSessionId : ""
         );
 
         if (game.getGameType().equals(GameType.RANKING)) {

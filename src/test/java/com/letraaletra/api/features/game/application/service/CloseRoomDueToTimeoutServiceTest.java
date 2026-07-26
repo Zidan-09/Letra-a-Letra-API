@@ -5,6 +5,7 @@ import com.letraaletra.api.features.game.application.output.CloseRoomOutput;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.RoomCloseReasons;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -42,12 +43,14 @@ class CloseRoomDueToTimeoutServiceTest {
     private UUID userId1;
     private UUID userId2;
     private UUID gameId;
+    private Participants participants;
 
     @BeforeEach
     void setup() {
         userId1 = UUID.randomUUID();
         userId2 = UUID.randomUUID();
         gameId = UUID.randomUUID();
+        participants = mock(Participants.class);
     }
 
     @Test
@@ -62,8 +65,8 @@ class CloseRoomDueToTimeoutServiceTest {
 
         when(participant1.getUserId()).thenReturn(userId1);
         when(participant2.getUserId()).thenReturn(userId2);
-
-        when(game.getParticipants()).thenReturn(List.of(participant1, participant2));
+        when(game.getParticipants()).thenReturn(participants);
+        when(participants.getParticipants()).thenReturn(List.of(participant1, participant2));
         when(game.getId()).thenReturn(gameId);
 
         when(userRepository.find(userId1)).thenReturn(Optional.of(user1));
@@ -101,8 +104,8 @@ class CloseRoomDueToTimeoutServiceTest {
 
         when(participant1.getUserId()).thenReturn(userId1);
         when(participant2.getUserId()).thenReturn(userId2);
-
-        when(game.getParticipants()).thenReturn(List.of(participant1, participant2));
+        when(game.getParticipants()).thenReturn(participants);
+        when(participants.getParticipants()).thenReturn(List.of(participant1, participant2));
 
         when(userRepository.find(userId1)).thenReturn(Optional.of(user1));
         when(userRepository.find(userId2)).thenReturn(Optional.empty());

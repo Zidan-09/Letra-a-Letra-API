@@ -5,6 +5,7 @@ export async function runRankingGame(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
+    const events = context.events.get(users[0]);
 
     send(ws1, {
         type: "RANKING_GAME"
@@ -14,7 +15,7 @@ export async function runRankingGame(context) {
         type: "RANKING_GAME"
     });
 
-    const started = await waitForEvent(e => (e.event === "RANKING_GAME" && e.status === "FOUNDED"), context.events);
+    const started = await waitForEvent("RANKING_GAME", e => (e.event === "RANKING_GAME" && e.status === "FOUNDED"), events);
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -49,12 +50,13 @@ export async function runRankingGame(context) {
         });
 
         const result = await waitForEvent(
+            "RANKING_OVER",
             e => e.event === "RANKING_OVER" ||
                 (
                     e.event === "PLAYER_ACTION_RESULT" &&
                     e.data.currentTurnPlayerId !== currentPlayer
                 ),
-                context.events
+                events
         );
 
         if (result.event === "RANKING_OVER") {

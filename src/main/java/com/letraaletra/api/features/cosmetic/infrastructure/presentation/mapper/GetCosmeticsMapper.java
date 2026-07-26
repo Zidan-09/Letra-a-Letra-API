@@ -3,7 +3,8 @@ package com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.GetCosmeticsResponse;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,19 +24,19 @@ public class GetCosmeticsMapper {
         );
     }
 
-    public static GetCosmeticsResponse toResponse(GetCosmeticsOutput output) {
+    public static PageResponse<CosmeticDTO> toResponse(GetCosmeticsOutput output) {
         Page<Cosmetic> page = output.cosmetics();
 
-        return new GetCosmeticsResponse(
-            page.getContent()
-                    .stream().map(CosmeticMapper::toDto)
-                    .toList(),
-            page.getNumber(),
-            page.getSize(),
-            page.getTotalElements(),
-            page.getTotalPages(),
-            page.isFirst(),
-            page.isLast()
+        return new PageResponse<>(
+                page.getContent()
+                        .stream().map(CosmeticMapper::toDto)
+                        .toList(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast()
         );
     }
 }

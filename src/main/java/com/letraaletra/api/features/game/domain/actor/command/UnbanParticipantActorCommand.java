@@ -20,7 +20,7 @@ public class UnbanParticipantActorCommand implements ActorCommand<Game> {
             throw new OnlyHostCanModerateException();
         }
 
-        game.removeFromBlackList(user);
+        game.getParticipants().removeFromBlackList(user);
 
         return game;
     }

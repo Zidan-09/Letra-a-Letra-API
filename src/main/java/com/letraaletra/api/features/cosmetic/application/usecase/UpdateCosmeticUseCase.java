@@ -35,7 +35,7 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
 
     @Override
     public UpdateCosmeticOutput execute(UpdateCosmeticInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Cosmetic cosmetic = checkCosmetic(input.id(), input.name(), input.type());
 

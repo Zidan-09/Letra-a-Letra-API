@@ -35,6 +35,18 @@ public class Participant {
         );
     }
 
+    public static Participant restore(User user) {
+        return new Participant(
+                user.getId(),
+                "not-connected",
+                user.getNickname(),
+                user.getInventory()
+                        .getItems().stream()
+                        .filter(InventoryItem::equipped)
+                        .toList()
+        );
+    }
+
     public UUID getUserId() {
         return userId;
     }

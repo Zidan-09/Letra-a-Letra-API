@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
+import com.letraaletra.api.features.cosmetic.domain.CosmeticsPage;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.CosmeticJpaEntity;
@@ -40,11 +40,11 @@ public class JpaCosmeticRepository implements CosmeticRepository {
     }
 
     @Override
-    public Page<Cosmetic> get(GetCosmeticsInput input) {
+    public Page<Cosmetic> get(CosmeticsPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable).map(CosmeticMapper::toDomain);

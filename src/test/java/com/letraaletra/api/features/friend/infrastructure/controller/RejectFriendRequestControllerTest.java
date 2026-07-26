@@ -3,7 +3,7 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 import com.letraaletra.api.features.friend.application.input.RejectFriendRequestInput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.RejectFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RejectFriendRequestMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -49,20 +49,20 @@ class RejectFriendRequestControllerTest {
         when(mockRequest.friendId()).thenReturn(mockFriendId);
 
         mockInput = mock(RejectFriendRequestInput.class);
-        mockSuccessResponse = mock(SuccessResponse.class);
+        mockSuccessResponse = new SuccessResponse<>(true, null);
     }
 
     @Test
     @DisplayName("Deve rejeitar a solicitação com sucesso retornando 200 OK")
     void rejectFriendRequest_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<RejectFriendRequestMapper> mapperMock = mockStatic(RejectFriendRequestMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> RejectFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity = ResponseEntity.ok(mockSuccessResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);
 
@@ -75,7 +75,7 @@ class RejectFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção sem interceptar caso a execução do UseCase falhe por regra de domínio")
+    @DisplayName("Deve propagar a exceção sem interceptor caso a execução do UseCase falhe por regra de domínio")
     void rejectFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RejectFriendRequestMapper> mapperMock = mockStatic(RejectFriendRequestMapper.class)) {
 

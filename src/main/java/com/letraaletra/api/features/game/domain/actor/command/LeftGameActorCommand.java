@@ -19,16 +19,18 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
     @Override
     public LeftGameResult execute(Game game) {
-        Participant participant = game.findBySession(session);
+        Participant participant = game.getParticipants().findBySession(session);
         validateParticipant(participant);
 
         UUID participantId = participant.getUserId();
 
         if (game.getGameStatus().equals(GameStatus.WAITING)) {
+            game.remove(participantId);
+
             return new LeftGameResult(
                     game,
                     participant.getUserId(),
-                    game.getParticipants().isEmpty(),
+                    game.getParticipants().getParticipants().isEmpty(),
                     Optional.empty()
             );
         }
@@ -41,7 +43,7 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         return new LeftGameResult(
                 game,
                 participantId,
-                game.getParticipants().isEmpty(),
+                game.getParticipants().getParticipants().isEmpty(),
                 gameOver
         );
     }

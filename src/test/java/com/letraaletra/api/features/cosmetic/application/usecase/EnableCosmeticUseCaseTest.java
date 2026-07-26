@@ -6,6 +6,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,13 +35,13 @@ class EnableCosmeticUseCaseTest {
     @InjectMocks
     private EnableCosmeticUseCase useCase;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private UUID cosmeticId;
     private Cosmetic cosmetic;
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         cosmeticId = UUID.randomUUID();
         cosmetic = mock(Cosmetic.class);
     }
@@ -48,7 +49,7 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve habilitar o cosmético com sucesso quando o usuário for admin e o cosmético existir")
     void execute_ShouldEnableCosmetic_WhenUserIsAdminAndCosmeticExists() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
@@ -58,7 +59,7 @@ class EnableCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, cosmetic);
-        inOrder.verify(adminChecker).check(adminId);
+        inOrder.verify(adminChecker).check(principal);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(cosmetic).setAvailable(true);
         inOrder.verify(cosmeticRepository).save(cosmetic);
@@ -67,9 +68,9 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar UserIsNotAdminException e interromper fluxo quando o usuário não for administrador")
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(adminId);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -80,13 +81,13 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar CosmeticNotFoundException quando o cosmético não for encontrado")
     void execute_ShouldThrowCosmeticNotFoundException_WhenCosmeticDoesNotExist() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
 
-        verify(adminChecker).check(adminId);
+        verify(adminChecker).check(principal);
         verify(cosmetic, never()).setAvailable(anyBoolean());
         verify(cosmeticRepository, never()).save(any());
     }
@@ -94,7 +95,7 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve propagar erro genérico se o repositório falhar na busca")
     void execute_ShouldPropagateException_WhenRepositoryFindFails() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenThrow(new RuntimeException("Database error"));
 
@@ -106,7 +107,7 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve propagar erro genérico se o repositório falhar na persistência")
     void execute_ShouldPropagateException_WhenRepositorySaveFails() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
         doThrow(new RuntimeException("Database save error")).when(cosmeticRepository).save(cosmetic);
@@ -128,7 +129,7 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar IllegalArgumentException se o ID do cosmético for nulo (Comportamento Desejado/Ausente)")
     void execute_ShouldThrowException_WhenCosmeticIdIsNull() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, null);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, null);
 
         when(cosmeticRepository.find(null)).thenThrow(new IllegalArgumentException("Cosmetic ID cannot be null"));
 
@@ -139,7 +140,7 @@ class EnableCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve garantir comportamento idempotente se o cosmético já estiver habilitado (Comportamento Desejado/Ausente)")
     void execute_ShouldHandleIdempotency_WhenCosmeticIsAlreadyEnabled() {
-        EnableCosmeticInput input = new EnableCosmeticInput(adminId, cosmeticId);
+        EnableCosmeticInput input = new EnableCosmeticInput(principal, cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
