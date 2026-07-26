@@ -5,7 +5,7 @@ import { connect } from "../core/websocket.js";
 export class TestContext {
     users = [];
 
-    events = [];
+    events = new Map();
 
     sockets = [];
 
@@ -13,6 +13,7 @@ export class TestContext {
         const user = new User(nickname, `${nickname.toLowerCase()}@email.com`, "12345678");
         
         this.users.push(user);
+        this.events.set(user, []);
     }
 
     async authUsers() {
@@ -25,7 +26,7 @@ export class TestContext {
     async connectSockets() {
         this.sockets = await Promise.all(
             this.users.map(user =>
-                connect(user, this.events)
+                connect(user, this.events.get(user))
             )
         );
     }
