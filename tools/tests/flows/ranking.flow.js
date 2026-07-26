@@ -14,7 +14,7 @@ export async function runRankingGame(context) {
         type: "RANKING_GAME"
     });
 
-    const started = await waitForEvent(e => (e.event === "RANKING_GAME" && e.status === "FOUNDED"), context.events);
+    const started = await waitForEvent("RANKING_GAME", e => (e.event === "RANKING_GAME" && e.status === "FOUNDED"), context.events);
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -49,6 +49,7 @@ export async function runRankingGame(context) {
         });
 
         const result = await waitForEvent(
+            "RANKING_OVER",
             e => e.event === "RANKING_OVER" ||
                 (
                     e.event === "PLAYER_ACTION_RESULT" &&

@@ -17,6 +17,7 @@ export async function runFlow(context) {
     });
 
     const started = await waitForEvent(
+        "MATCHMAKING_GAME",
         e => e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED",
         context.events
     );
@@ -85,6 +86,7 @@ export async function runFlow(context) {
             });
 
             const result = await waitForEvent(
+                "GAME_OVER / PLAYER_ACTION_RESULT",
                 e => e.event === "GAME_OVER" ||
                     (
                         e.event === "PLAYER_ACTION_RESULT" &&
@@ -103,12 +105,14 @@ export async function runFlow(context) {
 
             if (i === script.length - 1) {
                 await waitForEvent(
+                    "TURN_EXPIRED",
                     e => e.event === "TURN_EXPIRED",
                     context.events,
                     60000
                 );
 
                 await waitForEvent(
+                    "GAME_OVER",
                     e => e.event === "GAME_OVER",
                     context.events
                 );
@@ -117,6 +121,7 @@ export async function runFlow(context) {
             }
 
             const expired = await waitForEvent(
+                "TURN_EXPIRED",
                 e => e.event === "TURN_EXPIRED",
                 context.events,
                 60000

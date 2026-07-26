@@ -15,7 +15,7 @@ export async function runFlow(context) {
         }
     });
 
-    const created = await waitForEvent(e => (e.event === "GAME_CREATED"), context.events);
+    const created = await waitForEvent("GAME_CREATED", e => (e.event === "GAME_CREATED"), context.events);
 
     const gameId = created.data.gameId;
 
@@ -24,14 +24,14 @@ export async function runFlow(context) {
         gameId: gameId
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_JOIN"), context.events);
+    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events);
 
     send(ws3, {
         type: "JOIN_GAME",
         gameId: gameId
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_JOIN"), context.events);
+    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events);
 
     send(ws2, {
         type: "SWAP_POSITION",
@@ -39,7 +39,7 @@ export async function runFlow(context) {
         position: 3
     });
 
-    await waitForEvent(e => (e.event === "POSITIONS_UPDATED"), context.events);
+    await waitForEvent("POSITIONS_UPDATED", e => (e.event === "POSITIONS_UPDATED"), context.events);
 
     send(ws3, {
         type: "SWAP_POSITION",
@@ -47,7 +47,7 @@ export async function runFlow(context) {
         position: 1
     });
 
-    await waitForEvent(e => (e.event === "POSITIONS_UPDATED"), context.events);
+    await waitForEvent("POSITIONS_UPDATED", e => (e.event === "POSITIONS_UPDATED"), context.events);
 
     send(ws1, {
         type: "KICK_PARTICIPANT",
@@ -55,7 +55,7 @@ export async function runFlow(context) {
         participantId: users[2].id
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_KICKED"), context.events);
+    await waitForEvent("PARTICIPANT_KICKED", e => (e.event === "PARTICIPANT_KICKED"), context.events);
 
     send(ws1, {
         type: "BAN_PARTICIPANT",
@@ -63,7 +63,7 @@ export async function runFlow(context) {
         participantId: users[1].id
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_BANNED"), context.events);
+    await waitForEvent("PARTICIPANT_BANNED", e => (e.event === "PARTICIPANT_BANNED"), context.events);
 
     send(ws1, {
         type: "UNBAN_PARTICIPANT",
@@ -71,28 +71,28 @@ export async function runFlow(context) {
         userId: users[1].id
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_UNBANNED"), context.events);
+    await waitForEvent("PARTICIPANT_UNBANNED", e => (e.event === "PARTICIPANT_UNBANNED"), context.events);
 
     send(ws2, {
         type: "JOIN_GAME",
         gameId: gameId
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_JOIN"), context.events);
+    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events);
 
     send(ws1, {
         type: "LEFT_GAME",
         gameId: gameId
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_LEAVE"), context.events);
+    await waitForEvent("PARTICIPANT_LEAVE", e => (e.event === "PARTICIPANT_LEAVE"), context.events);
 
     send(ws3, {
         type: "JOIN_GAME",
         gameId: gameId
     });
 
-    await waitForEvent(e => (e.event === "PARTICIPANT_JOIN"), context.events);
+    await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events);
 
     send(ws2, {
         type: "START_GAME",
@@ -103,5 +103,5 @@ export async function runFlow(context) {
         }
     });
 
-    await waitForEvent(e => (e.event === "GAME_STARTED"), context.events);
+    await waitForEvent("GAME_STARTED", e => (e.event === "GAME_STARTED"), context.events);
 }

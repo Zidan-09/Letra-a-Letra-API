@@ -29,6 +29,7 @@ export async function runFlow(context) {
     ensureStatus(res, 200, "Send friend request");
 
     await waitForEvent(
+        "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
         context.events
     );
@@ -173,6 +174,7 @@ export async function runFlow(context) {
     ensureStatus(res, 200, "Enviar solicitação");
 
     await waitForEvent(
+        "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
         context.events
     );
@@ -249,6 +251,7 @@ export async function runFlow(context) {
     ensureStatus(res, 200, "Reenviar solicitação");
 
     await waitForEvent(
+        "RECEIVE_FRIEND_REQUEST",
         e => e.event === "RECEIVE_FRIEND_REQUEST",
         context.events
     );

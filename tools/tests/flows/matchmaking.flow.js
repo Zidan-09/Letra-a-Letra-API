@@ -16,7 +16,7 @@ export async function runFlow(context) {
         gameMode: "NORMAL"
     });
 
-    const started = await waitForEvent(e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), context.events);
+    const started = await waitForEvent("MATCHMAKING_GAME", e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), context.events);
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -51,6 +51,7 @@ export async function runFlow(context) {
         });
 
         const result = await waitForEvent(
+            "GAME_OVER / PLAYER_ACTION_RESULT",
             e => e.event === "GAME_OVER" ||
                 (
                     e.event === "PLAYER_ACTION_RESULT" &&
