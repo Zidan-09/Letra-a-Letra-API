@@ -35,7 +35,7 @@ public class CreateLevelController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody CreateLevelRequest request
     ) {
-        CreateLevelInput input = CreateLevelMapper.toInput(principal.auth(), request);
+        CreateLevelInput input = CreateLevelMapper.toInput(principal, request);
 
         CreateLevelOutput output = useCase.execute(input);
 

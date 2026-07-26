@@ -32,7 +32,7 @@ public class RegisterCosmeticController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {
-        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(principal.auth(), request);
+        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(principal, request);
 
         RegisterCosmeticOutput output = useCase.execute(input);
 

@@ -1,11 +1,10 @@
 package com.letraaletra.api.features.game.application.input;
 
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.springframework.data.domain.Sort;
 
-import java.util.UUID;
-
 public record GetActiveGamesInput(
-        UUID auth,
+        AuthenticatedUser principal,
         int page,
         int size,
         Sort sort

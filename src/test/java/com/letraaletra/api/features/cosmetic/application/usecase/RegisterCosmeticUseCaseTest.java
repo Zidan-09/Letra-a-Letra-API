@@ -8,6 +8,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -44,7 +44,7 @@ class RegisterCosmeticUseCaseTest {
     @InjectMocks
     private RegisterCosmeticUseCase useCase;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private String cosmeticName;
     private CosmeticTypes cosmeticType;
     private MultipartFile rawAsset;
@@ -54,7 +54,7 @@ class RegisterCosmeticUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         cosmeticName = "Gold Skin";
         cosmeticType = CosmeticTypes.AVATAR;
         rawAsset = mock(MultipartFile.class);
@@ -66,7 +66,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve registrar um cosmético com sucesso quando os dados forem válidos e o usuário for admin")
     void execute_ShouldRegisterCosmetic_WhenInputIsValidAndUserIsAdmin() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
             when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
@@ -82,7 +82,7 @@ class RegisterCosmeticUseCaseTest {
             assertEquals(mockCosmetic, output.cosmetic());
 
             InOrder inOrder = inOrder(adminChecker, cosmeticRepository, imageConverter, storageGateway);
-            inOrder.verify(adminChecker).check(adminId);
+            inOrder.verify(adminChecker).check(principal);
             inOrder.verify(cosmeticRepository).findByName(cosmeticName);
             inOrder.verify(imageConverter).convertToWebp(rawAsset);
             inOrder.verify(storageGateway).upload(webpAsset, cosmeticName, cosmeticType);
@@ -93,9 +93,9 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar UserIsNotAdminException e interromper o fluxo quando o usuário não for administrador")
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(adminId);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -108,7 +108,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve lançar RuntimeException se o cosmético já existir com o mesmo nome")
     void execute_ShouldThrowException_WhenCosmeticAlreadyExistsWithName() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
         Cosmetic existingCosmetic = mock(Cosmetic.class);
 
         when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.of(existingCosmetic));
@@ -116,7 +116,7 @@ class RegisterCosmeticUseCaseTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> useCase.execute(input));
         assertEquals("cosmetic_already_exists", exception.getMessage());
 
-        verify(adminChecker).check(adminId);
+        verify(adminChecker).check(principal);
         verify(imageConverter, never()).convertToWebp(any());
         verify(storageGateway, never()).upload(any(), any(), any());
         verify(cosmeticRepository, never()).save(any());
@@ -125,7 +125,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve falhar e propagar erro caso a conversão de imagem falhe")
     void execute_ShouldPropagateException_WhenImageConversionFails() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
         when(imageConverter.convertToWebp(rawAsset)).thenThrow(new IllegalArgumentException("Invalid image format"));
@@ -139,7 +139,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve falhar e propagar erro caso o upload para o Storage falhe")
     void execute_ShouldPropagateException_WhenStorageUploadFails() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
         when(imageConverter.convertToWebp(rawAsset)).thenReturn(webpAsset);
@@ -153,7 +153,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve falhar e propagar erro caso a persistência no banco falhe")
     void execute_ShouldPropagateException_WhenRepositorySaveFails() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
             when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
@@ -170,8 +170,8 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve validar contra entradas de texto vazias ou em branco (Comportamento Desejado/Ausente)")
     void execute_ShouldThrowException_WhenNameIsEmptyOrBlank() {
-        RegisterCosmeticInput emptyNameInput = new RegisterCosmeticInput(adminId, "", cosmeticType, rawAsset);
-        RegisterCosmeticInput blankNameInput = new RegisterCosmeticInput(adminId, "   ", cosmeticType, rawAsset);
+        RegisterCosmeticInput emptyNameInput = new RegisterCosmeticInput(principal, "", cosmeticType, rawAsset);
+        RegisterCosmeticInput blankNameInput = new RegisterCosmeticInput(principal, "   ", cosmeticType, rawAsset);
 
         // Cenário onde o use case deveria barrar nomes inválidos antes do processamento pesado
         when(cosmeticRepository.findByName("")).thenThrow(new IllegalArgumentException("Cosmetic name cannot be blank"));
@@ -186,7 +186,7 @@ class RegisterCosmeticUseCaseTest {
     @Test
     @DisplayName("Deve disparar compensação/reversão no storage se a persistência falhar (Comportamento Desejado/Ausente - Consistência Transacional)")
     void execute_ShouldDeleteUploadedAsset_WhenDatabasePersistFailsAfterUpload() {
-        RegisterCosmeticInput input = new RegisterCosmeticInput(adminId, cosmeticName, cosmeticType, rawAsset);
+        RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
             when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());

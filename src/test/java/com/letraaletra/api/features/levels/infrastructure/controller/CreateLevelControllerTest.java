@@ -35,7 +35,6 @@ class CreateLevelControllerTest {
     @InjectMocks
     private CreateLevelController controller;
 
-    private UUID authAdminId;
     private AuthenticatedUser principal;
     private CreateLevelRequest mockRequest;
     private CreateLevelInput mockInput;
@@ -45,7 +44,7 @@ class CreateLevelControllerTest {
 
     @BeforeEach
     void setUp() {
-        authAdminId = UUID.randomUUID();
+        UUID authAdminId = UUID.randomUUID();
         principal = new AuthenticatedUser(authAdminId, "Admin", true);
         mockRequest = mock(CreateLevelRequest.class);
         mockInput = mock(CreateLevelInput.class);
@@ -62,7 +61,7 @@ class CreateLevelControllerTest {
         try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> CreateLevelMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> CreateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
@@ -79,7 +78,7 @@ class CreateLevelControllerTest {
     void shouldPropagateUseCaseExceptions() {
         try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class)) {
 
-            mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> CreateLevelMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or invalid payload logic"));
 
             assertThrows(SecurityException.class, () -> controller.handle(principal, mockRequest));
@@ -91,7 +90,7 @@ class CreateLevelControllerTest {
     void shouldPropagateInputMapperExceptions() {
         try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class)) {
 
-            mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest))
+            mapperMock.when(() -> CreateLevelMapper.toInput(principal, mockRequest))
                     .thenThrow(new IllegalArgumentException("Failed to convert metadata parameters into creation models"));
 
             assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, mockRequest));
@@ -104,7 +103,7 @@ class CreateLevelControllerTest {
     void shouldPropagateResponseMapperExceptions() {
         try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class)) {
 
-            mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> CreateLevelMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> CreateLevelMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted level tracking data model representation maps"));

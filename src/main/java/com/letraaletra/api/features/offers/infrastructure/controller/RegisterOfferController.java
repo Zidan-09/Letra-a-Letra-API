@@ -35,7 +35,7 @@ public class RegisterOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterOfferRequest request
     ) {
-        RegisterOfferInput input = RegisterOfferMapper.toInput(principal.auth(), request);
+        RegisterOfferInput input = RegisterOfferMapper.toInput(principal, request);
 
         RegisterOfferOutput output = useCase.execute(input);
 

@@ -34,7 +34,7 @@ public class GetGamesController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetGamesInput input = GetGamesMapper.toInput(principal.auth(), pageable);
+        GetGamesInput input = GetGamesMapper.toInput(principal, pageable);
 
         GetGamesOutput output = useCase.execute(input);
 

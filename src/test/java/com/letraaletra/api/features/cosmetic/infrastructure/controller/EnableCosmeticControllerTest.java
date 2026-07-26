@@ -33,7 +33,6 @@ class EnableCosmeticControllerTest {
     @InjectMocks
     private EnableCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private String mockCosmeticId;
     private EnableCosmeticInput mockInput;
@@ -43,7 +42,7 @@ class EnableCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
 
@@ -59,7 +58,7 @@ class EnableCosmeticControllerTest {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> EnableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> EnableCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> EnableCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
@@ -82,7 +81,7 @@ class EnableCosmeticControllerTest {
     void handle_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class)) {
 
-            mapperMock.when(() -> EnableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> EnableCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Cosmetic already enabled or business violation"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockCosmeticId));
@@ -97,7 +96,7 @@ class EnableCosmeticControllerTest {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> EnableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> EnableCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> EnableCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 

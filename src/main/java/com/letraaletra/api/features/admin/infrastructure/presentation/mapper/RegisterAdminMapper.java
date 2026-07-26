@@ -4,13 +4,12 @@ import com.letraaletra.api.features.admin.application.input.RegisterAdminInput;
 import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.RegisterAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.RegisterAdminResponse;
-
-import java.util.UUID;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public class RegisterAdminMapper {
-    public static RegisterAdminInput toInput(UUID auth, RegisterAdminRequest request) {
+    public static RegisterAdminInput toInput(AuthenticatedUser principal, RegisterAdminRequest request) {
         return new RegisterAdminInput(
-                auth,
+                principal,
                 request.name(),
                 request.email(),
                 request.password()

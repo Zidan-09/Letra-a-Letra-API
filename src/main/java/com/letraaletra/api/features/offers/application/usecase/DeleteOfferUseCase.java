@@ -22,7 +22,7 @@ public class DeleteOfferUseCase implements UseCase<DeleteOfferInput, DeleteOffer
 
     @Override
     public DeleteOfferOutput execute(DeleteOfferInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

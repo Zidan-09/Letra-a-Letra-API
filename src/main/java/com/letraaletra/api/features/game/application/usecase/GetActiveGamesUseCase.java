@@ -25,7 +25,7 @@ public class GetActiveGamesUseCase implements UseCase<GetActiveGamesInput, GetAc
 
     @Override
     public GetActiveGamesOutput execute(GetActiveGamesInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Page<GameHistory> games = gameQueryService
                 .getAllActiveGames(input)

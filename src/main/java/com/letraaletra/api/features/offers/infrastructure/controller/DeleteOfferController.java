@@ -35,7 +35,7 @@ public class DeleteOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        DeleteOfferInput input = DeleteOfferMapper.toInput(principal.auth(), offerId);
+        DeleteOfferInput input = DeleteOfferMapper.toInput(principal, offerId);
 
         DeleteOfferOutput output = useCase.execute(input);
 

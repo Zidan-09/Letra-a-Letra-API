@@ -34,7 +34,7 @@ public class EnableCosmeticController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        EnableCosmeticInput input = EnableCosmeticMapper.toInput(principal.auth(), cosmeticId);
+        EnableCosmeticInput input = EnableCosmeticMapper.toInput(principal, cosmeticId);
 
         EnableCosmeticOutput output = useCase.execute(input);
 

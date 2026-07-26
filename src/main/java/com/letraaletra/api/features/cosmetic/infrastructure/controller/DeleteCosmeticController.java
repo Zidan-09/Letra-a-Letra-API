@@ -34,7 +34,7 @@ public class DeleteCosmeticController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        DeleteCosmeticInput input = DeleteCosmeticMapper.toInput(principal.auth(), cosmeticId);
+        DeleteCosmeticInput input = DeleteCosmeticMapper.toInput(principal, cosmeticId);
 
         DeleteCosmeticOutput output = useCase.execute(input);
 

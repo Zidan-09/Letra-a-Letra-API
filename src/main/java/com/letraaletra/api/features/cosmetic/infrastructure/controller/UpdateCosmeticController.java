@@ -34,7 +34,7 @@ public class UpdateCosmeticController {
             @Valid @RequestBody UpdateCosmeticRequest request,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(principal.auth(), request, cosmeticId);
+        UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(principal, request, cosmeticId);
 
         UpdateCosmeticOutput output = useCase.execute(input);
 

@@ -37,7 +37,7 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
 
     @Override
     public UpdateLevelOutput execute(UpdateLevelInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Level level = levelRepository.find(input.levelId())
                 .orElseThrow(LevelNotFoundException::new);

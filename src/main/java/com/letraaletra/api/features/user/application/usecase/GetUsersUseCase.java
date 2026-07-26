@@ -23,7 +23,7 @@ public class GetUsersUseCase implements UseCase<GetUsersInput, GetUsersOutput> {
 
     @Override
     public GetUsersOutput execute(GetUsersInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Page<User> users = userRepository.get(
                 new UsersPage(input.page(), input.size(), input.sort())

@@ -22,7 +22,7 @@ public class DisableOfferUseCase implements UseCase<DisableOfferInput, DisableOf
 
     @Override
     public DisableOfferOutput execute(DisableOfferInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

@@ -35,7 +35,7 @@ public class RegisterAdminController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterAdminRequest request
     ) {
-        RegisterAdminInput input = RegisterAdminMapper.toInput(principal.auth(), request);
+        RegisterAdminInput input = RegisterAdminMapper.toInput(principal, request);
 
         RegisterAdminOutput output = useCase.execute(input);
 

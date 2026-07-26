@@ -34,7 +34,6 @@ class UpdateCosmeticControllerTest {
     @InjectMocks
     private UpdateCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private String mockCosmeticId;
     private UpdateCosmeticRequest mockRequest;
@@ -45,7 +44,7 @@ class UpdateCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
         mockRequest = mock(UpdateCosmeticRequest.class);
@@ -61,7 +60,7 @@ class UpdateCosmeticControllerTest {
         try (MockedStatic<UpdateCosmeticMapper> mapperMock = mockStatic(UpdateCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> UpdateCosmeticMapper.toInput(mockAuthId, mockRequest, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateCosmeticMapper.toInput(principal, mockRequest, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
@@ -84,7 +83,7 @@ class UpdateCosmeticControllerTest {
     void handle_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<UpdateCosmeticMapper> mapperMock = mockStatic(UpdateCosmeticMapper.class)) {
 
-            mapperMock.when(() -> UpdateCosmeticMapper.toInput(mockAuthId, mockRequest, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateCosmeticMapper.toInput(principal, mockRequest, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Cosmetic conflict, invalid storage or missing permissions"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest, mockCosmeticId));
@@ -99,7 +98,7 @@ class UpdateCosmeticControllerTest {
         try (MockedStatic<UpdateCosmeticMapper> mapperMock = mockStatic(UpdateCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> UpdateCosmeticMapper.toInput(mockAuthId, mockRequest, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateCosmeticMapper.toInput(principal, mockRequest, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 

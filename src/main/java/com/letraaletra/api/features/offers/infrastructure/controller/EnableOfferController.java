@@ -35,7 +35,7 @@ public class EnableOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        EnableOfferInput input = EnableOfferMapper.toInput(principal.auth(), offerId);
+        EnableOfferInput input = EnableOfferMapper.toInput(principal, offerId);
 
         EnableOfferOutput output = useCase.execute(input);
 

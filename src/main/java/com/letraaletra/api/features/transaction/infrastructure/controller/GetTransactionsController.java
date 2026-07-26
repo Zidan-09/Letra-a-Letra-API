@@ -34,7 +34,7 @@ public class GetTransactionsController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetTransactionsInput input = GetTransactionsMapper.toInput(principal.auth(), pageable);
+        GetTransactionsInput input = GetTransactionsMapper.toInput(principal, pageable);
 
         GetTransactionsOutput output = useCase.execute(input);
 

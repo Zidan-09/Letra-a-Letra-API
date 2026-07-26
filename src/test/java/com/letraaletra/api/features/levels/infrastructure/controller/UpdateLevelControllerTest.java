@@ -35,7 +35,6 @@ class UpdateLevelControllerTest {
     @InjectMocks
     private UpdateLevelController controller;
 
-    private UUID authAdminId;
     private AuthenticatedUser principal;
     private UUID levelId;
     private UpdateLevelRequest mockRequest;
@@ -46,7 +45,7 @@ class UpdateLevelControllerTest {
 
     @BeforeEach
     void setUp() {
-        authAdminId = UUID.randomUUID();
+        UUID authAdminId = UUID.randomUUID();
         principal = new AuthenticatedUser(authAdminId, "Admin", true);
         levelId = UUID.randomUUID();
         mockRequest = mock(UpdateLevelRequest.class);
@@ -64,7 +63,7 @@ class UpdateLevelControllerTest {
         try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateLevelMapper.toInput(principal, levelId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
@@ -81,7 +80,7 @@ class UpdateLevelControllerTest {
     void shouldPropagateUseCaseExceptions() {
         try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class)) {
 
-            mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateLevelMapper.toInput(principal, levelId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new SecurityException("Unauthorized credentials profile or processing violation"));
 
             assertThrows(SecurityException.class, () -> controller.handle(principal, levelId, mockRequest));
@@ -93,7 +92,7 @@ class UpdateLevelControllerTest {
     void shouldPropagateInputMapperExceptions() {
         try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class)) {
 
-            mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest))
+            mapperMock.when(() -> UpdateLevelMapper.toInput(principal, levelId, mockRequest))
                     .thenThrow(new IllegalArgumentException("Failed to convert payload attributes into updating structural criteria models"));
 
             assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, levelId, mockRequest));
@@ -106,7 +105,7 @@ class UpdateLevelControllerTest {
     void shouldPropagateResponseMapperExceptions() {
         try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class)) {
 
-            mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> UpdateLevelMapper.toInput(principal, levelId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateLevelMapper.toResponse(mockOutput))
                     .thenThrow(new IllegalStateException("Corrupted presentation data layout mappings or missing target definitions"));

@@ -26,7 +26,7 @@ public class DeleteCosmeticUseCase implements UseCase<DeleteCosmeticInput, Delet
 
     @Override
     public DeleteCosmeticOutput execute(DeleteCosmeticInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         Cosmetic cosmetic = cosmeticRepository.find(input.cosmeticId())
                 .orElseThrow(CosmeticNotFoundException::new);

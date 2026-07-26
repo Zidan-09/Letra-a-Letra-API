@@ -34,7 +34,7 @@ public class DisableCosmeticController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String cosmeticId
     ) {
-        DisableCosmeticInput input = DisableCosmeticMapper.toInput(principal.auth(), cosmeticId);
+        DisableCosmeticInput input = DisableCosmeticMapper.toInput(principal, cosmeticId);
 
         DisableCosmeticOutput output = useCase.execute(input);
 

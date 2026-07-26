@@ -33,7 +33,6 @@ class DeleteCosmeticControllerTest {
     @InjectMocks
     private DeleteCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private String mockCosmeticId;
     private DeleteCosmeticInput mockInput;
@@ -43,7 +42,7 @@ class DeleteCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockCosmeticId = UUID.randomUUID().toString();
 
@@ -59,7 +58,7 @@ class DeleteCosmeticControllerTest {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
@@ -82,7 +81,7 @@ class DeleteCosmeticControllerTest {
     void handle_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Internal error or business restriction"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockCosmeticId));
@@ -111,7 +110,7 @@ class DeleteCosmeticControllerTest {
         try (MockedStatic<DeleteCosmeticMapper> mapperMock = mockStatic(DeleteCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> DeleteCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
+            mapperMock.when(() -> DeleteCosmeticMapper.toInput(principal, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 

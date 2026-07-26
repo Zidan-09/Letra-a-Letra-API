@@ -35,7 +35,7 @@ public class DisableOfferController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID offerId
     ) {
-        DisableOfferInput input = DisableOfferMapper.toInput(principal.auth(), offerId);
+        DisableOfferInput input = DisableOfferMapper.toInput(principal, offerId);
 
         DisableOfferOutput output = useCase.execute(input);
 

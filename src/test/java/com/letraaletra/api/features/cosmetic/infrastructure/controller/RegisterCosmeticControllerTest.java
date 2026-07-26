@@ -34,7 +34,6 @@ class RegisterCosmeticControllerTest {
     @InjectMocks
     private RegisterCosmeticController controller;
 
-    private UUID mockAuthId;
     private AuthenticatedUser principal;
     private RegisterCosmeticRequest mockRequest;
     private RegisterCosmeticInput mockInput;
@@ -44,7 +43,7 @@ class RegisterCosmeticControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockAuthId = UUID.randomUUID();
+        UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
         mockRequest = mock(RegisterCosmeticRequest.class);
         mockInput = mock(RegisterCosmeticInput.class);
@@ -59,7 +58,7 @@ class RegisterCosmeticControllerTest {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> RegisterCosmeticMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
 
@@ -82,7 +81,7 @@ class RegisterCosmeticControllerTest {
     void registerCosmetic_ShouldPropagateException_WhenUseCaseThrowsException() {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenThrow(new RuntimeException("Validation, conversion or storage error"));
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
@@ -111,7 +110,7 @@ class RegisterCosmeticControllerTest {
         try (MockedStatic<RegisterCosmeticMapper> mapperMock = mockStatic(RegisterCosmeticMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> RegisterCosmeticMapper.toInput(mockAuthId, mockRequest)).thenReturn(mockInput);
+            mapperMock.when(() -> RegisterCosmeticMapper.toInput(principal, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> RegisterCosmeticMapper.toResponse(mockOutput)).thenReturn(null);
 

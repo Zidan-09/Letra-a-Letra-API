@@ -35,7 +35,7 @@ public class UpdateLevelController {
             @PathVariable UUID levelId,
             @Valid @RequestBody UpdateLevelRequest request
     ) {
-        UpdateLevelInput input = UpdateLevelMapper.toInput(principal.auth(), levelId, request);
+        UpdateLevelInput input = UpdateLevelMapper.toInput(principal, levelId, request);
 
         UpdateLevelOutput output = useCase.execute(input);
 

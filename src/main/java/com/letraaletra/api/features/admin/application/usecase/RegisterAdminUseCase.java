@@ -26,7 +26,7 @@ public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, Registe
 
     @Override
     public RegisterAdminOutput execute(RegisterAdminInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         validateEmail(input.email());
 

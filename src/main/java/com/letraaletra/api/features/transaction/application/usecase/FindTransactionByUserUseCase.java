@@ -23,7 +23,7 @@ public class FindTransactionByUserUseCase implements UseCase<FindTransactionsByU
 
     @Override
     public FindTransactionsByUserOutput execute(FindTransactionsByUserInput input) {
-        adminChecker.check(input.auth());
+        adminChecker.check(input.principal());
 
         List<Transaction> transactions = transactionRepository.getByUserId(input.userId());
 

@@ -10,6 +10,7 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ class UpdateCosmeticUseCaseTest {
     @InjectMocks
     private UpdateCosmeticUseCase useCase;
 
-    private UUID adminId;
+    private AuthenticatedUser principal;
     private UUID cosmeticId;
     private Cosmetic cosmetic;
 
@@ -55,7 +56,7 @@ class UpdateCosmeticUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        adminId = UUID.randomUUID();
+        principal = mock(AuthenticatedUser.class);
         cosmeticId = UUID.randomUUID();
 
         cosmetic = mock(Cosmetic.class);
@@ -72,7 +73,7 @@ class UpdateCosmeticUseCaseTest {
         String movedAssetPath = "cosmetics/aura/new_flame.webp";
 
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(newName);
         when(input.type()).thenReturn(newType);
@@ -87,7 +88,7 @@ class UpdateCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, storageGateway, cosmetic);
-        inOrder.verify(adminChecker).check(adminId);
+        inOrder.verify(adminChecker).check(principal);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(storageGateway).copy(oldAssetPath, newName, newType);
         inOrder.verify(cosmetic).setAssetPath(movedAssetPath);
@@ -108,7 +109,7 @@ class UpdateCosmeticUseCaseTest {
 
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
 
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(newName);
         when(input.type()).thenReturn(newType);
@@ -135,7 +136,7 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve apenas atualizar os dados sem interagir com o storage se nada mudou e não houver novo asset")
     void execute_ShouldNotTouchStorage_WhenNoChangesAndNoNewAsset() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(oldName);
         when(input.type()).thenReturn(oldType);
@@ -156,8 +157,8 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve lançar UserIsNotAdminException e interromper fluxo se o usuário não for administrador")
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(adminId);
+        when(input.principal()).thenReturn(principal);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -170,7 +171,7 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve lançar CosmeticNotFoundException se o cosmético editado não existir")
     void execute_ShouldThrowCosmeticNotFoundException_WhenCosmeticDoesNotExist() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.empty());
@@ -185,7 +186,7 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve propagar erro estruturado se a conversão do novo asset falhar")
     void execute_ShouldPropagateException_WhenImageConversionFails() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.isNewAsset()).thenReturn(true);
         when(input.asset()).thenReturn(mock(MultipartFile.class));
@@ -205,7 +206,7 @@ class UpdateCosmeticUseCaseTest {
         String collidingName = "Existing Cosmetic Name";
 
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(collidingName);
         when(input.type()).thenReturn(oldType);
@@ -234,7 +235,7 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve tratar falhas de IO no Storage e evitar inconsistência de dados no banco")
     void execute_ShouldPropagateException_WhenStorageMoveFails() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn("New Name");
         when(input.type()).thenReturn(oldType);
@@ -253,7 +254,7 @@ class UpdateCosmeticUseCaseTest {
     @DisplayName("Deve disparar compensação/deleção preventiva do novo asset se o save no banco falhar (Comportamento Desejado/Ausente - Consistência)")
     void execute_ShouldDeleteUploadedAsset_WhenDatabaseSaveFailsAfterNewUpload() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
-        when(input.auth()).thenReturn(adminId);
+        when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(oldName);
         when(input.type()).thenReturn(oldType);

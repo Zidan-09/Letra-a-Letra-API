@@ -34,7 +34,7 @@ public class GetUsersController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
-        GetUsersInput input = GetUsersMapper.toInput(principal.auth(), pageable);
+        GetUsersInput input = GetUsersMapper.toInput(principal, pageable);
 
         GetUsersOutput output = useCase.execute(input);
 

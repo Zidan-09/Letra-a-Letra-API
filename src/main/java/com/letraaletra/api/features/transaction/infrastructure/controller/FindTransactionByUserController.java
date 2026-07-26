@@ -35,7 +35,7 @@ public class FindTransactionByUserController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID userId
     ) {
-        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal.auth(), userId);
+        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal, userId);
 
         FindTransactionsByUserOutput output = useCase.execute(input);
 
