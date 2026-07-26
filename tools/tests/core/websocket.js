@@ -12,17 +12,12 @@ export function connect(user, events) {
         ws.on("message", data => {
             const message = JSON.parse(data);
 
-            const duplicated = events.some(event =>
-                event.event === message.event &&
-                JSON.stringify(event.data) === JSON.stringify(message.data)
-            );
+            console.log(user.nickname, message);
 
-            if (!duplicated) {
-                events.push({
-                    ...message,
-                    user: user.nickname
-                });
-            }
+            events.push({
+                ...message,
+                user: user.nickname
+            });
         });
     });
 }
