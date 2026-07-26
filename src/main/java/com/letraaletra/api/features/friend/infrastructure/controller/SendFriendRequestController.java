@@ -5,7 +5,7 @@ import com.letraaletra.api.features.friend.application.output.SendFriendRequestO
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.SendFriendRequestRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.SendFriendRequestResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.SendFriendRequestMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -41,6 +41,6 @@ public class SendFriendRequestController {
 
         SendFriendRequestResponse dto = SendFriendRequestMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

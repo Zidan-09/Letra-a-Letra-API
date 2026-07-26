@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.application.input.EnableCosmeticInp
 import com.letraaletra.api.features.cosmetic.application.output.EnableCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.EnableCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.EnableCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -57,7 +57,7 @@ class EnableCosmeticControllerTest {
     @DisplayName("Deve habilitar o cosmético com sucesso retornando 200 OK e a resposta envelope")
     void handle_ShouldReturnSuccessResponse_WhenValidParametersAreProvided() {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> EnableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -65,7 +65,7 @@ class EnableCosmeticControllerTest {
 
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.ok(successResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 
@@ -95,7 +95,7 @@ class EnableCosmeticControllerTest {
     @DisplayName("Deve garantir resiliência se a conversão do DTO de resposta retornar nula (Comportamento Desejado/Ausente)")
     void handle_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<EnableCosmeticMapper> mapperMock = mockStatic(EnableCosmeticMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> EnableCosmeticMapper.toInput(mockAuthId, mockCosmeticId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -104,7 +104,7 @@ class EnableCosmeticControllerTest {
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<EnableCosmeticResponse>> response = controller.handle(principal, mockCosmeticId);
 

@@ -3,7 +3,7 @@ package com.letraaletra.api.features.shop.infrastructure.controller;
 import com.letraaletra.api.features.shop.application.output.GetActiveOffersOutput;
 import com.letraaletra.api.features.shop.infrastructure.presentation.dto.response.GetActiveOffersResponse;
 import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.GetActiveOffersMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,11 +47,11 @@ class GetActiveOffersControllerTest {
     @DisplayName("Should successfully retrieve active store offers, execute use case with null input and return wrapped response data")
     void shouldSuccessfullyGetActiveOffers() {
         try (MockedStatic<GetActiveOffersMapper> mapperMock = mockStatic(GetActiveOffersMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             when(useCase.execute(null)).thenReturn(mockOutput);
             mapperMock.when(() -> GetActiveOffersMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<GetActiveOffersResponse>> response = controller.handle();
 
@@ -85,11 +85,11 @@ class GetActiveOffersControllerTest {
     @DisplayName("Should propagate exceptions raised by the global ApiResponseService package context execution wrapper")
     void shouldPropagateApiResponseServiceExceptions() {
         try (MockedStatic<GetActiveOffersMapper> mapperMock = mockStatic(GetActiveOffersMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             when(useCase.execute(null)).thenReturn(mockOutput);
             mapperMock.when(() -> GetActiveOffersMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto))
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto))
                     .thenThrow(new IllegalArgumentException("Invalid presentation serialization properties mapping"));
 
             assertThrows(IllegalArgumentException.class, () -> controller.handle());

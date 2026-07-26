@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInp
 import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.DeleteCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -40,6 +40,6 @@ public class DeleteCosmeticController {
 
         DeleteCosmeticResponse dto = DeleteCosmeticMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

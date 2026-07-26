@@ -4,7 +4,7 @@ import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendListResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -54,7 +54,7 @@ class GetFriendListControllerTest {
     @DisplayName("Deve retornar a lista de amigos com sucesso (200 OK) quando o usuário estiver autenticado")
     void getFriends_ShouldReturnFriendList_WhenUserIsAuthenticated() {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -62,7 +62,7 @@ class GetFriendListControllerTest {
 
             ResponseEntity<SuccessResponse<GetFriendListResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(principal);
 
@@ -106,7 +106,7 @@ class GetFriendListControllerTest {
     @DisplayName("Deve garantir comportamento estrutural correto se o Mapper de resposta retornar nulo (Comportamento Desejado/Ausente)")
     void getFriends_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<GetFriendListMapper> mapperMock = mockStatic(GetFriendListMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -115,7 +115,7 @@ class GetFriendListControllerTest {
             ResponseEntity<SuccessResponse<GetFriendListResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<GetFriendListResponse>> response = controller.handle(principal);
 

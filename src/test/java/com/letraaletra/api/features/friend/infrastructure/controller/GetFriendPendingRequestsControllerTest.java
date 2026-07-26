@@ -4,7 +4,7 @@ import com.letraaletra.api.features.friend.application.input.GetFriendPendingReq
 import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendPendingRequestsResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendPendingRequestsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -54,7 +54,7 @@ class GetFriendPendingRequestsControllerTest {
     @DisplayName("Deve retornar a lista de solicitações pendentes com sucesso (200 OK) quando o usuário estiver autenticado")
     void handle_ShouldReturnPendingRequests_WhenUserIsAuthenticated() {
         try (MockedStatic<GetFriendPendingRequestsMapper> mapperMock = mockStatic(GetFriendPendingRequestsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -62,7 +62,7 @@ class GetFriendPendingRequestsControllerTest {
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(principal);
 
@@ -106,7 +106,7 @@ class GetFriendPendingRequestsControllerTest {
     @DisplayName("Deve garantir comportamento estrutural correto se o Mapper de resposta retornar nulo (Comportamento Desejado/Ausente)")
     void handle_ShouldHandleGracefully_WhenMapperToResponseReturnsNull() {
         try (MockedStatic<GetFriendPendingRequestsMapper> mapperMock = mockStatic(GetFriendPendingRequestsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
@@ -115,7 +115,7 @@ class GetFriendPendingRequestsControllerTest {
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();
 
-            apiResponseMock.when(() -> ApiResponseService.success(null)).thenReturn(expectedResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(null)).thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> response = controller.handle(principal);
 

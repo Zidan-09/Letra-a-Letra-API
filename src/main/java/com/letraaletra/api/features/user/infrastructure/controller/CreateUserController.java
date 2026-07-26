@@ -2,7 +2,7 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -37,6 +37,6 @@ public class CreateUserController {
 
         CreateUserResponse dto = CreateUserMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, HttpStatus.CREATED);
+        return ApiResponseHandler.success(dto, HttpStatus.CREATED);
     }
 }

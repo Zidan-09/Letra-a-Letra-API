@@ -5,7 +5,7 @@ import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.UpdateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.UpdateLevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.UpdateLevelMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -62,12 +62,12 @@ class UpdateLevelControllerTest {
     @DisplayName("Should successfully handle modification path, map payloads, execute use case and return wrapped success response")
     void shouldUpdateLevelSuccessfully() {
         try (MockedStatic<UpdateLevelMapper> mapperMock = mockStatic(UpdateLevelMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> UpdateLevelMapper.toInput(authAdminId, levelId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<UpdateLevelResponse>> response = controller.handle(principal, levelId, mockRequest);
 

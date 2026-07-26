@@ -7,7 +7,7 @@ import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseExce
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.RegisterAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.RegisterAdminResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -39,7 +39,7 @@ class RegisterAdminControllerTest {
     private RegisterAdminController registerAdminController;
 
     private MockedStatic<RegisterAdminMapper> registerAdminMapperMockedStatic;
-    private MockedStatic<ApiResponseService> apiResponseServiceMockedStatic;
+    private MockedStatic<ApiResponseHandler> apiResponseServiceMockedStatic;
 
     private UUID requesterId;
     private AuthenticatedUser principal;
@@ -52,7 +52,7 @@ class RegisterAdminControllerTest {
     @BeforeEach
     void setUp() {
         registerAdminMapperMockedStatic = mockStatic(RegisterAdminMapper.class);
-        apiResponseServiceMockedStatic = mockStatic(ApiResponseService.class);
+        apiResponseServiceMockedStatic = mockStatic(ApiResponseHandler.class);
 
         requesterId = UUID.randomUUID();
         principal = new AuthenticatedUser(requesterId, "Admin", true);
@@ -79,7 +79,7 @@ class RegisterAdminControllerTest {
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toInput(requesterId, request)).thenReturn(input);
         when(useCase.execute(input)).thenReturn(output);
         registerAdminMapperMockedStatic.when(() -> RegisterAdminMapper.toResponse(output)).thenReturn(responseDto);
-        apiResponseServiceMockedStatic.when(() -> ApiResponseService.success(responseDto)).thenReturn(expectedResponseEntity);
+        apiResponseServiceMockedStatic.when(() -> ApiResponseHandler.success(responseDto)).thenReturn(expectedResponseEntity);
 
         ResponseEntity<SuccessResponse<RegisterAdminResponse>> result = registerAdminController.handle(principal, request);
 
@@ -90,7 +90,7 @@ class RegisterAdminControllerTest {
         verify(useCase, times(1)).execute(input);
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toInput(requesterId, request), times(1));
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toResponse(output), times(1));
-        apiResponseServiceMockedStatic.verify(() -> ApiResponseService.success(responseDto), times(1));
+        apiResponseServiceMockedStatic.verify(() -> ApiResponseHandler.success(responseDto), times(1));
     }
 
     @Test
@@ -104,7 +104,7 @@ class RegisterAdminControllerTest {
         verify(useCase, times(1)).execute(input);
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toInput(requesterId, request), times(1));
         registerAdminMapperMockedStatic.verify(() -> RegisterAdminMapper.toResponse(any()), never());
-        apiResponseServiceMockedStatic.verify(() -> ApiResponseService.success(any()), never());
+        apiResponseServiceMockedStatic.verify(() -> ApiResponseHandler.success(any()), never());
     }
 
     @Test

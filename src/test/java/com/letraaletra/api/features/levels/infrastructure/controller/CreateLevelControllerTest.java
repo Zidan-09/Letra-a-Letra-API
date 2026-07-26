@@ -5,7 +5,7 @@ import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.request.CreateLevelRequest;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.CreateLevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.CreateLevelMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -60,12 +60,12 @@ class CreateLevelControllerTest {
     @DisplayName("Should successfully handle request, map DTOs, execute use case and return a wrapped success response")
     void shouldCreateLevelSuccessfully() {
         try (MockedStatic<CreateLevelMapper> mapperMock = mockStatic(CreateLevelMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> CreateLevelMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> CreateLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<CreateLevelResponse>> response = controller.handle(principal, mockRequest);
 

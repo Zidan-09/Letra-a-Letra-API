@@ -5,7 +5,7 @@ import com.letraaletra.api.features.offers.application.output.RegisterOfferOutpu
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.request.RegisterOfferRequest;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.RegisterOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.RegisterOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -60,12 +60,12 @@ class RegisterOfferControllerTest {
     @DisplayName("Should successfully handle register path, map payloads, execute use case and return wrapped success response")
     void shouldRegisterOfferSuccessfully() {
         try (MockedStatic<RegisterOfferMapper> mapperMock = mockStatic(RegisterOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> RegisterOfferMapper.toInput(authAdminId, mockRequest)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> RegisterOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<RegisterOfferResponse>> response = controller.registerOffer(principal, mockRequest);
 

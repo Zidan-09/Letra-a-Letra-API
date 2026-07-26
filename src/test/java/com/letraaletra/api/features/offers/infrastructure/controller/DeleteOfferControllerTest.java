@@ -4,7 +4,7 @@ import com.letraaletra.api.features.offers.application.input.DeleteOfferInput;
 import com.letraaletra.api.features.offers.application.output.DeleteOfferOutput;
 import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.DeleteOfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.DeleteOfferMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -59,12 +59,12 @@ class DeleteOfferControllerTest {
     @DisplayName("Should successfully handle deletion path, map payloads, execute use case and return wrapped success response")
     void shouldDeleteOfferSuccessfully() {
         try (MockedStatic<DeleteOfferMapper> mapperMock = mockStatic(DeleteOfferMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> DeleteOfferMapper.toInput(authAdminId, offerId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> DeleteOfferMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<DeleteOfferResponse>> response = controller.handle(principal, offerId);
 

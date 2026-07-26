@@ -5,7 +5,7 @@ import com.letraaletra.api.features.transaction.application.input.FindTransactio
 import com.letraaletra.api.features.transaction.application.output.FindTransactionOutput;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.FindTransactionResponse;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.FindTransactionMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +37,6 @@ public class FindTransactionController {
 
         FindTransactionResponse dto = FindTransactionMapper.toResponse(output);
 
-        return ApiResponseService.success(dto);
+        return ApiResponseHandler.success(dto);
     }
 }

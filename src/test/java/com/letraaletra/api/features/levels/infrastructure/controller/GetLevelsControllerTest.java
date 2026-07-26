@@ -4,7 +4,7 @@ import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -65,12 +65,12 @@ class GetLevelsControllerTest {
     @DisplayName("Should successfully handle pagination parameters, execute query use case and return wrapped page contents")
     void shouldGetLevelsSuccessfully() {
         try (MockedStatic<GetLevelsMapper> mapperMock = mockStatic(GetLevelsMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> GetLevelsMapper.toInput(pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> GetLevelsMapper.toResponse(mockOutput)).thenReturn(responseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(responseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(responseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<PageResponse<Level>>> response = controller.handle(pageable);
 

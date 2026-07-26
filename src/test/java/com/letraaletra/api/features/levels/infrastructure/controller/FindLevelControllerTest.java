@@ -4,7 +4,7 @@ import com.letraaletra.api.features.levels.application.input.FindLevelInput;
 import com.letraaletra.api.features.levels.application.output.FindLevelOutput;
 import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.FindLevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.FindLevelMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,12 +54,12 @@ class FindLevelControllerTest {
     @DisplayName("Should successfully execute lookup, map the domain output and return a successful api response payload")
     void shouldFindLevelSuccessfully() {
         try (MockedStatic<FindLevelMapper> mapperMock = mockStatic(FindLevelMapper.class);
-             MockedStatic<ApiResponseService> apiResponseMock = mockStatic(ApiResponseService.class)) {
+             MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
             mapperMock.when(() -> FindLevelMapper.toInput(levelId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> FindLevelMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
-            apiResponseMock.when(() -> ApiResponseService.success(mockResponseDto)).thenReturn(mockResponseEntity);
+            apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<FindLevelResponse>> response = controller.handle(levelId);
 

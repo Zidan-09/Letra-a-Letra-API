@@ -5,7 +5,7 @@ import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmetic
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -38,6 +38,6 @@ public class RegisterCosmeticController {
 
         RegisterCosmeticResponse dto = RegisterCosmeticMapper.toResponse(output);
 
-       return ApiResponseService.success(dto);
+       return ApiResponseHandler.success(dto);
     }
 }
