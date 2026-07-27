@@ -4,7 +4,6 @@ import com.letraaletra.api.features.admin.application.port.AdminNotifier;
 import com.letraaletra.api.features.admin.application.port.AdminSessionRepository;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.WsAdminResponse;
 import com.letraaletra.api.shared.domain.exception.InvalidWebsocketResponseException;
-import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ public class AdminBroadcastService implements AdminNotifier {
 
     @Override
     public void updateConsole(Object dto) {
-        if (!(dto instanceof WsResponse)) throw new InvalidWebsocketResponseException();
+        if (!(dto instanceof WsAdminResponse)) throw new InvalidWebsocketResponseException();
 
         adminSessionRepository.get().forEach(session -> {
             if (!session.isOpen()) return;
@@ -45,7 +44,7 @@ public class AdminBroadcastService implements AdminNotifier {
 
     @Override
     public void updateMetrics(Object dto) {
-        if (!(dto instanceof WsResponse)) throw new InvalidWebsocketResponseException();
+        if (!(dto instanceof WsAdminResponse)) throw new InvalidWebsocketResponseException();
 
         adminSessionRepository.get().forEach(session -> {
             if (!session.isOpen()) return;
