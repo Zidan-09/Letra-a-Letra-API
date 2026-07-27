@@ -29,7 +29,7 @@ public class GetTransactionsController {
         this.useCase = useCase;
     }
 
-    @GetMapping(path = "/")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<PageResponse<Transaction>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
