@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.user.application.service;
 
 import com.letraaletra.api.features.levels.domain.Level;
-import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.domain.User;
@@ -39,10 +38,9 @@ public class UpdateStatsService {
         int afterLevel = user.getStats().getLevel();
 
         if (afterLevel > beforeLevel) {
-            Level level = levelRepository.findByLevel(afterLevel)
-                    .orElseThrow(LevelNotFoundException::new);
+            Optional<Level> level = levelRepository.findByLevel(afterLevel);
 
-            level.getRewards().forEach(levelReward -> {
+            level.ifPresent(l -> l.getRewards().forEach(levelReward -> {
                 Balance balanceBefore = user.getWallet().getBalance();
 
                 Optional<WalletMovement> movement = levelReward.reward().deliver(user);
@@ -56,10 +54,10 @@ public class UpdateStatsService {
                                 getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
                                 walletMovement.operation(),
                                 TransactionReason.LEVEL_UP,
-                                level.getLevelId()
+                                l.getLevelId()
                         )
                 ));
-            });
+            }));
         }
     }
 
