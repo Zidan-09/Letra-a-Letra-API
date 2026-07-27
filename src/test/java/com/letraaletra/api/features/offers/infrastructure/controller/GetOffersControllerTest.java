@@ -2,7 +2,7 @@ package com.letraaletra.api.features.offers.infrastructure.controller;
 
 import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
-import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.offer.OfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.GetOffersMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -38,8 +38,8 @@ class GetOffersControllerTest {
     private Pageable mockPageable;
     private GetOffersInput mockInput;
     private GetOffersOutput mockOutput;
-    private PageResponse<Offer> mockResponseDto;
-    private ResponseEntity<SuccessResponse<PageResponse<Offer>>> mockResponseEntity;
+    private PageResponse<OfferResponse> mockResponseDto;
+    private ResponseEntity<SuccessResponse<PageResponse<OfferResponse>>> mockResponseEntity;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class GetOffersControllerTest {
                 true
         );
 
-        SuccessResponse<PageResponse<Offer>> successResponse =
+        SuccessResponse<PageResponse<OfferResponse>> successResponse =
                 new SuccessResponse<>(true, mockResponseDto);
 
         mockResponseEntity =
@@ -83,7 +83,7 @@ class GetOffersControllerTest {
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto))
                     .thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<PageResponse<Offer>>> response =
+            ResponseEntity<SuccessResponse<PageResponse<OfferResponse>>> response =
                     controller.handle(mockPageable);
 
             assertEquals(mockResponseEntity, response);

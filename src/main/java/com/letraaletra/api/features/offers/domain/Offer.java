@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.offers.domain;
 
+import com.letraaletra.api.features.offers.domain.exception.InvalidOfferExpirationException;
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -10,9 +12,10 @@ public class Offer {
     private final UUID offerId;
     private final String title;
     private final CoinType coinType;
-    private final int price;
+    private final BigDecimal price;
     private final List<OfferReward> rewards;
     private boolean active;
+    private final boolean hasExpiration;
     private final LocalDateTime expiresAt;
     private final LocalDateTime createdAt;
 
@@ -20,9 +23,10 @@ public class Offer {
             UUID offerId,
             String title,
             CoinType coinType,
-            int price,
+            BigDecimal price,
             List<OfferReward> rewards,
             boolean active,
+            boolean hasExpiration,
             LocalDateTime expiresAt,
             LocalDateTime createdAt
     ) {
@@ -32,6 +36,7 @@ public class Offer {
         this.price = price;
         this.rewards = rewards;
         this.active = active;
+        this.hasExpiration = hasExpiration;
         this.expiresAt = expiresAt;
         this.createdAt = createdAt;
     }
@@ -39,11 +44,16 @@ public class Offer {
     public static Offer create(
             String title,
             CoinType coinType,
-            int price,
+            BigDecimal price,
             List<OfferReward> rewards,
             boolean active,
-            LocalDateTime expiresAt
+            boolean hasExpiration,
+            long expiresIn
     ) {
+        if (hasExpiration && expiresIn <= 0) {
+            throw new InvalidOfferExpirationException();
+        }
+
         return new Offer(
                 UUID.randomUUID(),
                 title,
@@ -51,8 +61,35 @@ public class Offer {
                 price,
                 rewards,
                 active,
-                expiresAt,
+                hasExpiration,
+                hasExpiration ?
+                        LocalDateTime.now().plusMinutes(expiresIn) :
+                        null,
                 LocalDateTime.now()
+        );
+    }
+
+    public static Offer restore(
+            UUID id,
+            String title,
+            CoinType coinType,
+            BigDecimal price,
+            List<OfferReward> rewards,
+            boolean active,
+            boolean hasExpiration,
+            LocalDateTime expiresAt,
+            LocalDateTime createdAt
+    ) {
+        return new Offer(
+                id,
+                title,
+                coinType,
+                price,
+                rewards,
+                active,
+                hasExpiration,
+                expiresAt,
+                createdAt
         );
     }
 
@@ -68,7 +105,7 @@ public class Offer {
         return coinType;
     }
 
-    public int getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -77,7 +114,11 @@ public class Offer {
     }
 
     public List<OfferReward> getRewards() {
-        return rewards;
+        return List.copyOf(rewards);
+    }
+
+    public boolean isHasExpiration() {
+        return hasExpiration;
     }
 
     public LocalDateTime getExpiresAt() {
@@ -97,7 +138,10 @@ public class Offer {
     }
 
     public void enable() {
-        if (active) {
+        if (
+                active ||
+                hasExpiration && LocalDateTime.now().isAfter(expiresAt)
+        ) {
             throw new InvalidOfferStatusException();
         }
 

@@ -25,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,7 +72,7 @@ class BuyOfferUseCaseTest {
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
 
-        lenient().when(mockOffer.getPrice()).thenReturn(100);
+        lenient().when(mockOffer.getPrice()).thenReturn(BigDecimal.valueOf(100));
         lenient().when(mockOffer.getRewards()).thenReturn(List.of(mockOfferReward));
 
         lenient().when(mockOfferReward.reward()).thenReturn(new SoftCoinsReward(100));
@@ -92,7 +93,7 @@ class BuyOfferUseCaseTest {
         assertNotNull(output);
         assertEquals(mockOffer, output.offer());
 
-        verify(mockWallet).pay(CoinType.SOFT, 100);
+        verify(mockWallet).pay(CoinType.SOFT, BigDecimal.valueOf(100));
         verify(userRepository).save(mockUser);
     }
 
@@ -142,7 +143,7 @@ class BuyOfferUseCaseTest {
 
         assertThrows(InvalidPaymentException.class, () -> useCase.execute(input));
 
-        verify(mockWallet, never()).pay(any(), anyInt());
+        verify(mockWallet, never()).pay(any(), any(BigDecimal.class));
         verify(userRepository, never()).save(any());
     }
 
@@ -155,7 +156,7 @@ class BuyOfferUseCaseTest {
         when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 
         doThrow(new InsufficientBalanceException())
-                .when(mockWallet).pay(CoinType.SOFT, 100);
+                .when(mockWallet).pay(CoinType.SOFT, BigDecimal.valueOf(100));
 
         assertThrows(InsufficientBalanceException.class, () -> useCase.execute(input));
 

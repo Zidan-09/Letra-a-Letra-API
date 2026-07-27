@@ -4,6 +4,8 @@ import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.user.domain.exception.InsufficientBalanceException;
 
+import java.math.BigDecimal;
+
 public class Wallet {
     private long softCoins;
     private long hardGems;
@@ -43,19 +45,19 @@ public class Wallet {
         hardGems -= value;
     }
 
-    public void pay(CoinType coinType, long amount) {
+    public void pay(CoinType coinType, BigDecimal amount) {
         switch (coinType) {
             case SOFT -> {
-                if (softCoins < amount) {
+                if (softCoins < amount.scale()) {
                     throw new InsufficientBalanceException();
                 }
-                removeSoft(amount);
+                removeSoft(amount.scale());
             }
             case HARD -> {
-                if (hardGems < amount) {
+                if (hardGems < amount.scale()) {
                     throw new InsufficientBalanceException();
                 }
-                removeHard(amount);
+                removeHard(amount.scale());
             }
             case null, default -> throw new InvalidPaymentException();
         }

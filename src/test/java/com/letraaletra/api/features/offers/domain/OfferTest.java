@@ -1,110 +1,166 @@
 package com.letraaletra.api.features.offers.domain;
 
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 class OfferTest {
 
-    private String title;
-    private CoinType coinType;
-    private int price;
-    private List<OfferReward> rewards;
-    private LocalDateTime expiresAt;
+    private static final String DEFAULT_TITLE = "Oferta de Pacote de Moedas";
+    private static final CoinType DEFAULT_COIN_TYPE = CoinType.REAL;
+    private static final BigDecimal DEFAULT_PRICE = BigDecimal.valueOf(2990);
 
-    @BeforeEach
-    void setUp() {
-        title = "Promoção de Boas-Vindas";
-        coinType = mock(CoinType.class);
-        price = 250;
-        rewards = List.of(mock(OfferReward.class));
-        expiresAt = LocalDateTime.now().plusDays(7);
+    @Nested
+    @DisplayName("Criação de Oferta (Método Factory 'create' e Construtor Direct)")
+    class CreationTests {
+
+        @Test
+        @DisplayName("Deve instanciar uma oferta via fábrica estática 'create' gerando UUID e data de criação válidos")
+        void shouldCreateOfferViaStaticFactory() {
+            LocalDateTime beforeCreation = LocalDateTime.now();
+            long minutesToExpire = 7;
+            OfferReward mockReward = mock(OfferReward.class);
+            List<OfferReward> rewards = List.of(mockReward);
+
+            Offer offer = Offer.create(
+                    DEFAULT_TITLE,
+                    DEFAULT_COIN_TYPE,
+                    DEFAULT_PRICE,
+                    rewards,
+                    true,
+                    true,
+                    minutesToExpire
+            );
+
+            LocalDateTime afterCreation = LocalDateTime.now();
+
+            assertThat(offer.getOfferId()).isNotNull();
+            assertThat(offer.getTitle()).isEqualTo(DEFAULT_TITLE);
+            assertThat(offer.getCoinType()).isEqualTo(DEFAULT_COIN_TYPE);
+            assertThat(offer.getPrice()).isEqualTo(DEFAULT_PRICE);
+            assertThat(offer.getRewards()).containsExactly(mockReward);
+            assertThat(offer.isActive()).isTrue();
+            assertThat(offer.isHasExpiration()).isTrue();
+            assertThat(offer.getCreatedAt()).isAfterOrEqualTo(beforeCreation).isBeforeOrEqualTo(afterExecutionDate(afterCreation));
+        }
+
+        @Test
+        @DisplayName("Deve instanciar uma oferta através do construtor completo com todos os valores explicitamente fornecidos")
+        void shouldInstantiateOfferViaFullConstructor() {
+            UUID customId = UUID.randomUUID();
+            LocalDateTime createdAt = LocalDateTime.now().minusDays(1);
+            LocalDateTime expiresAt = LocalDateTime.now().plusHours(12);
+
+            Offer offer = new Offer(
+                    customId,
+                    DEFAULT_TITLE,
+                    DEFAULT_COIN_TYPE,
+                    DEFAULT_PRICE,
+                    Collections.emptyList(),
+                    false,
+                    true,
+                    expiresAt,
+                    createdAt
+            );
+
+            assertThat(offer.getOfferId()).isEqualTo(customId);
+            assertThat(offer.getTitle()).isEqualTo(DEFAULT_TITLE);
+            assertThat(offer.getCoinType()).isEqualTo(DEFAULT_COIN_TYPE);
+            assertThat(offer.getPrice()).isEqualTo(DEFAULT_PRICE);
+            assertThat(offer.getRewards()).isEmpty();
+            assertThat(offer.isActive()).isFalse();
+            assertThat(offer.isHasExpiration()).isTrue();
+            assertThat(offer.getExpiresAt()).isEqualTo(expiresAt);
+            assertThat(offer.getCreatedAt()).isEqualTo(createdAt);
+        }
+
+        private LocalDateTime afterExecutionDate(LocalDateTime time) {
+            return time.plusSeconds(1);
+        }
     }
 
-    @Test
-    @DisplayName("Should successfully instantiate a new Offer domain instance using the static factory builder method")
-    void shouldCreateOfferSuccessfully() {
-        Offer offer = Offer.create(title, coinType, price, rewards, true, expiresAt);
+    @Nested
+    @DisplayName("Transição de Estado de Ativação/Desativação (disable e enable)")
+    class StateTransitionTests {
 
-        assertNotNull(offer.getOfferId());
-        assertEquals(title, offer.getTitle());
-        assertEquals(coinType, offer.getCoinType());
-        assertEquals(price, offer.getPrice());
-        assertEquals(rewards, offer.getRewards());
-        assertTrue(offer.isActive());
-        assertEquals(expiresAt, offer.getExpiresAt());
-        assertNotNull(offer.getCreatedAt());
-        assertTrue(offer.getCreatedAt().isBefore(LocalDateTime.now().plusSeconds(1)));
-    }
+        @Test
+        @DisplayName("Deve desativar uma oferta ativa com sucesso")
+        void shouldDisableActiveOfferSuccessfully() {
+            Offer offer = createOfferWithActiveStatus(true);
 
-    @Test
-    @DisplayName("Should successfully switch state and set active flag to false when an active offer is disabled")
-    void shouldDisableActiveOfferSuccessfully() {
-        Offer offer = Offer.create(title, coinType, price, rewards, true, expiresAt);
+            offer.disable();
 
-        offer.disable();
+            assertThat(offer.isActive()).isFalse();
+        }
 
-        assertFalse(offer.isActive());
-    }
+        @Test
+        @DisplayName("Deve lançar InvalidOfferStatusException ao tentar desativar uma oferta já inativa")
+        void shouldThrowExceptionWhenDisablingAlreadyInactiveOffer() {
+            Offer offer = createOfferWithActiveStatus(false);
 
-    @Test
-    @DisplayName("Should throw InvalidOfferStatusException when attempting to disable an offer that is already inactive")
-    void shouldThrowExceptionWhenDisablingAlreadyInactiveOffer() {
-        Offer offer = Offer.create(title, coinType, price, rewards, false, expiresAt);
+            assertThatThrownBy(offer::disable)
+                    .isInstanceOf(InvalidOfferStatusException.class);
 
-        assertThrows(InvalidOfferStatusException.class, offer::disable);
-    }
+            assertThat(offer.isActive()).isFalse();
+        }
 
-    @Test
-    @DisplayName("Should successfully switch state and set active flag to true when an inactive offer is enabled")
-    void shouldEnableInactiveOfferSuccessfully() {
-        Offer offer = Offer.create(title, coinType, price, rewards, false, expiresAt);
+        @Test
+        @DisplayName("Deve ativar uma oferta inativa com sucesso")
+        void shouldEnableInactiveOfferSuccessfully() {
+            Offer offer = createOfferWithActiveStatus(false);
 
-        offer.enable();
+            offer.enable();
 
-        assertTrue(offer.isActive());
-    }
+            assertThat(offer.isActive()).isTrue();
+        }
 
-    @Test
-    @DisplayName("Should throw InvalidOfferStatusException when attempting to enable an offer that is already active")
-    void shouldThrowExceptionWhenEnablingAlreadyActiveOffer() {
-        Offer offer = Offer.create(title, coinType, price, rewards, true, expiresAt);
+        @Test
+        @DisplayName("Deve lançar InvalidOfferStatusException ao tentar ativar uma oferta que já está ativa")
+        void shouldThrowExceptionWhenEnablingAlreadyActiveOffer() {
+            Offer offer = createOfferWithActiveStatus(true);
 
-        assertThrows(InvalidOfferStatusException.class, offer::enable);
-    }
+            assertThatThrownBy(offer::enable)
+                    .isInstanceOf(InvalidOfferStatusException.class);
 
-    @Test
-    @DisplayName("Should explicitly assert full constructor parameter mapping matches fields accurately")
-    void shouldMatchAllConstructorParametersFields() {
-        UUID uniqueId = UUID.randomUUID();
-        LocalDateTime testingCreationTimestamp = LocalDateTime.now().minusDays(1);
+            assertThat(offer.isActive()).isTrue();
+        }
 
-        Offer offer = new Offer(
-                uniqueId,
-                title,
-                coinType,
-                price,
-                rewards,
-                true,
-                expiresAt,
-                testingCreationTimestamp
-        );
+        @Test
+        @DisplayName("Deve permitir ciclos alternados válidos de habilitação e desabilitação")
+        void shouldAllowAlternatingStateTransitions() {
+            Offer offer = createOfferWithActiveStatus(true);
 
-        assertEquals(uniqueId, offer.getOfferId());
-        assertEquals(title, offer.getTitle());
-        assertEquals(coinType, offer.getCoinType());
-        assertEquals(price, offer.getPrice());
-        assertEquals(rewards, offer.getRewards());
-        assertTrue(offer.isActive());
-        assertEquals(expiresAt, offer.getExpiresAt());
-        assertEquals(testingCreationTimestamp, offer.getCreatedAt());
+            offer.disable();
+            assertThat(offer.isActive()).isFalse();
+
+            offer.enable();
+            assertThat(offer.isActive()).isTrue();
+
+            offer.disable();
+            assertThat(offer.isActive()).isFalse();
+        }
+
+        private Offer createOfferWithActiveStatus(boolean active) {
+            return Offer.create(
+                    DEFAULT_TITLE,
+                    DEFAULT_COIN_TYPE,
+                    DEFAULT_PRICE,
+                    Collections.emptyList(),
+                    active,
+                    false,
+                    0
+            );
+        }
     }
 }
