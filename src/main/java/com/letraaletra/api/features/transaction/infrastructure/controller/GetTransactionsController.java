@@ -2,7 +2,7 @@ package com.letraaletra.api.features.transaction.infrastructure.controller;
 
 import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
 import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
-import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.GetTransactionsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -30,7 +30,7 @@ public class GetTransactionsController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<PageResponse<Transaction>>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<TransactionResponse>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             Pageable pageable
     ) {
@@ -38,7 +38,7 @@ public class GetTransactionsController {
 
         GetTransactionsOutput output = useCase.execute(input);
 
-        PageResponse<Transaction> dto = GetTransactionsMapper.toResponse(output);
+        PageResponse<TransactionResponse> dto = GetTransactionsMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }
