@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.application.port;
+package com.letraaletra.api.features.game.domain.service;
 
 import com.letraaletra.api.features.game.domain.Game;
 

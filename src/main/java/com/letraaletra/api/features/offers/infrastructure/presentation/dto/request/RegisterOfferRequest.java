@@ -2,25 +2,29 @@ package com.letraaletra.api.features.offers.infrastructure.presentation.dto.requ
 
 import com.letraaletra.api.features.offers.domain.CoinType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record RegisterOfferRequest(
         @NotBlank
         String title,
 
-        @NotBlank
+        @NotNull
         CoinType coinType,
 
-        @NotNull
-        int price,
+        @Positive
+        BigDecimal price,
 
+        @NotEmpty
         @Valid
         List<RegisterOfferRewardRequest> rewards,
 
         @NotNull
+        boolean hasExpiration,
+
+        @PositiveOrZero
         long expiresIn
 ) {
 }

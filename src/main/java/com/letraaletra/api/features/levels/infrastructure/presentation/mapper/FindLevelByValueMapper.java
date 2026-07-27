@@ -13,7 +13,7 @@ public class FindLevelByValueMapper {
 
     public static FindLevelByValueResponse toResponse(FindLevelByValueOutput output) {
         return new FindLevelByValueResponse(
-                output.level()
+                LevelResponseMapper.toResponse(output.level())
         );
     }
 }

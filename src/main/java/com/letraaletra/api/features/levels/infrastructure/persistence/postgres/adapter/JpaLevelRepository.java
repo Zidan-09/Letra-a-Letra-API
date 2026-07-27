@@ -20,6 +20,7 @@ import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,7 @@ public class JpaLevelRepository implements LevelRepository {
         Pageable pageable = PageRequest.of(
                 page.page(),
                 page.size(),
-                page.sort()
+                page.sort().and(Sort.by("level"))
         );
 
         return repository.findAll(pageable)

@@ -42,8 +42,10 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
         Level level = levelRepository.find(input.levelId())
                 .orElseThrow(LevelNotFoundException::new);
 
-        if (levelRepository.existsByLevel(input.level()))
-            throw new LevelAlreadyExistsException();
+        Level levelToCheck = levelRepository.findByLevel(input.level())
+                .orElse(null);
+
+        checkLevel(levelToCheck, input.levelId());
 
         level.setLevel(input.level());
         level.setRewards(buildRewards(input.rewards()));
@@ -83,5 +85,10 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
                 );
             }
         };
+    }
+
+    private void checkLevel(Level level, UUID levelId) {
+        if (level != null && !level.getLevelId().equals(levelId))
+            throw new LevelAlreadyExistsException();
     }
 }

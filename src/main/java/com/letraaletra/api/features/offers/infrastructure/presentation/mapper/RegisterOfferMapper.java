@@ -18,13 +18,14 @@ public class RegisterOfferMapper {
                 request.rewards().stream()
                         .map(RegisterOfferMapper::toRewardInput)
                         .toList(),
+                request.hasExpiration(),
                 request.expiresIn()
         );
     }
 
     public static RegisterOfferResponse toResponse(RegisterOfferOutput output) {
         return new RegisterOfferResponse(
-                output.offer()
+                OfferResponseMapper.toResponse(output.offer())
         );
     }
 

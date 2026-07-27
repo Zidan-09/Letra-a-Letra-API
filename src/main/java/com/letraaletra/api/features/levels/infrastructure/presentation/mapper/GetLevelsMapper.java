@@ -3,6 +3,7 @@ package com.letraaletra.api.features.levels.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
 import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.level.LevelResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,11 +23,13 @@ public class GetLevelsMapper {
         );
     }
 
-    public static PageResponse<Level> toResponse(GetLevelsOutput output) {
+    public static PageResponse<LevelResponse> toResponse(GetLevelsOutput output) {
         Page<Level> page = output.levels();
 
         return new PageResponse<>(
-                page.getContent(),
+                page.getContent().stream()
+                        .map(LevelResponseMapper::toResponse)
+                        .toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),

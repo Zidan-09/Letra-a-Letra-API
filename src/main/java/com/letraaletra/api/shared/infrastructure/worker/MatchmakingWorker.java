@@ -1,6 +1,6 @@
 package com.letraaletra.api.shared.infrastructure.worker;
 
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;

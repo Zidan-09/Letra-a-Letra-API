@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.application.usecase;
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.RoomSettings;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;

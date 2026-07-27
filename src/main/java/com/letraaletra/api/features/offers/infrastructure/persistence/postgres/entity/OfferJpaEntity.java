@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,10 +26,13 @@ public class OfferJpaEntity {
     private CoinType coinType;
 
     @Column(name = "price")
-    private int price;
+    private BigDecimal price;
 
     @Column(name = "active")
     private boolean active;
+
+    @Column(name = "has_expiration")
+    private boolean hasExpiration;
 
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;

@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.levels.infrastructure.presentation.dto.response;
 
-import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.level.LevelResponse;
 
 public record UpdateLevelResponse(
-        Level level
+        LevelResponse level
 ) {
 }

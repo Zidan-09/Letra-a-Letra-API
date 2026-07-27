@@ -7,6 +7,7 @@ import com.letraaletra.api.features.levels.application.input.CreateLevelRewardIn
 import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.RewardType;
@@ -65,8 +66,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(principal);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.findByLevel(input.level()))
+                .thenReturn(Optional.empty());
 
         UpdateLevelOutput output = useCase.execute(input);
 
@@ -91,8 +92,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(principal);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.findByLevel(input.level()))
+                .thenReturn(Optional.empty());
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
 
         UpdateLevelOutput output = useCase.execute(input);
@@ -109,8 +110,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(principal);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.findByLevel(input.level()))
+                .thenReturn(Optional.empty());
 
         UpdateLevelOutput output = useCase.execute(input);
 
@@ -155,8 +156,8 @@ class UpdateLevelUseCaseTest {
 
         doNothing().when(adminChecker).check(principal);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.findByLevel(input.level()))
+                .thenReturn(Optional.empty());
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
@@ -172,5 +173,37 @@ class UpdateLevelUseCaseTest {
         verifyNoInteractions(adminChecker);
         verifyNoInteractions(levelRepository);
         verifyNoInteractions(cosmeticRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw LevelAlreadyExistsException when another level already has the requested level number")
+    void shouldThrowLevelAlreadyExistsException() {
+        UpdateLevelInput input = new UpdateLevelInput(
+                principal,
+                levelId,
+                newTargetLevel,
+                Collections.emptyList()
+        );
+
+        UUID anotherLevelId = UUID.randomUUID();
+
+        Level currentLevel = mock(Level.class);
+        Level existingLevel = mock(Level.class);
+
+        doNothing().when(adminChecker).check(principal);
+
+        when(levelRepository.find(levelId))
+                .thenReturn(Optional.of(currentLevel));
+
+        when(levelRepository.findByLevel(newTargetLevel))
+                .thenReturn(Optional.of(existingLevel));
+
+        when(existingLevel.getLevelId())
+                .thenReturn(anotherLevelId);
+
+        assertThrows(LevelAlreadyExistsException.class,
+                () -> useCase.execute(input));
+
+        verify(levelRepository, never()).save(any());
     }
 }

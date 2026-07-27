@@ -21,7 +21,7 @@ public class CreateLevelMapper {
 
     public static CreateLevelResponse toResponse(CreateLevelOutput output) {
         return new CreateLevelResponse(
-                output.level()
+                LevelResponseMapper.toResponse(output.level())
         );
     }
 

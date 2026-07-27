@@ -3,6 +3,7 @@ package com.letraaletra.api.features.transaction.infrastructure.presentation.map
 import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
 import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
 import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -24,11 +25,13 @@ public class GetTransactionsMapper {
         );
     }
 
-    public static PageResponse<Transaction> toResponse(GetTransactionsOutput output) {
+    public static PageResponse<TransactionResponse> toResponse(GetTransactionsOutput output) {
         Page<Transaction> page = output.transactions();
 
         return new PageResponse<>(
-                page.getContent(),
+                page.getContent().stream()
+                        .map(TransactionResponseMapper::toResponse)
+                        .toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),

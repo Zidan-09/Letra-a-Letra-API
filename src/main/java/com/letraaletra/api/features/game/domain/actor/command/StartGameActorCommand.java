@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
 import com.letraaletra.api.features.game.domain.exception.InsufficientPlayersException;

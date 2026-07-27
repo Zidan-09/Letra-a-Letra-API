@@ -10,13 +10,14 @@ public class OfferMapper {
     public static Offer toDomain(OfferJpaEntity entity, List<OfferReward> rewards) {
         if (entity == null) return null;
 
-        return new Offer(
+        return Offer.restore(
                 entity.getId(),
                 entity.getTitle(),
                 entity.getCoinType(),
                 entity.getPrice(),
                 rewards,
                 entity.isActive(),
+                entity.isHasExpiration(),
                 entity.getExpiresAt(),
                 entity.getCreatedAt()
         );
@@ -32,6 +33,7 @@ public class OfferMapper {
         entity.setCoinType(domain.getCoinType());
         entity.setPrice(domain.getPrice());
         entity.setActive(domain.isActive());
+        entity.setHasExpiration(domain.isHasExpiration());
         entity.setExpiresAt(domain.getExpiresAt());
         entity.setCreatedAt(domain.getCreatedAt());
 
