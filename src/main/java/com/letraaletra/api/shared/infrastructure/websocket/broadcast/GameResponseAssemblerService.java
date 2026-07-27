@@ -16,6 +16,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
+import org.springframework.web.socket.WebSocketSession;
 
 public class GameResponseAssemblerService implements GameResponseAssembler {
     private final UserRepository userRepository;
@@ -40,17 +41,17 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
         User loser = userRepository.find(gameOver.loser().getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
-        String winnerSessionId = sessionRepository.findByUserId(winner.getId()).getId();
-        String loserSessionId = sessionRepository.findByUserId(loser.getId()).getId();
+        WebSocketSession winnerSession = sessionRepository.findByUserId(winner.getId());
+        WebSocketSession loserSession = sessionRepository.findByUserId(loser.getId());
 
         Participant winnerParticipant = Participant.create(
                 winner,
-                winnerSessionId != null ? winnerSessionId : ""
+                winnerSession != null ? winnerSession.getId() : ""
         );
 
         Participant loserParticipant = Participant.create(
                 loser,
-                loserSessionId != null ? loserSessionId : ""
+                loserSession != null ? loserSession.getId() : ""
         );
 
         if (game.getGameType().equals(GameType.RANKING)) {

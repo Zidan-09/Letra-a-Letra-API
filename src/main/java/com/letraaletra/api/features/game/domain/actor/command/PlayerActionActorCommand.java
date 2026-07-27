@@ -40,7 +40,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
     @Override
     public PlayerActionResult execute(Game game) {
-        if (!(game.getGameStatus().equals(GameStatus.RUNNING))) {
+        if (!(game.getGameStatus().equals(GameStatus.RUNNING)) || game.getGameState() == null) {
             throw new GameNotRunningException();
         }
 

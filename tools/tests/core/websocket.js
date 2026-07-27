@@ -15,8 +15,6 @@ export function connect(user, events) {
                 user: user.nickname
             };
 
-            console.log(message);
-
             events.push(eventObj);
 
             if (events._listeners) {
