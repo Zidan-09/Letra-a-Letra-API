@@ -14,8 +14,8 @@ import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +35,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
     }
 
     @Override
+    @Transactional
     public RegisterOfferOutput execute(RegisterOfferInput input) {
         adminChecker.check(input.principal());
 
@@ -52,7 +53,8 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
                 input.price(),
                 buildRewards(input.rewards()),
                 true,
-                LocalDateTime.now().plusHours(input.expiresIn())
+                input.hasExpiration(),
+                input.expiresIn()
         );
     }
 

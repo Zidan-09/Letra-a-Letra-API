@@ -7,6 +7,7 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DeleteOfferUseCase implements UseCase<DeleteOfferInput, DeleteOfferOutput> {
     private final OfferRepository offerRepository;
@@ -21,6 +22,7 @@ public class DeleteOfferUseCase implements UseCase<DeleteOfferInput, DeleteOffer
     }
 
     @Override
+    @Transactional
     public DeleteOfferOutput execute(DeleteOfferInput input) {
         adminChecker.check(input.principal());
 

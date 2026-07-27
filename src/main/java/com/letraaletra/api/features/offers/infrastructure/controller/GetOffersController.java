@@ -2,7 +2,7 @@ package com.letraaletra.api.features.offers.infrastructure.controller;
 
 import com.letraaletra.api.features.offers.application.input.GetOffersInput;
 import com.letraaletra.api.features.offers.application.output.GetOffersOutput;
-import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.offer.OfferResponse;
 import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.GetOffersMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -28,14 +28,14 @@ public class GetOffersController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<PageResponse<Offer>>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<OfferResponse>>> handle(
             Pageable pageable
     ) {
         GetOffersInput input = GetOffersMapper.toInput(pageable);
 
         GetOffersOutput output = useCase.execute(input);
 
-        PageResponse<Offer> dto = GetOffersMapper.toResponse(output);
+        PageResponse<OfferResponse> dto = GetOffersMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

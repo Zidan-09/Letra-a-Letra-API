@@ -15,7 +15,7 @@ public class FindOfferMapper {
 
     public static FindOfferResponse toResponse(FindOfferOutput output) {
         return new FindOfferResponse(
-                output.offer()
+                OfferResponseMapper.toResponse(output.offer())
         );
     }
 }

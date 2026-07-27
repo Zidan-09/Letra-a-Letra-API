@@ -77,8 +77,9 @@ CREATE TABLE "offer" (
                        "offer_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                        "title" varchar(100) NOT NULL,
                        "coin_type" varchar(50) NOT NULL,
-                       "price" integer NOT NULL CHECK ("price" > 0),
+                       "price" NUMERIC(10,2) NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
+                       "has_expiration" boolean NOT NULL DEFAULT true,
                        "expires_at" timestamptz,
                        "created_at" timestamptz
 );

@@ -17,7 +17,7 @@ public class DisableOfferMapper {
 
     public static DisableOfferResponse toResponse(DisableOfferOutput output) {
         return new DisableOfferResponse(
-                output.offer()
+                OfferResponseMapper.toResponse(output.offer())
         );
     }
 }

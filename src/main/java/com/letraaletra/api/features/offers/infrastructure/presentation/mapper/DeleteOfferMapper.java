@@ -17,7 +17,7 @@ public class DeleteOfferMapper {
 
     public static DeleteOfferResponse toResponse(DeleteOfferOutput output) {
         return new DeleteOfferResponse(
-                output.offer()
+                OfferResponseMapper.toResponse(output.offer())
         );
     }
 }
