@@ -2,7 +2,7 @@ package com.letraaletra.api.features.participant.infrastructure.config;
 
 import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;

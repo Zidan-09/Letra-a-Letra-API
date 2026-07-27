@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.ReconnectParti
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;

@@ -3,6 +3,7 @@ package com.letraaletra.api.features.game.application.usecase;
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -24,7 +25,13 @@ public class GetGamesUseCase implements UseCase<GetGamesInput, GetGamesOutput> {
     public GetGamesOutput execute(GetGamesInput input) {
         adminChecker.check(input.principal());
 
-        Page<GameHistory> games = gameRepository.get(input);
+        Page<GameHistory> games = gameRepository.get(
+                new GamesPage(
+                        input.page(),
+                        input.size(),
+                        input.sort()
+                )
+        );
 
         return new GetGamesOutput(games);
     }

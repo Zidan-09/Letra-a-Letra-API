@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.scheduler;
 import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
 import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.ExpireTurnService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;

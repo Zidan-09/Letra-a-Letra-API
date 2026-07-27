@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.scheduler;
 import com.letraaletra.api.features.game.application.input.CloseRoomInput;
 import com.letraaletra.api.features.game.application.output.CloseRoomOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.application.port.AuditService;
