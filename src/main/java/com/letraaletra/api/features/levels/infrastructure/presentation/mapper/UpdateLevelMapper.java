@@ -24,7 +24,7 @@ public class UpdateLevelMapper {
 
     public static UpdateLevelResponse toResponse(UpdateLevelOutput output) {
         return new UpdateLevelResponse(
-                output.level()
+                LevelResponseMapper.toResponse(output.level())
         );
     }
 

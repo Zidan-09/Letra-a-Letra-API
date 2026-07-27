@@ -38,14 +38,16 @@ public class AuditInterceptor implements HandlerInterceptor {
 
         AuthenticatedUser user = getAuthenticatedUser();
         String username = user == null ? "anonymous" : user.name();
+        String userId = user == null ? "" : user.auth().toString();
         String action = getAction(handlerMethod);
         String resourceId = getResourceId(request);
 
         if (user != null && user.isAdmin()) {
             auditService.admin(
                     getLevel(response),
-                    "{} {} {} ({})",
+                    "{} ({}) {} {} ({})",
                     username,
+                    userId,
                     action,
                     resourceId,
                     response.getStatus()
@@ -53,8 +55,9 @@ public class AuditInterceptor implements HandlerInterceptor {
         } else {
             auditService.game(
                     getLevel(response),
-                    "{} {} {} ({})",
+                    "{} ({}) {} {} ({})",
                     username,
+                    userId,
                     action,
                     resourceId,
                     response.getStatus()

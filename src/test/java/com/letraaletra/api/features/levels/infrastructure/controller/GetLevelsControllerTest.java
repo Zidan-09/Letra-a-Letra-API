@@ -2,7 +2,7 @@ package com.letraaletra.api.features.levels.infrastructure.controller;
 
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
-import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.level.LevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -39,8 +39,8 @@ class GetLevelsControllerTest {
     private Pageable pageable;
     private GetLevelsInput mockInput;
     private GetLevelsOutput mockOutput;
-    private PageResponse<Level> responseDto;
-    private ResponseEntity<SuccessResponse<PageResponse<Level>>> mockResponseEntity;
+    private PageResponse<LevelResponse> responseDto;
+    private ResponseEntity<SuccessResponse<PageResponse<LevelResponse>>> mockResponseEntity;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class GetLevelsControllerTest {
                 true
         );
 
-        SuccessResponse<PageResponse<Level>> successResponse = new SuccessResponse<>(true, responseDto);
+        SuccessResponse<PageResponse<LevelResponse>> successResponse = new SuccessResponse<>(true, responseDto);
         mockResponseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
@@ -72,7 +72,7 @@ class GetLevelsControllerTest {
             mapperMock.when(() -> GetLevelsMapper.toResponse(mockOutput)).thenReturn(responseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(responseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<PageResponse<Level>>> response = controller.handle(pageable);
+            ResponseEntity<SuccessResponse<PageResponse<LevelResponse>>> response = controller.handle(pageable);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
