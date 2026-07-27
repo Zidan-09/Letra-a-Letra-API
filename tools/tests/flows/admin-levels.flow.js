@@ -44,7 +44,7 @@ export async function runFlow(context) {
 
     const levelId = level.levelId;
 
-    if (level.level !== 99) {
+    if (level.value !== 99) {
         throw new Error("Create level: invalid level");
     }
 
@@ -104,7 +104,7 @@ export async function runFlow(context) {
         throw new Error("Updated level not found");
     }
 
-    if (updated.level !== 100) {
+    if (updated.value !== 100) {
         throw new Error("Level was not updated");
     }
 

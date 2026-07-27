@@ -1,5 +1,6 @@
 import { waitForEvent } from "../core/waitForEvent.js";
 import { send } from "../core/websocket.js";
+import { sleep } from "../core/sleep.js";
 
 export async function runFlow(context) {
     const [ws1, ws2, ws3] = context.sockets;
@@ -94,6 +95,8 @@ export async function runFlow(context) {
     });
 
     await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), context.events.get(users[1]));
+
+    await sleep(1000);
 
     send(ws2, {
         type: "START_GAME",

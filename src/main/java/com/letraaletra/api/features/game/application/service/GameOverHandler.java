@@ -78,8 +78,6 @@ public class GameOverHandler {
                 result.loser().getScore()
         );
 
-        game.updateGameState(null);
-
         gameRepository.save(game);
     }
 }
