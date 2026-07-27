@@ -15,7 +15,7 @@ public class FindLevelMapper {
 
     public static FindLevelResponse toResponse(FindLevelOutput output) {
         return new FindLevelResponse(
-                output.level()
+                LevelResponseMapper.toResponse(output.level())
         );
     }
 }

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.levels.infrastructure.controller;
 
 import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
 import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
-import com.letraaletra.api.features.levels.domain.Level;
+import com.letraaletra.api.features.levels.infrastructure.presentation.dto.response.level.LevelResponse;
 import com.letraaletra.api.features.levels.infrastructure.presentation.mapper.GetLevelsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -28,14 +28,14 @@ public class GetLevelsController {
     }
 
     @GetMapping()
-    public ResponseEntity<SuccessResponse<PageResponse<Level>>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<LevelResponse>>> handle(
             Pageable pageable
     ) {
         GetLevelsInput input = GetLevelsMapper.toInput(pageable);
 
         GetLevelsOutput output = useCase.execute(input);
 
-        PageResponse<Level> dto = GetLevelsMapper.toResponse(output);
+        PageResponse<LevelResponse> dto = GetLevelsMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }
