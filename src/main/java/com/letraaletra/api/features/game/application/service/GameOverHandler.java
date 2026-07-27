@@ -60,9 +60,6 @@ public class GameOverHandler {
 
             userWinner.leaveGame();
             userLoser.leaveGame();
-
-            userRepository.save(userWinner);
-            userRepository.save(userLoser);
         }
 
         auditService.game(
@@ -78,6 +75,8 @@ public class GameOverHandler {
                 result.loser().getScore()
         );
 
+        userRepository.save(userWinner);
+        userRepository.save(userLoser);
         gameRepository.save(game);
     }
 }

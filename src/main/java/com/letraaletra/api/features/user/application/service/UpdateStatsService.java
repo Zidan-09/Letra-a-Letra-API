@@ -33,7 +33,7 @@ public class UpdateStatsService {
 
         int beforeLevel = user.getStats().getLevel();
 
-        user.getStats().incrementExperience(experience, maxLevel);
+        user.getStats().incrementExperience(experience, maxLevel == 0 ? 1 : maxLevel);
 
         int afterLevel = user.getStats().getLevel();
 
