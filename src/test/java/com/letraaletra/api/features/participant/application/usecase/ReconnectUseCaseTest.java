@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;

@@ -8,8 +8,8 @@ import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.usecase.*;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.game.domain.Game;
@@ -23,6 +23,7 @@ import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -133,25 +134,25 @@ public class GameConfig {
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService
+            UpdateStatsService updateStatsService,
+            AuditService auditService
     ) {
         return new GameOverHandler(
                 gameRepository,
                 userRepository,
                 actorManager,
                 gameTimeoutManager,
-                updateStatsService
+                updateStatsService,
+                auditService
         );
     }
 
     @Bean
     public UpdateStatsService updateStatsService(
-            UserRepository userRepository,
             LevelRepository levelRepository,
             TransactionRepository walletTransactionRepository
     ) {
         return new UpdateStatsService(
-                userRepository,
                 levelRepository,
                 walletTransactionRepository
         );

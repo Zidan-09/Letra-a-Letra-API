@@ -4,10 +4,7 @@ import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.CoinType;
-import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
@@ -17,24 +14,18 @@ import com.letraaletra.api.features.transaction.domain.Transaction;
 import java.util.Optional;
 
 public class UpdateStatsService {
-    private final UserRepository userRepository;
     private final LevelRepository levelRepository;
     private final TransactionRepository walletTransactionRepository;
 
     public UpdateStatsService(
-            UserRepository userRepository,
             LevelRepository levelRepository,
             TransactionRepository walletTransactionRepository
     ) {
-        this.userRepository = userRepository;
         this.levelRepository = levelRepository;
         this.walletTransactionRepository = walletTransactionRepository;
     }
 
-    public void execute(Player player, boolean isWinner) {
-        User user = userRepository.find(player.getUserId())
-                .orElseThrow(UserNotFoundException::new);
-
+    public void execute(User user, boolean isWinner) {
         user.registerMatchResult(isWinner);
 
         int maxLevel = levelRepository.findBiggestLevel();

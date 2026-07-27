@@ -5,6 +5,7 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.shared.domain.exception.InvalidWebsocketResponseException;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public class BroadcastService implements GameNotifier {
 
     @Override
     public void notifierAll(Game game, Object dto) {
+        if (!(dto instanceof WsResponse)) throw new InvalidWebsocketResponseException();
+
         if (game == null) {
             throw new GameNotFoundException();
         }
@@ -57,6 +60,8 @@ public class BroadcastService implements GameNotifier {
 
     @Override
     public void notifierOne(UUID userId, Object dto) {
+        if (!(dto instanceof WsResponse)) throw new InvalidWebsocketResponseException();
+
         WebSocketSession session = sessionRepository.findByUserId(userId);
 
         if (session == null || !session.isOpen()) {
@@ -72,7 +77,9 @@ public class BroadcastService implements GameNotifier {
     }
 
     @Override
-    public void notifierGameOver(Game game, WsResponse dto) {
+    public void notifierGameOver(Game game, Object dto) {
+        if (!(dto instanceof WsResponse)) throw new InvalidWebsocketResponseException();
+
         notifierAll(game, dto);
     }
 

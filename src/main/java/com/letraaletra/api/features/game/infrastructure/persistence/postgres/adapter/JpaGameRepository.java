@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.game.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameHistory;
 import com.letraaletra.api.features.game.domain.GameStatus;
+import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchPlayersJpaEntity;
 import com.letraaletra.api.features.player.domain.Player;
@@ -57,11 +57,11 @@ public class JpaGameRepository implements GameRepository {
     }
 
     @Override
-    public Page<GameHistory> get(GetGamesInput input) {
+    public Page<GameHistory> get(GamesPage page) {
         Pageable pageable = PageRequest.of(
-                input.page(),
-                input.size(),
-                input.sort()
+                page.page(),
+                page.size(),
+                page.sort()
         );
 
         return repository.findAll(pageable)
