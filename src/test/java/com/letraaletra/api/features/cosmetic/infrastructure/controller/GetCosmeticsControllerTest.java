@@ -2,7 +2,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
-import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.GetCosmeticsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -39,8 +39,8 @@ class GetCosmeticsControllerTest {
     private Pageable pageable;
     private GetCosmeticsInput input;
     private GetCosmeticsOutput output;
-    private PageResponse<CosmeticDTO> responseDto;
-    private SuccessResponse<PageResponse<CosmeticDTO>> successResponse;
+    private PageResponse<CosmeticResponse> responseDto;
+    private SuccessResponse<PageResponse<CosmeticResponse>> successResponse;
 
     @BeforeEach
     void setUp() {
@@ -80,13 +80,13 @@ class GetCosmeticsControllerTest {
             mapperMock.when(() -> GetCosmeticsMapper.toResponse(output))
                     .thenReturn(responseDto);
 
-            ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> expected =
+            ResponseEntity<SuccessResponse<PageResponse<CosmeticResponse>>> expected =
                     ResponseEntity.ok(successResponse);
 
             apiResponseMock.when(() -> ApiResponseHandler.success(responseDto))
                     .thenReturn(expected);
 
-            ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> response =
+            ResponseEntity<SuccessResponse<PageResponse<CosmeticResponse>>> response =
                     controller.handle(pageable);
 
             assertNotNull(response);
@@ -154,13 +154,13 @@ class GetCosmeticsControllerTest {
             mapperMock.when(() -> GetCosmeticsMapper.toResponse(output))
                     .thenReturn(responseDto);
 
-            ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> expected =
+            ResponseEntity<SuccessResponse<PageResponse<CosmeticResponse>>> expected =
                     ResponseEntity.ok(successResponse);
 
             apiResponseMock.when(() -> ApiResponseHandler.success(responseDto))
                     .thenReturn(expected);
 
-            ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> response =
+            ResponseEntity<SuccessResponse<PageResponse<CosmeticResponse>>> response =
                     controller.handle(pageable);
 
             assertNotNull(response);

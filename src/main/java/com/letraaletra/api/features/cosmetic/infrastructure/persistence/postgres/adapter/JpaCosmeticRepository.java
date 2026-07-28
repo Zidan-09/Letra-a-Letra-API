@@ -56,4 +56,9 @@ public class JpaCosmeticRepository implements CosmeticRepository {
 
         repository.delete(entity);
     }
+
+    @Override
+    public boolean checkIfExistsByName(String name) {
+        return repository.findByName(name).isPresent();
+    }
 }

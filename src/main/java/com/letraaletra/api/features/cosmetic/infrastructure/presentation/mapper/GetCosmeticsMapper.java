@@ -3,7 +3,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,12 +24,12 @@ public class GetCosmeticsMapper {
         );
     }
 
-    public static PageResponse<CosmeticDTO> toResponse(GetCosmeticsOutput output) {
+    public static PageResponse<CosmeticResponse> toResponse(GetCosmeticsOutput output) {
         Page<Cosmetic> page = output.cosmetics();
 
         return new PageResponse<>(
                 page.getContent()
-                        .stream().map(CosmeticMapper::toDto)
+                        .stream().map(CosmeticResponseMapper::toDto)
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

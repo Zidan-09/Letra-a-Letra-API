@@ -90,4 +90,13 @@ public class CosmeticConfig {
                 adminChecker
         );
     }
+
+    @Bean
+    public FindCosmeticByNameUseCase findCosmeticByNameUseCase(
+            CosmeticRepository cosmeticRepository
+    ) {
+        return new FindCosmeticByNameUseCase(
+                cosmeticRepository
+        );
+    }
 }

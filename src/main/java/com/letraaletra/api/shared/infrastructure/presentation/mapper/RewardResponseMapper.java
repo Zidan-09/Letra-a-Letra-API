@@ -1,6 +1,6 @@
 package com.letraaletra.api.shared.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.CosmeticMapper;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.CosmeticResponseMapper;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
@@ -15,7 +15,7 @@ public class RewardResponseMapper {
                 return new RewardResponse(
                         RewardType.COSMETIC,
                         1,
-                        CosmeticMapper.toDto(r.cosmetic())
+                        CosmeticResponseMapper.toDto(r.cosmetic())
                 );
             }
             case HardGemsReward r -> {
