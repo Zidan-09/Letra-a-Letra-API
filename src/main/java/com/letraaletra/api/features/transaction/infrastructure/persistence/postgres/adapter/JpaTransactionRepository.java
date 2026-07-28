@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
@@ -25,33 +26,33 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public Optional<Transaction> find(UUID id) {
-        return repository.findById(id)
-                .map(TransactionMapper::toDomain);
+    public Optional<TransactionDetails> find(UUID id) {
+        return repository.findByIdDetails(id)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override
-    public Page<Transaction> get(TransactionsPage page) {
+    public Page<TransactionDetails> get(TransactionsPage page) {
         Pageable pageable = PageRequest.of(
                 page.page(),
                 page.size(),
                 page.sort()
         );
 
-        return repository.findAll(pageable)
-                .map(TransactionMapper::toDomain);
+        return repository.findAllDetails(pageable)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override
-    public Page<Transaction> getByUserId(UUID userId, TransactionsPage page) {
+    public Page<TransactionDetails> getByUserId(UUID userId, TransactionsPage page) {
         Pageable pageable = PageRequest.of(
                 page.page(),
                 page.size(),
                 page.sort()
         );
 
-        return repository.findByUserId(userId, pageable)
-                .map(TransactionMapper::toDomain);
+        return repository.findByUserIdDetails(userId, pageable)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.transaction.infrastructure.presentation.map
 
 import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserNicknameInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserNicknameOutput;
-import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -27,7 +27,7 @@ public class FindTransactionsByUserNicknameMapper {
     }
 
     public static PageResponse<TransactionResponse> toResponse(FindTransactionsByUserNicknameOutput output) {
-        Page<Transaction> page = output.transactions();
+        Page<TransactionDetails> page = output.transactions();
 
         return new PageResponse<>(
                 page.getContent().stream()

@@ -5,11 +5,9 @@ import com.letraaletra.api.features.admin.application.port.MeterChecker;
 import com.letraaletra.api.features.admin.application.usecase.AuthAdminUseCase;
 import com.letraaletra.api.features.admin.application.service.GetApplicationStatusService;
 import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
-import com.letraaletra.api.features.admin.application.usecase.GetAdminTransactionsUseCase;
 import com.letraaletra.api.features.admin.application.usecase.GetMyAdminProfileUseCase;
 import com.letraaletra.api.features.admin.application.usecase.RegisterAdminUseCase;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
-import com.letraaletra.api.features.admin.domain.repository.AdminTransactionRepository;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -78,17 +76,6 @@ public class AdminConfig {
     ) {
         return new GetMyAdminProfileUseCase(
                 adminRepository
-        );
-    }
-
-    @Bean
-    public GetAdminTransactionsUseCase getAdminTransactionsUseCase(
-            AdminTransactionRepository adminTransactionRepository,
-            AdminChecker adminChecker
-    ) {
-        return new GetAdminTransactionsUseCase(
-                adminTransactionRepository,
-                adminChecker
         );
     }
 }

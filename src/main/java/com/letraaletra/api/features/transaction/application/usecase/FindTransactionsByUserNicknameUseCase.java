@@ -2,7 +2,7 @@ package com.letraaletra.api.features.transaction.application.usecase;
 
 import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserNicknameInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserNicknameOutput;
-import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.User;
@@ -35,7 +35,7 @@ public class FindTransactionsByUserNicknameUseCase implements
         User user = userRepository.findByNickname(input.nickname())
                 .orElseThrow(UserNotFoundException::new);
 
-        Page<Transaction> transactions = transactionRepository.getByUserId(user.getId(), new TransactionsPage(
+        Page<TransactionDetails> transactions = transactionRepository.getByUserId(user.getId(), new TransactionsPage(
                 input.page(),
                 input.size(),
                 input.sort()
