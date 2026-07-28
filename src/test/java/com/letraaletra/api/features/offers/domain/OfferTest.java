@@ -50,7 +50,7 @@ class OfferTest {
             assertThat(offer.getCoinType()).isEqualTo(DEFAULT_COIN_TYPE);
             assertThat(offer.getPrice()).isEqualTo(DEFAULT_PRICE);
             assertThat(offer.getRewards()).containsExactly(mockReward);
-            assertThat(offer.isActive()).isTrue();
+            assertThat(offer.isActive()).isFalse();
             assertThat(offer.isHasExpiration()).isTrue();
             assertThat(offer.getCreatedAt()).isAfterOrEqualTo(beforeCreation).isBeforeOrEqualTo(afterExecutionDate(afterCreation));
         }
@@ -96,19 +96,9 @@ class OfferTest {
     class StateTransitionTests {
 
         @Test
-        @DisplayName("Deve desativar uma oferta ativa com sucesso")
-        void shouldDisableActiveOfferSuccessfully() {
-            Offer offer = createOfferWithActiveStatus(true);
-
-            offer.disable();
-
-            assertThat(offer.isActive()).isFalse();
-        }
-
-        @Test
         @DisplayName("Deve lançar InvalidOfferStatusException ao tentar desativar uma oferta já inativa")
         void shouldThrowExceptionWhenDisablingAlreadyInactiveOffer() {
-            Offer offer = createOfferWithActiveStatus(false);
+            Offer offer = createOffer();
 
             assertThatThrownBy(offer::disable)
                     .isInstanceOf(InvalidOfferStatusException.class);
@@ -119,7 +109,7 @@ class OfferTest {
         @Test
         @DisplayName("Deve ativar uma oferta inativa com sucesso")
         void shouldEnableInactiveOfferSuccessfully() {
-            Offer offer = createOfferWithActiveStatus(false);
+            Offer offer = createOffer();
 
             offer.enable();
 
@@ -129,7 +119,8 @@ class OfferTest {
         @Test
         @DisplayName("Deve lançar InvalidOfferStatusException ao tentar ativar uma oferta que já está ativa")
         void shouldThrowExceptionWhenEnablingAlreadyActiveOffer() {
-            Offer offer = createOfferWithActiveStatus(true);
+            Offer offer = createOffer();
+            offer.enable();
 
             assertThatThrownBy(offer::enable)
                     .isInstanceOf(InvalidOfferStatusException.class);
@@ -138,9 +129,23 @@ class OfferTest {
         }
 
         @Test
+        @DisplayName("Deve desativar uma oferta ativa com sucesso")
+        void shouldDisableActiveOfferSuccessfully() {
+            Offer offer = createOffer();
+            offer.enable();
+
+            offer.disable();
+
+            assertThat(offer.isActive()).isFalse();
+        }
+
+        @Test
         @DisplayName("Deve permitir ciclos alternados válidos de habilitação e desabilitação")
         void shouldAllowAlternatingStateTransitions() {
-            Offer offer = createOfferWithActiveStatus(true);
+            Offer offer = createOffer();
+
+            offer.enable();
+            assertThat(offer.isActive()).isTrue();
 
             offer.disable();
             assertThat(offer.isActive()).isFalse();
@@ -152,13 +157,13 @@ class OfferTest {
             assertThat(offer.isActive()).isFalse();
         }
 
-        private Offer createOfferWithActiveStatus(boolean active) {
+        private Offer createOffer() {
             return Offer.create(
                     DEFAULT_TITLE,
                     DEFAULT_COIN_TYPE,
                     DEFAULT_PRICE,
                     Collections.emptyList(),
-                    active,
+                    false,
                     false,
                     0
             );

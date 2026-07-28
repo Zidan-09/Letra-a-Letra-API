@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.transaction.domain.Transaction;
@@ -56,5 +57,14 @@ public class JpaTransactionRepository implements TransactionRepository {
     @Override
     public void save(Transaction transaction) {
         repository.save(TransactionMapper.toEntity(transaction));
+    }
+
+    @Override
+    public boolean existsOfferPurchase(UUID userId, UUID referenceId) {
+        return repository.hasPurchasedOffer(
+                userId,
+                referenceId,
+                TransactionReason.SHOP_PURCHASE
+        );
     }
 }

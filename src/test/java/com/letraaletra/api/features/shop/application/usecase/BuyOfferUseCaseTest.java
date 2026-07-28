@@ -5,6 +5,7 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
+import com.letraaletra.api.features.offers.domain.exception.OfferAlreadyPurchasedException;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
@@ -105,6 +106,12 @@ class BuyOfferUseCaseTest {
 
         lenient().when(mockBalance.gems())
                 .thenReturn(100L);
+
+        lenient().when(mockOffer.isRepeatable()).thenReturn(false);
+
+        lenient().when(
+                transactionRepository.existsOfferPurchase(any(), any())
+        ).thenReturn(false);
     }
 
     @Test
@@ -133,6 +140,44 @@ class BuyOfferUseCaseTest {
 
         verify(userRepository, never()).save(any());
         verifyNoInteractions(mockWallet);
+    }
+
+    @Test
+    @DisplayName("should throw OfferAlreadyPurchasedException when offer is not repeatable and user already purchased it")
+    void shouldThrowOfferAlreadyPurchasedExceptionWhenUserAlreadyPurchasedOffer() {
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+
+        when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
+        when(mockOffer.isRepeatable()).thenReturn(false);
+
+        when(transactionRepository.existsOfferPurchase(userId, input.offerId()))
+                .thenReturn(true);
+
+        assertThrows(
+                OfferAlreadyPurchasedException.class,
+                () -> useCase.execute(input)
+        );
+
+        verify(mockWallet, never()).pay(any(), any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("should not check previous purchases when offer is repeatable")
+    void shouldNotCheckPreviousPurchasesWhenOfferIsRepeatable() {
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+
+        when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
+        when(mockOffer.isRepeatable()).thenReturn(true);
+
+        useCase.execute(input);
+
+        verify(transactionRepository, never())
+                .existsOfferPurchase(any(), any());
     }
 
     @Test

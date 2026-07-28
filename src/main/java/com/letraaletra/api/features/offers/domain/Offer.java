@@ -63,8 +63,8 @@ public class Offer {
                 coinType,
                 price,
                 rewards,
-                repeatable,
                 false,
+                repeatable,
                 hasExpiration,
                 hasExpiration ?
                         LocalDateTime.now().plusMinutes(expiresIn) :

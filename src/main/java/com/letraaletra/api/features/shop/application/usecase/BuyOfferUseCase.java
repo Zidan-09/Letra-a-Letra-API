@@ -2,6 +2,7 @@ package com.letraaletra.api.features.shop.application.usecase;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
+import com.letraaletra.api.features.offers.domain.exception.OfferAlreadyPurchasedException;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -20,6 +21,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
@@ -42,12 +44,11 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);
 
-
-
         User user = userRepository.find(input.auth())
                 .orElseThrow(UserNotFoundException::new);
 
-        validateOffer(offer);
+        validateOffer(offer, user.getId());
+
         processPayment(user, offer);
 
         userRepository.save(user);
@@ -55,13 +56,18 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         return new BuyOfferOutput(offer);
     }
 
-    private void validateOffer(Offer offer) {
+    private void validateOffer(Offer offer, UUID userId) {
         if (!offer.isActive()) {
             throw new InvalidOfferStatusException();
         }
 
         if (offer.getCoinType().equals(CoinType.REAL)) {
             throw new InvalidPaymentException();
+        }
+
+        if (!offer.isRepeatable()
+                && transactionRepository.existsOfferPurchase(userId, offer.getOfferId())) {
+            throw new OfferAlreadyPurchasedException();
         }
     }
 

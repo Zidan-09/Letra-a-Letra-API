@@ -4,6 +4,7 @@ import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum OfferMessages implements MessageCode {
     INVALID_PAYMENT_TYPE("invalid_payment_type"),
+    OFFER_ALREADY_PURCHASED("offer_already_purchased"),
     INVALID_OFFER_EXPIRATION("invalid_offer_expiration"),
     INVALID_OFFER_STATUS("invalid_offer_status"),
     OFFER_NOT_FOUND("offer_not_found");

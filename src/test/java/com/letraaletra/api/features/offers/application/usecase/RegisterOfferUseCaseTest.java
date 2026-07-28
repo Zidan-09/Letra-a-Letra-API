@@ -350,7 +350,7 @@ class RegisterOfferUseCaseTest {
     class OfferCreationAndOutputTests {
 
         @Test
-        @DisplayName("Deve construir a oferta com estado ativo (true) por padrão ao criar")
+        @DisplayName("Deve construir a oferta com estado desativado (false) por padrão ao criar")
         void shouldCreateOfferAsActiveByDefault() {
             RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
 
@@ -359,7 +359,7 @@ class RegisterOfferUseCaseTest {
             verify(offerRepository).save(offerCaptor.capture());
             Offer savedOffer = offerCaptor.getValue();
 
-            assertThat(savedOffer.isActive()).isTrue();
+            assertThat(savedOffer.isActive()).isFalse();
         }
 
         @Test
