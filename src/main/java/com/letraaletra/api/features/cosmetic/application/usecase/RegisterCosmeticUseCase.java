@@ -8,6 +8,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
@@ -28,6 +29,7 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
     }
 
     @Override
+    @Transactional
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
         adminChecker.check(input.principal());
 

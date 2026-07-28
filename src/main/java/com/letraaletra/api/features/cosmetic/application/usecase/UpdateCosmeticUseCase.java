@@ -11,6 +11,7 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticEx
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
     }
 
     @Override
+    @Transactional
     public UpdateCosmeticOutput execute(UpdateCosmeticInput input) {
         adminChecker.check(input.principal());
 
