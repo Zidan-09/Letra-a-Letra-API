@@ -1,5 +1,6 @@
 import { http } from "../core/http.js";
 import { waitForEvent } from "../core/waitForEvent.js";
+import { sleep } from "../core/sleep.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected) ? expected : [expected];
@@ -33,6 +34,8 @@ export async function runFlow(context) {
         e => e.event === "RECEIVE_FRIEND_REQUEST",
         context.events.get(pombao)
     );
+
+    await sleep(1000);
 
     res = await http(
         "GET",
@@ -179,6 +182,8 @@ export async function runFlow(context) {
         context.events.get(torugo)
     );
 
+    await sleep(1000);
+
     res = await http(
         "GET",
         "/friend/pending",
@@ -255,6 +260,8 @@ export async function runFlow(context) {
         e => e.event === "RECEIVE_FRIEND_REQUEST",
         context.events.get(torugo)
     );
+
+    await sleep(1000);
 
     res = await http(
         "GET",

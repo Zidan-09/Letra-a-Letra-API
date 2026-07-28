@@ -1,5 +1,6 @@
 import { waitForEvent } from "../core/waitForEvent.js";
 import { send } from "../core/websocket.js";
+import { sleep } from "../core/sleep.js";
 
 export async function runRankingGame(context) {
     const [ws1, ws2] = context.sockets;
@@ -16,6 +17,7 @@ export async function runRankingGame(context) {
     });
 
     const started = await waitForEvent("RANKING_GAME", e => (e.event === "RANKING_GAME" && e.status === "FOUNDED"), events);
+    await sleep(1000);
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -58,6 +60,8 @@ export async function runRankingGame(context) {
                 ),
                 events
         );
+
+        await sleep(1000);
 
         if (result.event === "RANKING_OVER") {
             gameRunning = false;
