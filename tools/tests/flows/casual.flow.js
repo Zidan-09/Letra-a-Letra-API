@@ -18,6 +18,8 @@ export async function runFlow(context) {
 
     const created = await waitForEvent("GAME_CREATED", e => (e.event === "GAME_CREATED"), events);
 
+    await sleep(1000);
+
     const gameId = created.data.gameId;
 
     send(ws2, {
@@ -26,6 +28,8 @@ export async function runFlow(context) {
     });
 
     await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), events);
+
+    await sleep(1000);
 
     send(ws1, {
         type: "START_GAME",
@@ -37,6 +41,8 @@ export async function runFlow(context) {
     });
 
     const started = await waitForEvent("GAME_STARTED", e => (e.event === "GAME_STARTED"), events);
+
+    await sleep(1000);
 
     let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -78,6 +84,8 @@ export async function runFlow(context) {
                 ),
                 events
         );
+
+        await sleep(1000);
 
         if (result.event === "GAME_OVER") {
             gameRunning = false;

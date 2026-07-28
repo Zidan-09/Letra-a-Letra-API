@@ -24,6 +24,8 @@ export async function runFlow(context) {
         eventsUser1
     );
 
+    await sleep(1000);
+
     const gameId = started.gameId;
     let currentPlayer = started.data.currentTurnPlayerId;
 
@@ -97,6 +99,8 @@ export async function runFlow(context) {
                     eventsUser1
             );
 
+            await sleep(1000);
+
             if (result.event === "GAME_OVER") {
                 break;
             }
@@ -113,17 +117,23 @@ export async function runFlow(context) {
                     90000
                 );
 
+                await sleep(1000);
+
                 await waitForEvent(
                     "REMOVED_BECAUSE_INACTIVITY",
                     e => e.event === "REMOVED_BECAUSE_INACTIVITY",
                     eventsUser1,
                 );
 
+                await sleep(1000);
+
                 await waitForEvent(
                     "GAME_OVER",
                     e => e.event === "GAME_OVER",
                     eventsUser2
                 );
+
+                await sleep(1000);
 
                 break;
             }
@@ -134,6 +144,8 @@ export async function runFlow(context) {
                 eventsUser2,
                 90000
             );
+
+            await sleep(1000);
 
             currentPlayer = expired.data.currentTurnPlayerId;
         }

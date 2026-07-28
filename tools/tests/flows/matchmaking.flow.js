@@ -18,6 +18,8 @@ export async function runFlow(context) {
     });
 
     const started = await waitForEvent("MATCHMAKING_GAME", e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), events);
+    await sleep(1000);
+    
     const gameId = started.gameId;
 
     let currentPlayer = started.data.currentTurnPlayerId;
@@ -60,6 +62,8 @@ export async function runFlow(context) {
                 ),
                 events
         );
+
+        await sleep(1000);
 
         if (result.event === "GAME_OVER") {
             gameRunning = false;

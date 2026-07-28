@@ -1,5 +1,6 @@
 import { http } from "../core/http.js";
 import { multipart } from "../core/multipart.js";
+import { sleep } from "../core/sleep.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected)
