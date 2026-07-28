@@ -5,6 +5,7 @@ import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 public class RejectFriendRequestUseCase implements UseCase<RejectFriendRequestInput, Void> {
     private final FriendRepository friendRepository;
@@ -16,6 +17,7 @@ public class RejectFriendRequestUseCase implements UseCase<RejectFriendRequestIn
     }
 
     @Override
+    @Transactional
     public Void execute(RejectFriendRequestInput input) {
         Friend request = friendRepository.find(input.userId(), input.friendId()).orElse(null);
         validateRequest(request);

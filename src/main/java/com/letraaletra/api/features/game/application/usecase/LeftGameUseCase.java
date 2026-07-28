@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +29,8 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
         this.gameRepository = gameRepository;
     }
 
+    @Override
+    @Transactional
     public LeftGameOutput execute(LeftGameInput input) {
         UUID gameId = input.gameId();
         Actor actor = actorManager.get(gameId);

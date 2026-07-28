@@ -9,6 +9,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +32,8 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
         this.userFactory = userFactory;
     }
 
+    @Override
+    @Transactional
     public SignInOutput execute(AuthInput input) {
         GoogleAuthData payload = googleTokenService.verify(input.token());
 

@@ -16,6 +16,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,7 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
     }
 
     @Override
+    @Transactional
     public UpdateLevelOutput execute(UpdateLevelInput input) {
         adminChecker.check(input.principal());
 

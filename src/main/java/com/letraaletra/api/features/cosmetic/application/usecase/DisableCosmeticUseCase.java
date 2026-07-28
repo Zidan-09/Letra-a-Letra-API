@@ -7,6 +7,7 @@ import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundE
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DisableCosmeticUseCase implements UseCase<DisableCosmeticInput, DisableCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
@@ -21,6 +22,7 @@ public class DisableCosmeticUseCase implements UseCase<DisableCosmeticInput, Dis
     }
 
     @Override
+    @Transactional
     public DisableCosmeticOutput execute(DisableCosmeticInput input) {
         adminChecker.check(input.principal());
 

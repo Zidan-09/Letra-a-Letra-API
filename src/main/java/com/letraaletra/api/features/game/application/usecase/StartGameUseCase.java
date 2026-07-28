@@ -16,6 +16,7 @@ import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
@@ -52,6 +53,8 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
         this.gameActorManager = gameActorManager;
     }
 
+    @Override
+    @Transactional
     public StartGameOutput execute(StartGameInput input) {
         UUID gameId = input.gameId();
 
