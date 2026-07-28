@@ -48,23 +48,24 @@ public class Wallet {
 
     public WalletMovement pay(CoinType coinType, BigDecimal amount) {
         Balance balanceBefore = getBalance();
+        int value = amount.intValueExact();
 
         switch (coinType) {
             case SOFT -> {
-                if (softCoins < amount.scale()) {
+                if (softCoins < value) {
                     throw new InsufficientBalanceException();
                 }
-                removeSoft(amount.scale());
+                removeSoft(value);
 
-                return new WalletMovement(CoinType.SOFT, balanceBefore, amount.scale(), OperationType.DEBIT);
+                return new WalletMovement(CoinType.SOFT, balanceBefore, value, OperationType.DEBIT);
             }
             case HARD -> {
-                if (hardGems < amount.scale()) {
+                if (hardGems < value) {
                     throw new InsufficientBalanceException();
                 }
-                removeHard(amount.scale());
+                removeHard(value);
 
-                return new WalletMovement(CoinType.HARD, balanceBefore, amount.scale(), OperationType.DEBIT);
+                return new WalletMovement(CoinType.HARD, balanceBefore, value, OperationType.DEBIT);
             }
             case null, default -> throw new InvalidPaymentException();
         }
