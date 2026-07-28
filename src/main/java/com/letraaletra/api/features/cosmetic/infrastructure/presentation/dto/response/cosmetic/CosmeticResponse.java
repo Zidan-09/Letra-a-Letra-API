@@ -2,7 +2,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.re
 
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 
-public record CosmeticDTO(
+public record CosmeticResponse(
         String id,
         String name,
         CosmeticTypes type,

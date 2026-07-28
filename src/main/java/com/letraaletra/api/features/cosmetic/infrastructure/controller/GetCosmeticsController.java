@@ -2,7 +2,7 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.GetCosmeticsInput;
 import com.letraaletra.api.features.cosmetic.application.output.GetCosmeticsOutput;
-import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticDTO;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.cosmetic.CosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.GetCosmeticsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -28,14 +28,14 @@ public class GetCosmeticsController {
     }
 
     @GetMapping
-    public ResponseEntity<SuccessResponse<PageResponse<CosmeticDTO>>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<CosmeticResponse>>> handle(
             Pageable pageable
     ) {
         GetCosmeticsInput input = GetCosmeticsMapper.toInput(pageable);
 
         GetCosmeticsOutput output = useCase.execute(input);
 
-        PageResponse<CosmeticDTO> dto = GetCosmeticsMapper.toResponse(output);
+        PageResponse<CosmeticResponse> dto = GetCosmeticsMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

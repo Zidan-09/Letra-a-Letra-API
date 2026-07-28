@@ -17,7 +17,7 @@ public class DeleteCosmeticMapper {
 
     public static DeleteCosmeticResponse toResponse(DeleteCosmeticOutput output) {
         return new DeleteCosmeticResponse(
-                CosmeticMapper.toDto(output.cosmetic())
+                CosmeticResponseMapper.toDto(output.cosmetic())
         );
     }
 }
