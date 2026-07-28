@@ -1,5 +1,6 @@
 import { waitForEvent } from "../core/waitForEvent.js";
 import { send } from "../core/websocket.js";
+import { sleep } from "../core/sleep.js";
 
 export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
