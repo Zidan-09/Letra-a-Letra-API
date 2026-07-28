@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,10 +42,15 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> getByUserId(UUID userId) {
-        return repository.findByUserId(userId).stream()
-                .map(TransactionMapper::toDomain)
-                .toList();
+    public Page<Transaction> getByUserId(UUID userId, TransactionsPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.findByUserId(userId, pageable)
+                .map(TransactionMapper::toDomain);
     }
 
     @Override
