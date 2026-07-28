@@ -24,16 +24,16 @@ import java.util.Optional;
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
-    private final TransactionRepository walletTransactionRepository;
+    private final TransactionRepository transactionRepository;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
             OfferRepository offerRepository,
-            TransactionRepository walletTransactionRepository
+            TransactionRepository transactionRepository
     ) {
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
-        this.walletTransactionRepository = walletTransactionRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -41,6 +41,8 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     public BuyOfferOutput execute(BuyOfferInput input) {
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);
+
+
 
         User user = userRepository.find(input.auth())
                 .orElseThrow(UserNotFoundException::new);
@@ -64,23 +66,34 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     private void processPayment(User user, Offer offer) {
-        user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+        WalletMovement walletMovement = user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+
+        transactionRepository.save(
+                Transaction.create(
+                        user.getId(),
+                        walletMovement.coinType(),
+                        walletMovement.amount(),
+                        getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
+                        getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                        walletMovement.operation(),
+                        TransactionReason.SHOP_PURCHASE,
+                        offer.getOfferId()
+                )
+        );
 
         processRewards(user, offer);
     }
 
     private void processRewards(User user, Offer offer) {
         offer.getRewards().forEach(offerReward -> {
-            Balance balanceBefore = user.getWallet().getBalance();
-
             Optional<WalletMovement> movement = offerReward.reward().deliver(user);
 
-            movement.ifPresent(walletMovement -> walletTransactionRepository.save(
+            movement.ifPresent(walletMovement -> transactionRepository.save(
                     Transaction.create(
                             user.getId(),
                             walletMovement.coinType(),
                             walletMovement.amount(),
-                            getBalance(balanceBefore, walletMovement.coinType()),
+                            getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
                             getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
                             walletMovement.operation(),
                             TransactionReason.SHOP_PURCHASE,

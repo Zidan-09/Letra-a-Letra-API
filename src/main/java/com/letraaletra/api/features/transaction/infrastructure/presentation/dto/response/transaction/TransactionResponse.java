@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public record TransactionResponse(
         UUID transactionId,
-        String username,
         UUID userId,
         CoinType coinType,
         int amount,

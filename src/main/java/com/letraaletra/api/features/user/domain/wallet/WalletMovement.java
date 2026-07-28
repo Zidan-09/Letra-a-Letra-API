@@ -5,6 +5,7 @@ import com.letraaletra.api.features.transaction.domain.OperationType;
 
 public record WalletMovement(
         CoinType coinType,
+        Balance balanceBefore,
         int amount,
         OperationType operation
 ) {}

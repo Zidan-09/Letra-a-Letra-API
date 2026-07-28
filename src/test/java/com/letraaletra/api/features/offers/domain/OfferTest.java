@@ -70,6 +70,7 @@ class OfferTest {
                     Collections.emptyList(),
                     false,
                     true,
+                    true,
                     expiresAt,
                     createdAt
             );

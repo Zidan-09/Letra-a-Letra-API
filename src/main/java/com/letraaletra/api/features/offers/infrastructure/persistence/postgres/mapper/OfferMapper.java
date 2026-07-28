@@ -17,6 +17,7 @@ public class OfferMapper {
                 entity.getPrice(),
                 rewards,
                 entity.isActive(),
+                entity.isRepeatable(),
                 entity.isHasExpiration(),
                 entity.getExpiresAt(),
                 entity.getCreatedAt()
@@ -33,6 +34,7 @@ public class OfferMapper {
         entity.setCoinType(domain.getCoinType());
         entity.setPrice(domain.getPrice());
         entity.setActive(domain.isActive());
+        entity.setRepeatable(domain.isRepeatable());
         entity.setHasExpiration(domain.isHasExpiration());
         entity.setExpiresAt(domain.getExpiresAt());
         entity.setCreatedAt(domain.getCreatedAt());

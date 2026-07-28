@@ -9,6 +9,8 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
+import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
+import com.letraaletra.api.shared.domain.rewards.Reward;
 import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
@@ -43,7 +45,7 @@ class BuyOfferUseCaseTest {
     private OfferRepository offerRepository;
 
     @Mock
-    private TransactionRepository walletTransactionRepository;
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private BuyOfferUseCase useCase;
@@ -54,6 +56,8 @@ class BuyOfferUseCaseTest {
     private Wallet mockWallet;
     private Balance mockBalance;
     private Offer mockOffer;
+    private WalletMovement walletMovement;
+    private OfferReward offerReward;
 
     @BeforeEach
     void setUp() {
@@ -65,7 +69,8 @@ class BuyOfferUseCaseTest {
         mockBalance = mock(Balance.class);
         mockOffer = mock(Offer.class);
 
-        OfferReward mockOfferReward = mock(OfferReward.class);
+        walletMovement = mock(WalletMovement.class);
+        offerReward = mock(OfferReward.class);
 
         input = new BuyOfferInput(userId, offerId);
 
@@ -73,9 +78,33 @@ class BuyOfferUseCaseTest {
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
 
         lenient().when(mockOffer.getPrice()).thenReturn(BigDecimal.valueOf(100));
-        lenient().when(mockOffer.getRewards()).thenReturn(List.of(mockOfferReward));
+        lenient().when(mockOffer.getRewards()).thenReturn(List.of(offerReward));
 
-        lenient().when(mockOfferReward.reward()).thenReturn(new SoftCoinsReward(100));
+        lenient().when(mockOffer.getOfferId()).thenReturn(offerId);
+
+        lenient().when(mockOffer.getRewards()).thenReturn(List.of(offerReward));
+        lenient().when(offerReward.reward()).thenReturn(new SoftCoinsReward(100));
+
+        lenient().when(mockWallet.pay(any(), any()))
+                .thenReturn(walletMovement);
+
+        lenient().when(walletMovement.coinType())
+                .thenReturn(CoinType.SOFT);
+
+        lenient().when(walletMovement.amount())
+                .thenReturn(100);
+
+        lenient().when(walletMovement.balanceBefore())
+                .thenReturn(mockBalance);
+
+        lenient().when(mockWallet.getBalance())
+                .thenReturn(mockBalance);
+
+        lenient().when(mockBalance.coins())
+                .thenReturn(1000L);
+
+        lenient().when(mockBalance.gems())
+                .thenReturn(100L);
     }
 
     @Test
@@ -83,8 +112,6 @@ class BuyOfferUseCaseTest {
     void shouldBuyOfferWithSuccess() {
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockUser.getWallet()).thenReturn(mockWallet);
-        when(mockWallet.getBalance()).thenReturn(mockBalance);
         when(mockOffer.isActive()).thenReturn(true);
         when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 
@@ -155,8 +182,8 @@ class BuyOfferUseCaseTest {
         when(mockOffer.isActive()).thenReturn(true);
         when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
 
-        doThrow(new InsufficientBalanceException())
-                .when(mockWallet).pay(CoinType.SOFT, BigDecimal.valueOf(100));
+        when(mockWallet.pay(CoinType.SOFT, BigDecimal.valueOf(100)))
+                .thenThrow(new InsufficientBalanceException());
 
         assertThrows(InsufficientBalanceException.class, () -> useCase.execute(input));
 
