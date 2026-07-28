@@ -14,6 +14,7 @@ public class OfferResponseMapper {
                         .map(OfferRewardResponseMapper::toResponse)
                         .toList(),
                 offer.isActive(),
+                offer.isRepeatable(),
                 offer.isHasExpiration(),
                 offer.getExpiresAt()
         );

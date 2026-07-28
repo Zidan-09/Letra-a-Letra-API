@@ -5,6 +5,6 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface FindOfferById {
+public interface FindOffer {
     Optional<Offer> findById(UUID offerId);
 }

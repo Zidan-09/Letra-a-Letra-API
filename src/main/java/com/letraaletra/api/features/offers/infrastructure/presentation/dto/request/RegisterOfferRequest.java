@@ -22,6 +22,9 @@ public record RegisterOfferRequest(
         List<RegisterOfferRewardRequest> rewards,
 
         @NotNull
+        boolean repeatable,
+
+        @NotNull
         boolean hasExpiration,
 
         @PositiveOrZero

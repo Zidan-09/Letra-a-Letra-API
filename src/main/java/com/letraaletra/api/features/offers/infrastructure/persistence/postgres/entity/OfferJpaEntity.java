@@ -31,6 +31,9 @@ public class OfferJpaEntity {
     @Column(name = "active")
     private boolean active;
 
+    @Column(name = "repeatable")
+    private boolean repeatable;
+
     @Column(name = "has_expiration")
     private boolean hasExpiration;
 

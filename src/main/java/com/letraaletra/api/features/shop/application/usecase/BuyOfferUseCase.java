@@ -2,6 +2,7 @@ package com.letraaletra.api.features.shop.application.usecase;
 
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
+import com.letraaletra.api.features.offers.domain.exception.OfferAlreadyPurchasedException;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -20,20 +21,21 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
-    private final TransactionRepository walletTransactionRepository;
+    private final TransactionRepository transactionRepository;
 
     public BuyOfferUseCase(
             UserRepository userRepository,
             OfferRepository offerRepository,
-            TransactionRepository walletTransactionRepository
+            TransactionRepository transactionRepository
     ) {
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
-        this.walletTransactionRepository = walletTransactionRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         User user = userRepository.find(input.auth())
                 .orElseThrow(UserNotFoundException::new);
 
-        validateOffer(offer);
+        validateOffer(offer, user.getId());
+
         processPayment(user, offer);
 
         userRepository.save(user);
@@ -53,7 +56,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         return new BuyOfferOutput(offer);
     }
 
-    private void validateOffer(Offer offer) {
+    private void validateOffer(Offer offer, UUID userId) {
         if (!offer.isActive()) {
             throw new InvalidOfferStatusException();
         }
@@ -61,26 +64,42 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         if (offer.getCoinType().equals(CoinType.REAL)) {
             throw new InvalidPaymentException();
         }
+
+        if (!offer.isRepeatable()
+                && transactionRepository.existsOfferPurchase(userId, offer.getOfferId())) {
+            throw new OfferAlreadyPurchasedException();
+        }
     }
 
     private void processPayment(User user, Offer offer) {
-        user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+        WalletMovement walletMovement = user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+
+        transactionRepository.save(
+                Transaction.create(
+                        user.getId(),
+                        walletMovement.coinType(),
+                        walletMovement.amount(),
+                        getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
+                        getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                        walletMovement.operation(),
+                        TransactionReason.SHOP_PURCHASE,
+                        offer.getOfferId()
+                )
+        );
 
         processRewards(user, offer);
     }
 
     private void processRewards(User user, Offer offer) {
         offer.getRewards().forEach(offerReward -> {
-            Balance balanceBefore = user.getWallet().getBalance();
-
             Optional<WalletMovement> movement = offerReward.reward().deliver(user);
 
-            movement.ifPresent(walletMovement -> walletTransactionRepository.save(
+            movement.ifPresent(walletMovement -> transactionRepository.save(
                     Transaction.create(
                             user.getId(),
                             walletMovement.coinType(),
                             walletMovement.amount(),
-                            getBalance(balanceBefore, walletMovement.coinType()),
+                            getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
                             getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
                             walletMovement.operation(),
                             TransactionReason.SHOP_PURCHASE,

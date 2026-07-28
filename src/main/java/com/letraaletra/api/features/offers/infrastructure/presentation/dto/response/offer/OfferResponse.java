@@ -14,6 +14,7 @@ public record OfferResponse(
         BigDecimal price,
         List<OfferRewardResponse> rewards,
         boolean active,
+        boolean repeatable,
         boolean hasExpiration,
         LocalDateTime expiresAt
 ) {
