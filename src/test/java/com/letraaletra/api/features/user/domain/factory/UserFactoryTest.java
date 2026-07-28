@@ -29,12 +29,12 @@ class UserFactoryTest {
     }
 
     @Test
-    @DisplayName("Deve fabricar um Usuário via Google sem nickname e sem hash de senha inicial")
+    @DisplayName("Deve fabricar um Usuário via Google sem username e sem hash de senha inicial")
     void shouldCreateGoogleUserWithDefaults() {
         User user = factory.createGoogle("google@email.com", "sub-google-123");
 
         assertNotNull(user);
-        assertNull(user.getNickname(), "O nickname inicial de login social deve começar nulo para alteração posterior");
+        assertNull(user.getNickname(), "O username inicial de login social deve começar nulo para alteração posterior");
         assertEquals("google@email.com", user.getEmail());
         assertNull(user.getHashPassword(), "Cadastro via Google não possui hash de senha próprio");
         assertEquals("sub-google-123", user.getGoogleId());

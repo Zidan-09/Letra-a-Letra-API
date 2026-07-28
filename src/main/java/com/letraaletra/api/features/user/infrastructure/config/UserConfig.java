@@ -109,4 +109,24 @@ public class UserConfig {
                 adminChecker
         );
     }
+
+    @Bean
+    public FindUserByUsernameUseCase findUserByUsernameUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new FindUserByUsernameUseCase(
+                userRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetMyTransactionsUseCase getMyTransactionsUseCase(
+            TransactionRepository transactionRepository
+    ) {
+        return new GetMyTransactionsUseCase(
+                transactionRepository
+        );
+    }
 }

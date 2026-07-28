@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.transaction.infrastructure.controller;
 
-import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserNicknameInput;
-import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserNicknameOutput;
+import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserUsernameInput;
+import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserUsernameOutput;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
-import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.FindTransactionsByUserNicknameMapper;
+import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.FindTransactionsByUserUsernameMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/transaction")
 @Tag(name = "Transaction", description = "Rotas relacionadas a funcionalidade de transações dos usuários")
-public class FindTransactionByUserNicknameController {
-    private final UseCase<FindTransactionsByUserNicknameInput, FindTransactionsByUserNicknameOutput> useCase;
+public class FindTransactionByUserUsernameController {
+    private final UseCase<FindTransactionsByUserUsernameInput, FindTransactionsByUserUsernameOutput> useCase;
 
-    public FindTransactionByUserNicknameController(
-            UseCase<FindTransactionsByUserNicknameInput, FindTransactionsByUserNicknameOutput> useCase
+    public FindTransactionByUserUsernameController(
+            UseCase<FindTransactionsByUserUsernameInput, FindTransactionsByUserUsernameOutput> useCase
     ) {
         this.useCase = useCase;
     }
@@ -36,11 +36,11 @@ public class FindTransactionByUserNicknameController {
             @PathVariable String username,
             Pageable pageable
     ) {
-        FindTransactionsByUserNicknameInput input = FindTransactionsByUserNicknameMapper.toInput(principal, username, pageable);
+        FindTransactionsByUserUsernameInput input = FindTransactionsByUserUsernameMapper.toInput(principal, username, pageable);
 
-        FindTransactionsByUserNicknameOutput output = useCase.execute(input);
+        FindTransactionsByUserUsernameOutput output = useCase.execute(input);
 
-        PageResponse<TransactionResponse> dto = FindTransactionsByUserNicknameMapper.toResponse(output);
+        PageResponse<TransactionResponse> dto = FindTransactionsByUserUsernameMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }
