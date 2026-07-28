@@ -9,5 +9,5 @@ import java.util.UUID;
 
 public interface GetTransactions {
     Page<Transaction> get(TransactionsPage page);
-    List<Transaction> getByUserId(UUID userId);
+    Page<Transaction> getByUserId(UUID userId, TransactionsPage page);
 }

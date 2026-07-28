@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.transaction.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserInput;
-import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserOutput;
+import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserNicknameInput;
+import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserNicknameOutput;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -11,24 +11,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.UUID;
-
-public class FindTransactionsByUserMapper {
-    public static FindTransactionsByUserInput toInput(AuthenticatedUser principal, UUID userId, Pageable pageable) {
+public class FindTransactionsByUserNicknameMapper {
+    public static FindTransactionsByUserNicknameInput toInput(AuthenticatedUser principal, String nickname, Pageable pageable) {
         Pageable pages = pageable == null ?
                 PageRequest.of(0, 20, Sort.Direction.ASC) :
                 pageable;
 
-        return new FindTransactionsByUserInput(
+        return new FindTransactionsByUserNicknameInput(
                 principal,
-                userId,
+                nickname,
                 pages.getPageNumber(),
                 pages.getPageSize(),
                 pages.getSort()
         );
     }
 
-    public static PageResponse<TransactionResponse> toResponse(FindTransactionsByUserOutput output) {
+    public static PageResponse<TransactionResponse> toResponse(FindTransactionsByUserNicknameOutput output) {
         Page<Transaction> page = output.transactions();
 
         return new PageResponse<>(
