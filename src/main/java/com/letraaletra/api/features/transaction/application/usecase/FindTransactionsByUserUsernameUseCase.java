@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.transaction.application.usecase;
 
-import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserNicknameInput;
-import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserNicknameOutput;
+import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserUsernameInput;
+import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserUsernameOutput;
 import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
@@ -12,13 +12,13 @@ import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.data.domain.Page;
 
-public class FindTransactionsByUserNicknameUseCase implements
-        UseCase<FindTransactionsByUserNicknameInput, FindTransactionsByUserNicknameOutput> {
+public class FindTransactionsByUserUsernameUseCase implements
+        UseCase<FindTransactionsByUserUsernameInput, FindTransactionsByUserUsernameOutput> {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final AdminChecker adminChecker;
 
-    public FindTransactionsByUserNicknameUseCase(
+    public FindTransactionsByUserUsernameUseCase(
             UserRepository userRepository,
             TransactionRepository transactionRepository,
             AdminChecker adminChecker
@@ -29,10 +29,10 @@ public class FindTransactionsByUserNicknameUseCase implements
     }
 
     @Override
-    public FindTransactionsByUserNicknameOutput execute(FindTransactionsByUserNicknameInput input) {
+    public FindTransactionsByUserUsernameOutput execute(FindTransactionsByUserUsernameInput input) {
         adminChecker.check(input.principal());
 
-        User user = userRepository.findByNickname(input.nickname())
+        User user = userRepository.findByUsername(input.username())
                 .orElseThrow(UserNotFoundException::new);
 
         Page<TransactionDetails> transactions = transactionRepository.getByUserId(user.getId(), new TransactionsPage(
@@ -41,6 +41,6 @@ public class FindTransactionsByUserNicknameUseCase implements
                 input.sort()
         ));
 
-        return new FindTransactionsByUserNicknameOutput(transactions);
+        return new FindTransactionsByUserUsernameOutput(transactions);
     }
 }

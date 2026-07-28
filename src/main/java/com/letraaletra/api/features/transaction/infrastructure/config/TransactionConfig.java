@@ -2,7 +2,7 @@ package com.letraaletra.api.features.transaction.infrastructure.config;
 
 import com.letraaletra.api.features.transaction.application.usecase.FindTransactionByUserUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.FindTransactionUseCase;
-import com.letraaletra.api.features.transaction.application.usecase.FindTransactionsByUserNicknameUseCase;
+import com.letraaletra.api.features.transaction.application.usecase.FindTransactionsByUserUsernameUseCase;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -34,12 +34,12 @@ public class TransactionConfig {
     }
 
     @Bean
-    public FindTransactionsByUserNicknameUseCase findTransactionsByUserNicknameUseCase(
+    public FindTransactionsByUserUsernameUseCase findTransactionsByUserNicknameUseCase(
             UserRepository userRepository,
             TransactionRepository transactionRepository,
             AdminChecker adminChecker
     ) {
-        return new FindTransactionsByUserNicknameUseCase(
+        return new FindTransactionsByUserUsernameUseCase(
                 userRepository,
                 transactionRepository,
                 adminChecker
