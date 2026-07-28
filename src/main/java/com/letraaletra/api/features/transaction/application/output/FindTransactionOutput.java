@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.transaction.application.output;
 
-import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 
 public record FindTransactionOutput(
-        Transaction transaction
+        TransactionDetails transaction
 ) {
 }

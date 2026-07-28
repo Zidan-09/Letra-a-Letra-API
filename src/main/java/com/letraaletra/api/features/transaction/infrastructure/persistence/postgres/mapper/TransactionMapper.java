@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.features.transaction.domain.Transaction;
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
 import com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.entity.TransactionJpaEntity;
+import com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.projection.TransactionProjection;
 
 public class TransactionMapper {
     public static Transaction toDomain(TransactionJpaEntity entity) {
@@ -34,5 +36,23 @@ public class TransactionMapper {
         entity.setCreatedAt(domain.createdAt());
 
         return entity;
+    }
+
+    public static TransactionDetails toDetails(TransactionProjection projection) {
+        return new TransactionDetails(
+                projection.getTransactionId(),
+                projection.getUserId(),
+                projection.getUsername(),
+                projection.getCoinType(),
+                projection.getAmount(),
+                projection.getBalanceBefore(),
+                projection.getBalanceAfter(),
+                projection.getOperation(),
+                projection.getReason(),
+                projection.getReferenceId(),
+                projection.getReferenceType(),
+                projection.getReferenceName(),
+                projection.getTransactionDate()
+        );
     }
 }
