@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.match.MatchHistoryDTO;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.participant.ParticipantDTO;
+import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.participant.ParticipantResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ public record GameDTO(
     String gameName,
     GameType type,
     GameStatus status,
-    List<ParticipantDTO> participants,
+    List<ParticipantResponse> participants,
     Map<Integer, String> positions,
     List<MatchHistoryDTO> matches
 ) {

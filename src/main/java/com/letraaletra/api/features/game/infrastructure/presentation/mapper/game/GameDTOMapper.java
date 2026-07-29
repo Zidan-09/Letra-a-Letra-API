@@ -17,7 +17,7 @@ public class GameDTOMapper {
                 game.getRoomName(),
                 game.getGameType(),
                 game.getGameStatus(),
-                MapParticipantsMapper.execute(game),
+                MapParticipantsMapper.map(game),
                 game.getParticipants().getPositions().entrySet()
                         .stream()
                         .collect(Collectors.toMap(

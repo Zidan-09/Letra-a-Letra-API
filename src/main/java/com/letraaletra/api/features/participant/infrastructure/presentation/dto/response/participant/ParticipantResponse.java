@@ -5,7 +5,7 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
 
-public record ParticipantDTO(
+public record ParticipantResponse(
         String id,
         String nickname,
         List<InventoryItem> cosmeticsEquipped,
