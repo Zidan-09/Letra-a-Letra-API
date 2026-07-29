@@ -39,14 +39,14 @@ class ChangeNicknameUseCaseTest {
 
         input = new ChangeNicknameInput(
                 userId,
-                "new-username"
+                "new-email"
         );
 
         user = mock(User.class);
     }
 
     @Test
-    @DisplayName("should update username successfully")
+    @DisplayName("should update email successfully")
     void shouldUpdateNicknameSuccessfully() {
 
         when(userRepository.find(userId))
@@ -56,17 +56,17 @@ class ChangeNicknameUseCaseTest {
                 .thenReturn(true);
 
         when(user.getNickname())
-                .thenReturn("new-username");
+                .thenReturn("new-email");
 
-        when(userRepository.existsByNickname("new-username"))
+        when(userRepository.existsByNickname("new-email"))
                 .thenReturn(false);
 
         ChangeNicknameOutput output =
                 changeNicknameUseCase.execute(input);
 
-        assertEquals("new-username", output.user().getNickname());
+        assertEquals("new-email", output.user().getNickname());
 
-        verify(user).setNickname("new-username");
+        verify(user).setNickname("new-email");
         verify(user).setCanChangeNickname(false);
 
         verify(userRepository).save(user);
@@ -92,7 +92,7 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw NicknameAlreadyInUseException when username already exists")
+    @DisplayName("should throw NicknameAlreadyInUseException when email already exists")
     void shouldThrowWhenNicknameAlreadyExists() {
 
         when(userRepository.find(userId))
@@ -101,7 +101,7 @@ class ChangeNicknameUseCaseTest {
         when(user.canChangeNickname())
                 .thenReturn(true);
 
-        when(userRepository.existsByNickname("new-username"))
+        when(userRepository.existsByNickname("new-email"))
                 .thenReturn(true);
 
         assertThrows(
@@ -117,7 +117,7 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw UserCannotChangeNicknameException when user cannot change username")
+    @DisplayName("should throw UserCannotChangeNicknameException when user cannot change email")
     void shouldThrowWhenUserCannotChangeNickname() {
 
         when(userRepository.find(userId))
@@ -139,7 +139,7 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should propagate exception when username validation fails")
+    @DisplayName("should propagate exception when email validation fails")
     void shouldPropagateExceptionFromExistsNickname() {
 
         when(userRepository.find(userId))
@@ -151,7 +151,7 @@ class ChangeNicknameUseCaseTest {
         when(user.canChangeNickname())
                 .thenReturn(true);
 
-        when(userRepository.existsByNickname("new-username"))
+        when(userRepository.existsByNickname("new-email"))
                 .thenThrow(exception);
 
         RuntimeException thrown = assertThrows(
@@ -172,7 +172,7 @@ class ChangeNicknameUseCaseTest {
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
-        when(userRepository.existsByNickname("new-username"))
+        when(userRepository.existsByNickname("new-email"))
                 .thenReturn(false);
 
         when(user.canChangeNickname())

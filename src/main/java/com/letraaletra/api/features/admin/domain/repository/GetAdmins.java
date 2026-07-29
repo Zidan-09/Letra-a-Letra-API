@@ -1,9 +1,11 @@
 package com.letraaletra.api.features.admin.domain.repository;
 
 import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.AdminsPage;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface GetAdmins {
-    List<Admin> getAdmins();
+    Page<Admin> getAdmins(AdminsPage page);
 }

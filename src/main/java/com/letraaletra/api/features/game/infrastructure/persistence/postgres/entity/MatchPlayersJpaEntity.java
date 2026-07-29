@@ -12,7 +12,7 @@ public class MatchPlayersJpaEntity {
     @EmbeddedId
     private MatchPlayerId matchPlayerId;
 
-    @Column(name = "username")
+    @Column(name = "email")
     private String nickname;
 
     @Column(name = "score")

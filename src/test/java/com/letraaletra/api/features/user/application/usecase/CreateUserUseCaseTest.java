@@ -123,7 +123,7 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    @DisplayName("should propagate exception when username service fails")
+    @DisplayName("should propagate exception when email service fails")
     void shouldPropagateNicknameException() {
         CreateUserInput input = new CreateUserInput(
                 "john@email.com",
@@ -133,7 +133,7 @@ class CreateUserUseCaseTest {
         when(userRepository.existsByEmail(input.email()))
                 .thenReturn(false);
 
-        RuntimeException exception = new RuntimeException("username error");
+        RuntimeException exception = new RuntimeException("email error");
 
         when(selectNicknameService.execute())
                 .thenThrow(exception);

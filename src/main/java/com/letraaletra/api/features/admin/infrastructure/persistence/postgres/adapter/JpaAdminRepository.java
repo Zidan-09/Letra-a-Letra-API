@@ -1,12 +1,15 @@
 package com.letraaletra.api.features.admin.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.AdminsPage;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.jpa.SpringDataAdminRepository;
 import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.mapper.AdminMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,10 +34,15 @@ public class JpaAdminRepository implements AdminRepository {
     }
 
     @Override
-    public List<Admin> getAdmins() {
-        return repository.findAll()
-                .stream().map(AdminMapper::toDomain)
-                .toList();
+    public Page<Admin> getAdmins(AdminsPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.findAll(pageable)
+                .map(AdminMapper::toDomain);
     }
 
     @Override
