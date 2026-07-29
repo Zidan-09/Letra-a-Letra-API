@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.respon
 import java.time.Instant;
 import java.util.List;
 
-public record MatchHistoryDTO(
+public record MatchHistoryResponse(
         Instant finishedAt,
-        List<PlayerHistoryDTO> players
+        List<PlayerHistoryResponse> players
 ) {}

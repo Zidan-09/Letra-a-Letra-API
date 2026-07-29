@@ -4,7 +4,7 @@ import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.DiscardPowerResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateResponseMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class DiscardPowerResponseMapper {
 
     public DiscardPowerResponse toResponse(DiscardPowerOutput output, UUID viewer) {
         return new DiscardPowerResponse(
-                GameStateDTOMapper.toDto(output.game(), viewer)
+                GameStateResponseMapper.toResponse(output.game(), viewer)
         );
     }
 }

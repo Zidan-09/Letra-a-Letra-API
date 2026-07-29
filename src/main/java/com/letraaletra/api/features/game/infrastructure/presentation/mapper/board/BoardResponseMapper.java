@@ -5,13 +5,13 @@ import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
 import com.letraaletra.api.features.game.domain.board.cell.effect.BlockEffect;
 import com.letraaletra.api.features.game.domain.board.position.Position;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardResponse;
 
-public class BoardDTOMapper {
-    public static BoardDTO[][] toDTO(Board board) {
+public class BoardResponseMapper {
+    public static BoardResponse[][] toResponse(Board board) {
         int range = board.grid().length;
 
-        BoardDTO[][] dto = new BoardDTO[range][range];
+        BoardResponse[][] dto = new BoardResponse[range][range];
 
         for (int i = 0; i < range; i++) {
             for (int j = 0; j < range; j++) {
@@ -24,9 +24,9 @@ public class BoardDTOMapper {
         return dto;
     }
 
-    private static BoardDTO mapCellToView(Cell cell) {
+    private static BoardResponse mapCellToView(Cell cell) {
         if (cell.isRevealed()) {
-            return new BoardDTO(
+            return new BoardResponse(
                     true,
                     cell.getLetter(),
                     cell.getRevealedById().toString(),
@@ -34,7 +34,7 @@ public class BoardDTOMapper {
             );
         }
 
-        return new BoardDTO(
+        return new BoardResponse(
                 false,
                 null,
                 null,

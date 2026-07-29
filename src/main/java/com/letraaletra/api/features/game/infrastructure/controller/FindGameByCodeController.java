@@ -33,7 +33,7 @@ public class FindGameByCodeController {
 
         FindByCodeOutput output = findByCodeUseCase.execute(command);
 
-        FindByCodeResponse dto = FindByCodeMapper.toResponseDTO(output);
+        FindByCodeResponse dto = FindByCodeMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

@@ -13,7 +13,7 @@ public class FindCosmeticByNameMapper {
 
     public static FindCosmeticByNameResponse toResponse(FindCosmeticByNameOutput output) {
         return new FindCosmeticByNameResponse(
-                CosmeticResponseMapper.toDto(output.cosmetic())
+                CosmeticResponseMapper.toResponse(output.cosmetic())
         );
     }
 }

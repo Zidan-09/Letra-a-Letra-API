@@ -18,7 +18,7 @@ public class JoinGameMapper {
 
     public static JoinGameResponse toResponse(JoinGameOutput output) {
         return new JoinGameResponse(
-                GameDTOMapper.toDTO(output.game())
+                GameResponseMapper.toResponse(output.game())
         );
     }
 }

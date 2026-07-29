@@ -22,7 +22,7 @@ public class StartGameMapper {
 
     public static StartGameResponse toResponse(StartGameOutput output) {
         return new StartGameResponse(
-                GameStateDTOMapper.toGlobalDto(output.game())
+                GameStateResponseMapper.toGlobalResponse(output.game())
         );
     }
 }

@@ -67,13 +67,13 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
                     gameOver.winner().getScore()
             );
 
-            RankedMatchResult winnerResult = RankingMatchResultMapper.toDto(
+            RankedMatchResult winnerResult = RankingMatchResultMapper.toResponse(
                     gameOver.winner(),
                     winnerParticipant,
                     winnerPoints
             );
 
-            RankedMatchResult loserResult = RankingMatchResultMapper.toDto(
+            RankedMatchResult loserResult = RankingMatchResultMapper.toResponse(
                     gameOver.loser(),
                     loserParticipant,
                     loserPoints

@@ -29,7 +29,7 @@ public class GetCosmeticsMapper {
 
         return new PageResponse<>(
                 page.getContent()
-                        .stream().map(CosmeticResponseMapper::toDto)
+                        .stream().map(CosmeticResponseMapper::toResponse)
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.respon
 
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.cell.EffectView;
 
-public record BoardDTO(
+public record BoardResponse(
         boolean revealed,
         Character letter,
         String revealedBy,
