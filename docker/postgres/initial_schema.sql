@@ -79,6 +79,7 @@ CREATE TABLE "offer" (
                        "coin_type" varchar(50) NOT NULL,
                        "price" NUMERIC(10,2) NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
+                       "repeatable" boolean NOT NULL false,
                        "has_expiration" boolean NOT NULL DEFAULT true,
                        "expires_at" timestamptz,
                        "created_at" timestamptz

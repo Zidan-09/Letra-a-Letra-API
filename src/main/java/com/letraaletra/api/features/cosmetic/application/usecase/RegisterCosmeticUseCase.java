@@ -8,6 +8,7 @@ import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
 
 public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> {
     private final CosmeticRepository cosmeticRepository;
@@ -28,11 +29,11 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
     }
 
     @Override
+    @Transactional
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
         adminChecker.check(input.principal());
 
-        Cosmetic exists = cosmeticRepository.findByName(input.name()).orElse(null);
-        validateIfExists(exists);
+        validateIfExists(input.name());
 
         byte[] image = imageConverter.convertToWebp(input.asset());
 
@@ -63,8 +64,8 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
         );
     }
 
-    private void validateIfExists(Cosmetic exists) {
-        if (exists != null) {
+    private void validateIfExists(String name) {
+        if (cosmeticRepository.checkIfExistsByName(name)) {
             throw new RuntimeException("cosmetic_already_exists");
         }
     }

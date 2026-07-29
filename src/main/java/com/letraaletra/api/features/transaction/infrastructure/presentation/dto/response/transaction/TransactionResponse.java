@@ -10,13 +10,21 @@ import java.util.UUID;
 public record TransactionResponse(
         UUID transactionId,
         UUID userId,
+        String username,
+
         CoinType coinType,
         int amount,
         int balanceBefore,
         int balanceAfter,
+
         OperationType operation,
+
         TransactionReason reason,
+
         UUID referenceId,
+        String referenceType,
+        String referenceName,
+
         LocalDateTime transactionDate
 ) {
 }

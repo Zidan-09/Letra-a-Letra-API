@@ -9,7 +9,7 @@ public class FindByCodeMapper {
         return new FindByCodeInput(code);
     }
 
-    public static FindByCodeResponse toResponseDTO(FindByCodeOutput output) {
+    public static FindByCodeResponse toResponse(FindByCodeOutput output) {
         return new FindByCodeResponse(
                 output.gameId().toString()
         );

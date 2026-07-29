@@ -7,7 +7,7 @@ import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
-import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverMapper;
+import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
@@ -67,19 +67,19 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
                     gameOver.winner().getScore()
             );
 
-            RankedMatchResult winnerResult = RankingMatchResultMapper.toDto(
+            RankedMatchResult winnerResult = RankingMatchResultMapper.toResponse(
                     gameOver.winner(),
                     winnerParticipant,
                     winnerPoints
             );
 
-            RankedMatchResult loserResult = RankingMatchResultMapper.toDto(
+            RankedMatchResult loserResult = RankingMatchResultMapper.toResponse(
                     gameOver.loser(),
                     loserParticipant,
                     loserPoints
             );
 
-            return RankingOverMapper.toResponse(winnerResult, loserResult);
+            return RankingOverResultMapper.toResponse(winnerResult, loserResult);
         }
 
         return GameOverMapper.toResponse(

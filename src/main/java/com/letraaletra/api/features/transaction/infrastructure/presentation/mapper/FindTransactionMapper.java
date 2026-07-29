@@ -3,12 +3,14 @@ package com.letraaletra.api.features.transaction.infrastructure.presentation.map
 import com.letraaletra.api.features.transaction.application.input.FindTransactionInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionOutput;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.FindTransactionResponse;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 import java.util.UUID;
 
 public class FindTransactionMapper {
-    public static FindTransactionInput toInput(UUID transactionId) {
+    public static FindTransactionInput toInput(AuthenticatedUser principal, UUID transactionId) {
         return new FindTransactionInput(
+                principal,
                 transactionId
         );
     }

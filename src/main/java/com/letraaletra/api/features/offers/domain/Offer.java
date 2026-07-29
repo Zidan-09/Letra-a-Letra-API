@@ -14,6 +14,7 @@ public class Offer {
     private final CoinType coinType;
     private final BigDecimal price;
     private final List<OfferReward> rewards;
+    private final boolean repeatable;
     private boolean active;
     private final boolean hasExpiration;
     private final LocalDateTime expiresAt;
@@ -26,6 +27,7 @@ public class Offer {
             BigDecimal price,
             List<OfferReward> rewards,
             boolean active,
+            boolean repeatable,
             boolean hasExpiration,
             LocalDateTime expiresAt,
             LocalDateTime createdAt
@@ -36,6 +38,7 @@ public class Offer {
         this.price = price;
         this.rewards = rewards;
         this.active = active;
+        this.repeatable = repeatable;
         this.hasExpiration = hasExpiration;
         this.expiresAt = expiresAt;
         this.createdAt = createdAt;
@@ -46,7 +49,7 @@ public class Offer {
             CoinType coinType,
             BigDecimal price,
             List<OfferReward> rewards,
-            boolean active,
+            boolean repeatable,
             boolean hasExpiration,
             long expiresIn
     ) {
@@ -60,7 +63,8 @@ public class Offer {
                 coinType,
                 price,
                 rewards,
-                active,
+                false,
+                repeatable,
                 hasExpiration,
                 hasExpiration ?
                         LocalDateTime.now().plusMinutes(expiresIn) :
@@ -76,6 +80,7 @@ public class Offer {
             BigDecimal price,
             List<OfferReward> rewards,
             boolean active,
+            boolean repeatable,
             boolean hasExpiration,
             LocalDateTime expiresAt,
             LocalDateTime createdAt
@@ -87,6 +92,7 @@ public class Offer {
                 price,
                 rewards,
                 active,
+                repeatable,
                 hasExpiration,
                 expiresAt,
                 createdAt
@@ -111,6 +117,10 @@ public class Offer {
 
     public boolean isActive() {
         return active;
+    }
+
+    public boolean isRepeatable() {
+        return repeatable;
     }
 
     public List<OfferReward> getRewards() {

@@ -2,13 +2,15 @@ package com.letraaletra.api.features.transaction.infrastructure.controller;
 
 import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserOutput;
-import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.FindTransactionsByUserResponse;
+import com.letraaletra.api.features.transaction.infrastructure.presentation.dto.response.transaction.TransactionResponse;
 import com.letraaletra.api.features.transaction.infrastructure.presentation.mapper.FindTransactionsByUserMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,15 +33,16 @@ public class FindTransactionByUserController {
     }
 
     @GetMapping(path = "/user/{userId}")
-    public ResponseEntity<SuccessResponse<FindTransactionsByUserResponse>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<TransactionResponse>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @PathVariable UUID userId
+            @PathVariable UUID userId,
+            Pageable pageable
     ) {
-        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal, userId);
+        FindTransactionsByUserInput input = FindTransactionsByUserMapper.toInput(principal, userId, pageable);
 
         FindTransactionsByUserOutput output = useCase.execute(input);
 
-        FindTransactionsByUserResponse dto = FindTransactionsByUserMapper.toResponse(output);
+        PageResponse<TransactionResponse> dto = FindTransactionsByUserMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

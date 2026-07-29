@@ -25,7 +25,7 @@ public class ChangeNicknameController {
         this.changeNicknameUseCase = changeNicknameUseCase;
     }
 
-    @PatchMapping("/nickname")
+    @PatchMapping("/username")
     public ResponseEntity<SuccessResponse<ChangeNicknameResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody ChangeNicknameRequest request

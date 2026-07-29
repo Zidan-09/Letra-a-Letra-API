@@ -52,7 +52,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
                 input.coinType(),
                 input.price(),
                 buildRewards(input.rewards()),
-                true,
+                input.repeatable(),
                 input.hasExpiration(),
                 input.expiresIn()
         );

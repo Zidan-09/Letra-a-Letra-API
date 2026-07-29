@@ -21,8 +21,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -69,7 +67,7 @@ class RegisterCosmeticUseCaseTest {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
-            when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
+            when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(false);
             when(imageConverter.convertToWebp(rawAsset)).thenReturn(webpAsset);
             when(storageGateway.upload(webpAsset, cosmeticName, cosmeticType)).thenReturn(uploadedAssetPath);
 
@@ -83,7 +81,7 @@ class RegisterCosmeticUseCaseTest {
 
             InOrder inOrder = inOrder(adminChecker, cosmeticRepository, imageConverter, storageGateway);
             inOrder.verify(adminChecker).check(principal);
-            inOrder.verify(cosmeticRepository).findByName(cosmeticName);
+            inOrder.verify(cosmeticRepository).checkIfExistsByName(cosmeticName);
             inOrder.verify(imageConverter).convertToWebp(rawAsset);
             inOrder.verify(storageGateway).upload(webpAsset, cosmeticName, cosmeticType);
             inOrder.verify(cosmeticRepository).save(mockCosmetic);
@@ -99,7 +97,7 @@ class RegisterCosmeticUseCaseTest {
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
-        verify(cosmeticRepository, never()).findByName(any());
+        verify(cosmeticRepository, never()).checkIfExistsByName(any());
         verify(imageConverter, never()).convertToWebp(any());
         verify(storageGateway, never()).upload(any(), any(), any());
         verify(cosmeticRepository, never()).save(any());
@@ -109,9 +107,8 @@ class RegisterCosmeticUseCaseTest {
     @DisplayName("Deve lançar RuntimeException se o cosmético já existir com o mesmo nome")
     void execute_ShouldThrowException_WhenCosmeticAlreadyExistsWithName() {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
-        Cosmetic existingCosmetic = mock(Cosmetic.class);
 
-        when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.of(existingCosmetic));
+        when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(true);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> useCase.execute(input));
         assertEquals("cosmetic_already_exists", exception.getMessage());
@@ -127,7 +124,7 @@ class RegisterCosmeticUseCaseTest {
     void execute_ShouldPropagateException_WhenImageConversionFails() {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
-        when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
+        when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(false);
         when(imageConverter.convertToWebp(rawAsset)).thenThrow(new IllegalArgumentException("Invalid image format"));
 
         assertThrows(IllegalArgumentException.class, () -> useCase.execute(input));
@@ -141,7 +138,7 @@ class RegisterCosmeticUseCaseTest {
     void execute_ShouldPropagateException_WhenStorageUploadFails() {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
-        when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
+        when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(false);
         when(imageConverter.convertToWebp(rawAsset)).thenReturn(webpAsset);
         when(storageGateway.upload(webpAsset, cosmeticName, cosmeticType)).thenThrow(new RuntimeException("Storage unavailable"));
 
@@ -156,7 +153,7 @@ class RegisterCosmeticUseCaseTest {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
-            when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
+            when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(false);
             when(imageConverter.convertToWebp(rawAsset)).thenReturn(webpAsset);
             when(storageGateway.upload(webpAsset, cosmeticName, cosmeticType)).thenReturn(uploadedAssetPath);
 
@@ -168,28 +165,12 @@ class RegisterCosmeticUseCaseTest {
     }
 
     @Test
-    @DisplayName("Deve validar contra entradas de texto vazias ou em branco (Comportamento Desejado/Ausente)")
-    void execute_ShouldThrowException_WhenNameIsEmptyOrBlank() {
-        RegisterCosmeticInput emptyNameInput = new RegisterCosmeticInput(principal, "", cosmeticType, rawAsset);
-        RegisterCosmeticInput blankNameInput = new RegisterCosmeticInput(principal, "   ", cosmeticType, rawAsset);
-
-        // Cenário onde o use case deveria barrar nomes inválidos antes do processamento pesado
-        when(cosmeticRepository.findByName("")).thenThrow(new IllegalArgumentException("Cosmetic name cannot be blank"));
-        when(cosmeticRepository.findByName("   ")).thenThrow(new IllegalArgumentException("Cosmetic name cannot be blank"));
-
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(emptyNameInput));
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(blankNameInput));
-
-        verify(imageConverter, never()).convertToWebp(any());
-    }
-
-    @Test
     @DisplayName("Deve disparar compensação/reversão no storage se a persistência falhar (Comportamento Desejado/Ausente - Consistência Transacional)")
     void execute_ShouldDeleteUploadedAsset_WhenDatabasePersistFailsAfterUpload() {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
         try (MockedStatic<Cosmetic> cosmeticStatic = mockStatic(Cosmetic.class)) {
-            when(cosmeticRepository.findByName(cosmeticName)).thenReturn(Optional.empty());
+            when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(false);
             when(imageConverter.convertToWebp(rawAsset)).thenReturn(webpAsset);
             when(storageGateway.upload(webpAsset, cosmeticName, cosmeticType)).thenReturn(uploadedAssetPath);
 

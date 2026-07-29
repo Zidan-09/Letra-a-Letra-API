@@ -15,7 +15,9 @@ public class GetFriendListMapper {
 
     public static GetFriendListResponse toResponse(GetFriendListOutput output) {
         return new GetFriendListResponse(
-                output.friends()
+                output.friends().stream()
+                        .map(FriendResponseMapper::toResponse)
+                        .toList()
         );
     }
 }

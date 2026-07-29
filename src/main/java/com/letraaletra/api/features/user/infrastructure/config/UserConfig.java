@@ -71,10 +71,10 @@ public class UserConfig {
     }
 
     @Bean
-    public GetUserInventoryUseCase getUserInventoryUseCase(
+    public GetMyInventoryUseCase getUserInventoryUseCase(
             InventoryRepository inventoryRepository
     ) {
-        return new GetUserInventoryUseCase(
+        return new GetMyInventoryUseCase(
                 inventoryRepository
         );
     }
@@ -107,6 +107,26 @@ public class UserConfig {
         return new GetUsersUseCase(
                 userRepository,
                 adminChecker
+        );
+    }
+
+    @Bean
+    public FindUserByUsernameUseCase findUserByUsernameUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new FindUserByUsernameUseCase(
+                userRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetMyTransactionsUseCase getMyTransactionsUseCase(
+            TransactionRepository transactionRepository
+    ) {
+        return new GetMyTransactionsUseCase(
+                transactionRepository
         );
     }
 }

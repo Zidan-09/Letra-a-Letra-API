@@ -2,10 +2,10 @@ package com.letraaletra.api.features.participant.infrastructure.presentation.dto
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameResponse;
 
 @JsonTypeName("POSITIONS_UPDATED")
 public record SwapPositionResponse(
-        GameDTO data
+        GameResponse data
 ) implements WsResponse {
 }

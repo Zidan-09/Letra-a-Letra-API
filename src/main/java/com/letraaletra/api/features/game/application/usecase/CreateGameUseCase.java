@@ -15,6 +15,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -42,6 +43,8 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
         this.generateRoomCode = generateRoomCode;
     }
 
+    @Override
+    @Transactional
     public CreateGameOutput execute(CreateGameInput input) {
         UUID gameId = UUID.randomUUID();
 

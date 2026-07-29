@@ -18,6 +18,7 @@ public class RegisterOfferMapper {
                 request.rewards().stream()
                         .map(RegisterOfferMapper::toRewardInput)
                         .toList(),
+                request.repeatable(),
                 request.hasExpiration(),
                 request.expiresIn()
         );

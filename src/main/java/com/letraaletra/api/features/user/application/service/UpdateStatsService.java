@@ -41,8 +41,6 @@ public class UpdateStatsService {
             Optional<Level> level = levelRepository.findByLevel(afterLevel);
 
             level.ifPresent(l -> l.getRewards().forEach(levelReward -> {
-                Balance balanceBefore = user.getWallet().getBalance();
-
                 Optional<WalletMovement> movement = levelReward.reward().deliver(user);
 
                 movement.ifPresent(walletMovement -> walletTransactionRepository.save(
@@ -50,7 +48,7 @@ public class UpdateStatsService {
                                 user.getId(),
                                 walletMovement.coinType(),
                                 walletMovement.amount(),
-                                getBalance(balanceBefore, walletMovement.coinType()),
+                                getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
                                 getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
                                 walletMovement.operation(),
                                 TransactionReason.LEVEL_UP,

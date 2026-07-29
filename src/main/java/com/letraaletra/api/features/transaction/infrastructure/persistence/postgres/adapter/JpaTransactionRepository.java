@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.transaction.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.transaction.domain.TransactionDetails;
+import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.TransactionsPage;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.transaction.domain.Transaction;
@@ -10,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,32 +26,46 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public Optional<Transaction> find(UUID id) {
-        return repository.findById(id)
-                .map(TransactionMapper::toDomain);
+    public Optional<TransactionDetails> find(UUID id) {
+        return repository.findByIdDetails(id)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override
-    public Page<Transaction> get(TransactionsPage page) {
+    public Page<TransactionDetails> get(TransactionsPage page) {
         Pageable pageable = PageRequest.of(
                 page.page(),
                 page.size(),
                 page.sort()
         );
 
-        return repository.findAll(pageable)
-                .map(TransactionMapper::toDomain);
+        return repository.findAllDetails(pageable)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override
-    public List<Transaction> getByUserId(UUID userId) {
-        return repository.findByUserId(userId).stream()
-                .map(TransactionMapper::toDomain)
-                .toList();
+    public Page<TransactionDetails> getByUserId(UUID userId, TransactionsPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.findByUserIdDetails(userId, pageable)
+                .map(TransactionMapper::toDetails);
     }
 
     @Override
     public void save(Transaction transaction) {
         repository.save(TransactionMapper.toEntity(transaction));
+    }
+
+    @Override
+    public boolean existsOfferPurchase(UUID userId, UUID referenceId) {
+        return repository.hasPurchasedOffer(
+                userId,
+                referenceId,
+                TransactionReason.SHOP_PURCHASE
+        );
     }
 }

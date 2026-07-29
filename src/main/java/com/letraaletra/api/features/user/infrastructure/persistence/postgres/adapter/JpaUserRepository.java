@@ -73,6 +73,12 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        return repository.findByUsername(username)
+                .map(this::assembleUser);
+    }
+
+    @Override
     public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email).map(this::assembleUser);
     }

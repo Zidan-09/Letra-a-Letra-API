@@ -9,6 +9,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -24,6 +25,8 @@ public class RemoveParticipantUseCase implements UseCase<RemoveParticipantInput,
         this.userRepository = userRepository;
     }
 
+    @Override
+    @Transactional
     public Void execute(RemoveParticipantInput input) {
         Actor actor = gameActorManager.get(input.gameId());
 

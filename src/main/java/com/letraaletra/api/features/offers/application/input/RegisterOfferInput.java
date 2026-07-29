@@ -12,6 +12,7 @@ public record RegisterOfferInput(
         CoinType coinType,
         BigDecimal price,
         List<RegisterOfferRewardInput> rewards,
+        boolean repeatable,
         boolean hasExpiration,
         long expiresIn
 ) {

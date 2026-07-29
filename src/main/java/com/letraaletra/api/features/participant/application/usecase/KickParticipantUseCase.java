@@ -21,6 +21,7 @@ public class KickParticipantUseCase implements UseCase<KickParticipantInput, Kic
         this.gameActorManager = gameActorManager;
     }
 
+    @Override
     public KickParticipantOutput execute(KickParticipantInput input) {
         ModerationContext context = moderationContextService.resolve(
                 input.gameId(),

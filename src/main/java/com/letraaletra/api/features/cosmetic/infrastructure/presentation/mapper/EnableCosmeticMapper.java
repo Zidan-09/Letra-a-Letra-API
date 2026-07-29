@@ -17,7 +17,7 @@ public class EnableCosmeticMapper {
 
     public static EnableCosmeticResponse toResponse(EnableCosmeticOutput output) {
         return new EnableCosmeticResponse(
-                CosmeticMapper.toDto(output.cosmetic())
+                CosmeticResponseMapper.toResponse(output.cosmetic())
         );
     }
 }

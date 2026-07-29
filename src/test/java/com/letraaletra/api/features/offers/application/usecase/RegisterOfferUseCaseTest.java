@@ -116,6 +116,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_COIN_TYPE,
                     DEFAULT_PRICE,
                     Collections.emptyList(),
+                    true,
                     false,
                     0
             );
@@ -142,6 +143,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_PRICE,
                     Collections.emptyList(),
                     true,
+                    true,
                     invalidMinutes
             );
 
@@ -163,6 +165,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_COIN_TYPE,
                     DEFAULT_PRICE,
                     Collections.emptyList(),
+                    true,
                     true,
                     minutesToExpire
             );
@@ -192,6 +195,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_COIN_TYPE,
                     DEFAULT_PRICE,
                     Collections.emptyList(),
+                    true,
                     false,
                     ignoredMinutes
             );
@@ -346,7 +350,7 @@ class RegisterOfferUseCaseTest {
     class OfferCreationAndOutputTests {
 
         @Test
-        @DisplayName("Deve construir a oferta com estado ativo (true) por padrão ao criar")
+        @DisplayName("Deve construir a oferta com estado desativado (false) por padrão ao criar")
         void shouldCreateOfferAsActiveByDefault() {
             RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
 
@@ -355,7 +359,7 @@ class RegisterOfferUseCaseTest {
             verify(offerRepository).save(offerCaptor.capture());
             Offer savedOffer = offerCaptor.getValue();
 
-            assertThat(savedOffer.isActive()).isTrue();
+            assertThat(savedOffer.isActive()).isFalse();
         }
 
         @Test
@@ -401,6 +405,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_COIN_TYPE,
                     DEFAULT_PRICE,
                     null,
+                    true,
                     false,
                     0
             );
@@ -433,6 +438,7 @@ class RegisterOfferUseCaseTest {
                     DEFAULT_COIN_TYPE,
                     negativePrice,
                     Collections.emptyList(),
+                    true,
                     false,
                     0
             );
@@ -451,6 +457,7 @@ class RegisterOfferUseCaseTest {
                 DEFAULT_COIN_TYPE,
                 DEFAULT_PRICE,
                 rewards,
+                true,
                 false,
                 0
         );

@@ -8,6 +8,7 @@ import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
+import org.springframework.transaction.annotation.Transactional;
 
 public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, RegisterAdminOutput> {
     private final AdminRepository adminRepository;
@@ -25,6 +26,7 @@ public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, Registe
     }
 
     @Override
+    @Transactional
     public RegisterAdminOutput execute(RegisterAdminInput input) {
         adminChecker.check(input.principal());
 
