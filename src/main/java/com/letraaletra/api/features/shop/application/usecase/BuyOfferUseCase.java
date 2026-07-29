@@ -72,7 +72,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     private void processPayment(User user, Offer offer) {
-        WalletMovement walletMovement = user.getWallet().pay(offer.getCoinType(), offer.getPrice());
+        WalletMovement walletMovement = user.getWallet().pay(offer.getCoinType(), offer.getPrice().intValueExact());
 
         transactionRepository.save(
                 Transaction.create(

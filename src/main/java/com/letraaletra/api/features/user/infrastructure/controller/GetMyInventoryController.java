@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.user.infrastructure.controller;
 
-import com.letraaletra.api.features.user.application.input.GetUserInventoryInput;
-import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.GetUserInventoryResponse;
-import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUserInventoryMapper;
+import com.letraaletra.api.features.user.application.input.GetMyInventoryInput;
+import com.letraaletra.api.features.user.application.output.GetMyInventoryOutput;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.GetMyInventoryResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetMyInventoryMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -18,24 +18,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
-public class GetUserInventoryController {
-    private final UseCase<GetUserInventoryInput, GetUserInventoryOutput> useCase;
+public class GetMyInventoryController {
+    private final UseCase<GetMyInventoryInput, GetMyInventoryOutput> useCase;
 
-    public GetUserInventoryController(
-            UseCase<GetUserInventoryInput, GetUserInventoryOutput> useCase
+    public GetMyInventoryController(
+            UseCase<GetMyInventoryInput, GetMyInventoryOutput> useCase
     ) {
         this.useCase = useCase;
     }
 
     @GetMapping(path = "/inventory")
-    public ResponseEntity<SuccessResponse<GetUserInventoryResponse>> handle(
+    public ResponseEntity<SuccessResponse<GetMyInventoryResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal
         ) {
-        GetUserInventoryInput input = GetUserInventoryMapper.toInput(principal.auth());
+        GetMyInventoryInput input = GetMyInventoryMapper.toInput(principal.auth());
 
-        GetUserInventoryOutput output = useCase.execute(input);
+        GetMyInventoryOutput output = useCase.execute(input);
 
-        GetUserInventoryResponse dto = GetUserInventoryMapper.toResponse(output);
+        GetMyInventoryResponse dto = GetMyInventoryMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

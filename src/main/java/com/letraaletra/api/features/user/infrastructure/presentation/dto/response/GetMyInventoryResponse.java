@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 
 import java.util.List;
 
-public record GetUserInventoryResponse(
+public record GetMyInventoryResponse(
         List<InventoryItemResponse> inventory
 ) {
 }
