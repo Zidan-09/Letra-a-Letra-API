@@ -2,11 +2,9 @@ package com.letraaletra.api.features.admin.infrastructure.config;
 
 import com.letraaletra.api.features.admin.application.port.HealthChecker;
 import com.letraaletra.api.features.admin.application.port.MeterChecker;
-import com.letraaletra.api.features.admin.application.usecase.AuthAdminUseCase;
+import com.letraaletra.api.features.admin.application.usecase.*;
 import com.letraaletra.api.features.admin.application.service.GetApplicationStatusService;
 import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
-import com.letraaletra.api.features.admin.application.usecase.GetMyAdminProfileUseCase;
-import com.letraaletra.api.features.admin.application.usecase.RegisterAdminUseCase;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
@@ -76,6 +74,28 @@ public class AdminConfig {
     ) {
         return new GetMyAdminProfileUseCase(
                 adminRepository
+        );
+    }
+
+    @Bean
+    public GetAdminsUseCase getAdminsUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetAdminsUseCase(
+                adminRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public FindAdminByEmailUseCase findAdminByUsernameUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        return new FindAdminByEmailUseCase(
+                adminRepository,
+                adminChecker
         );
     }
 }

@@ -44,7 +44,7 @@ class CreateUserControllerTest {
 
         User user = new User(
                 UUID.randomUUID(),
-                "username",
+                "email",
                 "email@email.com",
                 "hash-password",
                 null,

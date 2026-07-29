@@ -29,7 +29,7 @@ public class FindUserByUsernameController {
         this.useCase = useCase;
     }
 
-    @GetMapping(path = "/username/{username}")
+    @GetMapping(path = "/email/{email}")
     public ResponseEntity<SuccessResponse<FindUserByUsernameResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String username
