@@ -82,7 +82,7 @@ class BuyOfferUseCaseTest {
         lenient().when(mockOffer.getRewards()).thenReturn(List.of(offerReward));
         lenient().when(offerReward.reward()).thenReturn(new SoftCoinsReward(100));
 
-        lenient().when(mockWallet.pay(any(), any()))
+        lenient().when(mockWallet.pay(any(), anyInt()))
                 .thenReturn(walletMovement);
 
         lenient().when(walletMovement.coinType())
@@ -156,7 +156,7 @@ class BuyOfferUseCaseTest {
                 () -> useCase.execute(input)
         );
 
-        verify(mockWallet, never()).pay(any(), any());
+        verify(mockWallet, never()).pay(any(), anyInt());
         verify(userRepository, never()).save(any());
     }
 
