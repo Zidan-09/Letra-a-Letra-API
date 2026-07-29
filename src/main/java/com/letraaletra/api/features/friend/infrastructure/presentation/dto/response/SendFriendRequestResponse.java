@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.friend.infrastructure.presentation.dto.response;
 
-import com.letraaletra.api.features.friend.domain.Friend;
+import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 
 public record SendFriendRequestResponse(
-    Friend request
+        FriendResponse request
 ) {
 }

@@ -15,7 +15,9 @@ public class GetFriendPendingRequestsMapper {
 
     public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output) {
         return new GetFriendPendingRequestsResponse(
-                output.requests()
+                output.requests().stream()
+                        .map(FriendResponseMapper::toResponse)
+                        .toList()
         );
     }
 }

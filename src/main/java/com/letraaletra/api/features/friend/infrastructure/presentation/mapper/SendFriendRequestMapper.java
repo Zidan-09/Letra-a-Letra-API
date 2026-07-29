@@ -16,7 +16,7 @@ public class SendFriendRequestMapper {
 
     public static SendFriendRequestResponse toResponse(SendFriendRequestOutput output) {
         return new SendFriendRequestResponse(
-                output.friend()
+                FriendResponseMapper.toResponse(output.friend())
         );
     }
 }
