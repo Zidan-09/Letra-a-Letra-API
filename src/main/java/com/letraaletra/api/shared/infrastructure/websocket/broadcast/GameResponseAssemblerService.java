@@ -5,7 +5,7 @@ import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
-import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
+import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.ranking.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
 import com.letraaletra.api.features.user.application.port.SessionRepository;

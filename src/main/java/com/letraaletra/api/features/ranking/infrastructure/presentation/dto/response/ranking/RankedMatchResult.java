@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response;
+package com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.ranking;
 
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.player.PlayerResponse;
 
