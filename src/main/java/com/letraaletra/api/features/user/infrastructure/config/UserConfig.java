@@ -71,10 +71,10 @@ public class UserConfig {
     }
 
     @Bean
-    public GetUserInventoryUseCase getUserInventoryUseCase(
+    public GetMyInventoryUseCase getUserInventoryUseCase(
             InventoryRepository inventoryRepository
     ) {
-        return new GetUserInventoryUseCase(
+        return new GetMyInventoryUseCase(
                 inventoryRepository
         );
     }

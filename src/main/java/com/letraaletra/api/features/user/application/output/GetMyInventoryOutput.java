@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
 
-public record GetUserInventoryOutput(
+public record GetMyInventoryOutput(
         List<InventoryItem> inventory
 ) {
 }
