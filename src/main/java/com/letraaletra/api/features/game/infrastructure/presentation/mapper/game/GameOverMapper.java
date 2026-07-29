@@ -5,7 +5,7 @@ import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameOverDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResponse;
-import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
+import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerResponseMapper;
 
 public class GameOverMapper {
     public static GameOverResponse toResponse(
@@ -18,8 +18,8 @@ public class GameOverMapper {
 
         return new GameOverResponse(
                 new GameOverDTO(
-                        winner != null ? PlayerDTOMapper.toDTO(winner, winnerParticipant) : null,
-                        loser != null ? PlayerDTOMapper.toDTO(loser, loserParticipant) : null
+                        winner != null ? PlayerResponseMapper.toResponse(winner, winnerParticipant) : null,
+                        loser != null ? PlayerResponseMapper.toResponse(loser, loserParticipant) : null
                 )
         );
     }

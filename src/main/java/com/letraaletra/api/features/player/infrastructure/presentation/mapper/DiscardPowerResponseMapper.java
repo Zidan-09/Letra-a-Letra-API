@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class DiscardPowerDTOMapper {
+public class DiscardPowerResponseMapper {
     public DiscardPowerInput toInput(DiscardPowerWsRequest request, String userId) {
         return new DiscardPowerInput(
                 request.gameId(),
@@ -19,7 +19,7 @@ public class DiscardPowerDTOMapper {
         );
     }
 
-    public DiscardPowerResponse toResponseDTO(DiscardPowerOutput output, UUID viewer) {
+    public DiscardPowerResponse toResponse(DiscardPowerOutput output, UUID viewer) {
         return new DiscardPowerResponse(
                 GameStateDTOMapper.toDto(output.game(), viewer)
         );

@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardDTOMapper;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.BoardViewDTOMapper;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.board.WordDTOMapper;
-import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerDTOMapper;
+import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerResponseMapper;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class GameStateDTOMapper {
 
         return new GameStateDTO(
                 game.getGameState().getPlayers().values().stream()
-                        .map(player -> PlayerDTOMapper.toDTO(
+                        .map(player -> PlayerResponseMapper.toResponse(
                                 player,
                                 game.getParticipants().getParticipantByUserId(player.getUserId())
                         ))
@@ -35,7 +35,7 @@ public class GameStateDTOMapper {
     public static GameStateDTO toGlobalDto(Game game) {
         return new GameStateDTO(
                 game.getGameState().getPlayers().values().stream()
-                        .map(player -> PlayerDTOMapper.toDTO(
+                        .map(player -> PlayerResponseMapper.toResponse(
                                 player,
                                 game.getParticipants().getParticipantByUserId(player.getUserId())
                         ))

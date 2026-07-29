@@ -2,12 +2,12 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.respon
 
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardDTO;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.word.WordDTO;
-import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerDTO;
+import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.player.PlayerResponse;
 
 import java.util.List;
 
 public record GameStateDTO(
-        List<PlayerDTO> players,
+        List<PlayerResponse> players,
         BoardDTO[][] board,
         List<WordDTO> words,
         String currentTurnPlayerId
