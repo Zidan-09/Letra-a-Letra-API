@@ -15,7 +15,7 @@ public class GetMyAdminProfileMapper {
 
     public static GetMyAdminProfileResponse toResponse(GetMyAdminProfileOutput output) {
         return new GetMyAdminProfileResponse(
-                AdminDTOMapper.toDto(output.admin())
+                AdminResponseMapper.toResponse(output.admin())
         );
     }
 }

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.respon
 
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.player.PlayerResponse;
 
-public record GameOverDTO(
+public record GameOverResponse(
         PlayerResponse winner,
         PlayerResponse loser
 ) {

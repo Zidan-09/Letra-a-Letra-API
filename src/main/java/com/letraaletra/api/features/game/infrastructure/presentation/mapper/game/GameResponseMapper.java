@@ -2,17 +2,17 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameHistory;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.match.MatchHistoryDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameResponse;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.match.MatchHistoryResponseMapper;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.MapParticipantsMapper;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GameDTOMapper {
-    public static GameDTO toDTO(Game game) {
-        return new GameDTO(
+public class GameResponseMapper {
+    public static GameResponse toResponse(Game game) {
+        return new GameResponse(
                 game.getId().toString(),
                 game.getRoomName(),
                 game.getGameType(),
@@ -28,8 +28,8 @@ public class GameDTOMapper {
         );
     }
 
-    public static GameDTO toDTOFromHistory(GameHistory game) {
-        return new GameDTO(
+    public static GameResponse toResponseFromHistory(GameHistory game) {
+        return new GameResponse(
                 game.roomId().toString(),
                 game.roomName(),
                 game.type(),
@@ -37,7 +37,7 @@ public class GameDTOMapper {
                 List.of(),
                 Map.of(),
                 game.matches().stream()
-                        .map(MatchHistoryDTOMapper::toDTO)
+                        .map(MatchHistoryResponseMapper::toResponse)
                         .toList()
         );
     }

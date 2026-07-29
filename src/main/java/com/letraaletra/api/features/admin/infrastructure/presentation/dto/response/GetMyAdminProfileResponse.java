@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.admin.infrastructure.presentation.dto.response;
 
-import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.admin.AdminDTO;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.admin.AdminResponse;
 
 public record GetMyAdminProfileResponse(
-        AdminDTO admin
+        AdminResponse admin
 ) {
 }

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.presentation.dto.response.match;
 
-public record PlayerHistoryDTO(
+public record PlayerHistoryResponse(
         String id,
         String nickname,
         int score,

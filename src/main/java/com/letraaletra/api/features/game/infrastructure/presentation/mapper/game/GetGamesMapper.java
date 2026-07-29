@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.domain.GameHistory;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameDTO;
+import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -19,12 +19,12 @@ public class GetGamesMapper {
         );
     }
 
-    public static PageResponse<GameDTO> toResponse(GetGamesOutput output) {
+    public static PageResponse<GameResponse> toResponse(GetGamesOutput output) {
         Page<GameHistory> page = output.games();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(GameDTOMapper::toDTOFromHistory)
+                        .map(GameResponseMapper::toResponseFromHistory)
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

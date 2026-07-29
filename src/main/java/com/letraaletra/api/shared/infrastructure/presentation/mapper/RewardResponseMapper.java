@@ -15,7 +15,7 @@ public class RewardResponseMapper {
                 return new RewardResponse(
                         RewardType.COSMETIC,
                         1,
-                        CosmeticResponseMapper.toDto(r.cosmetic())
+                        CosmeticResponseMapper.toResponse(r.cosmetic())
                 );
             }
             case HardGemsReward r -> {

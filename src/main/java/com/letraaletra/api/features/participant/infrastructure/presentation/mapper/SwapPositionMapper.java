@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.SwapPositionIn
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameResponseMapper;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public class SwapPositionMapper {
 
     public static SwapPositionResponse toResponse(SwapPositionOutput output) {
         return new SwapPositionResponse(
-                GameDTOMapper.toDTO(output.game())
+                GameResponseMapper.toResponse(output.game())
         );
     }
 }

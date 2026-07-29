@@ -3,7 +3,7 @@ package com.letraaletra.api.features.participant.infrastructure.presentation.map
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateResponseMapper;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public class ReconnectParticipantMapper {
 
     public static ReconnectParticipantResponse toResponse(ReconnectParticipantOutput output) {
         return new ReconnectParticipantResponse(
-                GameStateDTOMapper.toGlobalDto(output.game())
+                GameStateResponseMapper.toGlobalResponse(output.game())
         );
     }
 }

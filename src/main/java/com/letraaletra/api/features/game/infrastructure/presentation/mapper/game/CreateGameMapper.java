@@ -21,9 +21,9 @@ public class CreateGameMapper {
         );
     }
 
-    public static CreateGameResponse toResponseDTO(CreateGameOutput output) {
+    public static CreateGameResponse toResponse(CreateGameOutput output) {
         return new CreateGameResponse(
-               GameDTOMapper.toDTO(output.game())
+               GameResponseMapper.toResponse(output.game())
         );
     }
 }

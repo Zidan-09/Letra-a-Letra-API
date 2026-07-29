@@ -2,7 +2,7 @@ package com.letraaletra.api.features.admin.infrastructure.presentation.dto.respo
 
 import java.util.UUID;
 
-public record AdminDTO(
+public record AdminResponse(
         UUID id,
         String username,
         String email
