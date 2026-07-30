@@ -1,11 +1,16 @@
 package com.letraaletra.api.features.admin.domain.permission;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Set;
 
 public record Permission(
-        UUID permissionId,
-        String key,
-        LocalDateTime createdAt
+        PermissionKey key,
+        Set<PermissionAction> actions
 ) {
+    public Permission {
+        actions = Set.copyOf(actions);
+    }
+
+    public boolean can(PermissionAction action) {
+        return actions.contains(action);
+    }
 }

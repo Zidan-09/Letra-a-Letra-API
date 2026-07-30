@@ -1,40 +1,31 @@
 package com.letraaletra.api.features.admin.domain.permission;
 
-import com.letraaletra.api.features.admin.domain.exception.AlreadyHaveThisPermissionException;
-import com.letraaletra.api.features.admin.domain.exception.InvalidPermissionException;
-
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Permissions {
-    private List<Permission> permissions;
 
-    public Permissions(
-            List<Permission> permissions
-    ) {
-        this.permissions = permissions;
+    private final Map<PermissionKey, Permission> permissions;
+
+    public Permissions() {
+        this.permissions = new EnumMap<>(PermissionKey.class);
     }
 
-    public List<Permission> getPermissions() {
-        return List.copyOf(permissions);
+    public Permission get(PermissionKey key) {
+        return permissions.getOrDefault(
+                key,
+                new Permission(key, Set.of())
+        );
     }
 
-    private void addPermission(Permission permission) {
-        if (permission == null) {
-            throw new InvalidPermissionException();
-        }
-
-        if (permissions.contains(permission)) {
-            throw new AlreadyHaveThisPermissionException();
-        }
-
-        permissions.add(permission);
+    public Collection<Permission> getAll() {
+        return List.copyOf(permissions.values());
     }
 
-    private void removePermission(UUID permissionId) {
-        permissions = permissions.stream().filter(permission ->
-                !permission.permissionId().equals(permissionId)
-        )
-        .toList();
+    public void set(Permission permission) {
+        permissions.put(permission.key(), permission);
+    }
+
+    public boolean can(PermissionKey key, PermissionAction action) {
+        return get(key).can(action);
     }
 }

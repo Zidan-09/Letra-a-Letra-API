@@ -19,7 +19,7 @@ public class GetAdminsMapper {
 
         return new GetAdminsInput(
                 principal,
-                pages.getPageSize(),
+                pages.getPageNumber(),
                 pages.getPageSize(),
                 pages.getSort()
         );
