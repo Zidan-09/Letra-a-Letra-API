@@ -10,7 +10,7 @@ import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.DisplayName;

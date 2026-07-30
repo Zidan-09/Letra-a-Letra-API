@@ -1,30 +1,29 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
-import com.letraaletra.api.features.game.domain.event.CellTrappedEvent;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
+import com.letraaletra.api.features.game.domain.event.CellBlockedEvent;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.cell.effect.BlockEffect;
 import com.letraaletra.api.features.game.domain.board.cell.effect.CellEffect;
 import com.letraaletra.api.features.game.domain.board.cell.effect.InteractResult;
-import com.letraaletra.api.features.game.domain.board.cell.effect.TrapEffect;
 import com.letraaletra.api.features.game.domain.board.cell.exception.CellAlreadyRevealedException;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
-import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TrapCellAction implements GameAction {
+public class BlockCellAction implements GameAction {
     private final String powerId;
     private final Position position;
 
-    public TrapCellAction(String powerId, Position position) {
+    public BlockCellAction(String powerId, Position position) {
         this.powerId = powerId;
         this.position = position;
     }
@@ -34,7 +33,6 @@ public class TrapCellAction implements GameAction {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
-        validatePlayer(player);
         validatePower(player);
 
         player.resetPassedTurn();
@@ -50,14 +48,13 @@ public class TrapCellAction implements GameAction {
         if (!canContinue) return null;
 
         cell.setEffect(
-                new TrapEffect(userId)
+                new BlockEffect(userId)
         );
-
         events.add(new Event(
-                StateEvent.CELL_TRAPPED,
-                new CellTrappedEvent(
+                StateEvent.CELL_BLOCKED,
+                new CellBlockedEvent(
                         position,
-                        userId
+                        userId.toString()
                 )
         ));
 
@@ -72,6 +69,14 @@ public class TrapCellAction implements GameAction {
         }
     }
 
+    private void validatePower(Player player) {
+        PowerType power = player.getInventory().get(powerId);
+
+        if (power != PowerType.BLOCK) {
+            throw new InvalidPlayerActionException();
+        }
+    }
+
     private void validateCell(Cell cell) {
         if (cell == null) {
             throw new InvalidPlayerActionException();
@@ -82,25 +87,9 @@ public class TrapCellAction implements GameAction {
         }
     }
 
-    private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
-
-        if (power != PowerType.TRAP) {
-            throw new InvalidPlayerActionException();
-        }
-    }
-
-    private void validatePlayer(Player player) {
-        if (player == null) {
-            throw new PlayerNotInGameException();
-        }
-    }
-
     private boolean activateEffect(Cell cell, UUID player, List<Event> events) {
         if (cell.hasEffect()) {
             CellEffect effect = cell.getEffect();
-
-            if (!(effect instanceof TrapEffect))  return true;
 
             InteractResult result = effect.onInteract(this, player, cell);
 

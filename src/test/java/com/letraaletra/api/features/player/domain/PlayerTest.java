@@ -3,7 +3,7 @@ package com.letraaletra.api.features.player.domain;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.player.domain.effect.BlindEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

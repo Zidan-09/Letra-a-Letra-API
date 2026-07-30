@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.power.domain;
+package com.letraaletra.api.features.game.domain.board.power;
 
 public enum PowerType {
     BLOCK(PowerRarity.COMMON),

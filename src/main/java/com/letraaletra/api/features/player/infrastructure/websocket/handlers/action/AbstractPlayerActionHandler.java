@@ -8,7 +8,7 @@ import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCa
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;

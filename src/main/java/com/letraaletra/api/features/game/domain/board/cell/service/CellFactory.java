@@ -2,8 +2,8 @@ package com.letraaletra.api.features.game.domain.board.cell.service;
 
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
-import com.letraaletra.api.features.power.domain.PowerRarity;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.power.PowerRarity;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 
 import java.util.*;
