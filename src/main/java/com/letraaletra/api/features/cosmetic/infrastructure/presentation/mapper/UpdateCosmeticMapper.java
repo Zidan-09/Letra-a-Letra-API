@@ -9,10 +9,10 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import java.util.UUID;
 
 public class UpdateCosmeticMapper {
-    public static UpdateCosmeticInput toInput(AuthenticatedUser principal, UpdateCosmeticRequest request, String cosmeticId) {
+    public static UpdateCosmeticInput toInput(AuthenticatedUser principal, UpdateCosmeticRequest request, UUID cosmeticId) {
         return new UpdateCosmeticInput(
                 principal,
-                UUID.fromString(cosmeticId),
+                cosmeticId,
                 request.name(),
                 request.type(),
                 request.asset(),

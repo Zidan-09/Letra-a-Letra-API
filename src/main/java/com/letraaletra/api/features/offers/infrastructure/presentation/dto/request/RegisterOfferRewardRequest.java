@@ -11,6 +11,6 @@ public record RegisterOfferRewardRequest(
 
         UUID rewardReference,
 
-        int quantity
+        Integer quantity
 ) {
 }

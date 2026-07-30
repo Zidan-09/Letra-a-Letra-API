@@ -8,10 +8,10 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import java.util.UUID;
 
 public class DeleteCosmeticMapper {
-    public static DeleteCosmeticInput toInput(AuthenticatedUser principal, String cosmeticId) {
+    public static DeleteCosmeticInput toInput(AuthenticatedUser principal, UUID cosmeticId) {
         return new DeleteCosmeticInput(
                 principal,
-                UUID.fromString(cosmeticId)
+                cosmeticId
         );
     }
 

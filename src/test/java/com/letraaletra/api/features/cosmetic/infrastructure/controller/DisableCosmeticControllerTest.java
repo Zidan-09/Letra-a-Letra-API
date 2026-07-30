@@ -34,7 +34,7 @@ class DisableCosmeticControllerTest {
     private DisableCosmeticController controller;
 
     private AuthenticatedUser principal;
-    private String mockCosmeticId;
+    private UUID mockCosmeticId;
     private DisableCosmeticInput mockInput;
     private DisableCosmeticOutput mockOutput;
     private DisableCosmeticResponse mockResponseDto;
@@ -44,7 +44,7 @@ class DisableCosmeticControllerTest {
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
-        mockCosmeticId = UUID.randomUUID().toString();
+        mockCosmeticId = UUID.randomUUID();
 
         mockInput = mock(DisableCosmeticInput.class);
         mockOutput = mock(DisableCosmeticOutput.class);

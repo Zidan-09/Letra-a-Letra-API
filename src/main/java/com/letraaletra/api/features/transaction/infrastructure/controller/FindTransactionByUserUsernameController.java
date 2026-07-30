@@ -30,7 +30,7 @@ public class FindTransactionByUserUsernameController {
         this.useCase = useCase;
     }
 
-    @GetMapping(path = "/user/email/{email}")
+    @GetMapping(path = "/user/username/{username}")
     public ResponseEntity<SuccessResponse<PageResponse<TransactionResponse>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable String username,

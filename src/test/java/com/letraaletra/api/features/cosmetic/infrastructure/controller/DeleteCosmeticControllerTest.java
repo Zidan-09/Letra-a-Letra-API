@@ -34,7 +34,7 @@ class DeleteCosmeticControllerTest {
     private DeleteCosmeticController controller;
 
     private AuthenticatedUser principal;
-    private String mockCosmeticId;
+    private UUID mockCosmeticId;
     private DeleteCosmeticInput mockInput;
     private DeleteCosmeticOutput mockOutput;
     private DeleteCosmeticResponse mockResponseDto;
@@ -44,7 +44,7 @@ class DeleteCosmeticControllerTest {
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true);
-        mockCosmeticId = UUID.randomUUID().toString();
+        mockCosmeticId = UUID.randomUUID();
 
         mockInput = mock(DeleteCosmeticInput.class);
         mockOutput = mock(DeleteCosmeticOutput.class);
