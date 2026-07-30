@@ -39,6 +39,157 @@ export async function runFlow(context) {
         );
     }
 
+    // Fluxo 8: Registrar novo administrador
+
+    const newAdmin = {
+        name: `integration.admin.${Date.now()}`,
+        email: `integration.admin.${Date.now()}@localhost.com`,
+        password: "12345678"
+    };
+
+
+    res = await http(
+        "POST",
+        "/admin",
+        newAdmin,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Register admin"
+    );
+
+    // Fluxo 8.5: Conceder permissões para o novo administrador
+
+    const actions = ["VIEW", "CREATE", "EDIT", "DELETE", "TOGGLE"];
+    const permissions = [
+            {
+                key: "USER",
+                actions
+            },
+            {
+                key: "LOGS",
+                actions
+            },
+            {
+                key: "ADMIN",
+                actions
+            },
+            {
+                key: "COSMETIC",
+                actions
+            },
+            {
+                key: "GAME",
+                actions
+            },
+            {
+                key: "LEVELS",
+                actions
+            },
+            {
+                key: "OFFERS",
+                actions
+            },
+            {
+                key: "TRANSACTIONS",
+                actions
+            }
+        ]
+
+    const updatedAdmin = {
+        name: newAdmin.name,
+        email: newAdmin.email,
+        permissions
+    }
+
+    res = await http(
+        "PUT",
+        "/admin/" + res.body.data.admin.id,
+        updatedAdmin,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Update admin"
+    );
+
+    // Fluxo 9: Autenticar novo administrador
+
+    res = await http(
+        "POST",
+        "/admin/auth",
+        {
+            email: newAdmin.email,
+            password: newAdmin.password
+        }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Auth registered admin"
+    );
+
+
+    if (!res.body.data.token) {
+        throw new Error(
+            "Auth registered admin: token not found"
+        );
+    }
+
+
+    const newAdminToken = res.body.data.token;
+
+
+    // Fluxo 10: Validar perfil do novo administrador
+
+    res = await http(
+        "GET",
+        "/admin/me",
+        undefined,
+        newAdminToken
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get new admin profile"
+    );
+
+    if (res.body.data.admin.email !== newAdmin.email) {
+        throw new Error(
+            `Get new admin profile: expected ${newAdmin.email}, received ${res.data.data.email}`
+        );
+    }
+
+    // Fluxo 11: Tornar o administrador padrão um Super admin
+
+    const updatedDefaultAdmin = {
+        name: admin.name,
+        email: admin.email,
+        permissions
+    }
+
+    res = await http(
+        "PUT",
+        "/admin/" + admin.id,
+        updatedDefaultAdmin,
+        newAdminToken
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Update Default admin"
+    );
+
+    // Fluxo 2: Buscar logs de administração
+
     res = await http(
         "GET",
         "/admin/logs/admin",
@@ -51,7 +202,6 @@ export async function runFlow(context) {
         200,
         "Get admin logs list"
     )
-    // Fluxo 2: Buscar logs de administração
 
     res = await download(
         "GET",
@@ -213,77 +363,5 @@ export async function runFlow(context) {
                 "Download untracked game log: empty response"
             );
         }
-    }
-
-    // Fluxo 8: Registrar novo administrador
-
-    const newAdmin = {
-        name: `integration.admin.${Date.now()}`,
-        email: `integration.admin.${Date.now()}@localhost.com`,
-        password: "12345678"
-    };
-
-
-    res = await http(
-        "POST",
-        "/admin",
-        newAdmin,
-        admin.token
-    );
-
-    ensureStatus(
-        res,
-        200,
-        "Register admin"
-    );
-
-
-    // Fluxo 9: Autenticar novo administrador
-
-    res = await http(
-        "POST",
-        "/admin/auth",
-        {
-            email: newAdmin.email,
-            password: newAdmin.password
-        }
-    );
-
-    ensureStatus(
-        res,
-        200,
-        "Auth registered admin"
-    );
-
-
-    if (!res.body.data.token) {
-        throw new Error(
-            "Auth registered admin: token not found"
-        );
-    }
-
-
-    const newAdminToken = res.body.data.token;
-
-
-    // Fluxo 10: Validar perfil do novo administrador
-
-    res = await http(
-        "GET",
-        "/admin/me",
-        undefined,
-        newAdminToken
-    );
-
-    ensureStatus(
-        res,
-        200,
-        "Get new admin profile"
-    );
-
-    if (res.body.data.admin.email !== newAdmin.email) {
-        throw new Error(
-            `Get new admin profile: expected ${newAdmin.email}, received ${res.data.data.email}`
-        );
     }
 }

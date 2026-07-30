@@ -8,7 +8,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 public class CreateUserMapper {
     public static CreateUserInput toInput(CreateUserRequest dto) {
         return new CreateUserInput(
-                dto.email(),
+                dto.email().toLowerCase(),
                 dto.password()
         );
     }

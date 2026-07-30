@@ -6,6 +6,7 @@ import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.RegisterAdminRequest;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.RegisterAdminResponse;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.admin.AdminResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -60,7 +61,7 @@ class RegisterAdminControllerTest {
 
         Admin adminMock = mock(Admin.class);
         output = new RegisterAdminOutput(adminMock);
-        responseDto = new RegisterAdminResponse("Novo Admin", "novo.admin@letraaletra.com");
+        responseDto = new RegisterAdminResponse(mock(AdminResponse.class));
 
         SuccessResponse<RegisterAdminResponse> successResponse = new SuccessResponse<>(true, responseDto);
         expectedResponseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);

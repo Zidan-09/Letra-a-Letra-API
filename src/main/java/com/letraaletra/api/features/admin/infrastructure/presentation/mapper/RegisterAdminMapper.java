@@ -11,15 +11,14 @@ public class RegisterAdminMapper {
         return new RegisterAdminInput(
                 principal,
                 request.name(),
-                request.email(),
+                request.email().toLowerCase(),
                 request.password()
         );
     }
 
     public static RegisterAdminResponse toResponse(RegisterAdminOutput output) {
         return new RegisterAdminResponse(
-                output.admin().getName(),
-                output.admin().getEmail()
+                AdminResponseMapper.toResponse(output.admin())
         );
     }
 }

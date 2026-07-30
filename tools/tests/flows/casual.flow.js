@@ -3,12 +3,14 @@ import { send } from "../core/websocket.js";
 import { sleep } from "../core/sleep.js";
 
 export async function runFlow(context) {
+    const [ws1, ws2] = context.sockets;
+
+    const users = context.users;
+    const events = context.events.get(users[0]);
+
+    let gameId;
+
     async function init() {
-        const [ws1, ws2] = context.sockets;
-
-        const users = context.users;
-        const events = context.events.get(users[0]);
-
         send(ws1, {
             type: "CREATE_GAME",
             name: "Test Casual",
@@ -22,7 +24,7 @@ export async function runFlow(context) {
 
         await sleep(1000);
 
-        const gameId = created.data.gameId;
+        gameId = created.data.gameId;
 
         send(ws2, {
             type: "JOIN_GAME",

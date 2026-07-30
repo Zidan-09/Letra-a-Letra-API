@@ -64,7 +64,7 @@ export async function runFlow(context) {
                 events
         );
 
-        await sleep(1000);
+        await sleep(125);
 
         if (result.event === "GAME_OVER") {
             gameRunning = false;
