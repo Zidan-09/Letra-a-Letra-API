@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.offers.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.offers.application.input.DeleteOfferInput;
 import com.letraaletra.api.features.offers.application.output.DeleteOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -24,7 +26,7 @@ public class DeleteOfferUseCase implements UseCase<DeleteOfferInput, DeleteOffer
     @Override
     @Transactional
     public DeleteOfferOutput execute(DeleteOfferInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.OFFERS, PermissionAction.DELETE);
 
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

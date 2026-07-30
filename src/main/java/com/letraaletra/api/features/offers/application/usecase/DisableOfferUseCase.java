@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.offers.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.offers.application.input.DisableOfferInput;
 import com.letraaletra.api.features.offers.application.output.DisableOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -24,7 +26,7 @@ public class DisableOfferUseCase implements UseCase<DisableOfferInput, DisableOf
     @Override
     @Transactional
     public DisableOfferOutput execute(DisableOfferInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.OFFERS, PermissionAction.TOGGLE);
 
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.DisableCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DisableCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
@@ -24,7 +26,7 @@ public class DisableCosmeticUseCase implements UseCase<DisableCosmeticInput, Dis
     @Override
     @Transactional
     public DisableCosmeticOutput execute(DisableCosmeticInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.COSMETIC, PermissionAction.TOGGLE);
 
         Cosmetic cosmetic = cosmeticRepository.find(input.id())
                 .orElseThrow(CosmeticNotFoundException::new);

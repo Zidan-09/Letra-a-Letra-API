@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.DisableCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DisableCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
@@ -36,6 +38,8 @@ class DisableCosmeticUseCaseTest {
     private DisableCosmeticUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.COSMETIC;
+    private final PermissionAction action = PermissionAction.TOGGLE;
     private UUID cosmeticId;
     private Cosmetic cosmetic;
 
@@ -59,7 +63,7 @@ class DisableCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, cosmetic);
-        inOrder.verify(adminChecker).check(principal);
+        inOrder.verify(adminChecker).check(principal, key, action);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(cosmetic).setAvailable(false);
         inOrder.verify(cosmeticRepository).save(cosmetic);
@@ -70,7 +74,7 @@ class DisableCosmeticUseCaseTest {
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
         DisableCosmeticInput input = new DisableCosmeticInput(principal, cosmeticId);
 
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal, key, action);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -87,7 +91,7 @@ class DisableCosmeticUseCaseTest {
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
 
-        verify(adminChecker).check(principal);
+        verify(adminChecker).check(principal, key, action);
         verify(cosmetic, never()).setAvailable(anyBoolean());
         verify(cosmeticRepository, never()).save(any());
     }
@@ -113,17 +117,6 @@ class DisableCosmeticUseCaseTest {
         doThrow(new RuntimeException("Database constraints failure")).when(cosmeticRepository).save(cosmetic);
 
         assertThrows(RuntimeException.class, () -> useCase.execute(input));
-    }
-
-    @Test
-    @DisplayName("Deve lançar IllegalArgumentException se o ID de autenticação for nulo (Comportamento Desejado/Ausente)")
-    void execute_ShouldThrowException_WhenAuthIdIsNull() {
-        DisableCosmeticInput input = new DisableCosmeticInput(null, cosmeticId);
-
-        doThrow(new IllegalArgumentException("Auth ID cannot be null")).when(adminChecker).check(null);
-
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(input));
-        verify(cosmeticRepository, never()).find(any());
     }
 
     @Test

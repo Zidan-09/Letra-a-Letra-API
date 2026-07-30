@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -40,6 +42,8 @@ class DeleteCosmeticUseCaseTest {
     private DeleteCosmeticUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.COSMETIC;
+    private final PermissionAction action = PermissionAction.DELETE;
     private UUID cosmeticId;
     private String assetPath;
     private Cosmetic cosmetic;
@@ -58,7 +62,7 @@ class DeleteCosmeticUseCaseTest {
     @DisplayName("Deve deletar o cosmético com sucesso quando as permissões e dados forem válidos")
     void execute_ShouldDeleteCosmeticAndStorageAsset_WhenInputIsValid() {
         DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
 
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(cosmetic));
 
@@ -68,7 +72,7 @@ class DeleteCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, storageGateway);
-        inOrder.verify(adminChecker).check(principal);
+        inOrder.verify(adminChecker).check(principal, key, action);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(storageGateway).delete(assetPath);
         inOrder.verify(cosmeticRepository).delete(cosmetic);
@@ -80,7 +84,7 @@ class DeleteCosmeticUseCaseTest {
         DeleteCosmeticInput input = new DeleteCosmeticInput(principal, cosmeticId);
 
         doThrow(new UserIsNotAdminException())
-                .when(adminChecker).check(principal);
+                .when(adminChecker).check(principal, key, action);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -98,7 +102,7 @@ class DeleteCosmeticUseCaseTest {
 
         assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
 
-        verify(adminChecker).check(principal);
+        verify(adminChecker).check(principal, key, action);
         verify(storageGateway, never()).delete(any());
         verify(cosmeticRepository, never()).delete(any());
     }

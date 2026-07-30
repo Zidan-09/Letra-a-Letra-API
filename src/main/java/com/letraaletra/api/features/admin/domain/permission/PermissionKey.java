@@ -4,6 +4,8 @@ public enum PermissionKey {
     USER,
     ADMIN,
     COSMETIC,
+    GAME,
     LEVELS,
-    OFFERS
+    OFFERS,
+    TRANSACTIONS
 }

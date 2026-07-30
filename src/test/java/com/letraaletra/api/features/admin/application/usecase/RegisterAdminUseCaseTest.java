@@ -4,6 +4,8 @@ import com.letraaletra.api.features.admin.application.input.RegisterAdminInput;
 import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -44,6 +46,8 @@ class RegisterAdminUseCaseTest {
     private ArgumentCaptor<Admin> adminCaptor;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.ADMIN;
+    private final PermissionAction action = PermissionAction.CREATE;
     private String validName;
     private String validEmail;
     private String rawPassword;
@@ -63,7 +67,7 @@ class RegisterAdminUseCaseTest {
     void shouldRegisterAdminSuccessfully() {
         RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(adminRepository.existsByEmail(validEmail)).thenReturn(false);
         when(passwordService.hash(rawPassword)).thenReturn(hashedPassword);
 
@@ -72,7 +76,7 @@ class RegisterAdminUseCaseTest {
         assertNotNull(output);
         assertNotNull(output.admin());
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verify(adminRepository, times(1)).existsByEmail(validEmail);
         verify(passwordService, times(1)).hash(rawPassword);
         verify(adminRepository, times(1)).save(adminCaptor.capture());
@@ -91,11 +95,11 @@ class RegisterAdminUseCaseTest {
         RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
 
         doThrow(new SecurityException("Unauthorized access: Requires administrator role"))
-                .when(adminChecker).check(principal);
+                .when(adminChecker).check(principal, key, action);
 
         assertThrows(SecurityException.class, () -> registerAdminUseCase.execute(input));
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verifyNoInteractions(adminRepository);
         verifyNoInteractions(passwordService);
     }
@@ -105,12 +109,12 @@ class RegisterAdminUseCaseTest {
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(adminRepository.existsByEmail(validEmail)).thenReturn(true);
 
         assertThrows(EmailAlreadyInUseException.class, () -> registerAdminUseCase.execute(input));
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verify(adminRepository, times(1)).existsByEmail(validEmail);
         verifyNoInteractions(passwordService);
         verify(adminRepository, never()).save(any(Admin.class));
@@ -151,7 +155,7 @@ class RegisterAdminUseCaseTest {
     void shouldPropagateExceptionWhenRepositoryCrashes() {
         RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(adminRepository.existsByEmail(validEmail)).thenReturn(false);
         when(passwordService.hash(rawPassword)).thenReturn(hashedPassword);
         doThrow(new RuntimeException("Database cluster unreachable")).when(adminRepository).save(any(Admin.class));

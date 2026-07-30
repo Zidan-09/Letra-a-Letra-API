@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.UpdateCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -47,6 +49,8 @@ class UpdateCosmeticUseCaseTest {
     private UpdateCosmeticUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.COSMETIC;
+    private final PermissionAction action = PermissionAction.EDIT;
     private UUID cosmeticId;
     private Cosmetic cosmetic;
 
@@ -88,7 +92,7 @@ class UpdateCosmeticUseCaseTest {
         assertEquals(cosmetic, output.cosmetic());
 
         InOrder inOrder = inOrder(adminChecker, cosmeticRepository, storageGateway, cosmetic);
-        inOrder.verify(adminChecker).check(principal);
+        inOrder.verify(adminChecker).check(principal, key, action);
         inOrder.verify(cosmeticRepository).find(cosmeticId);
         inOrder.verify(storageGateway).copy(oldAssetPath, newName, newType);
         inOrder.verify(cosmetic).setAssetPath(movedAssetPath);
@@ -158,7 +162,7 @@ class UpdateCosmeticUseCaseTest {
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
         UpdateCosmeticInput input = mock(UpdateCosmeticInput.class);
         when(input.principal()).thenReturn(principal);
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal, key, action);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 

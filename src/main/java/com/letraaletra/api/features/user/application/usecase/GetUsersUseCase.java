@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.user.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
@@ -23,7 +25,7 @@ public class GetUsersUseCase implements UseCase<GetUsersInput, GetUsersOutput> {
 
     @Override
     public GetUsersOutput execute(GetUsersInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.USER, PermissionAction.VIEW);
 
         Page<User> users = userRepository.get(
                 new UsersPage(input.page(), input.size(), input.sort())

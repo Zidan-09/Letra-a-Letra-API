@@ -47,7 +47,7 @@ class FindLevelUseCaseTest {
         FindLevelOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        assertEquals(mockLevel, output.level()); // Assumindo método getter ou record component .level() baseado na assinatura
+        assertEquals(mockLevel, output.level());
         verify(levelRepository, times(1)).find(levelId);
     }
 
@@ -66,7 +66,6 @@ class FindLevelUseCaseTest {
     void shouldThrowExceptionWhenLevelIdIsNull() {
         FindLevelInput invalidInput = new FindLevelInput(null);
 
-        // Caso o repositório permita nulo e retorne vazio, ou lance erro de argumento inválido diretamente
         when(levelRepository.find(null)).thenThrow(new IllegalArgumentException("Identifier cannot be null"));
 
         assertThrows(RuntimeException.class, () -> useCase.execute(invalidInput));

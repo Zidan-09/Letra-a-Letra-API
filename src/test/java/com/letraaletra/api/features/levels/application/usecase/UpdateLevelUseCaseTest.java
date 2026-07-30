@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.levels.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -45,6 +47,8 @@ class UpdateLevelUseCaseTest {
     private UpdateLevelUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.LEVELS;
+    private final PermissionAction action = PermissionAction.EDIT;
     private UUID levelId;
     private int newTargetLevel;
     private Level mockLevel;
@@ -64,7 +68,7 @@ class UpdateLevelUseCaseTest {
         CreateLevelRewardInput gemsReward = new CreateLevelRewardInput(RewardType.GEMS, null, 100);
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(coinReward, gemsReward));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
@@ -74,7 +78,7 @@ class UpdateLevelUseCaseTest {
         assertNotNull(output);
         assertEquals(mockLevel, output.level());
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verify(levelRepository, times(1)).find(levelId);
         verify(mockLevel, times(1)).setLevel(newTargetLevel);
         verify(mockLevel, times(1)).setRewards(anyList());
@@ -90,7 +94,7 @@ class UpdateLevelUseCaseTest {
         CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(cosmeticReward));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
@@ -108,7 +112,7 @@ class UpdateLevelUseCaseTest {
     void shouldUpdateLevelWithNoRewardsSuccessfully() {
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, Collections.emptyList());
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
@@ -125,7 +129,7 @@ class UpdateLevelUseCaseTest {
     void shouldPropagateExceptionWhenAdminCheckFails() {
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, Collections.emptyList());
 
-        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal);
+        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal, key, action);
 
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
@@ -138,7 +142,7 @@ class UpdateLevelUseCaseTest {
     void shouldThrowLevelNotFoundExceptionWhenLevelDoesNotExist() {
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, Collections.emptyList());
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.empty());
 
         assertThrows(LevelNotFoundException.class, () -> useCase.execute(input));
@@ -154,7 +158,7 @@ class UpdateLevelUseCaseTest {
         CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(cosmeticReward));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
@@ -190,7 +194,7 @@ class UpdateLevelUseCaseTest {
         Level currentLevel = mock(Level.class);
         Level existingLevel = mock(Level.class);
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
 
         when(levelRepository.find(levelId))
                 .thenReturn(Optional.of(currentLevel));
