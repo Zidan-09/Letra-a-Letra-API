@@ -4,6 +4,7 @@ import com.letraaletra.api.features.admin.application.input.DeleteAdminInput;
 import com.letraaletra.api.features.admin.application.output.DeleteAdminOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
@@ -25,6 +26,9 @@ public class DeleteAdminUseCase implements UseCase<DeleteAdminInput, DeleteAdmin
     @Override
     public DeleteAdminOutput execute(DeleteAdminInput input) {
         adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.DELETE);
+
+        if (input.adminId().equals(input.principal().auth()))
+            throw new InvalidAdminOperationException();
 
         Admin admin = adminRepository.find(input.adminId())
                 .orElseThrow(AdminNotFoundException::new);

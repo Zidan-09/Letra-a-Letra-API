@@ -4,6 +4,7 @@ import com.letraaletra.api.features.admin.application.input.UpdateAdminInput;
 import com.letraaletra.api.features.admin.application.output.UpdateAdminOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
@@ -25,6 +26,9 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
     @Override
     public UpdateAdminOutput execute(UpdateAdminInput input) {
         adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.EDIT);
+
+        if (input.adminId().equals(input.principal().auth()))
+            throw new InvalidAdminOperationException();
 
         Admin admin = adminRepository.find(input.adminId())
                 .orElseThrow(AdminNotFoundException::new);
