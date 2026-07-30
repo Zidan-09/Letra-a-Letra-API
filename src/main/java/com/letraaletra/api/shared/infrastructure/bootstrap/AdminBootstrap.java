@@ -31,7 +31,7 @@ public class AdminBootstrap implements CommandLineRunner {
 
             admin.getPermissions().set(new Permission(
                     PermissionKey.ADMIN,
-                    Set.of(PermissionAction.CREATE)
+                    Set.of(PermissionAction.CREATE, PermissionAction.EDIT)
             ));
 
             repository.save(admin);
