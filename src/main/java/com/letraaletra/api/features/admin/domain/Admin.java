@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.admin.domain;
 
+import com.letraaletra.api.features.admin.domain.permission.Permissions;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ public class Admin {
     private final String name;
     private final String email;
     private final String hashPassword;
+    private final Permissions permissions;
     private final LocalDateTime createdAt;
 
     public Admin(
@@ -15,12 +18,14 @@ public class Admin {
             String name,
             String email,
             String hashPassword,
+            Permissions permissions,
             LocalDateTime createdAt
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.hashPassword = hashPassword;
+        this.permissions = permissions;
         this.createdAt = createdAt;
     }
 
@@ -34,6 +39,7 @@ public class Admin {
                 name,
                 email,
                 hashPassword,
+                new Permissions(),
                 LocalDateTime.now()
         );
     }
@@ -43,6 +49,7 @@ public class Admin {
             String name,
             String email,
             String hashPassword,
+            Permissions permissions,
             LocalDateTime createdAt
     ) {
         return new Admin(
@@ -50,6 +57,7 @@ public class Admin {
                 name,
                 email,
                 hashPassword,
+                permissions,
                 createdAt
         );
     }
@@ -68,6 +76,10 @@ public class Admin {
 
     public String getHashPassword() {
         return hashPassword;
+    }
+
+    public Permissions getPermissions() {
+        return permissions;
     }
 
     public LocalDateTime getCreatedAt() {

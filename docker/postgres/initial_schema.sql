@@ -93,7 +93,7 @@ CREATE TABLE "offer_reward" (
                         "quantity" integer NOT NULL DEFAULT 1
 );
 
-CREATE TABLE transaction (
+CREATE TABLE "transaction" (
                         transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
                         user_id uuid NOT NULL REFERENCES "user"(user_id),
@@ -128,6 +128,13 @@ CREATE TABLE "admin" (
                     "email" varchar(50) UNIQUE NOT NULL,
                     "password_hash" varchar(100) NOT NULL,
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "admin_permission" (
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id),
+                      "permission_key" VARCHAR(30) NOT NULL,
+                      "action" VARCHAR(30) NOT NULL,
+                      PRIMARY KEY ("admin_id", "permission_key", "action"),
 );
 
 CREATE TABLE "level" (
