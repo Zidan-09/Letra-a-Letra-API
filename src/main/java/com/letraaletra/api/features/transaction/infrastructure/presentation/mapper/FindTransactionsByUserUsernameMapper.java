@@ -12,14 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public class FindTransactionsByUserUsernameMapper {
-    public static FindTransactionsByUserUsernameInput toInput(AuthenticatedUser principal, String nickname, Pageable pageable) {
+    public static FindTransactionsByUserUsernameInput toInput(AuthenticatedUser principal, String username, Pageable pageable) {
         Pageable pages = pageable == null ?
                 PageRequest.of(0, 20, Sort.Direction.ASC) :
                 pageable;
 
         return new FindTransactionsByUserUsernameInput(
                 principal,
-                nickname,
+                username,
                 pages.getPageNumber(),
                 pages.getPageSize(),
                 pages.getSort()
