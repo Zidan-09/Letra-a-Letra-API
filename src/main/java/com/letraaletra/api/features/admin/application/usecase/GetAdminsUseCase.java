@@ -4,6 +4,8 @@ import com.letraaletra.api.features.admin.application.input.GetAdminsInput;
 import com.letraaletra.api.features.admin.application.output.GetAdminsOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.AdminsPage;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -23,7 +25,7 @@ public class GetAdminsUseCase implements UseCase<GetAdminsInput, GetAdminsOutput
 
     @Override
     public GetAdminsOutput execute(GetAdminsInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.VIEW);
 
         Page<Admin> admins = adminRepository.getAdmins(new AdminsPage(
                 input.page(),

@@ -4,6 +4,8 @@ import com.letraaletra.api.features.admin.application.input.RegisterAdminInput;
 import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -28,7 +30,7 @@ public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, Registe
     @Override
     @Transactional
     public RegisterAdminOutput execute(RegisterAdminInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.CREATE);
 
         validateEmail(input.email());
 

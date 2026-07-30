@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -31,7 +33,7 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
     @Override
     @Transactional
     public RegisterCosmeticOutput execute(RegisterCosmeticInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.COSMETIC, PermissionAction.CREATE);
 
         validateIfExists(input.name());
 

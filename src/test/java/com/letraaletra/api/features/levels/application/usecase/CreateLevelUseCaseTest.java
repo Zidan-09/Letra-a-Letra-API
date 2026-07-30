@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.levels.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -48,6 +50,8 @@ class CreateLevelUseCaseTest {
     private ArgumentCaptor<Level> levelCaptor;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.LEVELS;
+    private final PermissionAction action = PermissionAction.CREATE;
     private int targetLevel;
 
     @BeforeEach
@@ -62,13 +66,13 @@ class CreateLevelUseCaseTest {
         CreateLevelRewardInput coinRewardInput = new CreateLevelRewardInput(RewardType.COIN, null, 500);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinRewardInput));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
 
         useCase.execute(input);
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verify(levelRepository, times(1)).save(levelCaptor.capture());
         verifyNoInteractions(cosmeticRepository);
 
@@ -82,7 +86,7 @@ class CreateLevelUseCaseTest {
         CreateLevelRewardInput gemsRewardInput = new CreateLevelRewardInput(RewardType.GEMS, null, 50);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(gemsRewardInput));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
 
@@ -100,7 +104,7 @@ class CreateLevelUseCaseTest {
         CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
@@ -122,7 +126,7 @@ class CreateLevelUseCaseTest {
 
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
         when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
@@ -138,7 +142,7 @@ class CreateLevelUseCaseTest {
     void shouldCreateLevelWithNoRewardsSuccessfully() {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
 
@@ -152,7 +156,7 @@ class CreateLevelUseCaseTest {
     void shouldPropagateExceptionWhenAdminCheckFails() {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
-        doThrow(new SecurityException("Unauthorized access")).when(adminChecker).check(principal);
+        doThrow(new SecurityException("Unauthorized access")).when(adminChecker).check(principal, key, action);
 
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
@@ -165,7 +169,7 @@ class CreateLevelUseCaseTest {
     void shouldThrowLevelAlreadyExistsException() {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(true);
 
@@ -180,7 +184,7 @@ class CreateLevelUseCaseTest {
         CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
 
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level()))
                 .thenReturn(false);
         when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());

@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.transaction.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserOutput;
 import com.letraaletra.api.features.transaction.domain.TransactionDetails;
@@ -23,7 +25,7 @@ public class FindTransactionByUserUseCase implements UseCase<FindTransactionsByU
 
     @Override
     public FindTransactionsByUserOutput execute(FindTransactionsByUserInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.TRANSACTIONS, PermissionAction.VIEW);
 
         Page<TransactionDetails> transactions = transactionRepository.getByUserId(input.userId(), new TransactionsPage(
                input.page(),

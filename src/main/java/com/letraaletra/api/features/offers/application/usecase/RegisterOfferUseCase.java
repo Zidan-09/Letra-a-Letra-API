@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.offers.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -37,7 +39,7 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
     @Override
     @Transactional
     public RegisterOfferOutput execute(RegisterOfferInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.OFFERS, PermissionAction.CREATE);
 
         Offer offer = buildOffer(input);
 
