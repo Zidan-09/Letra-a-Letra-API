@@ -1,12 +1,10 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.event.PlayerAreImmuneEvent;
-import com.letraaletra.api.features.game.domain.event.PlayerBlindedEvent;
-import com.letraaletra.api.features.player.domain.effect.ImmunityEffect;
+import com.letraaletra.api.features.game.domain.event.PlayerUseLanternEvent;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
-import com.letraaletra.api.features.power.domain.PowerType;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.BlindEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
@@ -17,13 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BlindPlayerAction implements GameAction {
+public class LanternAction implements GameAction {
     private final String powerId;
-    private final UUID target;
 
-    public BlindPlayerAction(String powerId, UUID target) {
+    public LanternAction(String powerId) {
         this.powerId = powerId;
-        this.target = target;
     }
 
     @Override
@@ -36,23 +32,13 @@ public class BlindPlayerAction implements GameAction {
 
         player.resetPassedTurn();
 
-        Player opponent = state.getPlayerOrThrow(target);
-        validatePlayer(opponent);
-
         player.removeFromInventoryOrThrow(powerId);
 
-        if (isImmune(opponent)) {
-            return new ArrayList<>(List.of(new Event(
-                    StateEvent.PLAYER_ARE_IMMUNE,
-                    new PlayerAreImmuneEvent(target)
-            )));
-        }
-
-        opponent.applyEffect(new BlindEffect());
+        player.removeEffect(BlindEffect.class);
 
         return new ArrayList<>(List.of(new Event(
-                StateEvent.PLAYER_BLINDED,
-                new PlayerBlindedEvent(target)
+                StateEvent.PLAYER_USE_LANTERN,
+                new PlayerUseLanternEvent(userId.toString())
         )));
     }
 
@@ -65,7 +51,7 @@ public class BlindPlayerAction implements GameAction {
     private void validatePower(Player player) {
         PowerType power = player.getInventory().get(powerId);
 
-        if (power != PowerType.BLIND) {
+        if (power != PowerType.LANTERN) {
             throw new InvalidPlayerActionException();
         }
     }
@@ -74,10 +60,5 @@ public class BlindPlayerAction implements GameAction {
         if (player == null) {
             throw new PlayerNotInGameException();
         }
-    }
-
-    private boolean isImmune(Player player) {
-        return player.getEffects().stream()
-                .anyMatch(effect -> effect instanceof ImmunityEffect);
     }
 }

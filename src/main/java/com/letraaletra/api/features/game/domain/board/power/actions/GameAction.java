@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.state.GameState;

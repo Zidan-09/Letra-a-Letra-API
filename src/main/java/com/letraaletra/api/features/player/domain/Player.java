@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.domain;
 
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.player.domain.effect.PlayerEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;

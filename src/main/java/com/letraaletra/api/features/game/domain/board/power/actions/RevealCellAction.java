@@ -1,5 +1,6 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.event.CellRevealedEvent;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.event.WordFoundedEvent;
@@ -7,7 +8,6 @@ import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
-import com.letraaletra.api.features.power.domain.PowerType;
 import com.letraaletra.api.features.game.domain.board.cell.effect.CellEffect;
 import com.letraaletra.api.features.game.domain.board.cell.effect.InteractResult;
 import com.letraaletra.api.features.game.domain.board.word.Word;

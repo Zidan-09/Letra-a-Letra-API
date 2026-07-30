@@ -1,12 +1,12 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.event.PlayerAreImmuneEvent;
 import com.letraaletra.api.features.game.domain.event.PlayerFrozenEvent;
 import com.letraaletra.api.features.player.domain.effect.ImmunityEffect;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
-import com.letraaletra.api.features.power.domain.PowerType;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;

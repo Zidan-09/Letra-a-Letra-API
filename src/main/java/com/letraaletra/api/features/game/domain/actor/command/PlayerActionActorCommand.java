@@ -14,7 +14,7 @@ import com.letraaletra.api.features.game.domain.exception.SpectatorCanNotPlayExc
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;

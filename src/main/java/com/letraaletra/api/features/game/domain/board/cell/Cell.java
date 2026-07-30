@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.domain.board.cell.effect.CellEffect;
 import com.letraaletra.api.features.game.domain.board.cell.exception.CellAlreadyRevealedException;
 import com.letraaletra.api.features.game.domain.board.word.Word;
 import com.letraaletra.api.features.game.domain.board.position.Position;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 
 import java.util.ArrayList;
 import java.util.List;

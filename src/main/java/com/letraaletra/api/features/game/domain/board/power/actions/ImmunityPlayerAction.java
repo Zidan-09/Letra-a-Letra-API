@@ -1,12 +1,14 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.event.PlayerUnfreezeEvent;
+import com.letraaletra.api.features.game.domain.event.PlayerUseImmunityEvent;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
-import com.letraaletra.api.features.power.domain.PowerType;
 import com.letraaletra.api.features.player.domain.Player;
+import com.letraaletra.api.features.player.domain.effect.BlindEffect;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
+import com.letraaletra.api.features.player.domain.effect.ImmunityEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
@@ -15,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class UnfreezeAction implements GameAction {
+public class ImmunityPlayerAction implements GameAction {
     private final String powerId;
 
-    public UnfreezeAction(String powerId) {
+    public ImmunityPlayerAction(String powerId) {
         this.powerId = powerId;
     }
 
@@ -27,7 +29,6 @@ public class UnfreezeAction implements GameAction {
         validatePlayerTurn(state, userId);
 
         Player player = state.getPlayerOrThrow(userId);
-
         validatePlayer(player);
         validatePower(player);
 
@@ -35,13 +36,14 @@ public class UnfreezeAction implements GameAction {
 
         player.removeFromInventoryOrThrow(powerId);
 
+        player.removeEffect(BlindEffect.class);
         player.removeEffect(FreezeEffect.class);
 
+        player.applyEffect(new ImmunityEffect());
+
         return new ArrayList<>(List.of(new Event(
-                StateEvent.PLAYER_UNFREEZE,
-                new PlayerUnfreezeEvent(
-                        userId.toString()
-                )
+                StateEvent.PLAYER_USE_IMMUNITY,
+                new PlayerUseImmunityEvent(userId)
         )));
     }
 
@@ -54,7 +56,7 @@ public class UnfreezeAction implements GameAction {
     private void validatePower(Player player) {
         PowerType power = player.getInventory().get(powerId);
 
-        if (power != PowerType.UNFREEZE) {
+        if (power != PowerType.IMMUNITY) {
             throw new InvalidPlayerActionException();
         }
     }

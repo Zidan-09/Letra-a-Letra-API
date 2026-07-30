@@ -1,49 +1,52 @@
-package com.letraaletra.api.features.power.domain.actions;
+package com.letraaletra.api.features.game.domain.board.power.actions;
 
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
+import com.letraaletra.api.features.game.domain.event.CellUnblockedEvent;
 import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.event.PlayerUseImmunityEvent;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.cell.Cell;
+import com.letraaletra.api.features.game.domain.board.cell.exception.CellAlreadyRevealedException;
+import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.player.domain.effect.BlindEffect;
-import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
-import com.letraaletra.api.features.player.domain.effect.ImmunityEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
-import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ImmunityPlayerAction implements GameAction {
+public class UnblockCellAction implements GameAction {
     private final String powerId;
+    private final Position position;
 
-    public ImmunityPlayerAction(String powerId) {
+    public UnblockCellAction(String powerId, Position position) {
         this.powerId = powerId;
+        this.position = position;
     }
 
     @Override
     public List<Event> execute(GameState state, UUID userId) {
         validatePlayerTurn(state, userId);
 
+        Cell cell = state.getBoard().getCell(position);
+        validateCell(cell);
+
         Player player = state.getPlayerOrThrow(userId);
-        validatePlayer(player);
         validatePower(player);
 
         player.resetPassedTurn();
 
         player.removeFromInventoryOrThrow(powerId);
 
-        player.removeEffect(BlindEffect.class);
-        player.removeEffect(FreezeEffect.class);
-
-        player.applyEffect(new ImmunityEffect());
+        cell.clearEffect();
 
         return new ArrayList<>(List.of(new Event(
-                StateEvent.PLAYER_USE_IMMUNITY,
-                new PlayerUseImmunityEvent(userId)
+                StateEvent.CELL_UNBLOCKED,
+                new CellUnblockedEvent(
+                        position,
+                        userId.toString()
+                )
         )));
     }
 
@@ -56,14 +59,18 @@ public class ImmunityPlayerAction implements GameAction {
     private void validatePower(Player player) {
         PowerType power = player.getInventory().get(powerId);
 
-        if (power != PowerType.IMMUNITY) {
+        if (power != PowerType.UNBLOCK) {
             throw new InvalidPlayerActionException();
         }
     }
 
-    private void validatePlayer(Player player) {
-        if (player == null) {
-            throw new PlayerNotInGameException();
+    private void validateCell(Cell cell) {
+        if (cell == null) {
+            throw new InvalidPlayerActionException();
+        }
+
+        if (cell.isRevealed()) {
+            throw new CellAlreadyRevealedException();
         }
     }
 }
