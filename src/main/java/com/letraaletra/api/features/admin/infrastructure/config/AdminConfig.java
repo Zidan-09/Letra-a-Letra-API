@@ -98,4 +98,26 @@ public class AdminConfig {
                 adminChecker
         );
     }
+
+    @Bean
+    public UpdateAdminUseCase updateAdminUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        return new UpdateAdminUseCase(
+                adminRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public DeleteAdminUseCase deleteAdminUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        return new DeleteAdminUseCase(
+                adminRepository,
+                adminChecker
+        );
+    }
 }
