@@ -1,5 +1,8 @@
 package com.letraaletra.api.features.admin.infrastructure.controller;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,13 +32,20 @@ import java.util.stream.Stream;
 public class FindAdminLogsController {
 
     private final Path root = Paths.get("logs", "admin");
+    private final AdminChecker adminChecker;
+
+    public FindAdminLogsController(
+            AdminChecker adminChecker
+    ) {
+        this.adminChecker = adminChecker;
+    }
 
     @GetMapping
     public List<String> findLogs(
             @AuthenticationPrincipal AuthenticatedUser principal
     ) throws IOException {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         if (!Files.exists(root)) {
             return List.of();
@@ -56,7 +66,7 @@ public class FindAdminLogsController {
             @PathVariable @NotBlank String file
     ) {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         Path filePath = root
                 .resolve(file)
@@ -77,12 +87,6 @@ public class FindAdminLogsController {
                         "attachment; filename=\"" + file + "\""
                 )
                 .body(resource);
-    }
-
-    private void validateAdmin(AuthenticatedUser principal) {
-        if (!principal.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private void validatePath(Path path) {

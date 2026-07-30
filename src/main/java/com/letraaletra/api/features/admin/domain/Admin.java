@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public class Admin {
     private final UUID id;
-    private final String name;
-    private final String email;
+    private String name;
+    private String email;
     private final String hashPassword;
     private final Permissions permissions;
     private final LocalDateTime createdAt;
@@ -70,8 +70,16 @@ public class Admin {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getHashPassword() {

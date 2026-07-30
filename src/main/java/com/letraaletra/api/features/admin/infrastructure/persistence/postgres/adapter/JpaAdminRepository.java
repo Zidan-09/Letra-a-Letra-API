@@ -106,4 +106,9 @@ public class JpaAdminRepository implements AdminRepository {
     public long count() {
         return repository.count();
     }
+
+    @Override
+    public void delete(Admin admin) {
+        repository.delete(AdminMapper.toEntity(admin));
+    }
 }

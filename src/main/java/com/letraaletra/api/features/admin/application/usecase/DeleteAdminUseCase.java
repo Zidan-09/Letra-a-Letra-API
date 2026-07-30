@@ -1,0 +1,36 @@
+package com.letraaletra.api.features.admin.application.usecase;
+
+import com.letraaletra.api.features.admin.application.input.DeleteAdminInput;
+import com.letraaletra.api.features.admin.application.output.DeleteAdminOutput;
+import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+
+public class DeleteAdminUseCase implements UseCase<DeleteAdminInput, DeleteAdminOutput> {
+    private final AdminRepository adminRepository;
+    private final AdminChecker adminChecker;
+
+    public DeleteAdminUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        this.adminRepository = adminRepository;
+        this.adminChecker = adminChecker;
+    }
+
+    @Override
+    public DeleteAdminOutput execute(DeleteAdminInput input) {
+        adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.DELETE);
+
+        Admin admin = adminRepository.find(input.adminId())
+                .orElseThrow(AdminNotFoundException::new);
+
+        adminRepository.delete(admin);
+
+        return new DeleteAdminOutput(admin);
+    }
+}
