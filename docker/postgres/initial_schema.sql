@@ -96,7 +96,7 @@ CREATE TABLE "offer_reward" (
 CREATE TABLE "transaction" (
                         transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-                        user_id uuid NOT NULL REFERENCES "user"(user_id),
+                        user_id uuid NOT NULL REFERENCES "user"(user_id) ON DELETE SET NULL,
 
                         coin_type varchar(50) NOT NULL,
 
@@ -131,7 +131,7 @@ CREATE TABLE "admin" (
 );
 
 CREATE TABLE "admin_permission" (
-                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id),
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
                       "permission_key" VARCHAR(30) NOT NULL,
                       "action" VARCHAR(30) NOT NULL,
                       PRIMARY KEY ("admin_id", "permission_key", "action")
@@ -139,7 +139,7 @@ CREATE TABLE "admin_permission" (
 
 CREATE TABLE "admin_setup_password_token" (
                       "token_hash" varchar(100) PRIMARY KEY NOT NULL,
-                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id),
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
                       "expires_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                       "used" boolean NOT NULL DEFAULT false
 );
