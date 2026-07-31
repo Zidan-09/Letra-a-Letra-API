@@ -64,14 +64,20 @@ public class PlayerActionRequestDispatcher {
         } catch (Exception ex) {
             String matchLogFileName = resolveMatchLogFileName(game);
 
+            Throwable result = ex;
+
+            while (result.getCause() != null) {
+                result = result.getCause();
+            }
+
             auditService.game(
                     gameId,
                     matchLogFileName,
                     Level.WARN,
-                    "Jogador {} falhou ao executar [{}]: {}",
+                    "Jogador {} falhou ao executar [{}] = Exception: {}",
                     userDisplay,
                     actionType,
-                    ex.getMessage()
+                    result.getMessage()
             );
 
             throw ex;
