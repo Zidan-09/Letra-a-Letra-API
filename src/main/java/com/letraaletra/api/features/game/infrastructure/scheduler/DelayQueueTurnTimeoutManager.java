@@ -99,6 +99,18 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
                 )
         );
 
+        if (gameTurn.player().getPassedTurn() == 3) {
+            auditService.game(
+                    gameTurn.gameId().toString(),
+                    gameTurn.matchId().toString(),
+                    Level.INFO,
+                    "Jogador %s (%s) foi removido da sala por inatividade".formatted(
+                            gameTurn.player().getNickname(),
+                            gameTurn.player().getUserId()
+                    )
+            );
+        }
+
         ExpireTurnOutput result = output.get();
 
         TurnExpired data = new TurnExpired(

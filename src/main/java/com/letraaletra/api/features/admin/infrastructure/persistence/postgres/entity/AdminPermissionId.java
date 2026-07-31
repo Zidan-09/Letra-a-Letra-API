@@ -3,6 +3,8 @@ package com.letraaletra.api.features.admin.infrastructure.persistence.postgres.e
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +17,11 @@ import java.util.UUID;
 @Setter
 public class AdminPermissionId implements Serializable {
     private UUID adminId;
+
+    @Enumerated(EnumType.STRING)
     private PermissionKey permissionKey;
+
+    @Enumerated(EnumType.STRING)
     private PermissionAction action;
 
     @Override

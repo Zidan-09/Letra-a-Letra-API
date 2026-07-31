@@ -79,7 +79,7 @@ CREATE TABLE "offer" (
                        "coin_type" varchar(50) NOT NULL,
                        "price" NUMERIC(10,2) NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
-                       "repeatable" boolean NOT NULL false,
+                       "repeatable" boolean NOT NULL DEFAULT false,
                        "has_expiration" boolean NOT NULL DEFAULT true,
                        "expires_at" timestamptz,
                        "created_at" timestamptz
@@ -134,7 +134,7 @@ CREATE TABLE "admin_permission" (
                       "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id),
                       "permission_key" VARCHAR(30) NOT NULL,
                       "action" VARCHAR(30) NOT NULL,
-                      PRIMARY KEY ("admin_id", "permission_key", "action"),
+                      PRIMARY KEY ("admin_id", "permission_key", "action")
 );
 
 CREATE TABLE "admin_setup_password_token" (
