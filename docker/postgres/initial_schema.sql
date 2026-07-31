@@ -126,7 +126,7 @@ CREATE TABLE "admin" (
                     "admin_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                     "name" varchar(50) NOT NULL,
                     "email" varchar(50) UNIQUE NOT NULL,
-                    "password_hash" varchar(100) NOT NULL,
+                    "password_hash" varchar(100),
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -135,6 +135,13 @@ CREATE TABLE "admin_permission" (
                       "permission_key" VARCHAR(30) NOT NULL,
                       "action" VARCHAR(30) NOT NULL,
                       PRIMARY KEY ("admin_id", "permission_key", "action"),
+);
+
+CREATE TABLE "admin_setup_password_token" (
+                      "token_hash" varchar(100) PRIMARY KEY NOT NULL,
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id),
+                      "expires_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      "used" boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE "level" (

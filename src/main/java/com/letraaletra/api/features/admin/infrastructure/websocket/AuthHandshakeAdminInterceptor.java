@@ -4,6 +4,7 @@ import com.letraaletra.api.shared.domain.security.Roles;
 import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import org.jspecify.annotations.NonNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -34,15 +35,20 @@ public class AuthHandshakeAdminInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        TokenContent content = tokenService.getTokenContent(token);
+        try {
+            TokenContent content = tokenService.getTokenContent(token);
 
-        if (content == null || !content.role().equals(Roles.ADMIN)) {
+            if (content == null || !content.role().equals(Roles.ADMIN)) {
+                return false;
+            }
+
+            attributes.put("adminId", content.id().toString());
+
+            return true;
+        } catch (Exception e) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         }
-
-        attributes.put("adminId", content.id().toString());
-
-        return true;
     }
 
     @Override

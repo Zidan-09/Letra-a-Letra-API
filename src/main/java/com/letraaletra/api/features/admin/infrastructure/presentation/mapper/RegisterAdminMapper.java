@@ -11,8 +11,7 @@ public class RegisterAdminMapper {
         return new RegisterAdminInput(
                 principal,
                 request.name(),
-                request.email().toLowerCase(),
-                request.password()
+                request.email().toLowerCase()
         );
     }
 

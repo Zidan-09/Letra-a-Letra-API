@@ -25,13 +25,16 @@ public class AdminBootstrap implements CommandLineRunner {
 
             Admin admin = Admin.create(
                     "admin",
-                    "admin@localhost.com",
+                    "admin@localhost.com"
+            );
+
+            admin.activateAccount(
                     passwordService.hash("lalAdmin2026")
             );
 
             admin.getPermissions().set(new Permission(
                     PermissionKey.ADMIN,
-                    Set.of(PermissionAction.CREATE, PermissionAction.EDIT)
+                    Set.of(PermissionAction.CREATE, PermissionAction.EDIT, PermissionAction.VIEW)
             ));
 
             repository.save(admin);

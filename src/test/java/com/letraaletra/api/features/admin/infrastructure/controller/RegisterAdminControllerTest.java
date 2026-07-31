@@ -56,8 +56,8 @@ class RegisterAdminControllerTest {
 
         UUID requesterId = UUID.randomUUID();
         principal = new AuthenticatedUser(requesterId, "Admin", true);
-        request = new RegisterAdminRequest("Novo Admin", "novo.admin@letraaletra.com", "SecretPassword2026!");
-        input = new RegisterAdminInput(principal, "Novo Admin", "novo.admin@letraaletra.com", "SecretPassword2026!");
+        request = new RegisterAdminRequest("Novo Admin", "novo.admin@letraaletra.com");
+        input = new RegisterAdminInput(principal, "Novo Admin", "novo.admin@letraaletra.com");
 
         Admin adminMock = mock(Admin.class);
         output = new RegisterAdminOutput(adminMock);
