@@ -9,11 +9,11 @@ public class Admin {
     private final UUID id;
     private String name;
     private String email;
-    private final String hashPassword;
+    private String hashPassword;
     private final Permissions permissions;
     private final LocalDateTime createdAt;
 
-    public Admin(
+    private Admin(
             UUID id,
             String name,
             String email,
@@ -31,14 +31,13 @@ public class Admin {
 
     public static Admin create(
             String name,
-            String email,
-            String hashPassword
+            String email
     ) {
         return new Admin(
                 UUID.randomUUID(),
                 name,
                 email,
-                hashPassword,
+                null,
                 new Permissions(),
                 LocalDateTime.now()
         );
@@ -84,6 +83,10 @@ public class Admin {
 
     public String getHashPassword() {
         return hashPassword;
+    }
+
+    public void activateAccount(String hashPassword) {
+        this.hashPassword = hashPassword;
     }
 
     public Permissions getPermissions() {

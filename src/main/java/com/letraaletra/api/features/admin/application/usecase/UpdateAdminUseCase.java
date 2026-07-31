@@ -4,6 +4,7 @@ import com.letraaletra.api.features.admin.application.input.UpdateAdminInput;
 import com.letraaletra.api.features.admin.application.output.UpdateAdminOutput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
@@ -35,6 +36,8 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
         Admin admin = adminRepository.find(input.adminId())
                 .orElseThrow(AdminNotFoundException::new);
 
+        validateEmail(admin.getEmail(), input.email());
+
         admin.setName(input.name());
         admin.setEmail(input.email());
 
@@ -43,5 +46,13 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
         adminRepository.save(admin);
 
         return new UpdateAdminOutput(admin);
+    }
+
+    private void validateEmail(String registeredEmail, String email) {
+        boolean exists = adminRepository.existsByEmail(email);
+
+        if (exists && !registeredEmail.equals(email)) {
+            throw new EmailAlreadyInUseException();
+        }
     }
 }

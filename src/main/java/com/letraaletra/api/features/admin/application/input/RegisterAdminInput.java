@@ -5,7 +5,6 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 public record RegisterAdminInput(
         AuthenticatedUser principal,
         String name,
-        String email,
-        String password
+        String email
 ) {
 }
