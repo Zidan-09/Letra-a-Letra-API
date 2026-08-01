@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
-import com.letraaletra.api.features.game.domain.ExpireTurnResult;
+import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.service.GameOver;
@@ -72,7 +72,7 @@ class ExpireTurnTimeoutServiceTest {
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
         // Act
-        ExpireTurnResult output = service.expire(gameId, 1).orElseThrow();
+        ExpireTurnTimeoutResult output = service.expire(gameId, 1).orElseThrow();
 
         // Assert
         assertEquals("TURN_EXPIRED", output.event());
@@ -126,7 +126,7 @@ class ExpireTurnTimeoutServiceTest {
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
         // Act
-        Optional<ExpireTurnResult> output = service.expire(gameId, 1);
+        Optional<ExpireTurnTimeoutResult> output = service.expire(gameId, 1);
 
         // Assert
         assertTrue(output.isEmpty());

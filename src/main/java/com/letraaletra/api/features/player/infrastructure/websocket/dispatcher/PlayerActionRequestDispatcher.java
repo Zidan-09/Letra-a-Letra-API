@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.dispatcher;
 
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.player.domain.HandlerResult;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.websocket.handlers.action.InGameActionHandler;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -44,13 +45,14 @@ public class PlayerActionRequestDispatcher {
             throw new IllegalArgumentException("Nenhum handler para a ação: " + action.getClass().getSimpleName());
         }
 
-        Game game = null;
+        HandlerResult handlerResult = null;
         String userDisplay = getUserDisplay(session);
         String actionType = formatActionType(action.getClass());
 
         try {
-            game = handler.handle(action, session, gameId);
-            String matchLogFileName = resolveMatchLogFileName(game);
+            handlerResult = handler.handle(action, session, gameId);
+
+            String matchLogFileName = resolveMatchLogFileName(handlerResult.game());
 
             auditService.game(
                     gameId,
@@ -61,8 +63,23 @@ public class PlayerActionRequestDispatcher {
                     actionType
             );
 
+            HandlerResult finalHandlerResult = handlerResult;
+
+            finalHandlerResult.gameOver().ifPresent(over -> auditService.game(
+                    finalHandlerResult.game().getId().toString(),
+                    finalHandlerResult.game().getGameState().getMatchId().toString(),
+                    Level.INFO,
+                    "A partida acabou | Vencedor: {} ({}) - Pontuação: {} | Perdedor: {} ({}) - Pontuação: {}",
+                    over.winner().getNickname(),
+                    over.winner().getUserId().toString(),
+                    over.winner().getScore(),
+                    over.loser().getNickname(),
+                    over.loser().getUserId().toString(),
+                    over.loser().getScore()
+            ));
+
         } catch (Exception ex) {
-            String matchLogFileName = resolveMatchLogFileName(game);
+            String matchLogFileName = resolveMatchLogFileName(handlerResult != null ? handlerResult.game() : null);
 
             Throwable result = ex;
 

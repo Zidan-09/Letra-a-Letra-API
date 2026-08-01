@@ -1,11 +1,12 @@
 package com.letraaletra.api.features.participant.infrastructure.config;
 
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
@@ -73,11 +74,17 @@ public class ParticipantConfig {
     }
 
     @Bean
-    public RemoveParticipantUseCase removeParticipantUseCase(
-            GameActorManager gameActorManager,
+    public RemoveDisconnectedParticipantUseCase removeDisconnectedParticipantUseCase(
+            UserRepository userRepository,
             GameRepository gameRepository,
-            UserRepository userRepository
+            GameTimeoutManager gameTimeoutManager,
+            ActorManager<Game> actorManager
     ) {
-        return new RemoveParticipantUseCase(gameActorManager, gameRepository, userRepository);
+        return new RemoveDisconnectedParticipantUseCase(
+                userRepository,
+                gameRepository,
+                gameTimeoutManager,
+                actorManager
+        );
     }
 }

@@ -1,8 +1,9 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
-import com.letraaletra.api.features.participant.application.input.RemoveParticipantInput;
+import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
 import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
-import com.letraaletra.api.features.participant.application.usecase.RemoveParticipantUseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -10,14 +11,9 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
+@RequiredArgsConstructor
 public class DisconnectManager implements DisconnectScheduler {
-    private final RemoveParticipantUseCase useCase;
-
-    public DisconnectManager(
-            RemoveParticipantUseCase useCase
-    ) {
-        this.useCase = useCase;
-    }
+    private final UseCase<RemoveDisconnectedParticipantInput, Void> useCase;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
@@ -49,7 +45,7 @@ public class DisconnectManager implements DisconnectScheduler {
         String key = buildKey(userId, gameId);
         timers.remove(key);
 
-        useCase.execute(new RemoveParticipantInput(
+        useCase.execute(new RemoveDisconnectedParticipantInput(
                 gameId, userId
         ));
     }

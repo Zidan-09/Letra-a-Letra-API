@@ -1,0 +1,159 @@
+package com.letraaletra.api.features.participant.application.usecase;
+
+import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameStatus;
+import com.letraaletra.api.features.game.domain.actor.command.RemoveDisconnectedParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.actor.output.RemoveParticipantResult;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.shared.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class RemoveDisconnectedParticipantUseCaseTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private GameRepository gameRepository;
+
+    @Mock
+    private GameTimeoutManager gameTimeoutManager;
+
+    @Mock
+    private ActorManager<Game> actorManager;
+
+    @Mock
+    private Actor actor;
+
+    @InjectMocks
+    private RemoveDisconnectedParticipantUseCase useCase;
+
+    private UUID gameId;
+    private RemoveDisconnectedParticipantInput input;
+
+    @BeforeEach
+    void setup() {
+        gameId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        input = new RemoveDisconnectedParticipantInput(gameId, userId);
+    }
+
+    @Test
+    @DisplayName("Deve iniciar timeout do jogo quando o status retornado for WAITING")
+    void shouldStartGameTimeoutWhenStatusIsWaiting() {
+        // Arrange
+        Game game = mock(Game.class);
+        RemoveParticipantResult result = mock(RemoveParticipantResult.class);
+
+        when(game.getGameStatus()).thenReturn(GameStatus.WAITING);
+        when(result.game()).thenReturn(game);
+
+        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actor.enqueueCommand(any(RemoveDisconnectedParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(result));
+
+        // Act
+        Void output = useCase.execute(input);
+
+        // Assert
+        assertNull(output);
+        verify(gameTimeoutManager).start(game);
+        verify(gameRepository).save(game);
+        verify(actorManager, never()).remove(any());
+    }
+
+    @Test
+    @DisplayName("Deve remover o ator do ActorManager quando o status do jogo for CLOSED")
+    void shouldRemoveActorWhenStatusIsClosed() {
+        // Arrange
+        Game game = mock(Game.class);
+        RemoveParticipantResult result = mock(RemoveParticipantResult.class);
+
+        when(game.getId()).thenReturn(gameId);
+        when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
+        when(result.game()).thenReturn(game);
+
+        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actor.enqueueCommand(any(RemoveDisconnectedParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(result));
+
+        // Act
+        Void output = useCase.execute(input);
+
+        // Assert
+        assertNull(output);
+        verify(actorManager).remove(gameId);
+        verify(gameRepository).save(game);
+        verify(gameTimeoutManager, never()).start(any());
+    }
+
+    @Test
+    @DisplayName("Deve apenas salvar o jogo sem interagir com timeout ou remoção do ator quando em progresso")
+    void shouldOnlySaveGameWhenGameIsInProgress() {
+        // Arrange
+        Game game = mock(Game.class);
+        RemoveParticipantResult result = mock(RemoveParticipantResult.class);
+
+        when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
+        when(result.game()).thenReturn(game);
+
+        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actor.enqueueCommand(any(RemoveDisconnectedParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(result));
+
+        // Act
+        Void output = useCase.execute(input);
+
+        // Assert
+        assertNull(output);
+        verify(gameRepository).save(game);
+        verify(gameTimeoutManager, never()).start(any());
+        verify(actorManager, never()).remove(any());
+    }
+
+    @Test
+    @DisplayName("Deve enviar o comando de remoção com o userId e userRepository corretos para o Actor")
+    void shouldSendRemoveCommandToActor() {
+        // Arrange
+        Game game = mock(Game.class);
+        RemoveParticipantResult result = mock(RemoveParticipantResult.class);
+
+        when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
+        when(result.game()).thenReturn(game);
+
+        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actor.enqueueCommand(any(RemoveDisconnectedParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(result));
+
+        // Act
+        useCase.execute(input);
+
+        // Assert
+        ArgumentCaptor<RemoveDisconnectedParticipantActorCommand> captor =
+                ArgumentCaptor.forClass(RemoveDisconnectedParticipantActorCommand.class);
+
+        verify(actor).enqueueCommand(captor.capture());
+
+        RemoveDisconnectedParticipantActorCommand capturedCommand = captor.getValue();
+        assertNotNull(capturedCommand);
+    }
+}

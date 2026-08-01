@@ -1,50 +1,48 @@
-package com.letraaletra.api.features.game.application.usecase;
+package com.letraaletra.api.features.participant.application.usecase;
 
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
-import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
-import com.letraaletra.api.features.game.application.input.LeftGameInput;
-import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
-import com.letraaletra.api.features.game.application.output.LeftGameOutput;
+import com.letraaletra.api.features.game.domain.actor.command.RemoveDisconnectedParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.actor.output.RemoveParticipantResult;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.game.domain.Game;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 
-public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
-    private final ActorManager<Game> actorManager;
+public class RemoveDisconnectedParticipantUseCase implements UseCase<RemoveDisconnectedParticipantInput, Void> {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameTimeoutManager gameTimeoutManager;
+    private final ActorManager<Game> actorManager;
 
-    public LeftGameUseCase(
-            ActorManager<Game> actorManager,
+    public RemoveDisconnectedParticipantUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager
+            GameTimeoutManager gameTimeoutManager,
+            ActorManager<Game> actorManager
     ) {
-        this.actorManager = actorManager;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameTimeoutManager = gameTimeoutManager;
+        this.actorManager = actorManager;
     }
 
     @Override
     @Transactional
-    public LeftGameOutput execute(LeftGameInput input) {
+    public Void execute(RemoveDisconnectedParticipantInput input) {
         Actor actor = actorManager.get(input.gameId());
 
-        CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(
-                userRepository,
-                input.session()
+        CompletableFuture<RemoveParticipantResult> future = actor.enqueueCommand(new RemoveDisconnectedParticipantActorCommand(
+                userRepository, input.userId()
         ));
 
-        LeftGameResult result = future.join();
+        RemoveParticipantResult result = future.join();
 
         if (result.game().getGameStatus().equals(GameStatus.WAITING)) {
             gameTimeoutManager.start(result.game());
@@ -56,6 +54,6 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
 
         gameRepository.save(result.game());
 
-        return new LeftGameOutput(result.game(), result.gameOver());
+        return null;
     }
 }
