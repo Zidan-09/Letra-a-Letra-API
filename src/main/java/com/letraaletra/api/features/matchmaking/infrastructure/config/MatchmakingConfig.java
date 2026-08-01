@@ -1,44 +1,15 @@
 package com.letraaletra.api.features.matchmaking.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.port.RoomCodeService;
-import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
-import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
-import com.letraaletra.api.features.matchmaking.application.service.MatchmakingAssembler;
 import com.letraaletra.api.features.matchmaking.application.usecase.ExitMatchmakingQueueUseCase;
 import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.port.QueueChecker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MatchmakingConfig {
-    @Bean
-    public MatchmakingAssembler matchmakingGameFactory(
-            PickRandomThemeWordsService wordsService,
-            RoomCodeService roomCodeService,
-            UserRepository userRepository,
-            GameRepository gameRepository,
-            ActorManager<Game> actorManager,
-            BoardGenerator boardGenerator,
-            TurnTimeoutManager turnTimeoutManager
-    ) {
-        return new MatchmakingAssembler(
-                wordsService,
-                roomCodeService,
-                userRepository,
-                gameRepository,
-                actorManager,
-                boardGenerator,
-                turnTimeoutManager
-        );
-    }
-
     @Bean
     public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
             MatchmakingRepository matchmakingRepository,

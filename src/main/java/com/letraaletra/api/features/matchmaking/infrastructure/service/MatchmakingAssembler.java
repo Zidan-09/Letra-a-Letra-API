@@ -1,7 +1,7 @@
-package com.letraaletra.api.features.matchmaking.application.service;
+package com.letraaletra.api.features.matchmaking.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
-import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
+import com.letraaletra.api.features.game.application.port.SelectThemeService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorCommand;
 import com.letraaletra.api.features.game.domain.actor.command.StartMatchGameActorCommand;
@@ -11,6 +11,7 @@ import com.letraaletra.api.features.game.domain.factory.GameFactory;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameMode;
+import com.letraaletra.api.features.matchmaking.application.port.GameAssemblerService;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -18,47 +19,36 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.QueueType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class MatchmakingAssembler {
-    private final PickRandomThemeWordsService wordsService;
+@Service
+@RequiredArgsConstructor
+public class MatchmakingAssembler implements GameAssemblerService {
+    private final SelectThemeService themeService;
     private final RoomCodeService roomCodeService;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final ActorManager<Game> actorManager;
-    private final BoardGenerator boardGenerator;
     private final TurnTimeoutManager turnTimeoutManager;
-
-    public MatchmakingAssembler(
-            PickRandomThemeWordsService wordsService,
-            RoomCodeService roomCodeService,
-            UserRepository userRepository,
-            GameRepository gameRepository,
-            ActorManager<Game> actorManager,
-            BoardGenerator boardGenerator,
-            TurnTimeoutManager turnTimeoutManager
-    ) {
-        this.wordsService = wordsService;
-        this.roomCodeService = roomCodeService;
-        this.userRepository = userRepository;
-        this.gameRepository = gameRepository;
-        this.actorManager = actorManager;
-        this.boardGenerator = boardGenerator;
-        this.turnTimeoutManager = turnTimeoutManager;
-    }
 
     public Game create(
             MatchmakingPair users,
             GameMode gameMode,
             QueueType queueType
     ) {
-        User user1 = userRepository.find(users.first().userId())
-                .orElseThrow(UserNotFoundException::new);
+        List<User> userList = userRepository.findUsersById(
+                List.of(users.first().userId(), users.second().userId())
+        );
 
-        User user2 = userRepository.find(users.second().userId())
-                .orElseThrow(UserNotFoundException::new);
+        if (userList.size() < 2) throw new UserNotFoundException();
+
+        User user1 = userList.getFirst();
+
+        User user2 = userList.getLast();
 
         String code = roomCodeService.generate();
 
@@ -82,9 +72,9 @@ public class MatchmakingAssembler {
 
         future.join();
 
-        List<String> words = wordsService.execute();
+        List<String> words = themeService.select();
 
-        Board board = boardGenerator.generate(words, gameMode);
+        Board board = BoardGenerator.generate(words, gameMode);
 
         future = actor.enqueueCommand(new StartMatchGameActorCommand(
                 board,

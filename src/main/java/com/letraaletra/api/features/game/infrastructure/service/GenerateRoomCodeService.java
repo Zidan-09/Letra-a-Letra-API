@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.infrastructure.service;
+package com.letraaletra.api.features.game.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;

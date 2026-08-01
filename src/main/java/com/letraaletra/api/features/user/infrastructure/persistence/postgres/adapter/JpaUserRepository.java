@@ -82,6 +82,13 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public List<User> findUsersById(List<UUID> ids) {
+        return repository.findAllById(ids).stream()
+                .map(this::assembleUser)
+                .toList();
+    }
+
+    @Override
     public Optional<User> findByUsername(String username) {
         return repository.findByUsername(username)
                 .map(this::assembleUser);

@@ -1,7 +1,6 @@
-package com.letraaletra.api.features.game.application.service;
+package com.letraaletra.api.features.game.infrastructure.service;
 
-import com.letraaletra.api.features.game.application.input.CloseRoomInput;
-import com.letraaletra.api.features.game.application.output.CloseRoomOutput;
+import com.letraaletra.api.features.game.domain.CloseRoomResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.RoomCloseReasons;
 import com.letraaletra.api.features.game.domain.actor.command.CloseGameActorCommand;
@@ -10,6 +9,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,16 +53,15 @@ class CloseRoomDueToTimeoutServiceTest {
     }
 
     @Test
+    @DisplayName("Deve fechar a sala por inatividade com sucesso")
     void shouldCloseRoomSuccessfullyDueToTimeout() {
         // Arrange
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(CloseGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
 
-        CloseRoomInput input = new CloseRoomInput(game);
-
         // Act
-        CloseRoomOutput output = service.execute(input);
+        CloseRoomResult output = service.close(game);
 
         // Assert
         assertNotNull(output);
@@ -77,6 +77,7 @@ class CloseRoomDueToTimeoutServiceTest {
     }
 
     @Test
+    @DisplayName("Lança exceção quando o processamento do comando do Actor falha no join()")
     void shouldThrowExceptionWhenActorCommandFails() {
         // Arrange
         CompletableFuture<Game> failedFuture = new CompletableFuture<>();
@@ -85,10 +86,9 @@ class CloseRoomDueToTimeoutServiceTest {
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(CloseGameActorCommand.class))).thenReturn(failedFuture);
 
-        CloseRoomInput input = new CloseRoomInput(game);
-
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> service.execute(input));
+        // Chamadas com .join() lançam CompletionException quando o Future falha
+        assertThrows(CompletionException.class, () -> service.close(game));
 
         // Se o actor falhar no .join(), não deve remover nem salvar o estado inconsistente
         verify(actorManager, never()).remove(any());
