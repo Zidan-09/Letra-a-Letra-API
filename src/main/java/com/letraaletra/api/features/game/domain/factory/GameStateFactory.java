@@ -3,7 +3,6 @@ package com.letraaletra.api.features.game.domain.factory;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
 
 import java.time.Instant;
@@ -17,7 +16,7 @@ public class GameStateFactory {
         Map<UUID, Player> players = new HashMap<>();
 
         participants
-                .stream().filter(p -> p.getRole() == ParticipantRole.PLAYER)
+                .stream().filter(Participant::isPlayer)
                 .forEach(p -> {
                     Player player = new Player(
                             p.getUserId(),
