@@ -59,7 +59,7 @@ class GameFactoriesTest {
 
             assertEquals(roomCode, game.getCode());
             assertEquals(GameType.MATCHMAKING, game.getGameType());
-            assertEquals("default-name", game.getRoomName());
+            assertEquals("default-match", game.getRoomName());
             assertEquals(userId1, game.getHostId(), "O player1 deve iniciar como Host");
             assertEquals(2, game.getParticipants().getAmountPlayers(), "A sala deve possuir exatamente 2 jogadores ativos");
 

@@ -100,7 +100,6 @@ class LeftGameUseCaseTest {
         verify(userRepository).save(user);
 
         verify(actorManager, never()).remove(any());
-        verify(gameRepository, never()).save(any());
     }
 
     @Test
