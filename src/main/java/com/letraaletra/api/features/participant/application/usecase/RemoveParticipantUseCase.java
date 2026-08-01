@@ -6,7 +6,6 @@ import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +35,7 @@ public class RemoveParticipantUseCase implements UseCase<RemoveParticipantInput,
 
         Optional<Game> game = future.join();
 
-        game.ifPresent(g -> {
-            if (g.getParticipants().getPositions().isEmpty()) {
-                g.setGameStatus(GameStatus.CLOSED);
-
-                gameRepository.save(g);
-            }
-        });
+        game.ifPresent(gameRepository::save);
 
         return null;
     }

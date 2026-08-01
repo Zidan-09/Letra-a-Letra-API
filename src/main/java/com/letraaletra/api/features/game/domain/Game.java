@@ -2,11 +2,13 @@ package com.letraaletra.api.features.game.domain;
 
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
+import com.letraaletra.api.features.game.domain.exception.InsufficientPlayersException;
 import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.user.domain.User;
 
 import java.util.*;
 
@@ -17,7 +19,7 @@ public class Game {
     private final Participants participants = new Participants();
     private final RoomSettings roomSettings;
     private final GameType gameType;
-    private final UUID createdById;
+    private UUID createdById;
     private UUID hostId;
     private GameStatus gameStatus;
     private GameState gameState;
@@ -27,35 +29,27 @@ public class Game {
             String code,
             String roomName,
             RoomSettings roomSettings,
-            Participant host,
             GameType gameType
     ) {
         this.id = id;
         this.code = code;
         this.roomName = roomName;
-        host.changeRole(ParticipantRole.PLAYER);
-        participants.join(host, roomSettings);
         this.gameType = gameType;
-        this.createdById = host.getUserId();
-        this.hostId = host.getUserId();
         this.gameStatus = GameStatus.WAITING;
         this.roomSettings = roomSettings;
     }
 
     public static Game create(
-            UUID id,
             String code,
             String roomName,
             RoomSettings roomSettings,
-            Participant host,
             GameType gameType
     ) {
         return new Game(
-                id,
+                UUID.randomUUID(),
                 code,
                 roomName,
                 roomSettings,
-                host,
                 gameType
         );
     }
@@ -100,8 +94,30 @@ public class Game {
         return roomSettings;
     }
 
-    public void start(Board board, GameStateFactory stateGenerator) {
-        GameState state = stateGenerator.generate(participants.getParticipants(), board);
+    public void join(User user, String session) {
+
+        Participant participant = Participant.create(user, session);
+
+        if (participants.getParticipants().isEmpty()) {
+            participant.changeRole(ParticipantRole.PLAYER);
+
+            createdById = participant.getUserId();
+            hostId = participant.getUserId();
+        }
+
+        participants.join(participant, roomSettings);
+    }
+
+    public void start(Board board) {
+        if (gameStatus.equals(GameStatus.RUNNING)) {
+            throw new GameIsRunningException();
+        }
+
+        if (participants.getAmountPlayers() < 2) {
+            throw new InsufficientPlayersException();
+        }
+
+        GameState state = GameStateFactory.generate(participants.getParticipants(), board);
 
         this.gameStatus = GameStatus.RUNNING;
         this.gameState = state;

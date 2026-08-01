@@ -7,7 +7,6 @@ import com.letraaletra.api.features.game.application.output.LeftGameOutput;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.domain.Game;
@@ -15,7 +14,6 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
@@ -32,8 +30,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
     @Override
     @Transactional
     public LeftGameOutput execute(LeftGameInput input) {
-        UUID gameId = input.gameId();
-        Actor actor = actorManager.get(gameId);
+        Actor actor = actorManager.get(input.gameId());
 
         CompletableFuture<LeftGameResult> future = actor.enqueueCommand(new LeftGameActorCommand(input.session()));
 
@@ -44,11 +41,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
 
         user.leaveGame();
 
-        if (result.isEmpty()) {
-            actorManager.remove(result.game().getId());
-
-            result.game().setGameStatus(GameStatus.CLOSED);
-        }
+        if (result.gameOver().isPresent()) actorManager.remove(result.game().getId());
 
         userRepository.save(user);
         gameRepository.save(result.game());

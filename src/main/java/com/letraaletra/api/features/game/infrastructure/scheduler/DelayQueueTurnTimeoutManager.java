@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
-import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
-import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
+import com.letraaletra.api.features.game.domain.ExpireTurnResult;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.service.ExpireTurnService;
@@ -82,9 +81,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
-        ExpireTurnInput command = new ExpireTurnInput(gameTurn.gameId(), gameTurn.version());
-
-        Optional<ExpireTurnOutput> output = expireTurnService.execute(command);
+        Optional<ExpireTurnResult> output = expireTurnService.execute(gameTurn.gameId(), gameTurn.version());
 
         if (output.isEmpty()) return;
 
@@ -111,7 +108,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
             );
         }
 
-        ExpireTurnOutput result = output.get();
+        ExpireTurnResult result = output.get();
 
         TurnExpired data = new TurnExpired(
                 result.event(),

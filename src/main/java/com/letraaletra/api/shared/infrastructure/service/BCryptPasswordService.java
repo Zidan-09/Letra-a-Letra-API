@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.infrastructure.security;
+package com.letraaletra.api.shared.infrastructure.service;
 
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

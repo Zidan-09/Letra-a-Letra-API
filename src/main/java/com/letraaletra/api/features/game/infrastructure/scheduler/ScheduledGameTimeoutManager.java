@@ -7,6 +7,7 @@ import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.application.port.AuditService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +16,11 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
+@RequiredArgsConstructor
 public class ScheduledGameTimeoutManager implements GameTimeoutManager {
     private final CloseRoomDueToTimeoutService closeRoomDueToTimeoutService;
     private final GameNotifier gameNotifier;
     private final AuditService auditService;
-
-    public ScheduledGameTimeoutManager(
-            CloseRoomDueToTimeoutService closeRoomDueToTimeoutService,
-            GameNotifier gameNotifier,
-            AuditService auditService
-    ) {
-        this.closeRoomDueToTimeoutService = closeRoomDueToTimeoutService;
-        this.gameNotifier = gameNotifier;
-        this.auditService = auditService;
-    }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 

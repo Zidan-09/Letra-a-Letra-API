@@ -1,54 +1,52 @@
 package com.letraaletra.api.features.matchmaking.application.service;
 
-import com.letraaletra.api.features.game.application.port.GameQueryService;
+import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
-import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
-import com.letraaletra.api.features.game.domain.factory.DefaultGameResult;
-import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
+import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.StartMatchGameActorCommand;
+import com.letraaletra.api.features.game.domain.board.Board;
+import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
+import com.letraaletra.api.features.game.domain.factory.GameFactory;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
+import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameMode;
-import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
-import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.domain.QueueType;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MatchmakingAssembler {
-    private final DefaultGameFactory gameFactory;
-    private final DefaultGameStateFactory stateFactory;
     private final PickRandomThemeWordsService wordsService;
-    private final GenerateRoomCode generateRoomCode;
-    private final GameQueryService queryService;
+    private final RoomCodeService roomCodeService;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final ActorManager<Game> actorManager;
+    private final BoardGenerator boardGenerator;
+    private final TurnTimeoutManager turnTimeoutManager;
 
     public MatchmakingAssembler(
-            DefaultGameFactory gameFactory,
-            DefaultGameStateFactory stateFactory,
             PickRandomThemeWordsService wordsService,
-            GenerateRoomCode generateRoomCode,
-            GameQueryService queryService,
+            RoomCodeService roomCodeService,
             UserRepository userRepository,
             GameRepository gameRepository,
-            ActorManager<Game> actorManager
+            ActorManager<Game> actorManager,
+            BoardGenerator boardGenerator,
+            TurnTimeoutManager turnTimeoutManager
     ) {
-        this.gameFactory = gameFactory;
-        this.stateFactory = stateFactory;
         this.wordsService = wordsService;
-        this.generateRoomCode = generateRoomCode;
-        this.queryService = queryService;
+        this.roomCodeService = roomCodeService;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.actorManager = actorManager;
+        this.boardGenerator = boardGenerator;
+        this.turnTimeoutManager = turnTimeoutManager;
     }
 
     public Game create(
@@ -62,48 +60,42 @@ public class MatchmakingAssembler {
         User user2 = userRepository.find(users.second().userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        Participant participant1 = Participant.create(user1, users.first().session());
-        Participant participant2 = Participant.create(user2, users.second().session());
+        String code = roomCodeService.generate();
 
-        String code = getCode();
+        Game game = queueType.equals(QueueType.RANKING) ?
+                GameFactory.rank(code) :
+                GameFactory.match(code);
 
-        DefaultGameResult result = queueType.equals(QueueType.RANKING) ?
-                gameFactory.rank(participant1, participant2, code) :
-                gameFactory.match(participant1, participant2, code);
+        actorManager.create(game.getId(), game);
 
-        actorManager.create(result.game().getId(), result.game());
+        Actor actor = actorManager.get(game.getId());
 
-        user1.enterGame(result.game().getId());
-        user2.enterGame(result.game().getId());
+        CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(
+                user1, users.first().session()
+        ));
 
-        userRepository.save(user1);
-        userRepository.save(user2);
+        future.join();
 
-        startDefaultGame(result.game(), gameMode);
+        future = actor.enqueueCommand(new JoinGameActorCommand(
+                user2, users.second().session()
+        ));
 
-        gameRepository.save(result.game());
+        future.join();
 
-        return result.game();
-    }
-
-    private void startDefaultGame(Game game, GameMode gameMode) {
         List<String> words = wordsService.execute();
 
-        GameState state = stateFactory.generate(game, gameMode, words);
+        Board board = boardGenerator.generate(words, gameMode);
 
-        game.setGameStatus(GameStatus.RUNNING);
+        future = actor.enqueueCommand(new StartMatchGameActorCommand(
+                board,
+                turnTimeoutManager
+        ));
 
-        game.updateGameState(state);
-    }
+        game = future.join();
 
-    private String getCode() {
-        String code;
+        userRepository.saveAll(List.of(user1, user2));
+        gameRepository.save(game);
 
-        do {
-            code = generateRoomCode.execute();
-
-        } while (queryService.existsByCode(code));
-
-        return code;
+        return game;
     }
 }

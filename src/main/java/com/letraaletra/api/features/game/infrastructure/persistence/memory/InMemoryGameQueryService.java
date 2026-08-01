@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -30,10 +31,10 @@ public class InMemoryGameQueryService implements GameQueryService {
     }
 
     @Override
-    public Game findByCode(String code) {
+    public Optional<Game> findByCode(String code) {
         return getGames()
                 .filter(game -> game.getCode().equals(code))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     @Override

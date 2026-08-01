@@ -3,7 +3,6 @@ package com.letraaletra.api.features.game.domain.actor.command;
 import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
-import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 
@@ -20,7 +19,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
     @Override
     public LeftGameResult execute(Game game) {
         Participant participant = game.getParticipants().findBySession(session);
-        validateParticipant(participant);
 
         UUID participantId = participant.getUserId();
 
@@ -30,7 +28,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
             return new LeftGameResult(
                     game,
                     participant.getUserId(),
-                    game.getParticipants().getParticipants().isEmpty(),
                     Optional.empty()
             );
         }
@@ -38,19 +35,14 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         Optional<GameOver> gameOver = game.getGameState()
                 .gameOverBecausePlayerLeft(participantId);
 
+        if (gameOver.isPresent()) game.setGameStatus(GameStatus.CLOSED);
+
         game.remove(participantId);
 
         return new LeftGameResult(
                 game,
                 participantId,
-                game.getParticipants().getParticipants().isEmpty(),
                 gameOver
         );
-    }
-
-    private void validateParticipant(Participant participant) {
-        if (participant == null) {
-            throw new UserNotInGameException();
-        }
     }
 }

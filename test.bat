@@ -34,8 +34,4 @@ echo [6] Iniciando testes de integração...
 
 call node tools\tests\runner.js
 
-echo [7] Matando o processo da API...
-
-taskkill /FI "WINDOWTITLE eq API*" /T /F
-
 echo [8] Testes finalizados!
