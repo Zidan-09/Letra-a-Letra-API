@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.domain.GameType;
-import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
-import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.game.domain.GameType;
+import com.letraaletra.api.features.game.domain.actor.output.RemoveParticipantResult;
 import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -13,28 +13,28 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
+public class RemoveDisconnectedParticipantActorCommand implements ActorCommand<RemoveParticipantResult> {
     private final UserRepository userRepository;
-    private final String session;
+    private final UUID userId;
 
-    public LeftGameActorCommand(
+    public RemoveDisconnectedParticipantActorCommand(
             UserRepository userRepository,
-            String session
+            UUID userId
     ) {
         this.userRepository = userRepository;
-        this.session = session;
+        this.userId = userId;
     }
 
     @Override
-    public LeftGameResult execute(Game game) {
-        Participant participant = game.getParticipants().findBySession(session);
+    public RemoveParticipantResult execute(Game game) {
+        Participant participant = game.getParticipants()
+                .getParticipantByUserId(userId);
 
-        UUID participantId = participant.getUserId();
-        User user = userRepository.find(participantId)
+        User user = userRepository.find(userId)
                 .orElseThrow(UserNotFoundException::new);
 
         if (game.getGameStatus() == GameStatus.WAITING) {
-            game.remove(participantId);
+            game.remove(userId);
             user.leaveGame();
 
             if (game.getParticipants().isEmpty()) {
@@ -43,30 +43,28 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
             userRepository.save(user);
 
-            return new LeftGameResult(
+            return new RemoveParticipantResult(
                     game,
-                    participantId,
                     Optional.empty()
             );
         }
 
         if (participant.isSpectator()) {
-            game.remove(participantId);
+            game.remove(userId);
             user.leaveGame();
 
             userRepository.save(user);
 
-            return new LeftGameResult(
+            return new RemoveParticipantResult(
                     game,
-                    participantId,
                     Optional.empty()
             );
         }
 
         Optional<GameOver> gameOver = game.getGameState()
-                .gameOverBecausePlayerLeft(participantId);
+                .gameOverBecauseDisconnection(userId);
 
-        game.remove(participantId);
+        game.remove(userId);
         user.leaveGame();
 
         if (gameOver.isPresent()) {
@@ -80,9 +78,8 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
         userRepository.save(user);
 
-        return new LeftGameResult(
+        return new RemoveParticipantResult(
                 game,
-                participantId,
                 gameOver
         );
     }

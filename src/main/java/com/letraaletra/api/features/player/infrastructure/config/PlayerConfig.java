@@ -6,6 +6,7 @@ import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,13 +17,15 @@ public class PlayerConfig {
             GameTimeoutManager gameTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             GameActorManager gameActorManager,
-            GameOverHandler gameOverHandler
+            GameOverHandler gameOverHandler,
+            UserRepository userRepository
             ) {
         return new PlayerActionUseCase(
                 gameTimeoutManager,
                 turnTimeoutManager,
                 gameActorManager,
-                gameOverHandler
+                gameOverHandler,
+                userRepository
         );
     }
 

@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
@@ -18,6 +17,8 @@ import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,16 +27,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult> {
-    private final UUID user;
+    private final UUID userId;
     private final GameAction action;
-    private final GameTimeoutManager gameTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
+    private final UserRepository userRepository;
 
-    public PlayerActionActorCommand(UUID user, GameAction action, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
-        this.user = user;
+    public PlayerActionActorCommand(
+            UUID userId,
+            GameAction action,
+            TurnTimeoutManager turnTimeoutManager,
+            UserRepository userRepository
+    ) {
+        this.userId = userId;
         this.action = action;
-        this.gameTimeoutManager = gameTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -44,11 +50,11 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             throw new GameNotRunningException();
         }
 
-        validatePlayer(user, game);
+        validatePlayer(userId, game);
 
         GameState state = game.getGameState();
 
-        List<Event> events = action.execute(state, user);
+        List<Event> events = action.execute(state, userId);
 
         if (events == null) {
             events = new ArrayList<>();
@@ -59,9 +65,18 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         if (gameOver.isPresent()) {
             if (game.getGameType().equals(GameType.CUSTOM)) {
                 game.setGameStatus(GameStatus.WAITING);
-                gameTimeoutManager.start(game);
 
             } else {
+                List<UUID> userIds = game.getParticipants().getIds();
+
+                List<User> userList = userRepository.findUsersById(userIds);
+
+                for (User user : userList) {
+                    user.leaveGame();
+                }
+
+                userRepository.saveAll(userList);
+
                 game.setGameStatus(GameStatus.CLOSED);
             }
 

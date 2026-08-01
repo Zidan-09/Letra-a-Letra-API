@@ -44,11 +44,15 @@ public class MatchmakingAssembler implements GameAssemblerService {
                 List.of(users.first().userId(), users.second().userId())
         );
 
-        if (userList.size() < 2) throw new UserNotFoundException();
+        User user1 = userList.stream()
+                .filter(u -> u.getId().equals(users.first().userId()))
+                .findFirst()
+                .orElseThrow(UserNotFoundException::new);
 
-        User user1 = userList.getFirst();
-
-        User user2 = userList.getLast();
+        User user2 = userList.stream()
+                .filter(u -> u.getId().equals(users.second().userId()))
+                .findFirst()
+                .orElseThrow(UserNotFoundException::new);
 
         String code = roomCodeService.generate();
 

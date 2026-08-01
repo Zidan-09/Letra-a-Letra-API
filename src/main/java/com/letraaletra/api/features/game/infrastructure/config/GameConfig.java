@@ -19,7 +19,6 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,12 +61,14 @@ public class GameConfig {
     public LeftGameUseCase leftGameUseCase(
             GameActorManager gameActorManager,
             UserRepository userRepository,
-            GameRepository gameRepository
+            GameRepository gameRepository,
+            GameTimeoutManager gameTimeoutManager
     ) {
         return new LeftGameUseCase(
                 gameActorManager,
                 userRepository,
-                gameRepository
+                gameRepository,
+                gameTimeoutManager
         );
     }
 
@@ -94,16 +95,14 @@ public class GameConfig {
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService,
-            AuditService auditService
+            UpdateStatsService updateStatsService
     ) {
         return new GameOverHandler(
                 gameRepository,
                 userRepository,
                 actorManager,
                 gameTimeoutManager,
-                updateStatsService,
-                auditService
+                updateStatsService
         );
     }
 

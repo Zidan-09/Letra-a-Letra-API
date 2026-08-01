@@ -41,6 +41,16 @@ public class Participants {
                 .count();
     }
 
+    public List<UUID> getIds() {
+        return participants.values().stream()
+                .map(Participant::getUserId)
+                .toList();
+    }
+
+    public boolean isEmpty() {
+        return participants.isEmpty();
+    }
+
     public void join(Participant participant, RoomSettings roomSettings) {
         UUID userId = participant.getUserId();
 

@@ -106,15 +106,23 @@ export async function runFlow(context) {
 
     await play();
 
-    await sleep(1000);
-
-    await play();
+    context.events = [];
 
     await sleep(1000);
 
     await play();
 
+    context.events = [];
+
     await sleep(1000);
 
     await play();
+
+    context.events = [];
+
+    await sleep(1000);
+
+    await play();
+
+    context.events = [];
 }
