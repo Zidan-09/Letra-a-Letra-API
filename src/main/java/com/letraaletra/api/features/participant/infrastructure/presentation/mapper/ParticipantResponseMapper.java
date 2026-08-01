@@ -9,7 +9,8 @@ public class ParticipantResponseMapper {
                 participant.getUserId().toString(),
                 participant.getNickname(),
                 participant.getCosmeticsEquipped(),
-                participant.getRole()
+                participant.getRole(),
+                participant.isConnected()
         );
     }
 }
