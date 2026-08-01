@@ -35,6 +35,7 @@ public class AdminMapper {
                 entity.getName(),
                 entity.getEmail(),
                 entity.getHashPassword(),
+                entity.isSuper(),
                 permissions,
                 entity.getCreatedAt()
         );
@@ -46,6 +47,7 @@ public class AdminMapper {
         entity.setId(domain.getId());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
+        entity.setSuper(domain.isSuper());
         entity.setHashPassword(domain.getHashPassword());
         entity.setCreatedAt(domain.getCreatedAt());
 

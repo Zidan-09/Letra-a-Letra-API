@@ -43,7 +43,7 @@ class GetFriendPendingRequestsControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "User", false);
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
         mockInput = mock(GetFriendPendingRequestsInput.class);
         mockOutput = mock(GetFriendPendingRequestsOutput.class);
         mockResponseDto = mock(GetFriendPendingRequestsResponse.class);

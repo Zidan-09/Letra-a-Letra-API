@@ -10,6 +10,7 @@ public class Admin {
     private String name;
     private String email;
     private String hashPassword;
+    private boolean isSuper;
     private final Permissions permissions;
     private final LocalDateTime createdAt;
 
@@ -18,6 +19,7 @@ public class Admin {
             String name,
             String email,
             String hashPassword,
+            boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
     ) {
@@ -25,6 +27,7 @@ public class Admin {
         this.name = name;
         this.email = email;
         this.hashPassword = hashPassword;
+        this.isSuper = isSuper;
         this.permissions = permissions;
         this.createdAt = createdAt;
     }
@@ -38,6 +41,7 @@ public class Admin {
                 name,
                 email,
                 null,
+                false,
                 new Permissions(),
                 LocalDateTime.now()
         );
@@ -48,6 +52,7 @@ public class Admin {
             String name,
             String email,
             String hashPassword,
+            boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
     ) {
@@ -56,6 +61,7 @@ public class Admin {
                 name,
                 email,
                 hashPassword,
+                isSuper,
                 permissions,
                 createdAt
         );
@@ -87,6 +93,18 @@ public class Admin {
 
     public void activateAccount(String hashPassword) {
         this.hashPassword = hashPassword;
+    }
+
+    public void promoteSuperAdmin() {
+        isSuper = true;
+    }
+
+    public void revokeSuperAdmin() {
+        isSuper = false;
+    }
+
+    public boolean isSuper() {
+        return isSuper;
     }
 
     public Permissions getPermissions() {

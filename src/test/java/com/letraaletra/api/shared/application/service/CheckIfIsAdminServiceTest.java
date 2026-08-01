@@ -37,6 +37,7 @@ class CheckIfIsAdminServiceTest {
         AuthenticatedUser principal = new AuthenticatedUser(
                 UUID.randomUUID(),
                 "Samuel",
+                false,
                 false
         );
 
@@ -56,6 +57,7 @@ class CheckIfIsAdminServiceTest {
         AuthenticatedUser principal = new AuthenticatedUser(
                 authId,
                 "Samuel",
+                true,
                 true
         );
 
@@ -78,6 +80,7 @@ class CheckIfIsAdminServiceTest {
         AuthenticatedUser principal = new AuthenticatedUser(
                 authId,
                 "Samuel",
+                true,
                 true
         );
 
@@ -107,6 +110,7 @@ class CheckIfIsAdminServiceTest {
         AuthenticatedUser principal = new AuthenticatedUser(
                 authId,
                 "Samuel",
+                true,
                 true
         );
 

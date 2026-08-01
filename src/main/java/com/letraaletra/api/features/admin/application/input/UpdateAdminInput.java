@@ -11,6 +11,7 @@ public record UpdateAdminInput(
         UUID adminId,
         String name,
         String email,
+        boolean isSuper,
         List<Permission> permissions
 ) {
 }

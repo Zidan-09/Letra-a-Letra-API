@@ -43,7 +43,7 @@ class GetFriendListControllerTest {
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "User", false);
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
         mockInput = mock(GetFriendListInput.class);
         mockOutput = mock(GetFriendListOutput.class);
         mockResponseDto = mock(GetFriendListResponse.class);

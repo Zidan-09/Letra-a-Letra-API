@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .orElseThrow(UserNotFoundException::new);
 
                         authentication = new UsernamePasswordAuthenticationToken(
-                            new AuthenticatedUser(user.getId(), user.getNickname(), false),
+                            new AuthenticatedUser(user.getId(), user.getNickname(), false, false),
                             null,
                             Collections.emptyList()
                         );
@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .orElseThrow(AdminNotFoundException::new);
 
                         authentication = new UsernamePasswordAuthenticationToken(
-                            new AuthenticatedUser(admin.getId(), admin.getName(), true),
+                            new AuthenticatedUser(admin.getId(), admin.getName(), true, admin.isSuper()),
                             null,
                             Collections.emptyList()
                         );

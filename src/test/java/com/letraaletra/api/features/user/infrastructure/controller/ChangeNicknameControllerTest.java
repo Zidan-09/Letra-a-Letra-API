@@ -41,7 +41,7 @@ class ChangeNicknameControllerTest {
         Mockito.when(changeNicknameUseCase.execute(Mockito.any(ChangeNicknameInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(new AuthenticatedUser(UUID.randomUUID(), "User", false), request);
+        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(new AuthenticatedUser(UUID.randomUUID(), "User", false, false), request);
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

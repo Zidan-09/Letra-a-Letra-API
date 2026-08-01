@@ -37,6 +37,8 @@ public class AdminBootstrap implements CommandLineRunner {
                     Set.of(PermissionAction.CREATE, PermissionAction.EDIT, PermissionAction.VIEW)
             ));
 
+            admin.promoteSuperAdmin();
+
             repository.save(admin);
         }
     }

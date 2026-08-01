@@ -30,7 +30,7 @@ public class UpdateAdminController {
     }
 
     @PutMapping(path = "/{adminId}")
-    public ResponseEntity<SuccessResponse<UpdateAdminResponse>> handle(
+    public synchronized ResponseEntity<SuccessResponse<UpdateAdminResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID adminId,
             @RequestBody @Valid UpdateAdminRequest request

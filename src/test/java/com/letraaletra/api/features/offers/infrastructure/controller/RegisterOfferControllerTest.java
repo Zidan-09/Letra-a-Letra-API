@@ -45,7 +45,7 @@ class RegisterOfferControllerTest {
     @BeforeEach
     void setUp() {
         UUID authAdminId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authAdminId, "Admin", true);
+        principal = new AuthenticatedUser(authAdminId, "Admin", true, true);
         mockRequest = mock(RegisterOfferRequest.class);
         mockInput = mock(RegisterOfferInput.class);
         mockOutput = mock(RegisterOfferOutput.class);

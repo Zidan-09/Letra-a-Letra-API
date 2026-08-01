@@ -45,7 +45,7 @@ class UpdateCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
         mockCosmeticId = UUID.randomUUID();
         mockRequest = mock(UpdateCosmeticRequest.class);
         mockInput = mock(UpdateCosmeticInput.class);
