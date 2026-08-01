@@ -31,9 +31,9 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
 
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
-        LeftGameInput command = LeftGameMapper.toInput(request, session.getId());
+        LeftGameInput input = LeftGameMapper.toInput(request, session.getId());
 
-        LeftGameOutput output = useCase.execute(command);
+        LeftGameOutput output = useCase.execute(input);
 
         LeftGameResponse dto = LeftGameMapper.toResponse(output);
 

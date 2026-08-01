@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.application.usecase;
 
-import com.letraaletra.api.features.game.domain.actor.command.StartGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.StartCustomGameActorCommand;
 import com.letraaletra.api.features.game.application.input.StartGameInput;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.shared.application.port.Actor;
@@ -13,19 +13,16 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
-import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {
     private final GameRepository gameRepository;
-    private final GameStateFactory gameStateFactory;
     private final ThemeRepository themeRepository;
     private final GameTimeoutManager gameTimeoutManager;
     private final PickRandomThemeWordsService pickRandomThemeWordsService;
@@ -35,7 +32,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
     public StartGameUseCase(
             GameRepository gameRepository,
-            GameStateFactory gameStateFactory,
             ThemeRepository themeRepository,
             GameTimeoutManager gameTimeoutManager,
             PickRandomThemeWordsService pickRandomThemeWordsService,
@@ -44,7 +40,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
             ActorManager<Game> gameActorManager
     ) {
         this.gameRepository = gameRepository;
-        this.gameStateFactory = gameStateFactory;
         this.themeRepository = themeRepository;
         this.gameTimeoutManager = gameTimeoutManager;
         this.pickRandomThemeWordsService = pickRandomThemeWordsService;
@@ -56,8 +51,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     @Override
     @Transactional
     public StartGameOutput execute(StartGameInput input) {
-        UUID gameId = input.gameId();
-
         Theme theme = themeRepository.findById(input.settings().getThemeId());
 
         List<String> words = (theme != null)
@@ -66,20 +59,14 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         Board board = boardGenerator.generate(words, input.settings().getGameMode());
 
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(input.gameId());
 
-        CompletableFuture<Game> future = actor.enqueueCommand(new StartGameActorCommand(input.session(), board, gameStateFactory, gameTimeoutManager, turnTimeoutManager));
+        CompletableFuture<Game> future = actor.enqueueCommand(new StartCustomGameActorCommand(input.session(), board, gameTimeoutManager, turnTimeoutManager));
 
         Game game = future.join();
 
         gameRepository.save(game);
 
-        return buildOutput(game);
-    }
-
-    private StartGameOutput buildOutput(Game game) {
-        return new StartGameOutput(
-                game
-        );
+        return new StartGameOutput(game);
     }
 }

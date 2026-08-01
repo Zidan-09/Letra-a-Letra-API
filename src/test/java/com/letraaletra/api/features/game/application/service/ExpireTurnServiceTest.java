@@ -1,10 +1,8 @@
 package com.letraaletra.api.features.game.application.service;
 
-import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
-import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
+import com.letraaletra.api.features.game.domain.ExpireTurnResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
-import com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -50,12 +48,10 @@ class ExpireTurnServiceTest {
 
     @Test
     void shouldExpireTurnSuccessfully() {
-        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
-
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
-        ExpireTurnResult result = mock(ExpireTurnResult.class);
+        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
         GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
@@ -70,7 +66,7 @@ class ExpireTurnServiceTest {
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        ExpireTurnOutput output = service.execute(input).orElseThrow();
+        ExpireTurnResult output = service.execute(gameId, 1).orElseThrow();
 
         assertEquals("TURN_EXPIRED", output.event());
         assertEquals(userId1, output.user());
@@ -84,12 +80,10 @@ class ExpireTurnServiceTest {
 
     @Test
     void shouldHandleAfkRemovalWhenUserIsRemoved() {
-        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
-
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
-        ExpireTurnResult result = mock(ExpireTurnResult.class);
+        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
         GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
@@ -105,17 +99,15 @@ class ExpireTurnServiceTest {
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
 
-        service.execute(input);
+        service.execute(gameId, 1);
     }
 
     @Test
     void shouldHandleGameOverWhenFinished() {
-        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
-
         Game game = mock(Game.class);
         var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
 
-        ExpireTurnResult result = mock(ExpireTurnResult.class);
+        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
         GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
@@ -130,21 +122,19 @@ class ExpireTurnServiceTest {
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        service.execute(input);
+        service.execute(gameId, 1);
 
         verify(gameOverHandler).handle(game, gameOver);
     }
 
     @Test
     void shouldReturnEmptyWhenActorReturnsEmptyResult() {
-        ExpireTurnInput input = new ExpireTurnInput(gameId, 1);
-
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
-        Optional<ExpireTurnOutput> output = service.execute(input);
+        Optional<ExpireTurnResult> output = service.execute(gameId, 1);
 
         assertTrue(output.isEmpty());
         verifyNoInteractions(gameOverHandler);

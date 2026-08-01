@@ -15,22 +15,9 @@ public class FindByCodeUseCase implements UseCase<FindByCodeInput, FindByCodeOut
     }
 
     public FindByCodeOutput execute(FindByCodeInput input) {
-        Game game = gameQueryService.findByCode(input.code());
+        Game game = gameQueryService.findByCode(input.code())
+                .orElseThrow(GameNotFoundException::new);
 
-        validateGame(game);
-
-        return buildOutput(game);
-    }
-
-    private void validateGame(Game game) {
-        if (game == null) {
-            throw new GameNotFoundException();
-        }
-    }
-
-    private FindByCodeOutput buildOutput(Game game) {
-        return new FindByCodeOutput(
-                game.getId()
-        );
+        return new FindByCodeOutput(game.getId());
     }
 }

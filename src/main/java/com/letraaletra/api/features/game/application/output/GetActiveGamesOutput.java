@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.game.application.output;
 
-import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.domain.Game;
 import org.springframework.data.domain.Page;
 
 public record GetActiveGamesOutput(
-        Page<GameHistory> games
+        Page<Game> games
 ) {
 }

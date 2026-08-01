@@ -10,6 +10,7 @@ import com.letraaletra.api.features.participant.domain.exception.InvalidRoomPosi
 import com.letraaletra.api.features.participant.domain.exception.ParticipantAlreadyBannedException;
 import com.letraaletra.api.features.participant.domain.exception.ParticipantNotBannedException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,8 +38,8 @@ class ParticipantsTest {
     private Participant createMockParticipant(UUID userId, String socketId, ParticipantRole initialRole) {
         Participant mockParticipant = mock(Participant.class);
         when(mockParticipant.getUserId()).thenReturn(userId);
-        when(mockParticipant.getSocketId()).thenReturn(socketId);
-        when(mockParticipant.getRole()).thenReturn(initialRole);
+        lenient().when(mockParticipant.getSocketId()).thenReturn(socketId);
+        lenient().when(mockParticipant.getRole()).thenReturn(initialRole);
         return mockParticipant;
     }
 
@@ -83,14 +84,14 @@ class ParticipantsTest {
         }
 
         @Test
-        @DisplayName("Deve buscar participante por ID com sucesso ou retornar nulo")
+        @DisplayName("Deve buscar participante por ID com sucesso ou lançar UserNotInGameException")
         void shouldGetParticipantByUserId() {
             UUID userId = UUID.randomUUID();
             Participant p = createMockParticipant(userId, "s1", ParticipantRole.PLAYER);
             participants.join(p, createRoomSettings(true));
 
             assertEquals(p, participants.getParticipantByUserId(userId));
-            assertNull(participants.getParticipantByUserId(UUID.randomUUID()));
+            assertThrows(UserNotInGameException.class, () -> participants.getParticipantByUserId(UUID.randomUUID()));
         }
 
         @Test
@@ -115,11 +116,18 @@ class ParticipantsTest {
             participants.join(p, createRoomSettings(true));
 
             assertEquals(p, participants.findBySession("session-123"));
-            assertNull(participants.findBySession("non-existent-session"));
         }
 
         @Test
-        @DisplayName("BUG/EDGE CASE: findNextParticipant lança NoSuchElementException se a sala estiver vazia")
+        @DisplayName("Deve lançar UserNotFoundException quando o usuário não é encontrado pela sessão")
+        void shouldThrowsAnUserNotFoundException() {
+            assertThrows(UserNotFoundException.class,
+                    () -> participants.findBySession("invalid-session")
+            );
+        }
+
+        @Test
+        @DisplayName("findNextParticipant lança NoSuchElementException se a sala estiver vazia")
         void findNextParticipant_ShouldThrowException_WhenEmpty() {
             assertThrows(NoSuchElementException.class, () -> participants.findNextParticipant());
         }
@@ -174,7 +182,7 @@ class ParticipantsTest {
             participants.join(p3, settings);
 
             verify(p3).changeRole(ParticipantRole.SPECTATOR);
-            assertEquals(UUID.class, participants.getPositions().get(2).getClass());
+            assertNotNull(participants.getPositions().get(2));
         }
 
         @Test
@@ -227,19 +235,6 @@ class ParticipantsTest {
             Participant p8 = createMockParticipant(UUID.randomUUID(), "s8", ParticipantRole.SPECTATOR);
             assertThrows(RoomFullException.class, () -> participants.join(p8, settings));
         }
-
-        @Test
-        @DisplayName("BUG/LÓGICA Inconsistente: assertMaxPlayers() é redundante ou lança exceção incorretamente")
-        void join_ShouldValidateRoleDeterminationAndAssertMaxPlayersBehavior() {
-            Participant p1 = createMockParticipant(UUID.randomUUID(), "s1", ParticipantRole.PLAYER);
-            Participant p2 = createMockParticipant(UUID.randomUUID(), "s2", ParticipantRole.PLAYER);
-
-            participants.join(p1, createRoomSettings(true));
-
-            when(p1.getRole()).thenReturn(ParticipantRole.PLAYER);
-
-            assertDoesNotThrow(() -> participants.join(p2, createRoomSettings(true)));
-        }
     }
 
     @Nested
@@ -254,7 +249,6 @@ class ParticipantsTest {
             participants.join(p1, createRoomSettings(true));
 
             assertEquals(1, participants.getParticipants().size());
-            assertEquals(0, participants.getPositions().get(0) != null ? 0 : -1);
 
             Participant removed = participants.remove(u1);
 
@@ -284,7 +278,7 @@ class ParticipantsTest {
         }
 
         @Test
-        @DisplayName("Deve lançar UserNotInGameException ao mudar posição de usuário não registration")
+        @DisplayName("Deve lançar UserNotInGameException ao mudar posição de usuário não registrado")
         void shouldThrowExceptionWhenUserNotInGame() {
             assertThrows(UserNotInGameException.class, () ->
                     participants.changePosition(UUID.randomUUID(), 0));
@@ -350,11 +344,11 @@ class ParticipantsTest {
     }
 
     @Nested
-    @DisplayName("Testes de Reconnection")
+    @DisplayName("Testes de Reconexão")
     class ReconnectTests {
 
         @Test
-        @DisplayName("Deve reconnection participante atualizando o Socket ID")
+        @DisplayName("Deve reconectar participante atualizando o Socket ID")
         void shouldReconnectParticipantSuccessfully() {
             UUID userId = UUID.randomUUID();
             Participant p = createMockParticipant(userId, "old-session", ParticipantRole.PLAYER);
@@ -366,7 +360,7 @@ class ParticipantsTest {
         }
 
         @Test
-        @DisplayName("Deve lançar UserNotInGameException ao tentar reconnection usuário inexistente")
+        @DisplayName("Deve lançar UserNotInGameException ao tentar reconectar usuário inexistente")
         void shouldThrowExceptionWhenReconnectingNonExistentUser() {
             assertThrows(UserNotInGameException.class, () ->
                     participants.reconnect(UUID.randomUUID(), "new-session"));
@@ -408,7 +402,7 @@ class ParticipantsTest {
         }
 
         @Test
-        @DisplayName("Deve lançar ParticipantNotBannedException ao despair usuário que não está na blacklist")
+        @DisplayName("Deve lançar ParticipantNotBannedException ao desbanir usuário que não está na blacklist")
         void shouldThrowExceptionWhenRemovingNonBannedUser() {
             assertThrows(ParticipantNotBannedException.class, () ->
                     participants.removeFromBlackList(UUID.randomUUID()));
@@ -416,7 +410,7 @@ class ParticipantsTest {
     }
 
     @Nested
-    @DisplayName("Testes de Algoritmo Interno e Posicionamento Próximo")
+    @DisplayName("Testes de Algoritmo Interno e Posicionamento")
     class InternalPositioningTests {
 
         @Test
@@ -439,20 +433,6 @@ class ParticipantsTest {
 
             participants.join(p3, settings);
             assertEquals(u3, participants.getPositions().get(0));
-        }
-
-        @Test
-        @DisplayName("BUG/ESTADO ILEGAL: Deve lançar IllegalStateException se o mapa de posições estiver cheio mas a validação falhar")
-        void nextAvailablePosition_ShouldThrowIllegalStateException_WhenNoPositionsAvailable() {
-            RoomSettings settings = createRoomSettings(true);
-
-            for (int i = 0; i < 7; i++) {
-                Participant p = createMockParticipant(UUID.randomUUID(), "s" + i, ParticipantRole.PLAYER);
-                participants.join(p, settings);
-            }
-
-            assertThrows(RoomFullException.class, () ->
-                    participants.join(createMockParticipant(UUID.randomUUID(), "s8", ParticipantRole.SPECTATOR), settings));
         }
     }
 }

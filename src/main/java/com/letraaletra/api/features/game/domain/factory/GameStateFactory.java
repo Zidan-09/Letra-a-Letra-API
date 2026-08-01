@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GameStateFactory {
-    public GameState generate(List<Participant> participants, Board board) {
+    public static GameState generate(List<Participant> participants, Board board) {
         Map<UUID, Player> players = new HashMap<>();
 
         participants

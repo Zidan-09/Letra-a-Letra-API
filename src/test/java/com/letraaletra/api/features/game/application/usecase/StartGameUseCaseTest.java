@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.application.input.StartGameInput;
 import com.letraaletra.api.features.game.application.output.StartGameOutput;
 import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.actor.command.StartGameActorCommand;
+import com.letraaletra.api.features.game.domain.actor.command.StartCustomGameActorCommand;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
@@ -99,7 +99,7 @@ class StartGameUseCaseTest {
         when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
-        when(actor.enqueueCommand(any(StartGameActorCommand.class)))
+        when(actor.enqueueCommand(any(StartCustomGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
 
         StartGameOutput output = useCase.execute(input);
@@ -136,7 +136,7 @@ class StartGameUseCaseTest {
         when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
-        when(actor.enqueueCommand(any(StartGameActorCommand.class)))
+        when(actor.enqueueCommand(any(StartCustomGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
 
         StartGameOutput output = useCase.execute(input);
@@ -173,7 +173,7 @@ class StartGameUseCaseTest {
         when(gameActorManager.get(gameId))
                 .thenReturn(actor);
 
-        when(actor.enqueueCommand(any(StartGameActorCommand.class)))
+        when(actor.enqueueCommand(any(StartCustomGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
 
         useCase.execute(input);
@@ -204,8 +204,8 @@ class StartGameUseCaseTest {
 
         useCase.execute(input);
 
-        ArgumentCaptor<StartGameActorCommand> captor =
-                ArgumentCaptor.forClass(StartGameActorCommand.class);
+        ArgumentCaptor<StartCustomGameActorCommand> captor =
+                ArgumentCaptor.forClass(StartCustomGameActorCommand.class);
 
         verify(actor).enqueueCommand(captor.capture());
 

@@ -26,9 +26,9 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
 
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
-        StartGameInput command = StartGameMapper.toInput(request, session.getId());
+        StartGameInput input = StartGameMapper.toInput(request, session.getId());
 
-        StartGameOutput output = useCase.execute(command);
+        StartGameOutput output = useCase.execute(input);
 
         StartGameResponse dto = StartGameMapper.toResponse(output);
 

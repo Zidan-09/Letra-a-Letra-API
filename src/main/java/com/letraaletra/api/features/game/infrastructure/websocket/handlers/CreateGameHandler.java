@@ -28,9 +28,9 @@ public class CreateGameHandler implements RoomRequestHandler<CreateGameWsRequest
     public void handle(CreateGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        CreateGameInput command = CreateGameMapper.toInput(request, session.getId(), userId);
+        CreateGameInput input = CreateGameMapper.toInput(request, session.getId(), userId);
 
-        CreateGameOutput output = useCase.execute(command);
+        CreateGameOutput output = useCase.execute(input);
 
         CreateGameResponse dto = CreateGameMapper.toResponse(output);
 

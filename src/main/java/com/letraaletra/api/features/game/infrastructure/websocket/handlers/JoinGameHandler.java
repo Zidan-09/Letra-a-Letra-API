@@ -28,9 +28,9 @@ public class JoinGameHandler implements RoomRequestHandler<JoinGameWsRequest> {
     public void handle(JoinGameWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        JoinGameInput command = JoinGameMapper.toInput(request, session.getId(), userId);
+        JoinGameInput input = JoinGameMapper.toInput(request, session.getId(), userId);
 
-        JoinGameOutput output = useCase.execute(command);
+        JoinGameOutput output = useCase.execute(input);
 
         JoinGameResponse dto = JoinGameMapper.toResponse(output);
 

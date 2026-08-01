@@ -14,6 +14,8 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.application.port.AuditService;
 import org.slf4j.event.Level;
 
+import java.util.List;
+
 public class GameOverHandler {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
@@ -75,8 +77,7 @@ public class GameOverHandler {
                 result.loser().getScore()
         );
 
-        userRepository.save(userWinner);
-        userRepository.save(userLoser);
+        userRepository.saveAll(List.of(userWinner, userLoser));
         gameRepository.save(game);
     }
 }

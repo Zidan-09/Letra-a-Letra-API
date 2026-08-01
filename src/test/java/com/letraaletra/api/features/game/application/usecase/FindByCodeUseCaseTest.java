@@ -6,12 +6,14 @@ import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,42 +29,47 @@ class FindByCodeUseCaseTest {
     private FindByCodeUseCase useCase;
 
     private UUID gameId;
+    private String roomCode;
+    private FindByCodeInput input;
 
     @BeforeEach
     void setup() {
         gameId = UUID.randomUUID();
+        roomCode = "ABC123";
+        input = new FindByCodeInput(roomCode);
     }
 
     @Test
+    @DisplayName("Deve retornar o ID do jogo com sucesso quando a sala for encontrada pelo código")
     void shouldReturnGameIdWhenGameExists() {
-        FindByCodeInput input = new FindByCodeInput("ABC123");
-
+        // Arrange
         Game game = mock(Game.class);
+        when(game.getId()).thenReturn(gameId);
+        when(gameQueryService.findByCode(roomCode)).thenReturn(Optional.of(game));
 
-        when(gameQueryService.findByCode("ABC123"))
-                .thenReturn(game);
-
-        when(game.getId())
-                .thenReturn(gameId);
-
+        // Act
         FindByCodeOutput output = useCase.execute(input);
 
+        // Assert
         assertNotNull(output);
-
-        verify(gameQueryService).findByCode("ABC123");
         assertEquals(gameId, output.gameId());
+
+        verify(gameQueryService).findByCode(roomCode);
+        verify(game).getId();
     }
 
     @Test
+    @DisplayName("Deve lançar GameNotFoundException quando não existir jogo associado ao código")
     void shouldThrowExceptionWhenGameDoesNotExist() {
-        FindByCodeInput input = new FindByCodeInput("ABC123");
+        // Arrange
+        when(gameQueryService.findByCode(roomCode)).thenReturn(Optional.empty());
 
-        when(gameQueryService.findByCode("ABC123"))
-                .thenReturn(null);
-
+        // Act & Assert
         assertThrows(
                 GameNotFoundException.class,
                 () -> useCase.execute(input)
         );
+
+        verify(gameQueryService).findByCode(roomCode);
     }
 }

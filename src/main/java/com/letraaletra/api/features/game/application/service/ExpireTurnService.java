@@ -1,18 +1,16 @@
 package com.letraaletra.api.features.game.application.service;
 
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
-import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
-import com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult;
-import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
+import com.letraaletra.api.features.game.domain.ExpireTurnResult;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<ExpireTurnOutput>> {
+public class ExpireTurnService {
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
 
@@ -24,14 +22,14 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
         this.gameOverHandler = gameOverHandler;
     }
 
-    public Optional<ExpireTurnOutput> execute(ExpireTurnInput input) {
-        Actor actor = gameActorManager.get(input.gameId());
+    public Optional<ExpireTurnResult> execute(UUID gameId, int version) {
+        Actor actor = gameActorManager.get(gameId);
 
-        CompletableFuture<Optional<ExpireTurnResult>> future = actor.enqueueCommand(
-                new ExpireTurnActorCommand(input.version())
+        CompletableFuture<Optional<com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult>> future = actor.enqueueCommand(
+                new ExpireTurnActorCommand(version)
         );
 
-        Optional<ExpireTurnResult> result = future.join();
+        Optional<com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult> result = future.join();
 
         result.ifPresent(r ->
                 r.gameOver().ifPresent(gameOver ->
@@ -42,9 +40,9 @@ public class ExpireTurnService implements UseCase<ExpireTurnInput, Optional<Expi
         return result.flatMap(this::buildOutput);
     }
 
-    private Optional<ExpireTurnOutput> buildOutput(ExpireTurnResult result) {
+    private Optional<ExpireTurnResult> buildOutput(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result) {
         return Optional.of(
-                new ExpireTurnOutput(
+                new ExpireTurnResult(
                         "TURN_EXPIRED",
                         result.whoPassed(),
                         result.game().getGameState().currentPlayerTurn(),

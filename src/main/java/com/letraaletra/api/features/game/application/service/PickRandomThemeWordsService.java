@@ -8,11 +8,10 @@ import java.util.Random;
 
 public class PickRandomThemeWordsService {
     private final ThemeRepository themeRepository;
-    private final Random random;
+    private final Random random = new Random();
 
-    public PickRandomThemeWordsService(ThemeRepository themeRepository, Random random) {
+    public PickRandomThemeWordsService(ThemeRepository themeRepository) {
         this.themeRepository = themeRepository;
-        this.random = random;
     }
 
     public List<String> execute() {

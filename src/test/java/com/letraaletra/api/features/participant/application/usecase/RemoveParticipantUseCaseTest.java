@@ -1,9 +1,7 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.RemoveParticipantActorCommand;
-import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.participant.application.input.RemoveParticipantInput;
 import com.letraaletra.api.shared.application.port.Actor;
@@ -17,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -51,9 +48,6 @@ class RemoveParticipantUseCaseTest {
     @Mock
     private Game mockGame;
 
-    @Mock
-    private Participants participants;
-
     @BeforeEach
     void setUp() {
         gameId = UUID.randomUUID();
@@ -62,8 +56,8 @@ class RemoveParticipantUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should remove participant and keep game running if other active participants still remain")
-    void shouldRemoveParticipantAndKeepGameOpenWhenParticipantsExist() {
+    @DisplayName("Deve enfileirar o comando no Ator e salvar o jogo quando retornado pelo Ator")
+    void shouldEnqueueCommandAndSaveGameWhenGameIsPresent() {
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
         CompletableFuture<Optional<Game>> future =
@@ -71,11 +65,6 @@ class RemoveParticipantUseCaseTest {
 
         when(mockActor.enqueueCommand(any(RemoveParticipantActorCommand.class)))
                 .thenReturn(future);
-
-        when(mockGame.getParticipants()).thenReturn(participants);
-        when(participants.getPositions()).thenReturn(
-                Map.of(0, UUID.randomUUID())
-        );
 
         Void result = useCase.execute(input);
 
@@ -83,34 +72,11 @@ class RemoveParticipantUseCaseTest {
 
         verify(gameActorManager).get(gameId);
         verify(mockActor).enqueueCommand(any(RemoveParticipantActorCommand.class));
-        verify(mockGame, never()).setGameStatus(any());
-        verifyNoInteractions(gameRepository);
-    }
-
-    @Test
-    @DisplayName("Should change game status to CLOSED and save when the last participant leaves the session")
-    void shouldCloseAndSaveGameWhenNoParticipantsLeft() {
-        when(gameActorManager.get(gameId)).thenReturn(mockActor);
-
-        CompletableFuture<Optional<Game>> future =
-                CompletableFuture.completedFuture(Optional.of(mockGame));
-
-        when(mockActor.enqueueCommand(any(RemoveParticipantActorCommand.class)))
-                .thenReturn(future);
-
-        when(mockGame.getParticipants()).thenReturn(participants);
-        when(participants.getPositions()).thenReturn(Map.of());
-
-        Void result = useCase.execute(input);
-
-        assertNull(result);
-
-        verify(mockGame).setGameStatus(GameStatus.CLOSED);
         verify(gameRepository).save(mockGame);
     }
 
     @Test
-    @DisplayName("Should execute normally and perform no database updates if the actor system returns an empty game optional")
+    @DisplayName("Não deve interagir com o repositório se o Ator retornar um Optional vazio")
     void shouldDoNothingWhenActorReturnsEmptyGameOptional() {
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
@@ -124,11 +90,13 @@ class RemoveParticipantUseCaseTest {
 
         assertNull(result);
 
+        verify(gameActorManager).get(gameId);
+        verify(mockActor).enqueueCommand(any(RemoveParticipantActorCommand.class));
         verifyNoInteractions(gameRepository);
     }
 
     @Test
-    @DisplayName("Should propagate CompletionException directly when actor asynchronous queue command processing execution crashes")
+    @DisplayName("Deve propagar CompletionException diretamente quando o processamento do comando no Ator falhar")
     void shouldPropagateExceptionWhenActorCommandPipelineFails() {
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 

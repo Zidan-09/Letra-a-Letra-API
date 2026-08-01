@@ -10,6 +10,7 @@ import com.letraaletra.api.features.participant.domain.exception.InvalidRoomPosi
 import com.letraaletra.api.features.participant.domain.exception.ParticipantAlreadyBannedException;
 import com.letraaletra.api.features.participant.domain.exception.ParticipantNotBannedException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 import java.util.*;
 
@@ -25,6 +26,8 @@ public class Participants {
     }
 
     public Participant getParticipantByUserId(UUID userId) {
+        if (!participants.containsKey(userId)) throw new UserNotInGameException();
+
         return participants.get(userId);
     }
 
@@ -88,7 +91,7 @@ public class Participants {
         return participants.values().stream()
                 .filter(p -> p.getSocketId().equals(sessionId))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public UUID findNextParticipant() {

@@ -10,11 +10,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CellFactory {
-    private final Random random;
+    private final Random random = new Random();
     private final Map<PowerRarity, List<PowerType>> powersByRarity;
 
-    public CellFactory(Random random) {
-        this.random = random;
+    public CellFactory() {
         this.powersByRarity = Arrays.stream(PowerType.values())
                 .collect(Collectors.groupingBy(PowerType::getPowerRarity));
     }
