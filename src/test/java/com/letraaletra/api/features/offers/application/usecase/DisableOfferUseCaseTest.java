@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.offers.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.offers.application.input.DisableOfferInput;
 import com.letraaletra.api.features.offers.application.output.DisableOfferOutput;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -34,6 +36,8 @@ class DisableOfferUseCaseTest {
     private DisableOfferUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.OFFERS;
+    private final PermissionAction action = PermissionAction.TOGGLE;
     private UUID offerId;
     private DisableOfferInput input;
 
@@ -50,7 +54,7 @@ class DisableOfferUseCaseTest {
     @Test
     @DisplayName("Should successfully disable the offer and save changes when authorized as admin and offer exists")
     void shouldDisableOfferSuccessfully() {
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(mockOffer));
 
         DisableOfferOutput output = useCase.execute(input);
@@ -58,7 +62,7 @@ class DisableOfferUseCaseTest {
         assertNotNull(output);
         assertEquals(mockOffer, output.offer());
 
-        verify(adminChecker, times(1)).check(principal);
+        verify(adminChecker, times(1)).check(principal, key, action);
         verify(offerRepository, times(1)).findById(offerId);
         verify(mockOffer, times(1)).disable();
         verify(offerRepository, times(1)).save(mockOffer);
@@ -67,7 +71,7 @@ class DisableOfferUseCaseTest {
     @Test
     @DisplayName("Should propagate exception and halt processing when admin security verification criteria fails")
     void shouldPropagateExceptionWhenAdminCheckFails() {
-        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal);
+        doThrow(new SecurityException("Forbidden access")).when(adminChecker).check(principal, key, action);
 
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
@@ -77,7 +81,7 @@ class DisableOfferUseCaseTest {
     @Test
     @DisplayName("Should throw OfferNotFoundException when the offer identifier cannot be found in the repository")
     void shouldThrowOfferNotFoundExceptionWhenOfferDoesNotExist() {
-        doNothing().when(adminChecker).check(principal);
+        doNothing().when(adminChecker).check(principal, key, action);
         when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));

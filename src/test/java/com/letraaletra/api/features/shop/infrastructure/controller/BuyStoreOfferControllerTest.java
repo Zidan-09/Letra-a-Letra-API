@@ -45,7 +45,7 @@ class BuyStoreOfferControllerTest {
     @BeforeEach
     void setUp() {
         authUserId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authUserId, "Admin", true);
+        principal = new AuthenticatedUser(authUserId, "Admin", true, true);
         offerId = UUID.randomUUID();
         mockInput = mock(BuyOfferInput.class);
         mockOutput = mock(BuyOfferOutput.class);

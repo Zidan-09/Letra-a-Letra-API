@@ -61,7 +61,7 @@ export async function runRankingGame(context) {
                 events
         );
 
-        await sleep(1000);
+        await sleep(125);
 
         if (result.event === "RANKING_OVER") {
             gameRunning = false;

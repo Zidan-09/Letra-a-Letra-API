@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.levels.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -38,7 +40,7 @@ public class CreateLevelUseCase implements UseCase<CreateLevelInput, CreateLevel
     @Override
     @Transactional
     public CreateLevelOutput execute(CreateLevelInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.LEVELS, PermissionAction.CREATE);
 
         if (levelRepository.existsByLevel(input.level())) throw new LevelAlreadyExistsException();
 

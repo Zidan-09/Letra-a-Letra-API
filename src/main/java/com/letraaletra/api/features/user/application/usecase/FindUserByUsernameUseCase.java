@@ -10,20 +10,15 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class FindUserByUsernameUseCase implements UseCase<FindUserByUsernameInput, FindUserByUsernameOutput> {
     private final UserRepository userRepository;
-    private final AdminChecker adminChecker;
 
     public FindUserByUsernameUseCase(
-            UserRepository userRepository,
-            AdminChecker adminChecker
+            UserRepository userRepository
     ) {
         this.userRepository = userRepository;
-        this.adminChecker = adminChecker;
     }
 
     @Override
     public FindUserByUsernameOutput execute(FindUserByUsernameInput input) {
-        adminChecker.check(input.principal());
-
         User user = userRepository.findByUsername(input.username())
                 .orElseThrow(UserNotFoundException::new);
 

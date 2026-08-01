@@ -5,6 +5,7 @@ public interface AdminRepository extends
         FindAdmin,
         CheckIfExists,
         SaveAdmin,
-        CountAdmins
+        CountAdmins,
+        DeleteAdmin
 {
 }

@@ -11,8 +11,8 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.shared.application.port.AuditService;
-import org.slf4j.event.Level;
+
+import java.util.List;
 
 public class GameOverHandler {
     private final GameRepository gameRepository;
@@ -20,29 +20,35 @@ public class GameOverHandler {
     private final ActorManager<Game> actorManager;
     private final GameTimeoutManager gameTimeoutManager;
     private final UpdateStatsService updateStatsService;
-    private final AuditService auditService;
 
     public GameOverHandler(
             GameRepository gameRepository,
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService,
-            AuditService auditService
+            UpdateStatsService updateStatsService
     ) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.actorManager = actorManager;
         this.gameTimeoutManager = gameTimeoutManager;
         this.updateStatsService = updateStatsService;
-        this.auditService = auditService;
     }
 
     public void handle(Game game, GameOver result) {
-        User userWinner = userRepository.find(result.winner().getUserId())
+        List<User> userList = userRepository.findUsersById(List.of(
+                result.winner().getUserId(),
+                result.loser().getUserId()
+        ));
+
+        User userWinner = userList.stream()
+                .filter(u -> u.getId().equals(result.winner().getUserId()))
+                .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
-        User userLoser = userRepository.find(result.loser().getUserId())
+        User userLoser = userList.stream()
+                .filter(u -> u.getId().equals(result.loser().getUserId()))
+                .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
         updateStatsService.execute(userWinner, true);
@@ -57,26 +63,9 @@ public class GameOverHandler {
 
         if (game.getGameStatus().equals(GameStatus.CLOSED)) {
             actorManager.remove(game.getId());
-
-            userWinner.leaveGame();
-            userLoser.leaveGame();
         }
 
-        auditService.game(
-                game.getId().toString(),
-                game.getGameState().getMatchId().toString(),
-                Level.INFO,
-                "A partida acabou | Vencedor: {} ({}) - Pontuação: {} | Perdedor: {} ({}) - Pontuação: {}",
-                userWinner.getNickname(),
-                userWinner.getId().toString(),
-                result.winner().getScore(),
-                userLoser.getNickname(),
-                userLoser.getId().toString(),
-                result.loser().getScore()
-        );
-
-        userRepository.save(userWinner);
-        userRepository.save(userLoser);
+        userRepository.saveAll(List.of(userWinner, userLoser));
         gameRepository.save(game);
     }
 }

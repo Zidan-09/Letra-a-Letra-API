@@ -112,12 +112,10 @@ public class UserConfig {
 
     @Bean
     public FindUserByUsernameUseCase findUserByUsernameUseCase(
-            UserRepository userRepository,
-            AdminChecker adminChecker
+            UserRepository userRepository
     ) {
         return new FindUserByUsernameUseCase(
-                userRepository,
-                adminChecker
+                userRepository
         );
     }
 

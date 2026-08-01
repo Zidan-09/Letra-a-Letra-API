@@ -1,0 +1,64 @@
+package com.letraaletra.api.features.game.domain.board.power.actions;
+
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
+import com.letraaletra.api.features.game.domain.event.Event;
+import com.letraaletra.api.features.game.domain.event.PlayerUseLanternEvent;
+import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.game.domain.event.StateEvent;
+import com.letraaletra.api.features.player.domain.Player;
+import com.letraaletra.api.features.player.domain.effect.BlindEffect;
+import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
+import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
+import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class LanternAction implements GameAction {
+    private final String powerId;
+
+    public LanternAction(String powerId) {
+        this.powerId = powerId;
+    }
+
+    @Override
+    public List<Event> execute(GameState state, UUID userId) {
+        validatePlayerTurn(state, userId);
+
+        Player player = state.getPlayerOrThrow(userId);
+        validatePlayer(player);
+        validatePower(player);
+
+        player.resetPassedTurn();
+
+        player.removeFromInventoryOrThrow(powerId);
+
+        player.removeEffect(BlindEffect.class);
+
+        return new ArrayList<>(List.of(new Event(
+                StateEvent.PLAYER_USE_LANTERN,
+                new PlayerUseLanternEvent(userId.toString())
+        )));
+    }
+
+    private void validatePlayerTurn(GameState state, UUID userId) {
+        if (!state.currentPlayerTurn().equals(userId)) {
+            throw new NotYourTurnException();
+        }
+    }
+
+    private void validatePower(Player player) {
+        PowerType power = player.getInventory().get(powerId);
+
+        if (power != PowerType.LANTERN) {
+            throw new InvalidPlayerActionException();
+        }
+    }
+
+    private void validatePlayer(Player player) {
+        if (player == null) {
+            throw new PlayerNotInGameException();
+        }
+    }
+}

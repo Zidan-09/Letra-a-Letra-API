@@ -8,27 +8,21 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.StartGameMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
+@RequiredArgsConstructor
 public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> {
     private final UseCase<StartGameInput, StartGameOutput> useCase;
     private final GameNotifier gameNotifier;
 
-    public StartGameHandler(
-            UseCase<StartGameInput, StartGameOutput> useCase,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
-    }
-
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
-        StartGameInput command = StartGameMapper.toInput(request, session.getId());
+        StartGameInput input = StartGameMapper.toInput(request, session.getId());
 
-        StartGameOutput output = useCase.execute(command);
+        StartGameOutput output = useCase.execute(input);
 
         StartGameResponse dto = StartGameMapper.toResponse(output);
 

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.domain.state;
 
-import com.letraaletra.api.features.power.domain.PowerRarity;
+import com.letraaletra.api.features.game.domain.board.power.PowerRarity;
 
 import java.util.Map;
 

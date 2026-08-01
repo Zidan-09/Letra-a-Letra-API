@@ -1,12 +1,10 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
-import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
-import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
+import com.letraaletra.api.features.game.application.port.ExpireTurnService;
+import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.ExpireTurnService;
-import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
@@ -24,6 +22,7 @@ import java.util.concurrent.DelayQueue;
 public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
     private final GameResponseAssembler gameResponseAssembler;
+    private final GameTimeoutManager gameTimeoutManager;
 
     private final DelayQueue<GameTurn> queue = new DelayQueue<>();
 
@@ -36,11 +35,13 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     public DelayQueueTurnTimeoutManager(
             ExpireTurnService expireTurnService,
             GameResponseAssembler gameResponseAssembler,
+            GameTimeoutManager gameTimeoutManager,
             GameNotifier gameNotifier,
             AuditService auditService
     ) {
         this.expireTurnService = expireTurnService;
         this.gameResponseAssembler = gameResponseAssembler;
+        this.gameTimeoutManager = gameTimeoutManager;
         this.gameNotifier = gameNotifier;
         this.auditService = auditService;
         startScheduler();
@@ -82,9 +83,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
-        ExpireTurnInput command = new ExpireTurnInput(gameTurn.gameId(), gameTurn.version());
-
-        Optional<ExpireTurnOutput> output = expireTurnService.execute(command);
+        Optional<ExpireTurnTimeoutResult> output = expireTurnService.expire(gameTurn.gameId(), gameTurn.version());
 
         if (output.isEmpty()) return;
 
@@ -99,7 +98,19 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
                 )
         );
 
-        ExpireTurnOutput result = output.get();
+        if (gameTurn.player().getPassedTurn() == 3) {
+            auditService.game(
+                    gameTurn.gameId().toString(),
+                    gameTurn.matchId().toString(),
+                    Level.INFO,
+                    "Jogador %s (%s) foi removido da sala por inatividade".formatted(
+                            gameTurn.player().getNickname(),
+                            gameTurn.player().getUserId()
+                    )
+            );
+        }
+
+        ExpireTurnTimeoutResult result = output.get();
 
         TurnExpired data = new TurnExpired(
                 result.event(),
@@ -116,7 +127,24 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
             WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), over);
 
+            Game game = result.game();
+
+            auditService.game(
+                    game.getId().toString(),
+                    game.getGameState().getMatchId().toString(),
+                    Level.INFO,
+                    "A partida acabou | Vencedor: {} ({}) - Pontuação: {} | Perdedor: {} ({}) - Pontuação: {}",
+                    over.winner().getNickname(),
+                    over.winner().getUserId().toString(),
+                    over.winner().getScore(),
+                    over.loser().getNickname(),
+                    over.loser().getUserId().toString(),
+                    over.loser().getScore()
+            );
+
             gameNotifier.notifierGameOver(result.game(), dto);
+
+            gameTimeoutManager.start(game);
         });
 
         if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {

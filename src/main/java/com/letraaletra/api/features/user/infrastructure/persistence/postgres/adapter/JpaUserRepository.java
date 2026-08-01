@@ -54,6 +54,15 @@ public class JpaUserRepository implements UserRepository {
         inventoryRepository.saveAll(inventoryEntities);
     }
 
+    @Override
+    public void saveAll(List<User> users) {
+        repository.saveAll(
+                users.stream()
+                        .map(UserMapper::toEntity)
+                        .toList()
+        );
+    }
+
     private User assembleUser(UserJpaEntity userEntity) {
         UUID userId = userEntity.getId();
 
@@ -70,6 +79,13 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public Optional<User> find(UUID id) {
         return repository.findById(id).map(this::assembleUser);
+    }
+
+    @Override
+    public List<User> findUsersById(List<UUID> ids) {
+        return repository.findAllById(ids).stream()
+                .map(this::assembleUser)
+                .toList();
     }
 
     @Override

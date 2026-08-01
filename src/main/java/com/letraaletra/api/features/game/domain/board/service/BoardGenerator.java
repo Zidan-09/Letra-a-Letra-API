@@ -12,13 +12,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BoardGenerator {
-    private final CellFactory cellFactory;
-
-    public BoardGenerator(CellFactory cellFactory) {
-        this.cellFactory = cellFactory;
-    }
-
-    public Board generate(List<String> words, GameMode gameMode) {
+    public static Board generate(List<String> words, GameMode gameMode) {
         Cell[][] grid = new Cell[10][10];
         List<Word> placedWords = new ArrayList<>();
 
@@ -51,7 +45,7 @@ public class BoardGenerator {
         return new Board(grid, placedWords.toArray(new Word[0]), gameMode);
     }
 
-    private boolean canPlaceWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
+    private static boolean canPlaceWord(String word, int row, int column, int dx, int dy, Cell[][] grid) {
         for (int i = 0; i < word.length(); i++) {
             int x = row + dx * i;
             int y = column + dy * i;
@@ -68,7 +62,7 @@ public class BoardGenerator {
         return true;
     }
 
-    private Word placeWord(String word, int row, int column, int dx, int dy, Cell[][] grid, GameMode gameMode) {
+    private static Word placeWord(String word, int row, int column, int dx, int dy, Cell[][] grid, GameMode gameMode) {
         List<Position> positions = new ArrayList<>();
 
         for (int i = 0; i < word.length(); i++) {
@@ -78,7 +72,7 @@ public class BoardGenerator {
             Position position = new Position(x, y);
 
             if (grid[x][y] == null) {
-                grid[x][y] = cellFactory.create(word.charAt(i), position, gameMode);
+                grid[x][y] = CellFactory.create(word.charAt(i), position, gameMode);
             }
 
             positions.add(position);
@@ -87,7 +81,7 @@ public class BoardGenerator {
         return new Word(word, positions);
     }
 
-    private void fillEmptySpaces(Cell[][] grid, GameMode gameMode) {
+    private static void fillEmptySpaces(Cell[][] grid, GameMode gameMode) {
         String letters = "abcdefghijklmnopqrstuvwxyz";
 
         for (int i = 0; i < grid.length; i++) {
@@ -98,13 +92,13 @@ public class BoardGenerator {
 
                     Position position = new Position(i, j);
 
-                    grid[i][j] = cellFactory.create(letter, position, gameMode);
+                    grid[i][j] = CellFactory.create(letter, position, gameMode);
                 }
             }
         }
     }
 
-    private void bindCellsToWords(Cell[][] grid, List<Word> words) {
+    private static void bindCellsToWords(Cell[][] grid, List<Word> words) {
         for (Word word : words) {
             for (Position pos : word.getPositions()) {
                 Cell cell = grid[pos.x()][pos.y()];

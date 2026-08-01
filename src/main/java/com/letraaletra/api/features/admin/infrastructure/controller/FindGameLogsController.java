@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.admin.infrastructure.controller;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.core.io.FileSystemResource;
@@ -26,13 +28,20 @@ import java.util.stream.Stream;
 public class FindGameLogsController {
 
     private final Path root = Paths.get("logs", "game");
+    private final AdminChecker adminChecker;
+
+    public FindGameLogsController(
+            AdminChecker adminChecker
+    ) {
+        this.adminChecker = adminChecker;
+    }
 
     @GetMapping
     public List<String> findDates(
             @AuthenticationPrincipal AuthenticatedUser principal
     ) throws IOException {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         if (!Files.exists(root)) {
             return List.of();
@@ -54,7 +63,7 @@ public class FindGameLogsController {
             @PathVariable @NotBlank String date
     ) throws IOException {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         Path directory = root.resolve(date).normalize();
 
@@ -80,7 +89,7 @@ public class FindGameLogsController {
             @PathVariable @NotBlank String gameId
     ) throws IOException {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         Path directory = root
                 .resolve(date)
@@ -110,7 +119,7 @@ public class FindGameLogsController {
             @PathVariable @NotBlank String file
     ) {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         Path filePath = root
                 .resolve(date)
@@ -140,7 +149,7 @@ public class FindGameLogsController {
             @AuthenticationPrincipal AuthenticatedUser principal
     ) throws IOException {
 
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         if (!Files.exists(root.resolve("untracked"))) {
             return List.of();
@@ -170,7 +179,7 @@ public class FindGameLogsController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable @NotBlank String file
     ) {
-        validateAdmin(principal);
+        adminChecker.check(principal, PermissionKey.LOGS, PermissionAction.VIEW);
 
         Path filePath = root
                 .resolve("untracked")
@@ -192,12 +201,6 @@ public class FindGameLogsController {
                         "attachment; filename=\"" + file + "\""
                 )
                 .body(resource);
-    }
-
-    private void validateAdmin(AuthenticatedUser principal) {
-        if (!principal.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
     }
 
     private void validatePath(Path path) {

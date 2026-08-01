@@ -35,7 +35,7 @@ class UpdateCosmeticControllerTest {
     private UpdateCosmeticController controller;
 
     private AuthenticatedUser principal;
-    private String mockCosmeticId;
+    private UUID mockCosmeticId;
     private UpdateCosmeticRequest mockRequest;
     private UpdateCosmeticInput mockInput;
     private UpdateCosmeticOutput mockOutput;
@@ -45,8 +45,8 @@ class UpdateCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
-        mockCosmeticId = UUID.randomUUID().toString();
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
+        mockCosmeticId = UUID.randomUUID();
         mockRequest = mock(UpdateCosmeticRequest.class);
         mockInput = mock(UpdateCosmeticInput.class);
         mockOutput = mock(UpdateCosmeticOutput.class);

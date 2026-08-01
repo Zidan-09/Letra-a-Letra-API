@@ -4,8 +4,8 @@ import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
 import com.letraaletra.api.features.game.domain.event.TrapTriggeredEvent;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
-import com.letraaletra.api.features.power.domain.actions.RevealCellAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.RevealCellAction;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
 
 import java.util.UUID;

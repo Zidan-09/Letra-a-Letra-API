@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.game.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.domain.GameHistory;
@@ -23,7 +25,7 @@ public class GetGamesUseCase implements UseCase<GetGamesInput, GetGamesOutput> {
 
     @Override
     public GetGamesOutput execute(GetGamesInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.GAME, PermissionAction.VIEW);
 
         Page<GameHistory> games = gameRepository.get(
                 new GamesPage(

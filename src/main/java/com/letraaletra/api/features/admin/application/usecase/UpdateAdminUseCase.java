@@ -1,0 +1,79 @@
+package com.letraaletra.api.features.admin.application.usecase;
+
+import com.letraaletra.api.features.admin.application.input.UpdateAdminInput;
+import com.letraaletra.api.features.admin.application.output.UpdateAdminOutput;
+import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
+import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
+import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
+import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import org.springframework.transaction.annotation.Transactional;
+
+public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdminOutput> {
+    private final AdminRepository adminRepository;
+    private final AdminChecker adminChecker;
+
+    public UpdateAdminUseCase(
+            AdminRepository adminRepository,
+            AdminChecker adminChecker
+    ) {
+        this.adminRepository = adminRepository;
+        this.adminChecker = adminChecker;
+    }
+
+    @Override
+    @Transactional
+    public UpdateAdminOutput execute(UpdateAdminInput input) {
+        adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.EDIT);
+
+        if (input.adminId().equals(input.principal().auth()))
+            throw new InvalidAdminOperationException();
+
+        Admin admin = adminRepository.find(input.adminId())
+                .orElseThrow(AdminNotFoundException::new);
+
+        validateAdminUpdate(admin, input);
+
+        validateEmail(admin.getEmail(), input.email());
+
+        admin.setName(input.name());
+        admin.setEmail(input.email());
+
+        if (input.isSuper()) {
+            admin.promoteSuperAdmin();
+        } else {
+            admin.revokeSuperAdmin();
+        }
+
+        input.permissions().forEach(permission -> admin.getPermissions().set(permission));
+
+        adminRepository.save(admin);
+
+        return new UpdateAdminOutput(admin);
+    }
+
+    private void validateEmail(String registeredEmail, String email) {
+        boolean exists = adminRepository.existsByEmail(email);
+
+        if (exists && !registeredEmail.equals(email)) {
+            throw new EmailAlreadyInUseException();
+        }
+    }
+
+    private void validateAdminUpdate(Admin admin, UpdateAdminInput input) {
+        boolean isSuper = input.principal().isSuper();
+
+        if (!isSuper && admin.isSuper()) {
+            throw new PermissionDeniedException();
+        }
+
+        if (!isSuper && (input.isSuper() != admin.isSuper())) {
+            throw new PermissionDeniedException();
+        }
+    }
+}

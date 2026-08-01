@@ -2,19 +2,21 @@ package com.letraaletra.api.features.admin.application.usecase;
 
 import com.letraaletra.api.features.admin.application.input.RegisterAdminInput;
 import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput;
+import com.letraaletra.api.features.admin.application.port.AdminInvitationEmailService;
 import com.letraaletra.api.features.admin.domain.Admin;
+import com.letraaletra.api.features.admin.domain.AdminPasswordSetupToken;
+import com.letraaletra.api.features.admin.domain.TokenHashService;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.shared.domain.security.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -32,7 +34,13 @@ class RegisterAdminUseCaseTest {
     private AdminRepository adminRepository;
 
     @Mock
-    private PasswordService passwordService;
+    private AdminTokenRepository tokenRepository;
+
+    @Mock
+    private TokenHashService tokenHashService;
+
+    @Mock
+    private AdminInvitationEmailService emailService;
 
     @Mock
     private AdminChecker adminChecker;
@@ -43,119 +51,162 @@ class RegisterAdminUseCaseTest {
     @Captor
     private ArgumentCaptor<Admin> adminCaptor;
 
+    @Captor
+    private ArgumentCaptor<AdminPasswordSetupToken> tokenCaptor;
+
     private AuthenticatedUser principal;
+
+    private final PermissionKey key = PermissionKey.ADMIN;
+    private final PermissionAction action = PermissionAction.CREATE;
+
     private String validName;
     private String validEmail;
-    private String rawPassword;
-    private String hashedPassword;
 
     @BeforeEach
     void setUp() {
         principal = mock(AuthenticatedUser.class);
+
         validName = "Administrador Master";
         validEmail = "master.admin@letraaletra.com";
-        rawPassword = "StrongPassword@2026";
-        hashedPassword = "$2a$12$securehashgeneratedbycryptoservice";
     }
 
     @Test
-    @DisplayName("Should successfully register an admin when requester is authorized and details are valid")
+    @DisplayName("Should successfully register an admin and send invitation email")
     void shouldRegisterAdminSuccessfully() {
-        RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
+        RegisterAdminInput input = new RegisterAdminInput(
+                principal,
+                validName,
+                validEmail
+        );
 
-        doNothing().when(adminChecker).check(principal);
-        when(adminRepository.existsByEmail(validEmail)).thenReturn(false);
-        when(passwordService.hash(rawPassword)).thenReturn(hashedPassword);
+        doNothing()
+                .when(adminChecker)
+                .check(principal, key, action);
+
+        when(adminRepository.existsByEmail(validEmail))
+                .thenReturn(false);
+
+        when(tokenHashService.hash(anyString()))
+                .thenReturn("hashed-token");
+
+        doNothing()
+                .when(emailService)
+                .send(anyString(), anyString(), anyString());
+
 
         RegisterAdminOutput output = registerAdminUseCase.execute(input);
 
         assertNotNull(output);
         assertNotNull(output.admin());
 
-        verify(adminChecker, times(1)).check(principal);
-        verify(adminRepository, times(1)).existsByEmail(validEmail);
-        verify(passwordService, times(1)).hash(rawPassword);
-        verify(adminRepository, times(1)).save(adminCaptor.capture());
+        verify(adminChecker)
+                .check(principal, key, action);
+
+        verify(adminRepository)
+                .existsByEmail(validEmail);
+
+        verify(adminRepository)
+                .save(adminCaptor.capture());
+
+        verify(tokenRepository)
+                .save(tokenCaptor.capture());
+
+        verify(emailService)
+                .send(
+                        eq(validEmail),
+                        eq(validName),
+                        anyString()
+                );
 
         Admin savedAdmin = adminCaptor.getValue();
-        assertNotNull(savedAdmin);
+
         assertEquals(validName, savedAdmin.getName());
         assertEquals(validEmail, savedAdmin.getEmail());
-        assertEquals(hashedPassword, savedAdmin.getHashPassword());
         assertEquals(savedAdmin, output.admin());
     }
 
+
     @Test
-    @DisplayName("Should throw SecurityException when adminChecker components reject the auth token")
+    @DisplayName("Should throw SecurityException when requester is not authorized")
     void shouldThrowExceptionWhenRequesterIsNotAuthorized() {
-        RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
+        RegisterAdminInput input = new RegisterAdminInput(
+                principal,
+                validName,
+                validEmail
+        );
 
-        doThrow(new SecurityException("Unauthorized access: Requires administrator role"))
-                .when(adminChecker).check(principal);
+        doThrow(new SecurityException())
+                .when(adminChecker)
+                .check(principal, key, action);
 
-        assertThrows(SecurityException.class, () -> registerAdminUseCase.execute(input));
 
-        verify(adminChecker, times(1)).check(principal);
+        assertThrows(
+                SecurityException.class,
+                () -> registerAdminUseCase.execute(input)
+        );
+
+
+        verify(adminChecker)
+                .check(principal, key, action);
+
         verifyNoInteractions(adminRepository);
-        verifyNoInteractions(passwordService);
+        verifyNoInteractions(tokenRepository);
+        verifyNoInteractions(emailService);
     }
 
+
     @Test
-    @DisplayName("Should throw EmailAlreadyInUseException when the email is already registered")
+    @DisplayName("Should throw EmailAlreadyInUseException when email already exists")
     void shouldThrowExceptionWhenEmailAlreadyExists() {
-        RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
+        RegisterAdminInput input = new RegisterAdminInput(
+                principal,
+                validName,
+                validEmail
+        );
 
-        doNothing().when(adminChecker).check(principal);
-        when(adminRepository.existsByEmail(validEmail)).thenReturn(true);
 
-        assertThrows(EmailAlreadyInUseException.class, () -> registerAdminUseCase.execute(input));
+        when(adminRepository.existsByEmail(validEmail))
+                .thenReturn(true);
 
-        verify(adminChecker, times(1)).check(principal);
-        verify(adminRepository, times(1)).existsByEmail(validEmail);
-        verifyNoInteractions(passwordService);
-        verify(adminRepository, never()).save(any(Admin.class));
+
+        assertThrows(
+                EmailAlreadyInUseException.class,
+                () -> registerAdminUseCase.execute(input)
+        );
+
+
+        verify(adminRepository)
+                .existsByEmail(validEmail);
+
+        verify(adminRepository, never())
+                .save(any());
+
+        verifyNoInteractions(tokenRepository);
+        verifyNoInteractions(emailService);
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"   ", "\n"})
-    @DisplayName("Should throw IllegalArgumentException when input name is null, empty or blank (Expected Missing Behavior)")
-    void shouldThrowExceptionWhenNameIsInvalid(String invalidName) {
-        RegisterAdminInput input = new RegisterAdminInput(principal, invalidName, validEmail, rawPassword);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            if (input.name() == null || input.name().trim().isEmpty()) {
-                throw new IllegalArgumentException("Name cannot be empty");
-            }
-            registerAdminUseCase.execute(input);
-        });
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"1234", "short"})
-    @DisplayName("Should throw IllegalArgumentException when password length/complexity is insufficient (Expected Missing Behavior)")
-    void shouldThrowExceptionWhenPasswordCriteriaNotMet(String invalidPassword) {
-        RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, invalidPassword);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            if (input.password() == null || input.password().length() < 8) {
-                throw new IllegalArgumentException("Password must be at least 8 characters");
-            }
-            registerAdminUseCase.execute(input);
-        });
-    }
 
     @Test
-    @DisplayName("Should propagate generic framework exception when persistence tier crashes")
+    @DisplayName("Should propagate exception when repository save fails")
     void shouldPropagateExceptionWhenRepositoryCrashes() {
-        RegisterAdminInput input = new RegisterAdminInput(principal, validName, validEmail, rawPassword);
+        RegisterAdminInput input = new RegisterAdminInput(
+                principal,
+                validName,
+                validEmail
+        );
 
-        doNothing().when(adminChecker).check(principal);
-        when(adminRepository.existsByEmail(validEmail)).thenReturn(false);
-        when(passwordService.hash(rawPassword)).thenReturn(hashedPassword);
-        doThrow(new RuntimeException("Database cluster unreachable")).when(adminRepository).save(any(Admin.class));
 
-        assertThrows(RuntimeException.class, () -> registerAdminUseCase.execute(input));
+        when(adminRepository.existsByEmail(validEmail))
+                .thenReturn(false);
+
+        doThrow(new RuntimeException("Database unavailable"))
+                .when(adminRepository)
+                .save(any(Admin.class));
+
+
+        assertThrows(
+                RuntimeException.class,
+                () -> registerAdminUseCase.execute(input)
+        );
     }
 }

@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.levels.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -39,7 +41,7 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
     @Override
     @Transactional
     public UpdateLevelOutput execute(UpdateLevelInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.LEVELS, PermissionAction.EDIT);
 
         Level level = levelRepository.find(input.levelId())
                 .orElseThrow(LevelNotFoundException::new);

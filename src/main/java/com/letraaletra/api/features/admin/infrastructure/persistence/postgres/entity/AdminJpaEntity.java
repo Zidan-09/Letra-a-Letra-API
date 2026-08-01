@@ -25,6 +25,9 @@ public class AdminJpaEntity {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "is_super")
+    private boolean isSuper;
+
     @Column(name = "password_hash")
     private String hashPassword;
 

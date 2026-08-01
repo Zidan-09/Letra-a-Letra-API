@@ -3,6 +3,7 @@ package com.letraaletra.api.features.player.application.usecase;
 import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOverReasons;
+import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
 import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
 import com.letraaletra.api.features.game.domain.event.Event;
@@ -10,7 +11,7 @@ import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerActionUseCaseTest {
+
     @Mock
     private ActorManager<Game> actorManager;
 
@@ -71,6 +73,7 @@ class PlayerActionUseCaseTest {
                 mockGame
         );
 
+        when(mockGame.getGameStatus()).thenReturn(GameStatus.RUNNING);
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
@@ -88,7 +91,6 @@ class PlayerActionUseCaseTest {
         verify(actor).enqueueCommand(commandCaptor.capture());
 
         PlayerActionActorCommand capturedCommand = commandCaptor.getValue();
-
         assertNotNull(capturedCommand);
     }
 
@@ -112,6 +114,7 @@ class PlayerActionUseCaseTest {
                 mockGame
         );
 
+        when(mockGame.getGameStatus()).thenReturn(GameStatus.CLOSED); // Ou o status retornado após o término
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));

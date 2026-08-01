@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -43,6 +45,8 @@ class RegisterCosmeticUseCaseTest {
     private RegisterCosmeticUseCase useCase;
 
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.COSMETIC;
+    private final PermissionAction action = PermissionAction.CREATE;
     private String cosmeticName;
     private CosmeticTypes cosmeticType;
     private MultipartFile rawAsset;
@@ -80,7 +84,7 @@ class RegisterCosmeticUseCaseTest {
             assertEquals(mockCosmetic, output.cosmetic());
 
             InOrder inOrder = inOrder(adminChecker, cosmeticRepository, imageConverter, storageGateway);
-            inOrder.verify(adminChecker).check(principal);
+            inOrder.verify(adminChecker).check(principal, key, action);
             inOrder.verify(cosmeticRepository).checkIfExistsByName(cosmeticName);
             inOrder.verify(imageConverter).convertToWebp(rawAsset);
             inOrder.verify(storageGateway).upload(webpAsset, cosmeticName, cosmeticType);
@@ -93,7 +97,7 @@ class RegisterCosmeticUseCaseTest {
     void execute_ShouldThrowUserIsNotAdminException_WhenUserIsNotAdmin() {
         RegisterCosmeticInput input = new RegisterCosmeticInput(principal, cosmeticName, cosmeticType, rawAsset);
 
-        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal);
+        doThrow(new UserIsNotAdminException()).when(adminChecker).check(principal, key, action);
 
         assertThrows(UserIsNotAdminException.class, () -> useCase.execute(input));
 
@@ -113,7 +117,7 @@ class RegisterCosmeticUseCaseTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> useCase.execute(input));
         assertEquals("cosmetic_already_exists", exception.getMessage());
 
-        verify(adminChecker).check(principal);
+        verify(adminChecker).check(principal, key, action);
         verify(imageConverter, never()).convertToWebp(any());
         verify(storageGateway, never()).upload(any(), any(), any());
         verify(cosmeticRepository, never()).save(any());

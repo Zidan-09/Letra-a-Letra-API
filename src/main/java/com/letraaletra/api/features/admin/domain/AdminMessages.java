@@ -6,6 +6,8 @@ public enum AdminMessages implements MessageCode {
     ADMIN_NOT_FOUND("admin_not_found"),
     EMAIL_ALREADY_IN_USE("email_already_in_use"),
     ALREADY_HAVE_THIS_PERMISSION("already_have_this_permission"),
+    INVALID_ADMIN_OPERATION("invalid_admin_operation"),
+    PERMISSION_DENIED("permission_denied"),
     INVALID_PERMISSION("invalid_permission");
 
     private final String message;

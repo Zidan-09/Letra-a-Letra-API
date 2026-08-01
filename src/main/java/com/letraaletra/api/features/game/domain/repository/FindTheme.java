@@ -2,9 +2,8 @@ package com.letraaletra.api.features.game.domain.repository;
 
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface FindTheme {
-    Theme findById(String themeId);
-    List<Theme> findAll();
+    Optional<Theme> findById(String themeId);
 }

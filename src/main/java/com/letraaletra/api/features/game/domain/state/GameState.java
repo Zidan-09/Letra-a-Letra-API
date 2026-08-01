@@ -138,7 +138,7 @@ public class GameState {
         List<Player> playersList = players.values().stream().toList();
 
         Player p1 = playersList.getFirst();
-        Player p2 = playersList.get(1);
+        Player p2 = playersList.getLast();
 
         if (p1 == null || p2 == null) {
             throw new UserNotInGameException();

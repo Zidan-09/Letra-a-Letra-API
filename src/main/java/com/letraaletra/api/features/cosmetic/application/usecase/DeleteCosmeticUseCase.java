@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -28,7 +30,7 @@ public class DeleteCosmeticUseCase implements UseCase<DeleteCosmeticInput, Delet
     @Override
     @Transactional
     public DeleteCosmeticOutput execute(DeleteCosmeticInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.COSMETIC, PermissionAction.DELETE);
 
         Cosmetic cosmetic = cosmeticRepository.find(input.cosmeticId())
                 .orElseThrow(CosmeticNotFoundException::new);

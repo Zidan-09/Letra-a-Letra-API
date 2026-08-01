@@ -3,6 +3,8 @@ echo ==========================
 echo Restarting Docker Ambient
 echo ==========================
 
+call docker desktop start
+
 docker-compose down -v
 
 echo.

@@ -76,15 +76,21 @@ public class RoomRequestDispatcher {
                 String actionName = formatActionName(request.getClass().getSimpleName());
                 String gameId = extractGameId(request);
 
+                Throwable result = ex;
+
+                while (result.getCause() != null) {
+                    result = result.getCause();
+                }
+
                 if (gameId != null) {
                     auditService.game(
                             gameId,
                             null,
                             Level.WARN,
-                            "Usuário {} falhou ao executar {}: {}",
+                            "Usuário {} falhou ao executar {} = Exception: {}",
                             userDisplay,
                             actionName,
-                            ex.getMessage()
+                            result.getMessage()
                     );
                 }
                 throw ex;

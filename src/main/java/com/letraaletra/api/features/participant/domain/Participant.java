@@ -67,6 +67,14 @@ public class Participant {
         return role;
     }
 
+    public boolean isSpectator() {
+        return role.equals(ParticipantRole.SPECTATOR);
+    }
+
+    public boolean isPlayer() {
+        return role.equals(ParticipantRole.PLAYER);
+    }
+
     public void changeRole(ParticipantRole role) {
         this.role = role;
     }

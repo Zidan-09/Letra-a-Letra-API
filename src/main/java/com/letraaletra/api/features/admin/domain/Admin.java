@@ -1,39 +1,48 @@
 package com.letraaletra.api.features.admin.domain;
 
+import com.letraaletra.api.features.admin.domain.permission.Permissions;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Admin {
     private final UUID id;
-    private final String name;
-    private final String email;
-    private final String hashPassword;
+    private String name;
+    private String email;
+    private String hashPassword;
+    private boolean isSuper;
+    private final Permissions permissions;
     private final LocalDateTime createdAt;
 
-    public Admin(
+    private Admin(
             UUID id,
             String name,
             String email,
             String hashPassword,
+            boolean isSuper,
+            Permissions permissions,
             LocalDateTime createdAt
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.hashPassword = hashPassword;
+        this.isSuper = isSuper;
+        this.permissions = permissions;
         this.createdAt = createdAt;
     }
 
     public static Admin create(
             String name,
-            String email,
-            String hashPassword
+            String email
     ) {
         return new Admin(
                 UUID.randomUUID(),
                 name,
                 email,
-                hashPassword,
+                null,
+                false,
+                new Permissions(),
                 LocalDateTime.now()
         );
     }
@@ -43,6 +52,8 @@ public class Admin {
             String name,
             String email,
             String hashPassword,
+            boolean isSuper,
+            Permissions permissions,
             LocalDateTime createdAt
     ) {
         return new Admin(
@@ -50,6 +61,8 @@ public class Admin {
                 name,
                 email,
                 hashPassword,
+                isSuper,
+                permissions,
                 createdAt
         );
     }
@@ -62,12 +75,40 @@ public class Admin {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getHashPassword() {
         return hashPassword;
+    }
+
+    public void activateAccount(String hashPassword) {
+        this.hashPassword = hashPassword;
+    }
+
+    public void promoteSuperAdmin() {
+        isSuper = true;
+    }
+
+    public void revokeSuperAdmin() {
+        isSuper = false;
+    }
+
+    public boolean isSuper() {
+        return isSuper;
+    }
+
+    public Permissions getPermissions() {
+        return permissions;
     }
 
     public LocalDateTime getCreatedAt() {

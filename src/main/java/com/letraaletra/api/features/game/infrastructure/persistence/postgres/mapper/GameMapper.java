@@ -22,6 +22,7 @@ public class GameMapper {
 
         entity.setId(game.getId());
         entity.setHostId(game.getHostId());
+        entity.setRoomName(game.getRoomName());
         entity.setCreatorId(game.getCreatedById());
         entity.setRoomCode(game.getCode());
         entity.setGameType(game.getGameType());

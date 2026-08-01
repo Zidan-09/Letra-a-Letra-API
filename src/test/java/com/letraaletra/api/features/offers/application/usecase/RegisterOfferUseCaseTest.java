@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.offers.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
@@ -58,6 +60,8 @@ class RegisterOfferUseCaseTest {
 
     @Mock
     private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.OFFERS;
+    private final PermissionAction action = PermissionAction.CREATE;
 
     @InjectMocks
     private RegisterOfferUseCase useCase;
@@ -71,7 +75,7 @@ class RegisterOfferUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        lenient().doNothing().when(adminChecker).check(any());
+        lenient().doNothing().when(adminChecker).check(any(), any(), any());
     }
 
     @Nested
@@ -85,14 +89,14 @@ class RegisterOfferUseCaseTest {
 
             useCase.execute(input);
 
-            verify(adminChecker).check(principal);
+            verify(adminChecker).check(principal, key, action);
         }
 
         @Test
         @DisplayName("Deve lançar exceção e não persistir a oferta quando o usuário não for administrador")
         void shouldThrowExceptionAndNotSaveWhenUserIsNotAdmin() {
             willThrow(new SecurityException("Acesso negado: Requer privilégios de administrador"))
-                    .given(adminChecker).check(principal);
+                    .given(adminChecker).check(principal, key, action);
 
             RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
 
@@ -108,7 +112,7 @@ class RegisterOfferUseCaseTest {
         @DisplayName("Deve repassar a verificação mesmo quando o AuthenticatedUser informado for nulo")
         void shouldThrowExceptionWhenPrincipalIsNull() {
             willThrow(new IllegalArgumentException("Principal não pode ser nulo"))
-                    .given(adminChecker).check(null);
+                    .given(adminChecker).check(null, key, action);
 
             RegisterOfferInput input = new RegisterOfferInput(
                     null,

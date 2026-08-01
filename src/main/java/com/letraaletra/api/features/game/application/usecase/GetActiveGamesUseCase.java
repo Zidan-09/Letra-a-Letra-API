@@ -1,15 +1,14 @@
 package com.letraaletra.api.features.game.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameHistory;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 public class GetActiveGamesUseCase implements UseCase<GetActiveGamesInput, GetActiveGamesOutput> {
     private final GameQueryService gameQueryService;
@@ -25,22 +24,11 @@ public class GetActiveGamesUseCase implements UseCase<GetActiveGamesInput, GetAc
 
     @Override
     public GetActiveGamesOutput execute(GetActiveGamesInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.GAME, PermissionAction.VIEW);
 
-        Page<GameHistory> games = gameQueryService
-                .getAllActiveGames(input)
-                .map(this::toHistory);
+        Page<Game> games = gameQueryService
+                .getAllActiveGames(input);
 
         return new GetActiveGamesOutput(games);
-    }
-
-    private GameHistory toHistory(Game game) {
-        return new GameHistory(
-                game.getId(),
-                game.getRoomName(),
-                game.getGameType(),
-                game.getGameStatus(),
-                List.of()
-        );
     }
 }

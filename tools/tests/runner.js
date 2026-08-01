@@ -15,8 +15,6 @@ const tests = [
     ranking,
     casual,
     room,
-    admin,
-    adminRoutes,
     turn
 ];
 

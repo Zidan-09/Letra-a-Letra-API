@@ -8,12 +8,12 @@ import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorComma
 import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.GameOver;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,161 +42,105 @@ class LeftGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
+    private GameTimeoutManager gameTimeoutManager;
+
+    @Mock
     private Actor actor;
 
     @InjectMocks
     private LeftGameUseCase useCase;
 
     private UUID gameId;
-    private UUID userId;
     private LeftGameInput input;
 
     @BeforeEach
     void setup() {
         gameId = UUID.randomUUID();
-        userId = UUID.randomUUID();
-        input = new LeftGameInput(
-                gameId,
-                "session-123"
-        );
+        String session = "session-123";
+        input = new LeftGameInput(gameId, session);
     }
 
     @Test
-    void shouldLeaveGameSuccessfully() {
+    @DisplayName("Deve iniciar timeout quando o jogo estiver no status WAITING")
+    void shouldStartTimeoutWhenGameStatusIsWaiting() {
+        // Arrange
         Game game = mock(Game.class);
-        User user = mock(User.class);
-        GameOver gameOver = mock(GameOver.class);
-        Optional<GameOver> gameOverResult = Optional.of(gameOver);
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
+        when(game.getGameStatus()).thenReturn(GameStatus.WAITING);
+        when(result.game()).thenReturn(game);
+        when(result.gameOver()).thenReturn(Optional.empty());
 
+        when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
-        when(result.user())
-                .thenReturn(userId);
-
-        when(result.game())
-                .thenReturn(game);
-
-        when(result.gameOver())
-                .thenReturn(gameOverResult);
-
-        when(result.isEmpty())
-                .thenReturn(false);
-
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
+        // Act
         LeftGameOutput output = useCase.execute(input);
 
+        // Assert
+        assertNotNull(output);
+        assertEquals(game, output.game());
+        assertTrue(output.gameOver().isEmpty());
+
+        verify(gameTimeoutManager).start(game);
+        verify(gameRepository).save(game);
+        verify(actorManager, never()).remove(any());
+    }
+
+    @Test
+    @DisplayName("Deve remover o ator do ActorManager quando o jogo estiver no status CLOSED")
+    void shouldRemoveActorWhenGameStatusIsClosed() {
+        // Arrange
+        Game game = mock(Game.class);
+        GameOver gameOver = mock(GameOver.class);
+        LeftGameResult result = mock(LeftGameResult.class);
+
+        when(game.getId()).thenReturn(gameId);
+        when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
+        when(result.game()).thenReturn(game);
+        when(result.gameOver()).thenReturn(Optional.of(gameOver));
+
+        when(actorManager.get(gameId)).thenReturn(actor);
+        when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(result));
+
+        // Act
+        LeftGameOutput output = useCase.execute(input);
+
+        // Assert
         assertNotNull(output);
         assertEquals(game, output.game());
         assertTrue(output.gameOver().isPresent());
         assertEquals(gameOver, output.gameOver().get());
 
-        verify(user).leaveGame();
-        verify(userRepository).save(user);
-
-        verify(actorManager, never()).remove(any());
-        verify(gameRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldCloseGameWhenLastPlayerLeaves() {
-        Game game = mock(Game.class);
-        User user = mock(User.class);
-        LeftGameResult result = mock(LeftGameResult.class);
-
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
-
-        when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
-                .thenReturn(CompletableFuture.completedFuture(result));
-
-        when(result.user())
-                .thenReturn(userId);
-
-        when(result.game())
-                .thenReturn(game);
-
-        when(result.isEmpty())
-                .thenReturn(true);
-
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
-        when(game.getId())
-                .thenReturn(gameId);
-
-        useCase.execute(input);
-
-        verify(user).leaveGame();
-        verify(userRepository).save(user);
-
         verify(actorManager).remove(gameId);
-        verify(game).setGameStatus(GameStatus.CLOSED);
         verify(gameRepository).save(game);
+        verify(gameTimeoutManager, never()).start(any());
     }
 
     @Test
-    void shouldThrowExceptionWhenUserDoesNotExist() {
+    @DisplayName("Deve enviar o comando de saída com os parâmetros corretos para o Actor")
+    void shouldSendLeftGameCommandToActor() {
+        // Arrange
+        Game game = mock(Game.class);
         LeftGameResult result = mock(LeftGameResult.class);
 
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
+        when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
+        when(result.game()).thenReturn(game);
 
+        when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(result));
 
-        when(result.user())
-                .thenReturn(userId);
-
-        when(userRepository.find(userId))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                UserNotFoundException.class,
-                () -> useCase.execute(input)
-        );
-
-        verify(userRepository, never()).save(any());
-        verify(gameRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldSendLeftGameCommandToActor() {
-        Game game = mock(Game.class);
-        User user = mock(User.class);
-        LeftGameResult result = mock(LeftGameResult.class);
-
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
-
-        when(actor.enqueueCommand(any()))
-                .thenReturn(CompletableFuture.completedFuture(result));
-
-        when(result.user())
-                .thenReturn(userId);
-
-        when(result.game())
-                .thenReturn(game);
-
-        when(result.isEmpty())
-                .thenReturn(false);
-
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
+        // Act
         useCase.execute(input);
 
-        ArgumentCaptor<LeftGameActorCommand> captor =
-                ArgumentCaptor.forClass(LeftGameActorCommand.class);
-
+        // Assert
+        ArgumentCaptor<LeftGameActorCommand> captor = ArgumentCaptor.forClass(LeftGameActorCommand.class);
         verify(actor).enqueueCommand(captor.capture());
 
-        assertNotNull(captor.getValue());
+        LeftGameActorCommand capturedCommand = captor.getValue();
+        assertNotNull(capturedCommand);
     }
 }

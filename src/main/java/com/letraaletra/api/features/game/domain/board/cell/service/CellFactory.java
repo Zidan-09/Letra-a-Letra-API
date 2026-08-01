@@ -2,24 +2,19 @@ package com.letraaletra.api.features.game.domain.board.cell.service;
 
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
-import com.letraaletra.api.features.power.domain.PowerRarity;
-import com.letraaletra.api.features.power.domain.PowerType;
+import com.letraaletra.api.features.game.domain.board.power.PowerRarity;
+import com.letraaletra.api.features.game.domain.board.power.PowerType;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class CellFactory {
-    private final Random random;
-    private final Map<PowerRarity, List<PowerType>> powersByRarity;
+    private final static Random random = new Random();
+    private final static Map<PowerRarity, List<PowerType>> powersByRarity = Arrays.stream(PowerType.values())
+            .collect(Collectors.groupingBy(PowerType::getPowerRarity));
 
-    public CellFactory(Random random) {
-        this.random = random;
-        this.powersByRarity = Arrays.stream(PowerType.values())
-                .collect(Collectors.groupingBy(PowerType::getPowerRarity));
-    }
-
-    public Cell create(char letter, Position position, GameMode gameMode) {
+    public static Cell create(char letter, Position position, GameMode gameMode) {
         Optional<PowerType> drop = selectDrop(gameMode);
 
           return new Cell(
@@ -29,7 +24,7 @@ public class CellFactory {
           );
     }
 
-    private Optional<PowerType> selectDrop(GameMode gameMode) {
+    private static Optional<PowerType> selectDrop(GameMode gameMode) {
         double chancePerCell = gameMode.getChancePerCell();
 
         double hasDrop = random.nextDouble();
@@ -54,7 +49,7 @@ public class CellFactory {
         return Optional.of(getRandomPower(PowerRarity.COMMON));
     }
 
-    private PowerType getRandomPower(PowerRarity rarity) {
+    private static PowerType getRandomPower(PowerRarity rarity) {
         List<PowerType> list = powersByRarity.get(rarity);
 
         return list.get(random.nextInt(list.size()));

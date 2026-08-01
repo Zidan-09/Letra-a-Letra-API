@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateResponseMapper;
 import org.springframework.stereotype.Component;

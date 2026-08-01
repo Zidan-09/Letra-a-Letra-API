@@ -9,6 +9,7 @@ public record ParticipantResponse(
         String id,
         String nickname,
         List<InventoryItem> cosmeticsEquipped,
-        ParticipantRole role
+        ParticipantRole role,
+        boolean isConnected
 ) {
 }

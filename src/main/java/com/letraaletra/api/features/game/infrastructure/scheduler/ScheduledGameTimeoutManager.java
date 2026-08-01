@@ -1,12 +1,13 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
-import com.letraaletra.api.features.game.application.input.CloseRoomInput;
-import com.letraaletra.api.features.game.application.output.CloseRoomOutput;
+import com.letraaletra.api.features.game.application.port.CloseRoomService;
+import com.letraaletra.api.features.game.domain.CloseRoomResult;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.game.domain.RoomClosed;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.shared.application.port.AuditService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +16,11 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
+@RequiredArgsConstructor
 public class ScheduledGameTimeoutManager implements GameTimeoutManager {
-    private final CloseRoomDueToTimeoutService closeRoomDueToTimeoutService;
+    private final CloseRoomService closeRoomService;
     private final GameNotifier gameNotifier;
     private final AuditService auditService;
-
-    public ScheduledGameTimeoutManager(
-            CloseRoomDueToTimeoutService closeRoomDueToTimeoutService,
-            GameNotifier gameNotifier,
-            AuditService auditService
-    ) {
-        this.closeRoomDueToTimeoutService = closeRoomDueToTimeoutService;
-        this.gameNotifier = gameNotifier;
-        this.auditService = auditService;
-    }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
@@ -53,11 +45,9 @@ public class ScheduledGameTimeoutManager implements GameTimeoutManager {
     private void handleTimeout(Game game) {
         timers.remove(game.getId());
 
-        CloseRoomOutput output = closeRoomDueToTimeoutService.execute(
-                new CloseRoomInput(game)
-        );
+        CloseRoomResult result = closeRoomService.close(game);
 
-        RoomClosed data = new RoomClosed(output.event(), output.reason());
+        RoomClosed data = new RoomClosed(result.event(), result.reason());
 
         auditService.game(
                 game.getId().toString(),
@@ -66,6 +56,6 @@ public class ScheduledGameTimeoutManager implements GameTimeoutManager {
                 "A sala foi fechada por inatividade"
         );
 
-        gameNotifier.notifierAll(output.game(), data);
+        gameNotifier.notifierAll(result.game(), data);
     }
 }

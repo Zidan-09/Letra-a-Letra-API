@@ -44,7 +44,7 @@ class RegisterCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
         mockRequest = mock(RegisterCosmeticRequest.class);
         mockInput = mock(RegisterCosmeticInput.class);
         mockOutput = mock(RegisterCosmeticOutput.class);

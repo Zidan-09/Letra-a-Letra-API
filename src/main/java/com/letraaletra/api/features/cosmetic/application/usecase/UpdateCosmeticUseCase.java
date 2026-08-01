@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
+import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
+import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.UpdateCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
@@ -37,7 +39,7 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
     @Override
     @Transactional
     public UpdateCosmeticOutput execute(UpdateCosmeticInput input) {
-        adminChecker.check(input.principal());
+        adminChecker.check(input.principal(), PermissionKey.COSMETIC, PermissionAction.EDIT);
 
         Cosmetic cosmetic = checkCosmetic(input.id(), input.name(), input.type());
 

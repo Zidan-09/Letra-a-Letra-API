@@ -50,7 +50,7 @@ CREATE TABLE "matches" (
 CREATE TABLE "match_players" (
                         "match_id" uuid NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
                         "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "nickname" varchar(15) UNIQUE NOT NULL,
+                        "nickname" varchar(15) NOT NULL,
                         "score" integer DEFAULT 0,
                         "is_winner" boolean DEFAULT false,
                         PRIMARY KEY ("match_id", "user_id")
@@ -79,7 +79,7 @@ CREATE TABLE "offer" (
                        "coin_type" varchar(50) NOT NULL,
                        "price" NUMERIC(10,2) NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
-                       "repeatable" boolean NOT NULL false,
+                       "repeatable" boolean NOT NULL DEFAULT false,
                        "has_expiration" boolean NOT NULL DEFAULT true,
                        "expires_at" timestamptz,
                        "created_at" timestamptz
@@ -93,10 +93,10 @@ CREATE TABLE "offer_reward" (
                         "quantity" integer NOT NULL DEFAULT 1
 );
 
-CREATE TABLE transaction (
+CREATE TABLE "transaction" (
                         transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-                        user_id uuid NOT NULL REFERENCES "user"(user_id),
+                        user_id uuid NOT NULL REFERENCES "user"(user_id) ON DELETE SET NULL,
 
                         coin_type varchar(50) NOT NULL,
 
@@ -126,8 +126,23 @@ CREATE TABLE "admin" (
                     "admin_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                     "name" varchar(50) NOT NULL,
                     "email" varchar(50) UNIQUE NOT NULL,
-                    "password_hash" varchar(100) NOT NULL,
+                    "password_hash" varchar(100),
+                    "is_super" boolean NOT NULL DEFAULT false,
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "admin_permission" (
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "permission_key" VARCHAR(30) NOT NULL,
+                      "action" VARCHAR(30) NOT NULL,
+                      PRIMARY KEY ("admin_id", "permission_key", "action")
+);
+
+CREATE TABLE "admin_setup_password_token" (
+                      "token_hash" varchar(100) PRIMARY KEY NOT NULL,
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "expires_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      "used" boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE "level" (

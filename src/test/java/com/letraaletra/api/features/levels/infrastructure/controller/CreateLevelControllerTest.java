@@ -45,7 +45,7 @@ class CreateLevelControllerTest {
     @BeforeEach
     void setUp() {
         UUID authAdminId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authAdminId, "Admin", true);
+        principal = new AuthenticatedUser(authAdminId, "Admin", true, true);
         mockRequest = mock(CreateLevelRequest.class);
         mockInput = mock(CreateLevelInput.class);
         mockOutput = mock(CreateLevelOutput.class);

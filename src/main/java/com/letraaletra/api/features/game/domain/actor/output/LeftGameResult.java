@@ -9,6 +9,5 @@ import java.util.UUID;
 public record LeftGameResult(
         Game game,
         UUID user,
-        boolean isEmpty,
         Optional<GameOver> gameOver
 ) {}

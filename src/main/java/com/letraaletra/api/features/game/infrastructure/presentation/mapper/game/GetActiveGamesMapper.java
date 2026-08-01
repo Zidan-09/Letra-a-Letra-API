@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
-import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -20,11 +20,11 @@ public class GetActiveGamesMapper {
     }
 
     public static PageResponse<GameResponse> toResponse(GetActiveGamesOutput output) {
-        Page<GameHistory> page = output.games();
+        Page<Game> page = output.games();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(GameResponseMapper::toResponseFromHistory)
+                        .map(GameResponseMapper::toResponse)
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

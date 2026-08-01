@@ -32,16 +32,16 @@ class ChangeNicknameControllerTest {
     private ChangeNicknameController controller;
 
     @Test
-    @DisplayName("should get the request to update the username and return an response correctly")
+    @DisplayName("should get the request to update the email and return an response correctly")
     void updateNickname() {
-        ChangeNicknameRequest request = new ChangeNicknameRequest("username-test-123");
+        ChangeNicknameRequest request = new ChangeNicknameRequest("email-test-123");
 
         ChangeNicknameOutput output = new ChangeNicknameOutput(mock(User.class));
 
         Mockito.when(changeNicknameUseCase.execute(Mockito.any(ChangeNicknameInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(new AuthenticatedUser(UUID.randomUUID(), "User", false), request);
+        ResponseEntity<SuccessResponse<ChangeNicknameResponse>> responseEntity = controller.handle(new AuthenticatedUser(UUID.randomUUID(), "User", false, false), request);
 
         Assertions.assertNotNull(responseEntity);
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
