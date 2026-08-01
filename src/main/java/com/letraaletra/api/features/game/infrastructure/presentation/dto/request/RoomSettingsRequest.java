@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.dto.reques
 
 import jakarta.validation.constraints.NotNull;
 
-public record RoomSettingsDTO(
+public record RoomSettingsRequest(
         @NotNull
         boolean allowSpectators,
 

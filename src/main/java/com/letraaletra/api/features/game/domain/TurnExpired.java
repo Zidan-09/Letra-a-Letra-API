@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.infrastructure.scheduler;
+package com.letraaletra.api.features.game.domain;
 
 import java.util.UUID;
 

@@ -8,21 +8,15 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.JoinGameMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
+@RequiredArgsConstructor
 public class JoinGameHandler implements RoomRequestHandler<JoinGameWsRequest> {
     private final UseCase<JoinGameInput, JoinGameOutput> useCase;
     private final GameNotifier gameNotifier;
-
-    public JoinGameHandler(
-            UseCase<JoinGameInput, JoinGameOutput> useCase,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
-    }
 
     @Override
     public void handle(JoinGameWsRequest request, WebSocketSession session) {

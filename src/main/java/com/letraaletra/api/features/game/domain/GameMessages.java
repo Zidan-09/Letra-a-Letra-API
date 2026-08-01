@@ -28,6 +28,7 @@ public enum GameMessages implements MessageCode {
     SPECTATOR_CAN_NOT_PLAY("spectator_can_not_play"),
 
     WORD_ALREADY_FOUND("word_already_found"),
+    THEME_NOT_FOUND("theme_not_found"),
 
     MAX_PLAYERS_REACHED("max_players_reached");
 

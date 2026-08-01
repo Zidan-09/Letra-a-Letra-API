@@ -10,24 +10,16 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.Game
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
+@RequiredArgsConstructor
 public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     private final UseCase<LeftGameInput, LeftGameOutput> useCase;
     private final GameResponseAssembler gameResponseAssembler;
     private final GameNotifier gameNotifier;
-
-    public LeftGameHandler(
-            UseCase<LeftGameInput, LeftGameOutput> useCase,
-            GameResponseAssembler gameResponseAssembler,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameResponseAssembler = gameResponseAssembler;
-        this.gameNotifier = gameNotifier;
-    }
 
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {

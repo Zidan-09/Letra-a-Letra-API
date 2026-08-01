@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.domain.state.GameMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record GameSettingsDTO(
+public record GameSettingsRequest(
         @NotBlank
         String themeId,
 

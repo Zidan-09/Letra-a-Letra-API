@@ -1,12 +1,15 @@
-package com.letraaletra.api.features.game.application.service;
+package com.letraaletra.api.features.game.infrastructure.service;
 
+import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.ExpireTurnResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ExpireTurnServiceTest {
+class ExpireTurnTimeoutServiceTest {
 
     @Mock
     private ActorManager<Game> gameActorManager;
@@ -33,7 +36,7 @@ class ExpireTurnServiceTest {
     private Actor actor;
 
     @InjectMocks
-    private ExpireTurnService service;
+    private ExpireTurnTimeoutService service;
 
     private UUID userId1;
     private UUID userId2;
@@ -47,95 +50,85 @@ class ExpireTurnServiceTest {
     }
 
     @Test
+    @DisplayName("Deve expirar o turno com sucesso e construir o output correto")
     void shouldExpireTurnSuccessfully() {
+        // Arrange
         Game game = mock(Game.class);
-        var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
+        GameState gameState = mock(GameState.class);
 
-        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
-        GameOver gameOver = mock(GameOver.class);
+        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult actorOutput =
+                mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(actorOutput)));
 
-        when(result.whoPassed()).thenReturn(userId1);
-        when(result.game()).thenReturn(game);
-        when(result.gameOver()).thenReturn(Optional.of(gameOver));
+        when(actorOutput.whoPassed()).thenReturn(userId1);
+        when(actorOutput.game()).thenReturn(game);
+        when(actorOutput.gameOver()).thenReturn(Optional.empty());
 
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        ExpireTurnResult output = service.execute(gameId, 1).orElseThrow();
+        // Act
+        ExpireTurnResult output = service.expire(gameId, 1).orElseThrow();
 
+        // Assert
         assertEquals("TURN_EXPIRED", output.event());
         assertEquals(userId1, output.user());
         assertEquals(userId2, output.currentPlayerTurnId());
         assertEquals(game, output.game());
-        assertEquals(Optional.of(gameOver), output.gameOver());
+        assertEquals(Optional.empty(), output.gameOver());
 
         verify(gameActorManager).get(gameId);
         verify(actor).enqueueCommand(any(ExpireTurnActorCommand.class));
+        verifyNoInteractions(gameOverHandler);
     }
 
     @Test
-    void shouldHandleAfkRemovalWhenUserIsRemoved() {
-        Game game = mock(Game.class);
-        var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
-
-        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
-        GameOver gameOver = mock(GameOver.class);
-
-        when(gameActorManager.get(gameId)).thenReturn(actor);
-
-        when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
-
-        when(result.whoPassed()).thenReturn(userId1);
-        when(result.game()).thenReturn(game);
-        when(result.gameOver()).thenReturn(Optional.of(gameOver));
-
-        when(game.getGameState()).thenReturn(gameState);
-        when(gameState.currentPlayerTurn()).thenReturn(userId2);
-
-
-        service.execute(gameId, 1);
-    }
-
-    @Test
+    @DisplayName("Deve delegar ao GameOverHandler quando o fim de jogo for detectado")
     void shouldHandleGameOverWhenFinished() {
+        // Arrange
         Game game = mock(Game.class);
-        var gameState = mock(com.letraaletra.api.features.game.domain.state.GameState.class);
+        GameState gameState = mock(GameState.class);
 
-        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result = mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
+        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult actorOutput =
+                mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
         GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(result)));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(actorOutput)));
 
-        when(result.whoPassed()).thenReturn(userId1);
-        when(result.game()).thenReturn(game);
-        when(result.gameOver()).thenReturn(Optional.of(gameOver));
+        when(actorOutput.whoPassed()).thenReturn(userId1);
+        when(actorOutput.game()).thenReturn(game);
+        when(actorOutput.gameOver()).thenReturn(Optional.of(gameOver));
 
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
-        service.execute(gameId, 1);
+        // Act
+        service.expire(gameId, 1);
 
+        // Assert
         verify(gameOverHandler).handle(game, gameOver);
     }
 
     @Test
+    @DisplayName("Deve retornar Optional vazio quando o comando do Actor retornar Optional.empty()")
     void shouldReturnEmptyWhenActorReturnsEmptyResult() {
+        // Arrange
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
-        Optional<ExpireTurnResult> output = service.execute(gameId, 1);
+        // Act
+        Optional<ExpireTurnResult> output = service.expire(gameId, 1);
 
+        // Assert
         assertTrue(output.isEmpty());
         verifyNoInteractions(gameOverHandler);
     }

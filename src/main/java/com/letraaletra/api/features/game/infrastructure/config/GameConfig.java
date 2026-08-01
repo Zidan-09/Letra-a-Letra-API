@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
+import com.letraaletra.api.features.game.application.port.SelectThemeService;
 import com.letraaletra.api.features.game.application.service.*;
-import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
@@ -14,10 +14,8 @@ import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.usecase.*;
 import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -28,19 +26,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GameConfig {
-    @Bean
-    public CloseRoomDueToTimeoutService closeRoomDueToTimeoutUseCase(
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameRepository gameRepository
-    ) {
-        return new CloseRoomDueToTimeoutService(
-                userRepository,
-                actorManager,
-                gameRepository
-        );
-    }
-
     @Bean
     public CreateGameUseCase createGameUseCase(
             UserRepository userRepository,
@@ -89,35 +74,18 @@ public class GameConfig {
     @Bean
     public StartGameUseCase startGameUseCase(
             GameRepository gameRepository,
-             ThemeRepository themeRepository,
              GameTimeoutManager gameTimeoutManager,
-             PickRandomThemeWordsService pickRandomThemeWordsService,
-             BoardGenerator boardGenerator,
+             SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
                 gameRepository,
-                themeRepository,
                 gameTimeoutManager,
-                pickRandomThemeWordsService,
-                boardGenerator,
+                themeService,
                 turnTimeoutManager,
                 gameActorManager
         );
-    }
-
-    @Bean
-    public ExpireTurnService expireTurnUseCase(
-            GameActorManager gameActorManager,
-            GameOverHandler gameOverHandler
-    ) {
-        return new ExpireTurnService(gameActorManager, gameOverHandler);
-    }
-
-    @Bean
-    public PickRandomThemeWordsService pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
-        return new PickRandomThemeWordsService(themeRepository);
     }
 
     @Bean
@@ -148,16 +116,6 @@ public class GameConfig {
                 levelRepository,
                 walletTransactionRepository
         );
-    }
-
-    @Bean
-    public BoardGenerator boardGenerator(CellFactory cellFactory) {
-        return new BoardGenerator(cellFactory);
-    }
-
-    @Bean
-    public CellFactory cellFactory() {
-        return new CellFactory();
     }
 
     @Bean

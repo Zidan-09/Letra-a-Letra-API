@@ -13,7 +13,7 @@ public record CreateGameWsRequest(
 
         @Valid
         @NotNull
-        RoomSettingsDTO settings
+        RoomSettingsRequest settings
 ) implements WsRequest {
 
         @Override

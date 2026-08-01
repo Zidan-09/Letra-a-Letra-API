@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
@@ -24,12 +25,21 @@ public class InMemoryThemeRepository implements ThemeRepository {
     }
 
     @Override
-    public Theme findById(String themeId) {
-        return themeMap.get(themeId);
+    public Optional<Theme> findById(String themeId) {
+        if (!themeMap.containsKey(themeId)) return Optional.empty();
+
+        Theme theme = themeMap.get(themeId);
+
+        return Optional.of(theme);
     }
 
     @Override
-    public List<Theme> findAll() {
+    public List<Theme> get() {
         return List.copyOf(themeMap.values());
+    }
+
+    @Override
+    public List<String> getIds() {
+        return List.copyOf(themeMap.keySet());
     }
 }

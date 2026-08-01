@@ -1,28 +1,27 @@
-package com.letraaletra.api.features.game.application.service;
+package com.letraaletra.api.features.game.infrastructure.service;
 
+import com.letraaletra.api.features.game.application.port.ExpireTurnService;
+import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.ExpireTurnResult;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class ExpireTurnService {
+@Service
+@RequiredArgsConstructor
+public class ExpireTurnTimeoutService implements ExpireTurnService {
     private final ActorManager<Game> gameActorManager;
     private final GameOverHandler gameOverHandler;
 
-    public ExpireTurnService(
-            ActorManager<Game> gameActorManager,
-            GameOverHandler gameOverHandler
-    ) {
-        this.gameActorManager = gameActorManager;
-        this.gameOverHandler = gameOverHandler;
-    }
-
-    public Optional<ExpireTurnResult> execute(UUID gameId, int version) {
+    @Override
+    public Optional<ExpireTurnResult> expire(UUID gameId, int version) {
         Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Optional<com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult>> future = actor.enqueueCommand(

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.infrastructure.scheduler;
+package com.letraaletra.api.features.game.domain;
 
 import com.letraaletra.api.features.player.domain.Player;
 import org.jspecify.annotations.NonNull;
