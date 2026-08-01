@@ -4,7 +4,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
@@ -12,6 +11,7 @@ import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -20,11 +20,11 @@ import java.util.UUID;
 public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         implements InGameActionHandler<T> {
 
-    protected final PlayerActionUseCase useCase;
+    protected final UseCase<PlayerActionInput, PlayerActionOutput> useCase;
     protected final GameNotifier notifier;
 
     public AbstractPlayerActionHandler(
-            PlayerActionUseCase useCase,
+            UseCase<PlayerActionInput, PlayerActionOutput> useCase,
             GameNotifier notifier
     ) {
         this.useCase = useCase;

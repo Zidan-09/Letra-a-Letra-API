@@ -12,7 +12,7 @@ public class DefaultGameFactory {
         RoomSettings settings = new RoomSettings(true, true);
         UUID gameId = UUID.randomUUID();
 
-        Game game = new Game(gameId, code, "default-name", settings, player1, GameType.MATCHMAKING);
+        Game game = new Game(gameId, code, "default-match", settings, player1, GameType.MATCHMAKING);
 
         game.getParticipants().join(player2, settings);
 
@@ -23,7 +23,7 @@ public class DefaultGameFactory {
         RoomSettings settings = new RoomSettings(true, true);
         UUID gameId = UUID.randomUUID();
 
-        Game game = new Game(gameId, code, "default-name", settings, player1, GameType.RANKING);
+        Game game = new Game(gameId, code, "default-ranking", settings, player1, GameType.RANKING);
 
         game.getParticipants().join(player2, settings);
 

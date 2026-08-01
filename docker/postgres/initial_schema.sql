@@ -50,7 +50,7 @@ CREATE TABLE "matches" (
 CREATE TABLE "match_players" (
                         "match_id" uuid NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
                         "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "nickname" varchar(15) UNIQUE NOT NULL,
+                        "nickname" varchar(15) NOT NULL,
                         "score" integer DEFAULT 0,
                         "is_winner" boolean DEFAULT false,
                         PRIMARY KEY ("match_id", "user_id")

@@ -43,15 +43,15 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
                 .orElseThrow(UserNotFoundException::new);
 
         user.leaveGame();
-        userRepository.save(user);
 
         if (result.isEmpty()) {
             actorManager.remove(result.game().getId());
 
             result.game().setGameStatus(GameStatus.CLOSED);
-
-            gameRepository.save(result.game());
         }
+
+        userRepository.save(user);
+        gameRepository.save(result.game());
 
         return buildOutput(result);
     }
