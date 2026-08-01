@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.event.TurnPassedEvent;
 import com.letraaletra.api.features.game.domain.exception.GameNotRunningException;
 import com.letraaletra.api.features.game.domain.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
@@ -112,7 +111,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
             throw new PlayerNotInGameException();
         }
 
-        if (participant.getRole().equals(ParticipantRole.SPECTATOR)) {
+        if (participant.isSpectator()) {
             throw new SpectatorCanNotPlayException();
         }
     }
