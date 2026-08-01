@@ -5,6 +5,7 @@ import java.util.UUID;
 public record AuthenticatedUser(
         UUID auth,
         String name,
-        boolean isAdmin
+        boolean isAdmin,
+        boolean isSuper
 ) {
 }

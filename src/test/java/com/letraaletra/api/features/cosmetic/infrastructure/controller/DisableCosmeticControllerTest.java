@@ -43,7 +43,7 @@ class DisableCosmeticControllerTest {
     @BeforeEach
     void setUp() {
         UUID mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "Admin", true);
+        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
         mockCosmeticId = UUID.randomUUID();
 
         mockInput = mock(DisableCosmeticInput.class);

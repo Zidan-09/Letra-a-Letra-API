@@ -6,6 +6,7 @@ import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
+import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
@@ -36,10 +37,18 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
         Admin admin = adminRepository.find(input.adminId())
                 .orElseThrow(AdminNotFoundException::new);
 
+        validateAdminUpdate(admin, input);
+
         validateEmail(admin.getEmail(), input.email());
 
         admin.setName(input.name());
         admin.setEmail(input.email());
+
+        if (input.isSuper()) {
+            admin.promoteSuperAdmin();
+        } else {
+            admin.revokeSuperAdmin();
+        }
 
         input.permissions().forEach(permission -> admin.getPermissions().set(permission));
 
@@ -53,6 +62,18 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
 
         if (exists && !registeredEmail.equals(email)) {
             throw new EmailAlreadyInUseException();
+        }
+    }
+
+    private void validateAdminUpdate(Admin admin, UpdateAdminInput input) {
+        boolean isSuper = input.principal().isSuper();
+
+        if (!isSuper && admin.isSuper()) {
+            throw new PermissionDeniedException();
+        }
+
+        if (!isSuper && (input.isSuper() != admin.isSuper())) {
+            throw new PermissionDeniedException();
         }
     }
 }

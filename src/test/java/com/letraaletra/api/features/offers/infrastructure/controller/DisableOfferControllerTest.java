@@ -44,7 +44,7 @@ class DisableOfferControllerTest {
     @BeforeEach
     void setUp() {
         UUID authAdminId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authAdminId, "admin", true);
+        principal = new AuthenticatedUser(authAdminId, "Admin", true, true);
         offerIdStr = UUID.randomUUID();
         mockInput = mock(DisableOfferInput.class);
         mockOutput = mock(DisableOfferOutput.class);

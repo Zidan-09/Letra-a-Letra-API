@@ -46,7 +46,7 @@ class UpdateLevelControllerTest {
     @BeforeEach
     void setUp() {
         UUID authAdminId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authAdminId, "Admin", true);
+        principal = new AuthenticatedUser(authAdminId, "Admin", true, true);
         levelId = UUID.randomUUID();
         mockRequest = mock(UpdateLevelRequest.class);
         mockInput = mock(UpdateLevelInput.class);

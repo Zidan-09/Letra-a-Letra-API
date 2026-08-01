@@ -16,6 +16,9 @@ public record UpdateAdminRequest(
         String email,
 
         @NotNull
+        boolean isSuper,
+
+        @NotNull
         List<Permission> permissions
 ) {
 }

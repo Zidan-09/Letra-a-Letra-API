@@ -31,7 +31,7 @@ public class RegisterAdminController {
     }
 
     @PostMapping()
-    public ResponseEntity<SuccessResponse<RegisterAdminResponse>> handle(
+    public synchronized ResponseEntity<SuccessResponse<RegisterAdminResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RegisterAdminRequest request
     ) {

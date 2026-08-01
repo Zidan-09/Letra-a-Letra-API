@@ -44,7 +44,7 @@ class DeleteOfferControllerTest {
     @BeforeEach
     void setUp() {
         UUID authAdminId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authAdminId, "Admin", true);
+        principal = new AuthenticatedUser(authAdminId, "Admin", true, true);
         offerId = UUID.randomUUID();
         mockInput = mock(DeleteOfferInput.class);
         mockOutput = mock(DeleteOfferOutput.class);

@@ -44,7 +44,7 @@ class GetMyInventoryControllerTest {
     @BeforeEach
     void setUp() {
         authUserId = UUID.randomUUID();
-        principal = new AuthenticatedUser(authUserId, "User", false);
+        principal = new AuthenticatedUser(authUserId, "User", false, false);
         mockInput = mock(GetMyInventoryInput.class);
         mockOutput = mock(GetMyInventoryOutput.class);
         mockResponseDto = mock(GetMyInventoryResponse.class);

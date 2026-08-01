@@ -15,6 +15,7 @@ public class UpdateAdminMapper {
                 adminId,
                 request.name(),
                 request.email(),
+                request.isSuper(),
                 request.permissions()
         );
     }

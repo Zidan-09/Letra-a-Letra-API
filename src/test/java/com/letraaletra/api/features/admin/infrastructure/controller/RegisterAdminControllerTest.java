@@ -55,7 +55,7 @@ class RegisterAdminControllerTest {
         apiResponseServiceMockedStatic = mockStatic(ApiResponseHandler.class);
 
         UUID requesterId = UUID.randomUUID();
-        principal = new AuthenticatedUser(requesterId, "Admin", true);
+        principal = new AuthenticatedUser(requesterId, "Admin", true, true);
         request = new RegisterAdminRequest("Novo Admin", "novo.admin@letraaletra.com");
         input = new RegisterAdminInput(principal, "Novo Admin", "novo.admin@letraaletra.com");
 

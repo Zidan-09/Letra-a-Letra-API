@@ -127,6 +127,7 @@ CREATE TABLE "admin" (
                     "name" varchar(50) NOT NULL,
                     "email" varchar(50) UNIQUE NOT NULL,
                     "password_hash" varchar(100),
+                    "is_super" boolean NOT NULL DEFAULT false,
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
 );
 
