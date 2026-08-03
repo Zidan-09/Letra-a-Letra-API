@@ -60,10 +60,10 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(input.email()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hashed-password");
 
-        when(user.getId())
+        when(user.getUserId())
                 .thenReturn(userId);
 
         when(passwordService.matches(
@@ -115,7 +115,7 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(input.email()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hashed-password");
 
         when(passwordService.matches(
@@ -139,7 +139,7 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(input.email()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hashed-password");
 
         RuntimeException exception =
@@ -168,10 +168,10 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(input.email()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hashed-password");
 
-        when(user.getId())
+        when(user.getUserId())
                 .thenReturn(userId);
 
         when(passwordService.matches(
@@ -200,10 +200,10 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(anyString()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hash");
 
-        when(user.getId())
+        when(user.getUserId())
                 .thenReturn(userId);
 
         when(passwordService.matches(anyString(), anyString()))
@@ -236,10 +236,10 @@ class AuthUserUseCaseTest {
         when(userRepository.findByEmail(input.email()))
                 .thenReturn(Optional.of(user));
 
-        when(user.getHashPassword())
+        when(user.getPasswordHash())
                 .thenReturn("hashed-password");
 
-        when(user.getId())
+        when(user.getUserId())
                 .thenReturn(userId);
 
         when(passwordService.matches(

@@ -17,7 +17,7 @@ public class ChangeNicknameMapper {
 
     public static ChangeNicknameResponse toResponse(ChangeNicknameOutput output) {
         return new ChangeNicknameResponse(
-                output.user().getNickname()
+                output.user().getUsername()
         );
     }
 }

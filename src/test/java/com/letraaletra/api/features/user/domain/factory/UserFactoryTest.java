@@ -13,15 +13,15 @@ class UserFactoryTest {
         User user = UserFactory.createLocal("NickLocal", "local@email.com", "password-hash");
 
         assertNotNull(user);
-        assertEquals("NickLocal", user.getNickname());
+        assertEquals("NickLocal", user.getUsername());
         assertEquals("local@email.com", user.getEmail());
-        assertEquals("password-hash", user.getHashPassword());
+        assertEquals("password-hash", user.getPasswordHash());
         assertNull(user.getGoogleId(), "Usuários locais não devem possuir googleId");
         assertTrue(user.canChangeNickname());
         assertTrue(user.isNotInGame());
 
         assertNotNull(user.getStats());
-        assertEquals(0, user.getStats().getPoints());
+        assertEquals(0, user.getStats().getRankingPoints());
         assertEquals(0, user.getStats().getWinStreak());
     }
 
@@ -32,7 +32,7 @@ class UserFactoryTest {
 
         assertNotNull(user);
         assertEquals("google@email.com", user.getEmail());
-        assertNull(user.getHashPassword(), "Cadastro via Google não possui hash de senha próprio");
+        assertNull(user.getPasswordHash(), "Cadastro via Google não possui hash de senha próprio");
         assertEquals("sub-google-123", user.getGoogleId());
         assertTrue(user.canChangeNickname());
         assertTrue(user.isNotInGame());

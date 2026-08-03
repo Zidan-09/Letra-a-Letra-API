@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .orElseThrow(UserNotFoundException::new);
 
                         authentication = new UsernamePasswordAuthenticationToken(
-                            new AuthenticatedUser(user.getId(), user.getNickname(), false, false),
+                            new AuthenticatedUser(user.getUserId(), user.getUsername(), false, false),
                             null,
                             Collections.emptyList()
                         );

@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa;
 
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryId;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,18 +10,47 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
-public interface SpringDataUserInventoryRepository extends JpaRepository<UserInventoryJpaEntity, UserInventoryId> {
+public interface SpringDataUserInventoryRepository
+        extends JpaRepository<UserInventoryJpaEntity, UserInventoryId> {
+
     @Query("""
-        SELECT new com.letraaletra.api.features.user.domain.inventory.InventoryItem(
-            ui.userInventoryId.cosmeticId,
-            c.name,
-            c.type,
-            ui.isEquipped,
-            ui.unlockedAt
-        )
-        FROM UserInventoryJpaEntity ui
-        JOIN CosmeticJpaEntity c ON ui.userInventoryId.cosmeticId = c.id
-        WHERE ui.userInventoryId.userId = :userId
+        SELECT
+            i.userInventoryId.userId AS userId,
+            c.id AS cosmeticId,
+            c.name AS name,
+            c.type AS type,
+            i.equipped AS equipped,
+            i.unlockedAt AS unlockedAt
+
+        FROM UserInventoryJpaEntity i
+
+        JOIN CosmeticJpaEntity c
+            ON c.id = i.userInventoryId.cosmeticId
+
+        WHERE i.userInventoryId.userId IN :userIds
     """)
-    List<InventoryItem> findInventoryItemsByUserId(@Param("userId") UUID userId);
+    List<InventoryProjection> findInventoryByUserIds(
+            @Param("userIds") List<UUID> userIds
+    );
+
+
+    @Query("""
+        SELECT
+            i.userInventoryId.userId AS userId,
+            c.id AS cosmeticId,
+            c.name AS name,
+            c.type AS type,
+            i.equipped AS equipped,
+            i.unlockedAt AS unlockedAt
+
+        FROM UserInventoryJpaEntity i
+
+        JOIN CosmeticJpaEntity c
+            ON c.id = i.userInventoryId.cosmeticId
+
+        WHERE i.userInventoryId.userId = :userId
+    """)
+    List<InventoryProjection> findInventory(
+            @Param("userId") UUID userId
+    );
 }

@@ -45,9 +45,14 @@ public class ParticipantConfig {
     @Bean
     public KickParticipantUseCase kickParticipantUseCase(
             ModerationContextService moderationContextService,
+            UserRepository userRepository,
             GameActorManager gameActorManager
     ) {
-        return new KickParticipantUseCase(moderationContextService, gameActorManager);
+        return new KickParticipantUseCase(
+                moderationContextService,
+                userRepository,
+                gameActorManager
+        );
     }
 
     @Bean

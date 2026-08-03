@@ -71,7 +71,7 @@ class BuyOfferUseCaseTest {
 
         input = new BuyOfferInput(userId, offerId);
 
-        lenient().when(mockUser.getId()).thenReturn(userId);
+        lenient().when(mockUser.getUserId()).thenReturn(userId);
         lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
 
         lenient().when(mockOffer.getPrice()).thenReturn(BigDecimal.valueOf(100));

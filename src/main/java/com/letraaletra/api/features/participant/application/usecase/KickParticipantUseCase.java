@@ -5,6 +5,9 @@ import com.letraaletra.api.features.participant.application.input.KickParticipan
 import com.letraaletra.api.features.participant.application.output.ModerationContext;
 import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -14,10 +17,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class KickParticipantUseCase implements UseCase<KickParticipantInput, KickParticipantOutput> {
     private final ModerationContextService moderationContextService;
+    private final UserRepository userRepository;
     private final ActorManager<Game> gameActorManager;
 
-    public KickParticipantUseCase(ModerationContextService moderationContextService, ActorManager<Game> gameActorManager) {
+    public KickParticipantUseCase(
+            ModerationContextService moderationContextService,
+            UserRepository userRepository,
+            ActorManager<Game> gameActorManager
+    ) {
         this.moderationContextService = moderationContextService;
+        this.userRepository = userRepository;
         this.gameActorManager = gameActorManager;
     }
 
@@ -34,12 +43,13 @@ public class KickParticipantUseCase implements UseCase<KickParticipantInput, Kic
         CompletableFuture<Game> future = actor.enqueueCommand(new KickParticipantActorCommand(input.target(), input.user()));
         Game game = future.join();
 
-        return buildReturn(game);
-    }
+        User user = userRepository.find(input.target())
+                .orElseThrow(UserNotFoundException::new);
 
-    private KickParticipantOutput buildReturn(Game game) {
-        return new KickParticipantOutput(
-                game
-        );
+        user.leaveGame();
+
+        userRepository.save(user);
+
+        return new KickParticipantOutput(game);
     }
 }

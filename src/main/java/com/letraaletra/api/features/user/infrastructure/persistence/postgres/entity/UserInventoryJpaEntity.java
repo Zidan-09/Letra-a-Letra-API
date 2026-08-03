@@ -15,7 +15,7 @@ public class UserInventoryJpaEntity {
     private UserInventoryId userInventoryId;
 
     @Column(name = "equipped")
-    private boolean isEquipped;
+    private boolean equipped;
 
     @Column(name = "unlockedAt", nullable = false)
     private LocalDateTime unlockedAt;

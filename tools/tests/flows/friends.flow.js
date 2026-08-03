@@ -7,7 +7,7 @@ function ensureStatus(response, expected, operation) {
 
     if (!expectedStatus.includes(response.status)) {
         throw new Error(
-            `${operation}: expected ${expectedStatus.join(" or ")}, recived ${response.status}`
+            `${operation}: expected ${expectedStatus.join(" or ")}, recived ${response.status} =-=-= ${JSON.stringify(response.body)}`
         );
     }
 }
@@ -15,7 +15,6 @@ function ensureStatus(response, expected, operation) {
 export async function runFlow(context) {
     const [zidan, pombao, wadawueu, torugo] = context.users;
     let res;
-
     // Fluxo 1: Solicitação de amizade
 
     res = await http(

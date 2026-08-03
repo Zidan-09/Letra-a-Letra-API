@@ -43,7 +43,7 @@ public class UpdateStatsService implements UserStatsService {
 
                 movement.ifPresent(walletMovement -> walletTransactionRepository.save(
                         Transaction.create(
-                                user.getId(),
+                                user.getUserId(),
                                 walletMovement.coinType(),
                                 walletMovement.amount(),
                                 getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),

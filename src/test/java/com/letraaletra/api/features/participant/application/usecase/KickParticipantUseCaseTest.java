@@ -6,6 +6,9 @@ import com.letraaletra.api.features.participant.application.input.KickParticipan
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
 import com.letraaletra.api.features.participant.application.output.ModerationContext;
 import com.letraaletra.api.features.participant.application.service.ModerationContextService;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -28,6 +32,9 @@ class KickParticipantUseCaseTest {
 
     @Mock
     private ModerationContextService moderationContextService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private ActorManager<Game> gameActorManager;
@@ -49,6 +56,9 @@ class KickParticipantUseCaseTest {
     @Mock
     private Actor mockActor;
 
+    @Mock
+    private User mockUser;
+
     @BeforeEach
     void setUp() {
         gameId = UUID.randomUUID();
@@ -58,8 +68,9 @@ class KickParticipantUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should successfully kick participant, process async actor command, and return wrapped game output")
+    @DisplayName("Should successfully kick participant, process async actor command, and update user status")
     void shouldKickParticipantSuccessfully() {
+        // Arrange
         when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
         when(mockContext.game()).thenReturn(mockGame);
         when(mockGame.getId()).thenReturn(gameId);
@@ -68,14 +79,42 @@ class KickParticipantUseCaseTest {
         CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
         when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(future);
 
+        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockUser));
+
+        // Act
         KickParticipantOutput output = useCase.execute(input);
 
+        // Assert
         assertNotNull(output);
-        assertEquals(mockGame, output.game()); // Assumindo record component ou getter .game()
+        assertEquals(mockGame, output.game());
 
         verify(moderationContextService, times(1)).resolve(gameId, targetUserId, moderatorId);
         verify(gameActorManager, times(1)).get(gameId);
         verify(mockActor, times(1)).enqueueCommand(any(KickParticipantActorCommand.class));
+        verify(userRepository, times(1)).find(targetUserId);
+        verify(mockUser, times(1)).leaveGame();
+        verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when target user does not exist in repository")
+    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        // Arrange
+        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
+        when(mockContext.game()).thenReturn(mockGame);
+        when(mockGame.getId()).thenReturn(gameId);
+        when(gameActorManager.get(gameId)).thenReturn(mockActor);
+
+        CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
+        when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(future);
+
+        when(userRepository.find(targetUserId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
+
+        verify(userRepository, times(1)).find(targetUserId);
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -87,6 +126,7 @@ class KickParticipantUseCaseTest {
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
         verifyNoInteractions(gameActorManager);
+        verifyNoInteractions(userRepository);
     }
 
     @Test
@@ -102,14 +142,17 @@ class KickParticipantUseCaseTest {
         when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(failedFuture);
 
         assertThrows(CompletionException.class, () -> useCase.execute(input));
+
+        verifyNoInteractions(userRepository);
     }
 
     @Test
-    @DisplayName("Should throw RuntimeException when the root use case input parameter context itself is null")
+    @DisplayName("Should throw NullPointerException when the input parameter is null")
     void shouldThrowExceptionWhenInputContextIsNull() {
-        assertThrows(RuntimeException.class, () -> useCase.execute(null));
+        assertThrows(NullPointerException.class, () -> useCase.execute(null));
 
         verifyNoInteractions(moderationContextService);
         verifyNoInteractions(gameActorManager);
+        verifyNoInteractions(userRepository);
     }
 }
