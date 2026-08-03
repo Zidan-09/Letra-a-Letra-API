@@ -1,6 +1,5 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;

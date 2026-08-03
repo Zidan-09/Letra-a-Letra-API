@@ -8,6 +8,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,16 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/level")
 @Tag(name = "Level", description = "Rotas relacionadas ao gerenciamento dos níveis e suas respectivas recompensas")
 public class FindLevelByValueController {
     private final UseCase<FindLevelByValueInput, FindLevelByValueOutput> useCase;
-
-    public FindLevelByValueController(
-            UseCase<FindLevelByValueInput, FindLevelByValueOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping(path = "/value/{value}")
     public ResponseEntity<SuccessResponse<FindLevelByValueResponse>> handle(

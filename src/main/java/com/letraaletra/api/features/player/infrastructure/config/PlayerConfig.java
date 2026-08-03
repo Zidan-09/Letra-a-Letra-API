@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.config;
 
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.infrastructure.service.GameOverHandler;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;

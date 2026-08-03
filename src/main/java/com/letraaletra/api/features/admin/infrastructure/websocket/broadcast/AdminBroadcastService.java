@@ -4,6 +4,7 @@ import com.letraaletra.api.features.admin.application.port.AdminNotifier;
 import com.letraaletra.api.features.admin.application.port.AdminSessionRepository;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.WsAdminResponse;
 import com.letraaletra.api.shared.domain.exception.InvalidWebsocketResponseException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,17 +15,12 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class AdminBroadcastService implements AdminNotifier {
     private final AdminSessionRepository adminSessionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(AdminBroadcastService.class);
-
-    public AdminBroadcastService(
-            AdminSessionRepository adminSessionRepository
-    ) {
-        this.adminSessionRepository = adminSessionRepository;
-    }
 
     @Override
     public void updateConsole(Object dto) {

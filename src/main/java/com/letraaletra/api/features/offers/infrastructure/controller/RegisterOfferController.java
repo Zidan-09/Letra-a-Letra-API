@@ -11,6 +11,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,16 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/offer")
 @Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
 public class RegisterOfferController {
     private final UseCase<RegisterOfferInput, RegisterOfferOutput> useCase;
-
-    public RegisterOfferController(
-            UseCase<RegisterOfferInput, RegisterOfferOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterOfferResponse>> registerOffer(

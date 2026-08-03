@@ -7,23 +7,17 @@ import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.resp
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.JoinRankingMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class JoinRankingHandler implements RoomRequestHandler<JoinRankingGameWsRequest> {
     private final UseCase<JoinRankingInput, Void> useCase;
     private final GameNotifier gameNotifier;
-
-    public JoinRankingHandler(
-            UseCase<JoinRankingInput, Void> useCase,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
-    }
 
     @Override
     public void handle(JoinRankingGameWsRequest request, WebSocketSession session) {

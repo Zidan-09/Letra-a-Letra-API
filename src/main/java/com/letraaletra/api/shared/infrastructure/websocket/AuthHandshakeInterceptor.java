@@ -2,6 +2,7 @@ package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.TokenContent;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,14 +15,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     private final TokenService tokenService;
-
-    public AuthHandshakeInterceptor(
-            TokenService tokenService
-    ) {
-        this.tokenService = tokenService;
-    }
 
     @Override
     public boolean beforeHandshake(

@@ -2,10 +2,8 @@ package com.letraaletra.api.features.game.infrastructure.config;
 
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
-import com.letraaletra.api.features.game.application.service.*;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
@@ -84,23 +82,6 @@ public class GameConfig {
                 themeService,
                 turnTimeoutManager,
                 gameActorManager
-        );
-    }
-
-    @Bean
-    public GameOverHandler gameOverHandler(
-            GameRepository gameRepository,
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
-            UserStatsService userStatsService
-    ) {
-        return new GameOverHandler(
-                gameRepository,
-                userRepository,
-                actorManager,
-                gameTimeoutManager,
-                userStatsService
         );
     }
 
