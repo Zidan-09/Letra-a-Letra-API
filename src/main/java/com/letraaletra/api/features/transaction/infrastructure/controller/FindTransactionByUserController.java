@@ -10,6 +10,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,16 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/transaction")
 @Tag(name = "Transaction", description = "Rotas relacionadas a funcionalidade de transações dos usuários")
 public class FindTransactionByUserController {
     private final UseCase<FindTransactionsByUserInput, FindTransactionsByUserOutput> useCase;
-
-    public FindTransactionByUserController(
-            UseCase<FindTransactionsByUserInput, FindTransactionsByUserOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping(path = "/user/{userId}")
     public ResponseEntity<SuccessResponse<PageResponse<TransactionResponse>>> handle(
