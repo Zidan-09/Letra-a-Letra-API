@@ -1,13 +1,18 @@
-package com.letraaletra.api.features.user.application.service;
+package com.letraaletra.api.features.user.infrastructure.service;
 
+import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Random;
 import java.util.UUID;
 
-public class SelectNicknameService {
+@Service
+@RequiredArgsConstructor
+public class SelectNicknameService implements NicknameService {
     private final UserRepository userRepository;
-    private final Random random;
+    private final Random random = new Random();
 
     private static final String[] firstPart = {
             "Wolf", "Falcon", "Tiger", "Eagle", "Panther",
@@ -29,12 +34,8 @@ public class SelectNicknameService {
             "Executioner", "Avenger", "Dominator", "Overlord", "Vanquisher"
     };
 
-    public SelectNicknameService(UserRepository userRepository, Random random) {
-        this.userRepository = userRepository;
-        this.random = random;
-    }
-
-    public String execute() {
+    @Override
+    public String get() {
         while (true) {
 
             String first = firstPart[random.nextInt(firstPart.length)];

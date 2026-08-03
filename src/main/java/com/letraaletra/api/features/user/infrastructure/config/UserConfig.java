@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.config;
 
+import com.letraaletra.api.features.user.application.port.GoogleTokenService;
+import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
@@ -8,13 +10,9 @@ import com.letraaletra.api.features.transaction.domain.repository.TransactionRep
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
-import com.letraaletra.api.features.user.application.service.SelectNicknameService;
-import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Random;
 
 @Configuration
 public class UserConfig {
@@ -22,24 +20,27 @@ public class UserConfig {
     public CreateUserUseCase createUserUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
-            UserFactory userFactory,
-            SelectNicknameService selectNicknameService
+            NicknameService nicknameService
     ) {
         return new CreateUserUseCase(
                 userRepository,
                 passwordService,
-                userFactory,
-                selectNicknameService
+                nicknameService
         );
     }
 
     @Bean
-    public SelectNicknameService selectNicknameService(
-            UserRepository userRepository
+    public GoogleAuthUseCase authUseCase(
+            TokenService tokenService,
+            NicknameService nicknameService,
+            UserRepository userRepository,
+            GoogleTokenService googleTokenService
     ) {
-        return new SelectNicknameService(
+        return new GoogleAuthUseCase(
+                tokenService,
+                nicknameService,
                 userRepository,
-                new Random()
+                googleTokenService
         );
     }
 
@@ -63,11 +64,6 @@ public class UserConfig {
                 passwordService,
                 tokenService
         );
-    }
-
-    @Bean
-    public UserFactory userFactory() {
-        return new UserFactory();
     }
 
     @Bean
