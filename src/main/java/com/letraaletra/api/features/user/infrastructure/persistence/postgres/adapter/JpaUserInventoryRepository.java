@@ -20,7 +20,9 @@ public class JpaUserInventoryRepository implements InventoryRepository {
 
     @Override
     public List<InventoryItem> getCosmetics(UUID userId) {
-        return repository.findInventoryItemsByUserId(userId);
+        return repository.findInventory(userId).stream()
+                .map(UserInventoryMapper::toDomain)
+                .toList();
     }
 
     @Override

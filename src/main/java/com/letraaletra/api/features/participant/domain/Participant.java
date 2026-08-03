@@ -25,9 +25,9 @@ public class Participant {
 
     public static Participant create(User user, String sessionId) {
         return new Participant(
-                user.getId(),
+                user.getUserId(),
                 sessionId,
-                user.getNickname(),
+                user.getUsername(),
                 user.getInventory()
                         .getItems().stream()
                         .filter(InventoryItem::equipped)
@@ -37,9 +37,9 @@ public class Participant {
 
     public static Participant restore(User user) {
         return new Participant(
-                user.getId(),
+                user.getUserId(),
                 "not-connected",
-                user.getNickname(),
+                user.getUsername(),
                 user.getInventory()
                         .getItems().stream()
                         .filter(InventoryItem::equipped)

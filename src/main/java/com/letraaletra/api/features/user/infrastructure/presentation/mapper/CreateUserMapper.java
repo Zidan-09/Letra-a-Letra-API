@@ -15,8 +15,8 @@ public class CreateUserMapper {
 
     public static CreateUserResponse toResponse(CreateUserOutput output) {
         return new CreateUserResponse(
-              output.user().getId().toString(),
-              output.user().getNickname()
+              output.user().getUserId().toString(),
+              output.user().getUsername()
         );
     }
 }

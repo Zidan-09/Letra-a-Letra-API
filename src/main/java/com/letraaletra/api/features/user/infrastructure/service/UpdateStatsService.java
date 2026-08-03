@@ -1,30 +1,28 @@
-package com.letraaletra.api.features.user.application.service;
+package com.letraaletra.api.features.user.infrastructure.service;
 
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.CoinType;
+import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.transaction.domain.Transaction;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-public class UpdateStatsService {
+@Service
+@RequiredArgsConstructor
+public class UpdateStatsService implements UserStatsService {
     private final LevelRepository levelRepository;
     private final TransactionRepository walletTransactionRepository;
 
-    public UpdateStatsService(
-            LevelRepository levelRepository,
-            TransactionRepository walletTransactionRepository
-    ) {
-        this.levelRepository = levelRepository;
-        this.walletTransactionRepository = walletTransactionRepository;
-    }
-
-    public void execute(User user, boolean isWinner) {
+    @Override
+    public void update(User user, boolean isWinner) {
         user.registerMatchResult(isWinner);
 
         int maxLevel = levelRepository.findBiggestLevel();
@@ -45,7 +43,7 @@ public class UpdateStatsService {
 
                 movement.ifPresent(walletMovement -> walletTransactionRepository.save(
                         Transaction.create(
-                                user.getId(),
+                                user.getUserId(),
                                 walletMovement.coinType(),
                                 walletMovement.amount(),
                                 getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),

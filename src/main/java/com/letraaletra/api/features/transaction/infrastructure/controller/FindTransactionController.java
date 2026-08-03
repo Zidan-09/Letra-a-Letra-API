@@ -10,6 +10,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,16 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/transaction")
 @Tag(name = "Transaction", description = "Rotas relacionadas a funcionalidade de transações dos usuários")
 public class FindTransactionController {
     private final UseCase<FindTransactionInput, FindTransactionOutput> useCase;
-
-    public FindTransactionController(
-            UseCase<FindTransactionInput, FindTransactionOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping(path = "/{transactionId}")
     public ResponseEntity<SuccessResponse<FindTransactionResponse>> handle(

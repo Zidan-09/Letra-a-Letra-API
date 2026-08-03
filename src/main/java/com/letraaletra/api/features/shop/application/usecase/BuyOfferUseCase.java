@@ -47,7 +47,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         User user = userRepository.find(input.auth())
                 .orElseThrow(UserNotFoundException::new);
 
-        validateOffer(offer, user.getId());
+        validateOffer(offer, user.getUserId());
 
         processPayment(user, offer);
 
@@ -76,7 +76,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
 
         transactionRepository.save(
                 Transaction.create(
-                        user.getId(),
+                        user.getUserId(),
                         walletMovement.coinType(),
                         walletMovement.amount(),
                         getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
@@ -96,7 +96,7 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
 
             movement.ifPresent(walletMovement -> transactionRepository.save(
                     Transaction.create(
-                            user.getId(),
+                            user.getUserId(),
                             walletMovement.coinType(),
                             walletMovement.amount(),
                             getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),

@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/shop/offers")
 @Tag(name = "Shop", description = "Rotas relacionadas a funcionalidade da loja do jogo")
 public class BuyStoreOfferController {
     private final UseCase<BuyOfferInput, BuyOfferOutput> useCase;
-
-    public BuyStoreOfferController(
-            UseCase<BuyOfferInput, BuyOfferOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @PostMapping(path = "/{offerId}/buy")
     public ResponseEntity<SuccessResponse<BuyStoreOfferResponse>> handle(

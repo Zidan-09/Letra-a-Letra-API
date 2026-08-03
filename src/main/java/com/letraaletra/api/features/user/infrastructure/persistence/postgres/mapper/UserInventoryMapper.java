@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.CosmeticJpaEntity;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryId;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
 
 import java.util.UUID;
 
@@ -22,13 +22,15 @@ public class UserInventoryMapper {
         return entity;
     }
 
-    public static InventoryItem toDomain(UserInventoryJpaEntity entity, CosmeticJpaEntity cosmeticJpaEntity) {
+    public static InventoryItem toDomain(InventoryProjection projection) {
         return InventoryItem.restore(
-                entity.getUserInventoryId().getCosmeticId(),
-                cosmeticJpaEntity.getName(),
-                cosmeticJpaEntity.getType(),
-                entity.isEquipped(),
-                entity.getUnlockedAt()
+                projection.getCosmeticId(),
+                projection.getName(),
+                projection.getType(),
+                projection.isEquipped(),
+                projection.getUnlockedAt()
         );
     }
+
+
 }

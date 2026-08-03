@@ -37,7 +37,7 @@ public class FindTransactionsByUserUsernameUseCase implements
         User user = userRepository.findByUsername(input.username())
                 .orElseThrow(UserNotFoundException::new);
 
-        Page<TransactionDetails> transactions = transactionRepository.getByUserId(user.getId(), new TransactionsPage(
+        Page<TransactionDetails> transactions = transactionRepository.getByUserId(user.getUserId(), new TransactionsPage(
                 input.page(),
                 input.size(),
                 input.sort()

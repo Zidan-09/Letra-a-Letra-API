@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,16 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/cosmetic")
 @Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class EnableCosmeticController {
     private final UseCase<EnableCosmeticInput, EnableCosmeticOutput> useCase;
-
-    public EnableCosmeticController(
-            UseCase<EnableCosmeticInput, EnableCosmeticOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @PatchMapping(path = "/enable/{cosmeticId}")
     public ResponseEntity<SuccessResponse<EnableCosmeticResponse>> handle(

@@ -8,24 +8,17 @@ import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.mapper.ExitMatchmakingMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class ExitMatchmakingHandler implements RoomRequestHandler<ExitMatchmakingGameWsRequest> {
     private final UseCase<ExitMatchmakingQueueInput, Void> useCase;
     private final GameNotifier gameNotifier;
-
-    public ExitMatchmakingHandler(
-            UseCase<ExitMatchmakingQueueInput, Void> useCase,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
-    }
-
 
     @Override
     public void handle(ExitMatchmakingGameWsRequest request, WebSocketSession session) {

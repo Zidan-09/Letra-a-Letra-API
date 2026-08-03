@@ -3,6 +3,7 @@ package com.letraaletra.api.features.participant.application.usecase;
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
@@ -45,9 +46,10 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
             matchmakingRepository.remove(userId);
         }
 
-        User user = userRepository.find(userId).orElse(null);
-        if (user == null || user.isNotInGame()) return Optional.empty();
+        User user = userRepository.find(userId)
+                .orElseThrow(UserNotFoundException::new);
 
+        if (user.isNotInGame()) return Optional.empty();
 
         Actor actor = gameActorManager.get(user.getCurrentGameId());
 

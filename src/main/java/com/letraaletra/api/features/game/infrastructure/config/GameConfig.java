@@ -2,17 +2,13 @@ package com.letraaletra.api.features.game.infrastructure.config;
 
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
-import com.letraaletra.api.features.game.application.service.*;
-import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.usecase.*;
-import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
@@ -86,34 +82,6 @@ public class GameConfig {
                 themeService,
                 turnTimeoutManager,
                 gameActorManager
-        );
-    }
-
-    @Bean
-    public GameOverHandler gameOverHandler(
-            GameRepository gameRepository,
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService
-    ) {
-        return new GameOverHandler(
-                gameRepository,
-                userRepository,
-                actorManager,
-                gameTimeoutManager,
-                updateStatsService
-        );
-    }
-
-    @Bean
-    public UpdateStatsService updateStatsService(
-            LevelRepository levelRepository,
-            TransactionRepository walletTransactionRepository
-    ) {
-        return new UpdateStatsService(
-                levelRepository,
-                walletTransactionRepository
         );
     }
 

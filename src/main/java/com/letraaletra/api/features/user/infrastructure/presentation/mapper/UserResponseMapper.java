@@ -7,8 +7,8 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 public class UserResponseMapper {
     public static UserResponse toResponse(User user) {
         return new UserResponse(
-                user.getId(),
-                user.getNickname(),
+                user.getUserId(),
+                user.getUsername(),
                 user.getEmail(),
                 user.getStats(),
                 user.getInventory()

@@ -8,6 +8,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,16 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/offer")
 @Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
 public class FindOfferController {
     private final UseCase<FindOfferInput, FindOfferOutput> useCase;
-
-    public FindOfferController(
-            UseCase<FindOfferInput, FindOfferOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping(path = "/{offerId}")
     public ResponseEntity<SuccessResponse<FindOfferResponse>> handle(

@@ -1,5 +1,7 @@
-package com.letraaletra.api.features.game.application.service;
+package com.letraaletra.api.features.game.infrastructure.service;
 
+import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
@@ -8,33 +10,23 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public class GameOverHandler {
+@Service
+@RequiredArgsConstructor
+public class GameOverHandler implements GameOverService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
     private final ActorManager<Game> actorManager;
     private final GameTimeoutManager gameTimeoutManager;
-    private final UpdateStatsService updateStatsService;
+    private final UserStatsService userStatsService;
 
-    public GameOverHandler(
-            GameRepository gameRepository,
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService
-    ) {
-        this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
-        this.actorManager = actorManager;
-        this.gameTimeoutManager = gameTimeoutManager;
-        this.updateStatsService = updateStatsService;
-    }
-
+    @Override
     public void handle(Game game, GameOver result) {
         List<User> userList = userRepository.findUsersById(List.of(
                 result.winner().getUserId(),
@@ -42,17 +34,17 @@ public class GameOverHandler {
         ));
 
         User userWinner = userList.stream()
-                .filter(u -> u.getId().equals(result.winner().getUserId()))
+                .filter(u -> u.getUserId().equals(result.winner().getUserId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
         User userLoser = userList.stream()
-                .filter(u -> u.getId().equals(result.loser().getUserId()))
+                .filter(u -> u.getUserId().equals(result.loser().getUserId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
-        updateStatsService.execute(userWinner, true);
-        updateStatsService.execute(userLoser, false);
+        userStatsService.update(userWinner, true);
+        userStatsService.update(userLoser, false);
 
         if (game.getGameType().equals(GameType.CUSTOM)) {
             game.setGameStatus(GameStatus.WAITING);

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.features.user.application.service.SelectNicknameService;
+import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
@@ -20,7 +20,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +34,7 @@ class CreateUserUseCaseTest {
     private UserFactory userFactory;
 
     @Mock
-    private SelectNicknameService selectNicknameService;
+    private NicknameService nicknameService;
 
     @InjectMocks
     private CreateUserUseCase createUserUseCase;
@@ -50,49 +49,86 @@ class CreateUserUseCaseTest {
     @Test
     @DisplayName("should create an user correctly")
     void createUser() {
-        CreateUserInput input = new CreateUserInput(
-                "john@email.com",
-                "123456"
-        );
+        CreateUserInput input = new CreateUserInput("john@email.com", "123456");
 
-        when(userRepository.existsByEmail(input.email()))
-                .thenReturn(false);
-
-        when(selectNicknameService.execute())
-                .thenReturn("john123");
-
-        when(passwordService.hash(input.password()))
-                .thenReturn("hashed-password");
+        when(userRepository.existsByEmail(input.email())).thenReturn(false);
+        when(nicknameService.get()).thenReturn("john123");
+        when(passwordService.hash(input.password())).thenReturn("hashed-password");
 
         User user = mock(User.class);
 
-        when(userFactory.createLocal(
-                eq("john123"),
-                eq(input.email()),
-                eq("hashed-password")
-        )).thenReturn(user);
+        try (var mockedFactory = mockStatic(UserFactory.class)) {
+            mockedFactory.when(() -> UserFactory.createLocal("john123", "john@email.com", "hashed-password"))
+                    .thenReturn(user);
 
-        when(user.getId()).thenReturn(userId);
-        when(user.getNickname()).thenReturn("john123");
-        when(user.getEmail()).thenReturn("john@email.com");
+            when(user.getUserId()).thenReturn(userId);
+            when(user.getUsername()).thenReturn("john123");
+            when(user.getEmail()).thenReturn("john@email.com");
 
-        CreateUserOutput output = createUserUseCase.execute(input);
+            CreateUserOutput output = createUserUseCase.execute(input);
 
-        assertNotNull(output);
+            assertNotNull(output);
+            assertEquals(userId, output.user().getUserId());
+            assertEquals("john123", output.user().getUsername());
+            assertEquals("john@email.com", output.user().getEmail());
 
-        assertEquals(userId, output.user().getId());
-        assertEquals("john123", output.user().getNickname());
-        assertEquals("john@email.com", output.user().getEmail());
+            verify(userRepository).existsByEmail("john@email.com");
+            verify(nicknameService).get();
+            verify(passwordService).hash("123456");
+            verify(userRepository).save(user);
+        }
+    }
 
-        verify(userRepository).existsByEmail("john@email.com");
-        verify(selectNicknameService).execute();
-        verify(passwordService).hash("123456");
-        verify(userFactory).createLocal(
-                eq("john123"),
-                eq("john@email.com"),
-                eq("hashed-password")
-        );
-        verify(userRepository).save(user);
+    @Test
+    @DisplayName("should propagate exception when user factory fails")
+    void shouldPropagateFactoryException() {
+        CreateUserInput input = new CreateUserInput("john@email.com", "123456");
+
+        when(userRepository.existsByEmail(input.email())).thenReturn(false);
+        when(nicknameService.get()).thenReturn("john123");
+        when(passwordService.hash(input.password())).thenReturn("hashed-password");
+
+        RuntimeException exception = new RuntimeException("factory error");
+
+        try (var mockedFactory = mockStatic(UserFactory.class)) {
+            mockedFactory.when(() -> UserFactory.createLocal(anyString(), anyString(), anyString()))
+                    .thenThrow(exception);
+
+            RuntimeException thrown = assertThrows(
+                    RuntimeException.class,
+                    () -> createUserUseCase.execute(input)
+            );
+
+            assertSame(exception, thrown);
+            verify(userRepository, never()).save(any());
+        }
+    }
+
+    @Test
+    @DisplayName("should propagate exception when repository save fails")
+    void shouldPropagateSaveException() {
+        CreateUserInput input = new CreateUserInput("john@email.com", "123456");
+
+        when(userRepository.existsByEmail(input.email())).thenReturn(false);
+        when(nicknameService.get()).thenReturn("john123");
+        when(passwordService.hash(input.password())).thenReturn("hashed-password");
+
+        User user = mock(User.class);
+
+        try (var mockedFactory = mockStatic(UserFactory.class)) {
+            mockedFactory.when(() -> UserFactory.createLocal(anyString(), anyString(), anyString()))
+                    .thenReturn(user);
+
+            RuntimeException exception = new RuntimeException("save error");
+            doThrow(exception).when(userRepository).save(user);
+
+            RuntimeException thrown = assertThrows(
+                    RuntimeException.class,
+                    () -> createUserUseCase.execute(input)
+            );
+
+            assertSame(exception, thrown);
+        }
     }
 
     @Test
@@ -116,7 +152,7 @@ class CreateUserUseCaseTest {
         verifyNoInteractions(
                 passwordService,
                 userFactory,
-                selectNicknameService
+                nicknameService
         );
 
         verify(userRepository, never()).save(any());
@@ -135,7 +171,7 @@ class CreateUserUseCaseTest {
 
         RuntimeException exception = new RuntimeException("email error");
 
-        when(selectNicknameService.execute())
+        when(nicknameService.get())
                 .thenThrow(exception);
 
         RuntimeException thrown = assertThrows(
@@ -159,7 +195,7 @@ class CreateUserUseCaseTest {
         when(userRepository.existsByEmail(input.email()))
                 .thenReturn(false);
 
-        when(selectNicknameService.execute())
+        when(nicknameService.get())
                 .thenReturn("john123");
 
         RuntimeException exception = new RuntimeException("hash error");
@@ -175,79 +211,5 @@ class CreateUserUseCaseTest {
         assertSame(exception, thrown);
 
         verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should propagate exception when user factory fails")
-    void shouldPropagateFactoryException() {
-        CreateUserInput input = new CreateUserInput(
-                "john@email.com",
-                "123456"
-        );
-
-        when(userRepository.existsByEmail(input.email()))
-                .thenReturn(false);
-
-        when(selectNicknameService.execute())
-                .thenReturn("john123");
-
-        when(passwordService.hash(input.password()))
-                .thenReturn("hashed-password");
-
-        RuntimeException exception = new RuntimeException("factory error");
-
-        when(userFactory.createLocal(
-                anyString(),
-                anyString(),
-                anyString()
-        )).thenThrow(exception);
-
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> createUserUseCase.execute(input)
-        );
-
-        assertSame(exception, thrown);
-
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should propagate exception when repository save fails")
-    void shouldPropagateSaveException() {
-        CreateUserInput input = new CreateUserInput(
-                "john@email.com",
-                "123456"
-        );
-
-        when(userRepository.existsByEmail(input.email()))
-                .thenReturn(false);
-
-        when(selectNicknameService.execute())
-                .thenReturn("john123");
-
-        when(passwordService.hash(input.password()))
-                .thenReturn("hashed-password");
-
-        User user = mock(User.class);
-
-        when(userFactory.createLocal(
-                anyString(),
-                anyString(),
-                anyString()
-        )).thenReturn(user);
-
-        RuntimeException exception = new RuntimeException("save error");
-
-        doThrow(exception)
-                .when(userRepository)
-                .save(user);
-
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> createUserUseCase.execute(input)
-        );
-
-        assertSame(exception, thrown);
     }
 }

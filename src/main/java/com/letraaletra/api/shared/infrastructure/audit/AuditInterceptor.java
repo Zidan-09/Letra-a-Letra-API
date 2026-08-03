@@ -4,6 +4,7 @@ import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 import org.springframework.web.method.HandlerMethod;
@@ -18,12 +19,9 @@ import java.util.Map;
 import static org.slf4j.event.Level.*;
 
 @Component
+@RequiredArgsConstructor
 public class AuditInterceptor implements HandlerInterceptor {
     private final AuditService auditService;
-
-    public AuditInterceptor(AuditService auditService) {
-        this.auditService = auditService;
-    }
 
     @Override
     public void afterCompletion(

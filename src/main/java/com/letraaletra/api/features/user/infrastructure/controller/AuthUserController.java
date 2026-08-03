@@ -10,6 +10,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.respons
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class AuthUserController {
-    private final UseCase<SignInInput, SignInOutput> authUserUseCase;
-
-    public AuthUserController(
-            UseCase<SignInInput, SignInOutput> authUserUseCase
-    ) {
-        this.authUserUseCase = authUserUseCase;
-    }
+    private final UseCase<SignInInput, SignInOutput> useCase;
 
     @PostMapping(path = "/auth")
     public ResponseEntity<SuccessResponse<AuthUserResponse>> handle(
@@ -34,7 +30,7 @@ public class AuthUserController {
     ) {
         SignInInput input = AuthUserMapper.toInput(request);
 
-        SignInOutput output = authUserUseCase.execute(input);
+        SignInOutput output = useCase.execute(input);
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 

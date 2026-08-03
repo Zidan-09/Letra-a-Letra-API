@@ -11,6 +11,7 @@ import com.letraaletra.api.features.user.infrastructure.presentation.mapper.Goog
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.AuthUserMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,14 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GoogleAuthController {
-    private final UseCase<AuthInput, SignInOutput> googleAuthUseCase;
-
-    public GoogleAuthController(UseCase<AuthInput, SignInOutput> googleAuthUseCase) {
-        this.googleAuthUseCase = googleAuthUseCase;
-    }
+    private final UseCase<AuthInput, SignInOutput> useCase;
 
     @PostMapping("/auth/google")
     public ResponseEntity<SuccessResponse<AuthUserResponse>> handle(
@@ -33,7 +31,7 @@ public class GoogleAuthController {
     ) {
         AuthInput input = GoogleAuthMapper.toInput(request);
 
-        SignInOutput output = googleAuthUseCase.execute(input);
+        SignInOutput output = useCase.execute(input);
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 

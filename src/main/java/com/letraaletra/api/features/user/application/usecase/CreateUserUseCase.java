@@ -2,7 +2,7 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
-import com.letraaletra.api.features.user.application.service.SelectNicknameService;
+import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -14,19 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
-    private final UserFactory userFactory;
-    private final SelectNicknameService selectNicknameService;
+    private final NicknameService nicknameService;
 
     public CreateUserUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
-            UserFactory userFactory,
-            SelectNicknameService selectNicknameService
+            NicknameService nicknameService
     ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
-        this.userFactory = userFactory;
-        this.selectNicknameService = selectNicknameService;
+        this.nicknameService = nicknameService;
     }
 
     @Override
@@ -38,9 +35,11 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
 
         validateEmail(email);
 
-        String nickname = selectNicknameService.execute();
+        String nickname = nicknameService.get();
 
-        User user = userFactory.createLocal(nickname, email, passwordService.hash(password));
+        String passwordHashed = passwordService.hash(password);
+
+        User user = UserFactory.createLocal(nickname, email, passwordHashed);
 
         userRepository.save(user);
 

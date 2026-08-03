@@ -18,7 +18,7 @@ public class JoinGameActorCommand implements ActorCommand<Game> {
 
     @Override
     public Game execute(Game game) {
-        checkIfBlackListed(game, user.getId());
+        checkIfBlackListed(game, user.getUserId());
 
         Participant participant = Participant.create(user, session);
 

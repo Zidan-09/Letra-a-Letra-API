@@ -9,7 +9,7 @@ public class Wallet {
     private long softCoins;
     private long hardGems;
 
-    public Wallet(long softCoins, long hardGems) {
+    private Wallet(long softCoins, long hardGems) {
         this.softCoins = softCoins;
         this.hardGems = hardGems;
     }
@@ -18,6 +18,16 @@ public class Wallet {
         return new Wallet(
                 0,
                 0
+        );
+    }
+
+    public static Wallet restore(
+            long softCoins,
+            long hardGems
+    ) {
+        return new Wallet(
+                softCoins,
+                hardGems
         );
     }
 

@@ -6,22 +6,22 @@ public class UserStats {
     private int winStreak;
     private int level;
     private int experience;
-    private int points;
+    private int rankingPoints;
 
-    public UserStats(
+    private UserStats(
             int totalMatches,
             int totalWins,
             int winStreak,
             int level,
             int experience,
-            int points
+            int rankingPoints
     ) {
         this.totalMatches = totalMatches;
         this.totalWins = totalWins;
         this.winStreak = winStreak;
         this.level = level;
         this.experience = experience;
-        this.points = points;
+        this.rankingPoints = rankingPoints;
     }
 
     public static UserStats create() {
@@ -32,6 +32,24 @@ public class UserStats {
                 1,
                 0,
                 0
+        );
+    }
+
+    public static UserStats restore(
+            int totalMatches,
+            int totalWins,
+            int winStreak,
+            int level,
+            int experience,
+            int rankingPoints
+    ) {
+        return new UserStats(
+                totalMatches,
+                totalWins,
+                winStreak,
+                level,
+                experience,
+                rankingPoints
         );
     }
 
@@ -55,8 +73,8 @@ public class UserStats {
         return experience;
     }
 
-    public int getPoints() {
-        return points;
+    public int getRankingPoints() {
+        return rankingPoints;
     }
 
     public void incrementExperience(int value, int maxLevel) {
@@ -81,7 +99,7 @@ public class UserStats {
                 40 - opponentPoints * 10 :
                 -30 + (userPoints * 10) + (userPoints > 0 ? 5 : 0);
 
-        points = Math.max(0, points + pointsToIncrement);
+        rankingPoints = Math.max(0, rankingPoints + pointsToIncrement);
 
         return pointsToIncrement;
     }

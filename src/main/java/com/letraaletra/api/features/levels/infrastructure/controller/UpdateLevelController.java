@@ -11,6 +11,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/level")
 @Tag(name = "Level", description = "Rotas relacionadas ao gerenciamento dos níveis e suas respectivas recompensas")
 public class UpdateLevelController {
     private final UseCase<UpdateLevelInput, UpdateLevelOutput> useCase;
-
-    public UpdateLevelController(
-            UseCase<UpdateLevelInput, UpdateLevelOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @PutMapping(path = "/{levelId}")
     public ResponseEntity<SuccessResponse<UpdateLevelResponse>> handle(
