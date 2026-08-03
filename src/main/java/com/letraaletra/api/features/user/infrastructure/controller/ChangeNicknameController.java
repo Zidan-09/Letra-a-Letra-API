@@ -11,19 +11,17 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class ChangeNicknameController {
-    private final UseCase<ChangeNicknameInput, ChangeNicknameOutput> changeNicknameUseCase;
-
-    public ChangeNicknameController(UseCase<ChangeNicknameInput, ChangeNicknameOutput> changeNicknameUseCase) {
-        this.changeNicknameUseCase = changeNicknameUseCase;
-    }
+    private final UseCase<ChangeNicknameInput, ChangeNicknameOutput> useCase;
 
     @PatchMapping("/nickname")
     public ResponseEntity<SuccessResponse<ChangeNicknameResponse>> handle(
@@ -32,7 +30,7 @@ public class ChangeNicknameController {
     ) {
         ChangeNicknameInput input = ChangeNicknameMapper.toInput(principal.auth(), request);
 
-        ChangeNicknameOutput output = changeNicknameUseCase.execute(input);
+        ChangeNicknameOutput output = useCase.execute(input);
 
         ChangeNicknameResponse dto = ChangeNicknameMapper.toResponse(output);
 
