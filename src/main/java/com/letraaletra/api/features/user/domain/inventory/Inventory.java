@@ -11,13 +11,19 @@ import java.util.UUID;
 public class Inventory {
     private List<InventoryItem> inventory;
 
-    public Inventory(List<InventoryItem> inventory) {
+    private Inventory(List<InventoryItem> inventory) {
         this.inventory = inventory;
     }
 
     public static Inventory create() {
         return new Inventory(
                 new ArrayList<>()
+        );
+    }
+
+    public static Inventory restore(List<InventoryItem> inventory) {
+        return new Inventory(
+                inventory
         );
     }
 

@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class AuthUserController {
-    private final UseCase<SignInInput, SignInOutput> authUserUseCase;
+    private final UseCase<SignInInput, SignInOutput> useCase;
 
     public AuthUserController(
-            UseCase<SignInInput, SignInOutput> authUserUseCase
+            UseCase<SignInInput, SignInOutput> useCase
     ) {
-        this.authUserUseCase = authUserUseCase;
+        this.useCase = useCase;
     }
 
     @PostMapping(path = "/auth")
@@ -34,7 +34,7 @@ public class AuthUserController {
     ) {
         SignInInput input = AuthUserMapper.toInput(request);
 
-        SignInOutput output = authUserUseCase.execute(input);
+        SignInOutput output = useCase.execute(input);
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 

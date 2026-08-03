@@ -42,12 +42,12 @@ public class GameOverHandler {
         ));
 
         User userWinner = userList.stream()
-                .filter(u -> u.getId().equals(result.winner().getUserId()))
+                .filter(u -> u.getUserId().equals(result.winner().getUserId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
         User userLoser = userList.stream()
-                .filter(u -> u.getId().equals(result.loser().getUserId()))
+                .filter(u -> u.getUserId().equals(result.loser().getUserId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 

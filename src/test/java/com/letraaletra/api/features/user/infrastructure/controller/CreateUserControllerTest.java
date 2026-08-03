@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,15 +41,16 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        User user = new User(
+        User user = User.restore(
                 UUID.randomUUID(),
                 "email",
                 "email@email.com",
                 "hash-password",
                 null,
+                UUID.randomUUID(),
                 false,
                 mock(UserStats.class),
-                new Inventory(new ArrayList<>()),
+                Inventory.create(),
                 mock(Wallet.class),
                 LocalDateTime.now()
         );

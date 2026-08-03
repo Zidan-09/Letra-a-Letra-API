@@ -37,7 +37,9 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
 
         String nickname = nicknameService.get();
 
-        User user = UserFactory.createLocal(nickname, email, passwordService.hash(password));
+        String passwordHashed = passwordService.hash(password);
+
+        User user = UserFactory.createLocal(nickname, email, passwordHashed);
 
         userRepository.save(user);
 

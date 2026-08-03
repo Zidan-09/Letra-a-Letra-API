@@ -24,7 +24,7 @@ public class ChangeNicknameUseCase implements UseCase<ChangeNicknameInput, Chang
         validateUser(user);
         validateNickname(input.nickname());
 
-        user.setNickname(input.nickname());
+        user.setUsername(input.nickname());
         user.setCanChangeNickname(false);
 
         userRepository.save(user);

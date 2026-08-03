@@ -6,6 +6,7 @@ import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.DomainException;
+import com.letraaletra.api.shared.infrastructure.listener.ShutdownListener;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorWsResponse;
 import com.letraaletra.api.features.game.infrastructure.websocket.dispatcher.RoomRequestDispatcher;
@@ -14,6 +15,7 @@ import com.letraaletra.api.features.participant.infrastructure.websocket.handler
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -25,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
@@ -34,26 +37,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
     private final GameNotifier gameNotifier;
     private final JsonMapper jsonMapper;
     private final Validator validator;
-
-    public GlobalWebSocketHandler(
-            SessionRepository sessionRepository,
-            UserRepository userRepository,
-            RoomRequestDispatcher roomRequestDispatcher,
-            ReconnectParticipantHandler reconnectParticipantHandler,
-            DisconnectParticipantHandler disconnectParticipantHandler,
-            GameNotifier gameNotifier,
-            JsonMapper jsonMapper,
-            Validator validator
-    ) {
-        this.sessionRepository = sessionRepository;
-        this.userRepository = userRepository;
-        this.roomRequestDispatcher = roomRequestDispatcher;
-        this.reconnectParticipantHandler = reconnectParticipantHandler;
-        this.disconnectParticipantHandler = disconnectParticipantHandler;
-        this.gameNotifier = gameNotifier;
-        this.jsonMapper = jsonMapper;
-        this.validator = validator;
-    }
+    private final ShutdownListener shutdownListener;
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -92,6 +76,11 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+
+        if (shutdownListener.isShuttingDown()) {
+            return;
+        }
+
         sessionRepository.remove(session);
 
         disconnectParticipantHandler.handler(session);
@@ -116,7 +105,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         ErrorWsResponse json = new ErrorWsResponse(message);
 
         if (user != null) {
-            gameNotifier.notifierOne(user.getId(), json);
+            gameNotifier.notifierOne(user.getUserId(), json);
         }
     }
 }

@@ -105,7 +105,7 @@ public class RoomRequestDispatcher {
         try {
             UUID userId = UUID.fromString(userIdStr);
             return userRepository.find(userId)
-                    .map(u -> String.format("%s (%s)", u.getNickname(), u.getId()))
+                    .map(u -> String.format("%s (%s)", u.getUsername(), u.getUserId()))
                     .orElse(userIdStr);
         } catch (Exception e) {
             return userIdStr;

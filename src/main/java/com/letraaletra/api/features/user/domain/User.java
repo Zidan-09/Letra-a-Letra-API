@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class User {
-    private final UUID id;
-    private String nickname;
+    private final UUID userId;
+    private String username;
     private final String email;
-    private final String hashPassword;
+    private final String passwordHash;
     private final String googleId;
     private UUID currentGameId;
     private boolean canChangeNickname;
@@ -22,23 +22,25 @@ public class User {
     private final Wallet wallet;
     private final LocalDateTime createdAt;
 
-    public User(
-            UUID id,
-            String nickname,
+    private User(
+            UUID userId,
+            String username,
             String email,
-            String hashPassword,
+            String passwordHash,
             String googleId,
+            UUID currentGameId,
             boolean canChangeNickname,
             UserStats stats,
             Inventory inventory,
             Wallet wallet,
             LocalDateTime createdAt
     ) {
-        this.id = id;
-        this.nickname = nickname;
+        this.userId = userId;
+        this.username = username;
         this.email = email;
-        this.hashPassword = hashPassword;
+        this.passwordHash = passwordHash;
         this.googleId = googleId;
+        this.currentGameId = currentGameId;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
@@ -46,24 +48,74 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public UUID getId() {
-        return id;
+    public static User create(
+            String username,
+            String email,
+            String hashPassword,
+            String googleId,
+            boolean canChangeNickname
+    ) {
+        return new User(
+                UUID.randomUUID(),
+                username,
+                email,
+                hashPassword,
+                googleId,
+                null,
+                canChangeNickname,
+                UserStats.create(),
+                Inventory.create(),
+                Wallet.create(),
+                LocalDateTime.now()
+        );
     }
 
-    public String getNickname() {
-        return nickname;
+    public static User restore(
+            UUID userId,
+            String username,
+            String email,
+            String hashPassword,
+            String googleId,
+            UUID currentGameId,
+            boolean canChangeNickname,
+            UserStats stats,
+            Inventory inventory,
+            Wallet wallet,
+            LocalDateTime createdAt
+    ) {
+        return new User(
+                userId,
+                username,
+                email,
+                hashPassword,
+                googleId,
+                currentGameId,
+                canChangeNickname,
+                stats,
+                inventory,
+                wallet,
+                createdAt
+        );
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getHashPassword() {
-        return hashPassword;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public String getGoogleId() {

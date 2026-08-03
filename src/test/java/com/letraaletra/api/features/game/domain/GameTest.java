@@ -84,7 +84,7 @@ class GameTest {
         @DisplayName("Deve definir o primeiro jogador como criador, host e com role PLAYER")
         void shouldSetFirstPlayerAsHostAndCreator() {
             UUID userId = UUID.randomUUID();
-            when(mockUser.getId()).thenReturn(userId);
+            when(mockUser.getUserId()).thenReturn(userId);
 
             game.join(mockUser, "session-1");
 
@@ -102,8 +102,8 @@ class GameTest {
             UUID hostUserId = UUID.randomUUID();
             UUID secondUserId = UUID.randomUUID();
 
-            when(mockUser.getId()).thenReturn(hostUserId);
-            when(mockSecondUser.getId()).thenReturn(secondUserId);
+            when(mockUser.getUserId()).thenReturn(hostUserId);
+            when(mockSecondUser.getUserId()).thenReturn(secondUserId);
 
             game.join(mockUser, "session-1");
             game.join(mockSecondUser, "session-2");
@@ -121,8 +121,8 @@ class GameTest {
         @Test
         @DisplayName("Deve iniciar a partida e alterar o status para RUNNING quando houver participantes suficientes")
         void shouldStartGame() {
-            when(mockUser.getId()).thenReturn(UUID.randomUUID());
-            when(mockSecondUser.getId()).thenReturn(UUID.randomUUID());
+            when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
+            when(mockSecondUser.getUserId()).thenReturn(UUID.randomUUID());
 
             game.join(mockUser, "session-1");
             game.join(mockSecondUser, "session-2");
@@ -143,7 +143,7 @@ class GameTest {
         @Test
         @DisplayName("Deve lançar InsufficientPlayersException ao tentar iniciar com menos de 2 jogadores")
         void shouldThrowExceptionWhenLessThanTwoPlayers() {
-            when(mockUser.getId()).thenReturn(UUID.randomUUID());
+            when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
             game.join(mockUser, "session-1");
 
             assertThrows(
@@ -172,7 +172,7 @@ class GameTest {
         @DisplayName("Deve permitir alterar posição quando o jogo estiver em WAITING")
         void shouldAllowChangePositionWhenWaiting() {
             UUID userId = UUID.randomUUID();
-            when(mockUser.getId()).thenReturn(userId);
+            when(mockUser.getUserId()).thenReturn(userId);
             game.join(mockUser, "session-1");
 
             assertDoesNotThrow(() -> game.changePosition(userId, 1));
@@ -182,7 +182,7 @@ class GameTest {
         @DisplayName("Deve lançar GameIsRunningException ao tentar alterar posição durante o jogo")
         void shouldThrowExceptionWhenChangingPositionWhileRunning() {
             UUID userId = UUID.randomUUID();
-            when(mockUser.getId()).thenReturn(userId);
+            when(mockUser.getUserId()).thenReturn(userId);
             game.join(mockUser, "session-1");
 
             game.setGameStatus(GameStatus.RUNNING);
@@ -202,7 +202,7 @@ class GameTest {
         @DisplayName("Deve remover jogador do GameState se a partida estiver em andamento")
         void shouldRemovePlayerFromGameStateWhenGameIsRunning() {
             UUID userId = UUID.randomUUID();
-            when(mockUser.getId()).thenReturn(userId);
+            when(mockUser.getUserId()).thenReturn(userId);
             game.join(mockUser, "session-1");
 
             game.updateGameState(mockGameState);
@@ -219,8 +219,8 @@ class GameTest {
             UUID hostUserId = UUID.randomUUID();
             UUID secondUserId = UUID.randomUUID();
 
-            when(mockUser.getId()).thenReturn(hostUserId);
-            when(mockSecondUser.getId()).thenReturn(secondUserId);
+            when(mockUser.getUserId()).thenReturn(hostUserId);
+            when(mockSecondUser.getUserId()).thenReturn(secondUserId);
 
             game.join(mockUser, "session-1");
             game.join(mockSecondUser, "session-2");
@@ -234,7 +234,7 @@ class GameTest {
         @DisplayName("Não deve lançar exceção nem quebrar ao remover o último participante")
         void shouldAllowRemovingLastParticipant() {
             UUID userId = UUID.randomUUID();
-            when(mockUser.getId()).thenReturn(userId);
+            when(mockUser.getUserId()).thenReturn(userId);
             game.join(mockUser, "session-1");
 
             assertDoesNotThrow(() -> game.remove(userId));

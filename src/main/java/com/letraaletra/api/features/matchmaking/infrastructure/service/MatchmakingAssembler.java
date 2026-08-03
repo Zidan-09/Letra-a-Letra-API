@@ -45,12 +45,12 @@ public class MatchmakingAssembler implements GameAssemblerService {
         );
 
         User user1 = userList.stream()
-                .filter(u -> u.getId().equals(users.first().userId()))
+                .filter(u -> u.getUserId().equals(users.first().userId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
         User user2 = userList.stream()
-                .filter(u -> u.getId().equals(users.second().userId()))
+                .filter(u -> u.getUserId().equals(users.second().userId()))
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 

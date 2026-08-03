@@ -61,15 +61,15 @@ class CreateUserUseCaseTest {
             mockedFactory.when(() -> UserFactory.createLocal("john123", "john@email.com", "hashed-password"))
                     .thenReturn(user);
 
-            when(user.getId()).thenReturn(userId);
-            when(user.getNickname()).thenReturn("john123");
+            when(user.getUserId()).thenReturn(userId);
+            when(user.getUsername()).thenReturn("john123");
             when(user.getEmail()).thenReturn("john@email.com");
 
             CreateUserOutput output = createUserUseCase.execute(input);
 
             assertNotNull(output);
-            assertEquals(userId, output.user().getId());
-            assertEquals("john123", output.user().getNickname());
+            assertEquals(userId, output.user().getUserId());
+            assertEquals("john123", output.user().getUsername());
             assertEquals("john@email.com", output.user().getEmail());
 
             verify(userRepository).existsByEmail("john@email.com");

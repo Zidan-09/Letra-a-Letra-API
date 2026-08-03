@@ -41,8 +41,8 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
         User loser = userRepository.find(gameOver.loser().getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
-        WebSocketSession winnerSession = sessionRepository.findByUserId(winner.getId());
-        WebSocketSession loserSession = sessionRepository.findByUserId(loser.getId());
+        WebSocketSession winnerSession = sessionRepository.findByUserId(winner.getUserId());
+        WebSocketSession loserSession = sessionRepository.findByUserId(loser.getUserId());
 
         Participant winnerParticipant = Participant.create(
                 winner,

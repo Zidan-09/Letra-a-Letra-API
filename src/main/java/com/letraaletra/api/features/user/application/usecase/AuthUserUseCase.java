@@ -10,8 +10,6 @@ import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordExce
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
-import java.util.UUID;
-
 public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
@@ -28,11 +26,11 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
         User user = userRepository.findByEmail(input.email())
                 .orElseThrow(UserNotFoundException::new);
 
-        checkMatch(input.password(), user.getHashPassword());
+        checkMatch(input.password(), user.getPasswordHash());
 
-        String token = tokenService.generateUserToken(user.getId());
+        String token = tokenService.generateUserToken(user.getUserId());
 
-        return buildReturn(user.getId(), token);
+        return new SignInOutput(user.getUserId(), token);
     }
 
     private void checkMatch(String password, String hash) {
@@ -41,12 +39,5 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
         if (!matches) {
             throw new InvalidPasswordException();
         }
-    }
-
-    private SignInOutput buildReturn(UUID userId, String token) {
-        return new SignInOutput(
-                userId,
-                token
-        );
     }
 }

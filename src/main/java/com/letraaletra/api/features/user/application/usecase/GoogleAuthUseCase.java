@@ -43,8 +43,8 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
                     return newUser;
                 });
 
-        String token = tokenService.generateUserToken(user.getId());
+        String token = tokenService.generateUserToken(user.getUserId());
 
-        return new SignInOutput(user.getId(), token);
+        return new SignInOutput(user.getUserId(), token);
     }
 }

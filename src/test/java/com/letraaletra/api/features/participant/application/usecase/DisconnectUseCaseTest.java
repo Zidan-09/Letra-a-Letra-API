@@ -1,12 +1,13 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -79,13 +80,28 @@ class DisconnectUseCaseTest {
     @DisplayName("Should remove user from matchmaking queue if they are currently waiting in line")
     void shouldRemoveUserFromQueueWhenUserIsOnMatchmaking() {
         when(matchmakingRepository.onQueue(userId)).thenReturn(true);
-        when(userRepository.find(userId)).thenReturn(Optional.empty());
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+        when(mockUser.isNotInGame()).thenReturn(true);
 
         Optional<DisconnectParticipantOutput> result = useCase.execute(input);
 
         assertTrue(result.isEmpty());
         verify(matchmakingRepository, times(1)).onQueue(userId);
         verify(matchmakingRepository, times(1)).remove(userId);
+        verify(userRepository, times(1)).find(userId);
+        verifyNoInteractions(gameActorManager);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when target user does not exist in repository")
+    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(userRepository.find(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
+
+        verify(userRepository, times(1)).find(userId);
+        verifyNoInteractions(gameActorManager);
     }
 
     @Test

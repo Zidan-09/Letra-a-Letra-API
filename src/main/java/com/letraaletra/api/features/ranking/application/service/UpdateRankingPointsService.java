@@ -14,7 +14,7 @@ public class UpdateRankingPointsService {
     }
 
     public UpdateRankingPoints handle(User user, int userPoints, int opponentPoints) {
-        int userPointsBefore = user.getStats().getPoints();
+        int userPointsBefore = user.getStats().getRankingPoints();
 
         int userChanged = user.getStats()
                 .incrementPoints(
@@ -22,7 +22,7 @@ public class UpdateRankingPointsService {
                         opponentPoints
                 );
 
-        int userPointsAfter = user.getStats().getPoints();
+        int userPointsAfter = user.getStats().getRankingPoints();
 
         userRepository.save(user);
 

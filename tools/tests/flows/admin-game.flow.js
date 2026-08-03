@@ -7,7 +7,7 @@ function ensureStatus(response, expected, operation) {
 
     if (!expectedStatus.includes(response.status)) {
         throw new Error(
-            `${operation}: expected ${expectedStatus.join(" or ")}, received ${response.status}`
+            `${operation}: expected ${expectedStatus.join(" or ")}, received ${response.status} =-=-= ${JSON.stringify(response.body)}`
         );
     }
 }

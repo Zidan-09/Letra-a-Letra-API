@@ -55,7 +55,7 @@ class ChangeNicknameUseCaseTest {
         when(user.canChangeNickname())
                 .thenReturn(true);
 
-        when(user.getNickname())
+        when(user.getUsername())
                 .thenReturn("new-email");
 
         when(userRepository.existsByNickname("new-email"))
@@ -64,9 +64,9 @@ class ChangeNicknameUseCaseTest {
         ChangeNicknameOutput output =
                 changeNicknameUseCase.execute(input);
 
-        assertEquals("new-email", output.user().getNickname());
+        assertEquals("new-email", output.user().getUsername());
 
-        verify(user).setNickname("new-email");
+        verify(user).setUsername("new-email");
         verify(user).setCanChangeNickname(false);
 
         verify(userRepository).save(user);
@@ -113,7 +113,7 @@ class ChangeNicknameUseCaseTest {
                 .save(any());
 
         verify(user, never())
-                .setNickname(anyString());
+                .setUsername(anyString());
     }
 
     @Test
@@ -135,7 +135,7 @@ class ChangeNicknameUseCaseTest {
                 .save(any());
 
         verify(user, never())
-                .setNickname(anyString());
+                .setUsername(anyString());
     }
 
     @Test

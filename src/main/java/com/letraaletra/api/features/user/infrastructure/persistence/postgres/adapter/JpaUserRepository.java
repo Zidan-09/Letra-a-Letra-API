@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ad
 import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.*;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
@@ -13,42 +12,38 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.map
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class JpaUserRepository implements UserRepository {
+
     private final SpringDataUserRepository repository;
-    private final SpringDataUserStatsRepository statsRepository;
     private final SpringDataUserInventoryRepository inventoryRepository;
     private final SpringDataUserWalletRepository walletRepository;
-
-    public JpaUserRepository(
-            SpringDataUserRepository repository,
-            SpringDataUserStatsRepository statsRepository,
-            SpringDataUserInventoryRepository inventoryRepository,
-            SpringDataUserWalletRepository walletRepository
-    ) {
-        this.repository = repository;
-        this.statsRepository = statsRepository;
-        this.inventoryRepository = inventoryRepository;
-        this.walletRepository = walletRepository;
-    }
+    private final SpringDataUserStatsRepository statsRepository;
 
     @Override
     public void save(User user) {
         repository.save(UserMapper.toEntity(user));
-        statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
-        walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
+
+        statsRepository.save(UserStatsMapper.toEntity(user));
+        walletRepository.save(UserWalletMapper.toEntity(user));
 
         List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
-                .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
+                .map(item -> UserInventoryMapper.toEntity(user.getUserId(), item))
                 .toList();
 
         inventoryRepository.saveAll(inventoryEntities);
@@ -63,45 +58,65 @@ public class JpaUserRepository implements UserRepository {
         );
     }
 
-    private User assembleUser(UserJpaEntity userEntity) {
-        UUID userId = userEntity.getId();
-
-        UserStatsJpaEntity statsEntity = statsRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("UserStats not found for user " + userId));
-
-        List<InventoryItem> inventoryItems = inventoryRepository.findInventoryItemsByUserId(userId);
-
-        UserWalletJpaEntity userWalletJpaEntity = walletRepository.findByUserId(userId);
-
-        return UserMapper.toDomain(userEntity, statsEntity, inventoryItems, userWalletJpaEntity);
-    }
-
     @Override
     public Optional<User> find(UUID id) {
-        return repository.findById(id).map(this::assembleUser);
+        return repository.findDetailsById(id)
+                .map(projection ->
+                        UserMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(id)
+                        )
+                );
     }
 
     @Override
     public List<User> findUsersById(List<UUID> ids) {
-        return repository.findAllById(ids).stream()
-                .map(this::assembleUser)
+        List<UserProjection> users = repository.findDetailsByIds(ids);
+
+        List<InventoryProjection> inventories =
+                inventoryRepository.findInventoryByUserIds(ids);
+
+        return users.stream()
+                .map(user -> UserMapper.toDomain(
+                        user,
+                        inventories.stream()
+                                .filter(item -> item.getUserId().equals(user.getUserId()))
+                                .toList()
+                ))
                 .toList();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return repository.findByUsername(username)
-                .map(this::assembleUser);
+        return repository.findDetailsByUsername(username)
+                .map(projection ->
+                        UserMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email).map(this::assembleUser);
+        return repository.findDetailsByEmail(email)
+                .map(projection ->
+                        UserMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
     public Optional<User> findByGoogleId(String googleId) {
-        return repository.findByGoogleId(googleId).map(this::assembleUser);
+        return repository.findDetailsByGoogleId(googleId)
+                .map(projection ->
+                        UserMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
@@ -127,7 +142,27 @@ public class JpaUserRepository implements UserRepository {
                 page.sort()
         );
 
-        return repository.findAll(pageable)
-                .map(this::assembleUser);
+        Page<UserProjection> users = repository.findDetails(pageable);
+
+        List<UUID> ids = users.stream()
+                .map(UserProjection::getUserId)
+                .toList();
+
+        Map<UUID, List<InventoryProjection>> inventories =
+                inventoryRepository.findInventoryByUserIds(ids)
+                        .stream()
+                        .collect(Collectors.groupingBy(
+                                InventoryProjection::getUserId
+                        ));
+
+        return users.map(user ->
+                UserMapper.toDomain(
+                        user,
+                        inventories.getOrDefault(
+                                user.getUserId(),
+                                List.of()
+                        )
+                )
+        );
     }
 }
