@@ -10,7 +10,7 @@ import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.infrastructure.service.GameOverHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 

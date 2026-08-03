@@ -6,23 +6,17 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.ReconnectParticipantMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class ReconnectParticipantHandler {
     private final UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> useCase;
     private final GameNotifier gameNotifier;
-
-    public ReconnectParticipantHandler(
-            UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> useCase,
-            GameNotifier gameNotifier
-    ) {
-        this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
-    }
 
     public void handle(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");

@@ -7,24 +7,16 @@ import com.letraaletra.api.features.admin.application.service.GetApplicationStat
 import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.MetricsWsResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.MetricsMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MetricsScheduler {
     private final GetSystemStatusService systemStatusService;
     private final GetApplicationStatusService applicationStatusService;
     private final AdminNotifier notifier;
-
-    public MetricsScheduler(
-            GetSystemStatusService systemStatusService,
-            GetApplicationStatusService applicationStatusService,
-            AdminNotifier notifier
-    ) {
-        this.systemStatusService = systemStatusService;
-        this.applicationStatusService = applicationStatusService;
-        this.notifier = notifier;
-    }
 
     @Scheduled(fixedRate = 1000)
     public void processMetrics() {

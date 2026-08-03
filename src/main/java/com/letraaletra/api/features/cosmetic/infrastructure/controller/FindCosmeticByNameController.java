@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,16 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/cosmetic")
 @Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class FindCosmeticByNameController {
     private final UseCase<FindCosmeticByNameInput, FindCosmeticByNameOutput> useCase;
-
-    public FindCosmeticByNameController(
-            UseCase<FindCosmeticByNameInput, FindCosmeticByNameOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping(path = "/name/{name}")
     public ResponseEntity<SuccessResponse<FindCosmeticByNameResponse>> handle(

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.infrastructure.service.GameOverHandler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.GameStatus;
