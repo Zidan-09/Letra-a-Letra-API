@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class GoogleConfig {
@@ -21,7 +22,10 @@ public class GoogleConfig {
                 GsonFactory.getDefaultInstance()
         )
                 .setAudience(Collections.singletonList(clientId))
-                .setIssuer("https://accounts.google.com")
+                .setIssuers(List.of(
+                        "https://accounts.google.com",
+                        "accounts.google.com"
+                ))
                 .build();
     }
 }

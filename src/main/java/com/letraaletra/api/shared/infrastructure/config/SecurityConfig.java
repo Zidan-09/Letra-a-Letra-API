@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/user/auth",
+                                "/user/auth/google",
                                 "/user",
                                 "/admin/auth",
                                 "/ws/**",

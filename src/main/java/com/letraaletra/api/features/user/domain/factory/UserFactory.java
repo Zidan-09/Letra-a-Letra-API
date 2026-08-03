@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class UserFactory {
-    public User createLocal(String nickname, String email, String passwordHash) {
+    public static User createLocal(String nickname, String email, String passwordHash) {
         return new User(
                 UUID.randomUUID(),
                 nickname,
@@ -24,10 +24,10 @@ public class UserFactory {
         );
     }
 
-    public User createGoogle(String email, String googleId) {
+    public static User createGoogle(String nickname, String email, String googleId) {
         return new User(
                 UUID.randomUUID(),
-                null,
+                nickname,
                 email,
                 null,
                 googleId,

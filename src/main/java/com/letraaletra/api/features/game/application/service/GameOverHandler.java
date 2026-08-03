@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.application.service;
 
+import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
@@ -8,7 +9,6 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.user.application.service.UpdateStatsService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 
@@ -19,20 +19,20 @@ public class GameOverHandler {
     private final UserRepository userRepository;
     private final ActorManager<Game> actorManager;
     private final GameTimeoutManager gameTimeoutManager;
-    private final UpdateStatsService updateStatsService;
+    private final UserStatsService userStatsService;
 
     public GameOverHandler(
             GameRepository gameRepository,
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService
+            UserStatsService userStatsService
     ) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.actorManager = actorManager;
         this.gameTimeoutManager = gameTimeoutManager;
-        this.updateStatsService = updateStatsService;
+        this.userStatsService = userStatsService;
     }
 
     public void handle(Game game, GameOver result) {
@@ -51,8 +51,8 @@ public class GameOverHandler {
                 .findFirst()
                 .orElseThrow(UserNotFoundException::new);
 
-        updateStatsService.execute(userWinner, true);
-        updateStatsService.execute(userLoser, false);
+        userStatsService.update(userWinner, true);
+        userStatsService.update(userLoser, false);
 
         if (game.getGameType().equals(GameType.CUSTOM)) {
             game.setGameStatus(GameStatus.WAITING);

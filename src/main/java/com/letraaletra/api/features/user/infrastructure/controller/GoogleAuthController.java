@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GoogleAuthController {
-    private final UseCase<AuthInput, SignInOutput> googleAuthUseCase;
+    private final UseCase<AuthInput, SignInOutput> useCase;
 
-    public GoogleAuthController(UseCase<AuthInput, SignInOutput> googleAuthUseCase) {
-        this.googleAuthUseCase = googleAuthUseCase;
+    public GoogleAuthController(UseCase<AuthInput, SignInOutput> useCase) {
+        this.useCase = useCase;
     }
 
     @PostMapping("/auth/google")
@@ -33,7 +33,7 @@ public class GoogleAuthController {
     ) {
         AuthInput input = GoogleAuthMapper.toInput(request);
 
-        SignInOutput output = googleAuthUseCase.execute(input);
+        SignInOutput output = useCase.execute(input);
 
         AuthUserResponse dto = AuthUserMapper.toResponse(output);
 

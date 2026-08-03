@@ -7,13 +7,10 @@ import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserFactoryTest {
-
-    private final UserFactory factory = new UserFactory();
-
     @Test
     @DisplayName("Deve fabricar um Usuário Local com propriedades iniciais corretas")
     void shouldCreateLocalUserWithDefaults() {
-        User user = factory.createLocal("NickLocal", "local@email.com", "password-hash");
+        User user = UserFactory.createLocal("NickLocal", "local@email.com", "password-hash");
 
         assertNotNull(user);
         assertEquals("NickLocal", user.getNickname());
@@ -29,12 +26,11 @@ class UserFactoryTest {
     }
 
     @Test
-    @DisplayName("Deve fabricar um Usuário via Google sem email e sem hash de senha inicial")
+    @DisplayName("Deve fabricar um Usuário via Google sem hash de senha inicial")
     void shouldCreateGoogleUserWithDefaults() {
-        User user = factory.createGoogle("google@email.com", "sub-google-123");
+        User user = UserFactory.createGoogle("NickLocal", "google@email.com", "sub-google-123");
 
         assertNotNull(user);
-        assertNull(user.getNickname(), "O email inicial de login social deve começar nulo para alteração posterior");
         assertEquals("google@email.com", user.getEmail());
         assertNull(user.getHashPassword(), "Cadastro via Google não possui hash de senha próprio");
         assertEquals("sub-google-123", user.getGoogleId());
