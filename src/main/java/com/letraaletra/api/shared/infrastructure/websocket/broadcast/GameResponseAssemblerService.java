@@ -3,8 +3,8 @@ package com.letraaletra.api.shared.infrastructure.websocket.broadcast;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
 import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
 import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
-import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
@@ -21,12 +21,12 @@ import org.springframework.web.socket.WebSocketSession;
 public class GameResponseAssemblerService implements GameResponseAssembler {
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final UpdateRankingPointsService rankingPointsService;
+    private final RankingPointsService rankingPointsService;
 
     public GameResponseAssemblerService(
             UserRepository userRepository,
             SessionRepository sessionRepository,
-            UpdateRankingPointsService rankingPointsService
+            RankingPointsService rankingPointsService
     ) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;

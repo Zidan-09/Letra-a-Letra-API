@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.application.service;
+package com.letraaletra.api.shared.infrastructure.service;
 
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
@@ -9,18 +9,14 @@ import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class CheckIfIsAdminService implements AdminChecker {
     private final AdminRepository adminRepository;
-
-    public CheckIfIsAdminService(
-            AdminRepository adminRepository
-    ) {
-        this.adminRepository = adminRepository;
-    }
 
     @Override
     public void check(AuthenticatedUser principal, PermissionKey key, PermissionAction action) {
