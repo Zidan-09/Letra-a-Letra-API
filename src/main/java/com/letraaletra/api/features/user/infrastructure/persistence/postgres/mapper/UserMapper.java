@@ -28,6 +28,8 @@ public class UserMapper {
     }
 
     public static User toDomain(UserProjection projection, List<InventoryProjection> inventory) {
+        System.out.println("Entrou no Mapper do Repositório: " + projection);
+
         return User.restore(
                 projection.getUserId(),
                 projection.getUsername(),

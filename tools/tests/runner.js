@@ -1,4 +1,5 @@
 import { run as profile } from "./tests/profile.test.js";
+import { run as password } from "./tests/password.test.js";
 import { run as friends } from "./tests/friends.test.js";
 import { run as matchmaking } from "./tests/matchmaking.test.js";
 import { run as ranking } from "./tests/ranking.test.js";
@@ -10,6 +11,7 @@ import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
     profile,
+    password,
     friends,
     matchmaking,
     ranking,

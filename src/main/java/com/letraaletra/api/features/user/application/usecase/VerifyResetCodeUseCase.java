@@ -28,12 +28,18 @@ public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Voi
     @Override
     @Transactional
     public Void execute(VerifyResetCodeInput input) {
+        System.out.println("\n\nEntrou no caso de uso---------------------------------------\n\n");
+
         User user = userRepository.findByEmail(input.email())
                 .orElseThrow(InvalidTokenException::new);
+
+        System.out.println("\nAchou o Prayer\n");
 
         PasswordResetCode resetCode =
                 codeRepository.findLatestByUserId(user.getUserId())
                         .orElseThrow(InvalidTokenException::new);
+
+        System.out.println("\nAchou o Código\n");
 
         resetCode.validate(input.code(), tokenHashService);
 

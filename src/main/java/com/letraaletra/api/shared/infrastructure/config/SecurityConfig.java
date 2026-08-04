@@ -33,8 +33,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/user/auth",
-                                "/user/auth/google",
+                                "/user/auth/**",
                                 "/user",
                                 "/admin/auth",
                                 "/ws/**",
