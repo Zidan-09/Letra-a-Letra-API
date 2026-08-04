@@ -3,7 +3,7 @@ package com.letraaletra.api.features.admin.application.usecase;
 import com.letraaletra.api.features.admin.application.output.GetSystemStatusOutput;
 import com.letraaletra.api.features.admin.application.port.HealthChecker;
 import com.letraaletra.api.features.admin.application.port.MeterChecker;
-import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
+import com.letraaletra.api.features.admin.infrastructure.service.GetSystemStatusService;
 import io.micrometer.core.instrument.Gauge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

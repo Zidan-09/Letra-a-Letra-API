@@ -1,26 +1,22 @@
-package com.letraaletra.api.features.admin.application.service;
+package com.letraaletra.api.features.admin.infrastructure.service;
 
 import com.letraaletra.api.features.admin.application.output.GetApplicationStatusOutput;
+import com.letraaletra.api.features.admin.application.port.ApplicationStatusService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-public class GetApplicationStatusService {
+@Service
+@RequiredArgsConstructor
+public class GetApplicationStatusService implements ApplicationStatusService {
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
     private final ActorManager<Game> actorManager;
 
-    public GetApplicationStatusService(
-            UserRepository userRepository,
-            SessionRepository sessionRepository,
-            ActorManager<Game> actorManager
-    ) {
-        this.userRepository = userRepository;
-        this.sessionRepository = sessionRepository;
-        this.actorManager = actorManager;
-    }
-
+    @Override
     public GetApplicationStatusOutput handle() {
 
         long players = userRepository.countUsers();

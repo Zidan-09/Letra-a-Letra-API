@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.admin.application.usecase;
 
 import com.letraaletra.api.features.admin.application.output.GetApplicationStatusOutput;
-import com.letraaletra.api.features.admin.application.service.GetApplicationStatusService;
+import com.letraaletra.api.features.admin.infrastructure.service.GetApplicationStatusService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
