@@ -48,18 +48,14 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
     @Scheduled(fixedDelay = 10)
     private void processLoop() {
-        while (true) {
-            try {
-                GameTurn next = queue.take();
-                handleTurnTimeout(next);
+        GameTurn next;
 
+        while ((next = queue.poll()) != null) {
+            try {
+                handleTurnTimeout(next);
             } catch (Exception e) {
-                if (!e.getMessage().equals("game_not_found")) {
-                    logger.error(
-                            "Error on process end of turn {}-{}",
-                            e.getMessage(),
-                            e.getStackTrace()
-                    );
+                if (!"game_not_found".equals(e.getMessage())) {
+                    logger.error("Error on process end of turn: {}", e.getMessage(), e);
                 }
             }
         }
