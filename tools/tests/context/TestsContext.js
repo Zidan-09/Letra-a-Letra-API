@@ -31,6 +31,14 @@ export class TestContext {
         );
     }
 
+    clearEvents() {
+        this.events = new Map();
+
+        this.users.forEach(user =>
+            this.events.set(user, [])
+        );
+    }
+
     dispose() {
         for (const socket of this.sockets) {
             socket.close();

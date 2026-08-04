@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.domain.actor.output;
+package com.letraaletra.api.features.game.domain.actor.result;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.service.GameOver;
@@ -6,8 +6,9 @@ import com.letraaletra.api.features.game.domain.service.GameOver;
 import java.util.Optional;
 import java.util.UUID;
 
-public record LeftGameResult(
+public record ExpireTurnResult(
+        UUID whoPassed,
         Game game,
-        UUID user,
         Optional<GameOver> gameOver
-) {}
+) {
+}

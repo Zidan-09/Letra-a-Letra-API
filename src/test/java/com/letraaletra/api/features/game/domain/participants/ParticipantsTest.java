@@ -269,19 +269,41 @@ class ParticipantsTest {
     class ChangePositionTests {
 
         @ParameterizedTest
-        @ValueSource(ints = {-1, 7, 10, -10})
-        @DisplayName("Deve lançar InvalidRoomPositionException para posições fora do intervalo [0, 6]")
-        void shouldThrowExceptionForInvalidPositionBounds(int invalidPosition) {
+        @ValueSource(ints = {-1, -10})
+        @DisplayName("Deve lançar InvalidRoomPositionException para posições negativas")
+        void shouldThrowExceptionForNegativePositions() {
             UUID userId = UUID.randomUUID();
+            RoomSettings settings = createRoomSettings(true);
+
             assertThrows(InvalidRoomPositionException.class, () ->
-                    participants.changePosition(userId, invalidPosition));
+                    participants.changePosition(userId, -1, settings));
+        }
+
+        @Test
+        @DisplayName("Deve lançar InvalidRoomPositionException quando sala não permite espectadores e já existem 2 participantes")
+        void shouldThrowExceptionWhenRoomIsFullWithoutSpectators() {
+            RoomSettings settings = createRoomSettings(false);
+            UUID u1 = UUID.randomUUID();
+            UUID u2 = UUID.randomUUID();
+            UUID u3 = UUID.randomUUID();
+
+            Participant p1 = createMockParticipant(u1, "s1", ParticipantRole.PLAYER);
+            Participant p2 = createMockParticipant(u2, "s2", ParticipantRole.PLAYER);
+
+            participants.join(p1, settings);
+            participants.join(p2, settings);
+
+            assertThrows(InvalidRoomPositionException.class, () ->
+                    participants.changePosition(u3, 2, settings));
         }
 
         @Test
         @DisplayName("Deve lançar UserNotInGameException ao mudar posição de usuário não registrado")
         void shouldThrowExceptionWhenUserNotInGame() {
+            RoomSettings settings = createRoomSettings(true);
+
             assertThrows(UserNotInGameException.class, () ->
-                    participants.changePosition(UUID.randomUUID(), 0));
+                    participants.changePosition(UUID.randomUUID(), 0, settings));
         }
 
         @Test
@@ -298,7 +320,7 @@ class ParticipantsTest {
             participants.join(p2, settings);
 
             assertThrows(InvalidRoomPositionException.class, () ->
-                    participants.changePosition(u2, 0));
+                    participants.changePosition(u2, 0, settings));
         }
 
         @Test
@@ -309,7 +331,7 @@ class ParticipantsTest {
             Participant p1 = createMockParticipant(u1, "s1", ParticipantRole.PLAYER);
 
             participants.join(p1, settings);
-            participants.changePosition(u1, 2);
+            participants.changePosition(u1, 2, settings);
 
             verify(p1).changeRole(ParticipantRole.SPECTATOR);
             assertEquals(u1, participants.getPositions().get(2));
@@ -335,7 +357,7 @@ class ParticipantsTest {
 
             participants.remove(u1);
 
-            participants.changePosition(u3, 0);
+            participants.changePosition(u3, 0, settings);
 
             verify(p3).changeRole(ParticipantRole.PLAYER);
             assertEquals(u3, participants.getPositions().get(0));

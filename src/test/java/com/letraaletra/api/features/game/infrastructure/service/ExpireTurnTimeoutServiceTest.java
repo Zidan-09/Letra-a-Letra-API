@@ -1,10 +1,15 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
+import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +35,10 @@ class ExpireTurnTimeoutServiceTest {
     private ActorManager<Game> gameActorManager;
 
     @Mock
-    private GameOverHandler gameOverHandler;
+    private GameOverService gameOverService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private Actor actor;
@@ -55,8 +64,7 @@ class ExpireTurnTimeoutServiceTest {
         Game game = mock(Game.class);
         GameState gameState = mock(GameState.class);
 
-        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult actorOutput =
-                mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
+        ExpireTurnResult actorOutput = mock(ExpireTurnResult.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
@@ -82,18 +90,19 @@ class ExpireTurnTimeoutServiceTest {
 
         verify(gameActorManager).get(gameId);
         verify(actor).enqueueCommand(any(ExpireTurnActorCommand.class));
-        verifyNoInteractions(gameOverHandler);
+        verifyNoInteractions(gameOverService);
+        verifyNoInteractions(userRepository);
     }
 
     @Test
-    @DisplayName("Deve delegar ao GameOverHandler quando o fim de jogo for detectado")
+    @DisplayName("Deve remover usuario da partida e delegar ao GameOverHandler quando o fim de jogo for detectado")
     void shouldHandleGameOverWhenFinished() {
         // Arrange
         Game game = mock(Game.class);
         GameState gameState = mock(GameState.class);
+        User user = mock(User.class);
 
-        com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult actorOutput =
-                mock(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult.class);
+        ExpireTurnResult actorOutput = mock(ExpireTurnResult.class);
         GameOver gameOver = mock(GameOver.class);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
@@ -105,6 +114,8 @@ class ExpireTurnTimeoutServiceTest {
         when(actorOutput.game()).thenReturn(game);
         when(actorOutput.gameOver()).thenReturn(Optional.of(gameOver));
 
+        when(userRepository.find(userId1)).thenReturn(Optional.of(user));
+
         when(game.getGameState()).thenReturn(gameState);
         when(gameState.currentPlayerTurn()).thenReturn(userId2);
 
@@ -112,7 +123,32 @@ class ExpireTurnTimeoutServiceTest {
         service.expire(gameId, 1);
 
         // Assert
-        verify(gameOverHandler).handle(game, gameOver);
+        verify(userRepository).find(userId1);
+        verify(user).leaveGame();
+        verify(userRepository).save(user);
+        verify(gameOverService).handle(game, gameOver);
+    }
+
+    @Test
+    @DisplayName("Deve lançar UserNotFoundException quando o usuário não for encontrado no fluxo de fim de jogo")
+    void shouldThrowUserNotFoundExceptionWhenUserIsNotFoundOnGameOver() {
+        ExpireTurnResult actorOutput = mock(ExpireTurnResult.class);
+        GameOver gameOver = mock(GameOver.class);
+
+        when(gameActorManager.get(gameId)).thenReturn(actor);
+
+        when(actor.enqueueCommand(any(ExpireTurnActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(actorOutput)));
+
+        when(actorOutput.gameOver()).thenReturn(Optional.of(gameOver));
+        when(actorOutput.whoPassed()).thenReturn(userId1);
+
+        when(userRepository.find(userId1)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> service.expire(gameId, 1));
+
+        verify(userRepository).find(userId1);
+        verifyNoInteractions(gameOverService);
     }
 
     @Test
@@ -129,6 +165,7 @@ class ExpireTurnTimeoutServiceTest {
 
         // Assert
         assertTrue(output.isEmpty());
-        verifyNoInteractions(gameOverHandler);
+        verifyNoInteractions(gameOverService);
+        verifyNoInteractions(userRepository);
     }
 }

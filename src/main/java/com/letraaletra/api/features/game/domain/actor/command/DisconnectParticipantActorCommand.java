@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 
@@ -9,26 +9,22 @@ import java.util.UUID;
 
 public class DisconnectParticipantActorCommand implements ActorCommand<Optional<Game>> {
     private final UUID userId;
-    private final DisconnectScheduler disconnectScheduler;
 
-    public DisconnectParticipantActorCommand(UUID userId, DisconnectScheduler disconnectScheduler) {
+    public DisconnectParticipantActorCommand(UUID userId) {
         this.userId = userId;
-        this.disconnectScheduler = disconnectScheduler;
     }
 
     @Override
     public Optional<Game> execute(Game game) {
-        Participant participant = game.getParticipants()
-                .getParticipantByUserId(userId);
-
-        if (participant != null) {
-            disconnectScheduler.start(userId, game.getId());
+        try {
+            Participant participant = game.getParticipants()
+                    .getParticipantByUserId(userId);
 
             participant.disconnect();
 
             return Optional.of(game);
+        } catch (UserNotInGameException e) {
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 }

@@ -1,9 +1,10 @@
 package com.letraaletra.api.features.game.application.usecase;
 
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
-import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
+import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.application.output.LeftGameOutput;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.shared.application.port.Actor;
@@ -21,17 +22,20 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameTimeoutManager gameTimeoutManager;
+    private final GameOverService gameOverService;
 
     public LeftGameUseCase(
             ActorManager<Game> actorManager,
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager
+            GameTimeoutManager gameTimeoutManager,
+            GameOverService gameOverService
     ) {
         this.actorManager = actorManager;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameTimeoutManager = gameTimeoutManager;
+        this.gameOverService = gameOverService;
     }
 
     @Override
@@ -53,6 +57,8 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
             actorManager.remove(result.game().getId());
 
         }
+
+        result.gameOver().ifPresent(over -> gameOverService.handle(result.game(), over));
 
         gameRepository.save(result.game());
 

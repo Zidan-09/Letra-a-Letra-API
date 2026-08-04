@@ -13,7 +13,7 @@ import java.util.UUID;
 public class DiscardPowerResponseMapper {
     public DiscardPowerInput toInput(DiscardPowerWsRequest request, String userId) {
         return new DiscardPowerInput(
-                request.gameId(),
+                UUID.fromString(request.gameId()),
                 UUID.fromString(userId),
                 request.powerId()
         );

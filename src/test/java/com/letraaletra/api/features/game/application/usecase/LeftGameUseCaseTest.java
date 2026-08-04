@@ -2,10 +2,11 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
 import com.letraaletra.api.features.game.application.output.LeftGameOutput;
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
-import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
+import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
@@ -43,6 +44,9 @@ class LeftGameUseCaseTest {
 
     @Mock
     private GameTimeoutManager gameTimeoutManager;
+
+    @Mock
+    private GameOverService gameOverService;
 
     @Mock
     private Actor actor;
@@ -85,11 +89,12 @@ class LeftGameUseCaseTest {
 
         verify(gameTimeoutManager).start(game);
         verify(gameRepository).save(game);
+        verify(gameOverService, never()).handle(any(), any());
         verify(actorManager, never()).remove(any());
     }
 
     @Test
-    @DisplayName("Deve remover o ator do ActorManager quando o jogo estiver no status CLOSED")
+    @DisplayName("Deve remover o ator do ActorManager e processar game over quando o jogo estiver no status CLOSED")
     void shouldRemoveActorWhenGameStatusIsClosed() {
         // Arrange
         Game game = mock(Game.class);
@@ -114,6 +119,7 @@ class LeftGameUseCaseTest {
         assertTrue(output.gameOver().isPresent());
         assertEquals(gameOver, output.gameOver().get());
 
+        verify(gameOverService).handle(game, gameOver);
         verify(actorManager).remove(gameId);
         verify(gameRepository).save(game);
         verify(gameTimeoutManager, never()).start(any());
@@ -128,6 +134,7 @@ class LeftGameUseCaseTest {
 
         when(game.getGameStatus()).thenReturn(GameStatus.RUNNING);
         when(result.game()).thenReturn(game);
+        when(result.gameOver()).thenReturn(Optional.empty());
 
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(LeftGameActorCommand.class)))

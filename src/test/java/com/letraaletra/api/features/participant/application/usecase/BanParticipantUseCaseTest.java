@@ -2,10 +2,9 @@ package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.BanParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.participant.application.input.BanParticipantInput;
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
-import com.letraaletra.api.features.participant.application.output.ModerationContext;
-import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -25,16 +24,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BanParticipantUseCaseTest {
 
     @Mock
-    private ModerationContextService moderationContextService;
+    private UserRepository userRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private GameRepository gameRepository;
 
     @Mock
     private ActorManager<Game> gameActorManager;
@@ -44,15 +44,14 @@ class BanParticipantUseCaseTest {
 
     private UUID gameId;
     private UUID targetUserId;
-    private UUID moderatorId;
     private BanParticipantInput input;
 
     @Mock
-    private ModerationContext mockContext;
-    @Mock
     private Game mockGame;
+
     @Mock
     private Actor mockActor;
+
     @Mock
     private User mockTargetUser;
 
@@ -60,79 +59,66 @@ class BanParticipantUseCaseTest {
     void setUp() {
         gameId = UUID.randomUUID();
         targetUserId = UUID.randomUUID();
-        moderatorId = UUID.randomUUID();
+        UUID moderatorId = UUID.randomUUID();
         input = new BanParticipantInput(gameId, targetUserId, moderatorId);
     }
 
     @Test
-    @DisplayName("Should successfully ban participant, update user state and return outputs when all context checks pass")
+    @DisplayName("Should successfully ban participant, save target and game state, and return output")
     void shouldBanParticipantSuccessfully() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
+        // Arrange
+        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockTargetUser));
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
         CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
         when(mockActor.enqueueCommand(any(BanParticipantActorCommand.class))).thenReturn(future);
 
-        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockTargetUser));
-
+        // Act
         BanParticipantOutput output = useCase.execute(input);
 
+        // Assert
         assertNotNull(output);
         assertEquals(mockGame, output.game());
 
-        verify(moderationContextService, times(1)).resolve(gameId, targetUserId, moderatorId);
-        verify(gameActorManager, times(1)).get(gameId);
-        verify(mockActor, times(1)).enqueueCommand(any(BanParticipantActorCommand.class));
-        verify(mockTargetUser, times(1)).leaveGame();
-        verify(userRepository, times(1)).save(mockTargetUser);
+        verify(userRepository).find(targetUserId);
+        verify(gameActorManager).get(gameId);
+        verify(mockActor).enqueueCommand(any(BanParticipantActorCommand.class));
+        verify(userRepository).save(mockTargetUser);
+        verify(gameRepository).save(mockGame);
     }
 
     @Test
-    @DisplayName("Should propagate exception and stop processing when moderation security or resolution context fails")
-    void shouldThrowExceptionWhenModerationResolutionFails() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId))
-                .thenThrow(new SecurityException("User has no moderator privileges over this game session"));
+    @DisplayName("Should throw UserNotFoundException and avoid actor or repository execution when target user does not exist")
+    void shouldThrowUserNotFoundExceptionWhenTargetDoesNotExist() {
+        // Arrange
+        when(userRepository.find(targetUserId)).thenReturn(Optional.empty());
 
-        assertThrows(SecurityException.class, () -> useCase.execute(input));
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
+        verify(userRepository).find(targetUserId);
         verifyNoInteractions(gameActorManager);
-        verifyNoInteractions(userRepository);
+        verify(userRepository, never()).save(any());
+        verify(gameRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should propagate CompletionException when actor asynchronous queue command processing execution crashes")
+    @DisplayName("Should propagate CompletionException when actor asynchronous command execution fails")
     void shouldPropagateExceptionWhenActorCommandFails() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
+        // Arrange
+        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockTargetUser));
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
         CompletableFuture<Game> failedFuture = new CompletableFuture<>();
-        failedFuture.completeExceptionally(new RuntimeException("Actor system mailbox overloaded or terminated"));
+        failedFuture.completeExceptionally(new RuntimeException("Actor process failed"));
         when(mockActor.enqueueCommand(any(BanParticipantActorCommand.class))).thenReturn(failedFuture);
 
+        // Act & Assert
         assertThrows(CompletionException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(userRepository);
-    }
-
-    @Test
-    @DisplayName("Should throw UserNotFoundException and avoid domain state persistence when target profile cannot be found")
-    void shouldThrowUserNotFoundExceptionWhenTargetDoesNotExist() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
-        when(gameActorManager.get(gameId)).thenReturn(mockActor);
-
-        CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
-        when(mockActor.enqueueCommand(any(BanParticipantActorCommand.class))).thenReturn(future);
-
-        when(userRepository.find(targetUserId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
-
+        verify(userRepository).find(targetUserId);
+        verify(gameActorManager).get(gameId);
         verify(userRepository, never()).save(any());
+        verify(gameRepository, never()).save(any());
     }
 }

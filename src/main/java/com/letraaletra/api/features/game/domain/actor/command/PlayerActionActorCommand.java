@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
+import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
