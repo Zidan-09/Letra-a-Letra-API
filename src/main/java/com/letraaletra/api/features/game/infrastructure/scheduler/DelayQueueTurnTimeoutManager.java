@@ -10,15 +10,18 @@ import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.DelayQueue;
 
 @Service
+@RequiredArgsConstructor
 public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
     private final GameResponseAssembler gameResponseAssembler;
@@ -32,21 +35,6 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
     private final Logger logger = LoggerFactory.getLogger(DelayQueueTurnTimeoutManager.class);
 
-    public DelayQueueTurnTimeoutManager(
-            ExpireTurnService expireTurnService,
-            GameResponseAssembler gameResponseAssembler,
-            GameTimeoutManager gameTimeoutManager,
-            GameNotifier gameNotifier,
-            AuditService auditService
-    ) {
-        this.expireTurnService = expireTurnService;
-        this.gameResponseAssembler = gameResponseAssembler;
-        this.gameTimeoutManager = gameTimeoutManager;
-        this.gameNotifier = gameNotifier;
-        this.auditService = auditService;
-        startScheduler();
-    }
-
     @Override
     public void start(Game game) {
         queue.put(new GameTurn(
@@ -58,25 +46,16 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
         ));
     }
 
-    private void startScheduler() {
-        Thread thread = new Thread(this::processLoop);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
+    @Scheduled(fixedDelay = 10)
     private void processLoop() {
-        while (true) {
-            try {
-                GameTurn next = queue.take();
-                handleTurnTimeout(next);
+        GameTurn next;
 
+        while ((next = queue.poll()) != null) {
+            try {
+                handleTurnTimeout(next);
             } catch (Exception e) {
-                if (!e.getMessage().equals("game_not_found")) {
-                    logger.error(
-                            "Error on process end of turn {}-{}",
-                            e.getMessage(),
-                            e.getStackTrace()
-                    );
+                if (!"game_not_found".equals(e.getMessage())) {
+                    logger.error("Error on process end of turn: {}", e.getMessage(), e);
                 }
             }
         }

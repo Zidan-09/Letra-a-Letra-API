@@ -24,7 +24,6 @@ public class StartCustomGameActorCommand implements ActorCommand<Game> {
 
     @Override
     public Game execute(Game game) {
-
         Participant participant = game.getParticipants().findBySession(session);
         validateHost(participant, game.getHostId());
 

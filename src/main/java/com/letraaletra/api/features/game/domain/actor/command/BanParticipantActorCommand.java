@@ -1,27 +1,24 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
+import com.letraaletra.api.features.user.domain.User;
 
 import java.util.UUID;
 
 public class BanParticipantActorCommand implements ActorCommand<Game> {
-    private final UUID user;
+    private final User target;
     private final UUID host;
 
-    public BanParticipantActorCommand(UUID user, UUID host) {
-        this.user = user;
+    public BanParticipantActorCommand(User target, UUID host) {
+        this.target = target;
         this.host = host;
     }
 
     @Override
     public Game execute(Game game) {
-        if (!game.getHostId().equals(host)) {
-            throw new OnlyHostCanModerateException();
-        }
+        game.banParticipant(host, target.getUserId());
 
-        game.getParticipants().addToBlackList(user);
-        game.remove(user);
+        target.leaveGame();
 
         return game;
     }

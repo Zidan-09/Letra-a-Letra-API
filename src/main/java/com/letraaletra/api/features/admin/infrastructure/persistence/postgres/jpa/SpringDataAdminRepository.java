@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataAdminRepository extends JpaRepository<AdminJpaEntity, UUID> {
+
     boolean existsByEmail(String email);
     Optional<AdminJpaEntity> findByEmail(String email);
 }

@@ -3,8 +3,8 @@ package com.letraaletra.api.features.admin.infrastructure.scheduler;
 import com.letraaletra.api.features.admin.application.output.GetApplicationStatusOutput;
 import com.letraaletra.api.features.admin.application.output.GetSystemStatusOutput;
 import com.letraaletra.api.features.admin.application.port.AdminNotifier;
-import com.letraaletra.api.features.admin.application.service.GetApplicationStatusService;
-import com.letraaletra.api.features.admin.application.service.GetSystemStatusService;
+import com.letraaletra.api.features.admin.application.port.ApplicationStatusService;
+import com.letraaletra.api.features.admin.application.port.SystemStatusService;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.MetricsWsResponse;
 import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.MetricsMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class MetricsScheduler {
-    private final GetSystemStatusService systemStatusService;
-    private final GetApplicationStatusService applicationStatusService;
+    private final SystemStatusService systemStatusService;
+    private final ApplicationStatusService applicationStatusService;
     private final AdminNotifier notifier;
 
     @Scheduled(fixedRate = 1000)

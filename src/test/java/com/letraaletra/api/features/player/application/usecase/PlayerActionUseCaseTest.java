@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.features.game.infrastructure.service.GameOverHandler;
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
-import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
+import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
@@ -38,7 +38,7 @@ class PlayerActionUseCaseTest {
     private ActorManager<Game> actorManager;
 
     @Mock
-    private GameOverHandler gameOverHandler;
+    private GameOverService gameOverService;
 
     @Mock
     private Actor actor;
@@ -85,7 +85,7 @@ class PlayerActionUseCaseTest {
         assertEquals(events, output.events());
         assertTrue(output.gameOver().isEmpty(), "O Optional 'gameOver' deveria estar vazio");
 
-        verifyNoInteractions(gameOverHandler);
+        verifyNoInteractions(gameOverService);
 
         ArgumentCaptor<PlayerActionActorCommand> commandCaptor = ArgumentCaptor.forClass(PlayerActionActorCommand.class);
         verify(actor).enqueueCommand(commandCaptor.capture());
@@ -125,6 +125,6 @@ class PlayerActionUseCaseTest {
         assertTrue(output.gameOver().isPresent(), "O Optional 'gameOver' deveria conter o resultado");
         assertEquals(finishedGameResult, output.gameOver().get());
 
-        verify(gameOverHandler).handle(mockGame, finishedGameResult);
+        verify(gameOverService).handle(mockGame, finishedGameResult);
     }
 }

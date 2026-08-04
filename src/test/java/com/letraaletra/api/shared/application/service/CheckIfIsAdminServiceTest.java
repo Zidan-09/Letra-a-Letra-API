@@ -9,6 +9,7 @@ import com.letraaletra.api.features.admin.domain.permission.Permissions;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
+import com.letraaletra.api.shared.infrastructure.service.CheckIfIsAdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
