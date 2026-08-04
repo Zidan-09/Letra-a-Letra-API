@@ -3,7 +3,7 @@ package com.letraaletra.api.features.admin.application.usecase;
 import com.letraaletra.api.features.admin.application.input.ActivateAccountInput;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.AdminPasswordSetupToken;
-import com.letraaletra.api.features.admin.domain.TokenHashService;
+import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
 import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
