@@ -25,6 +25,9 @@ public enum UserMessages implements MessageCode {
     INVALID_USER_DATA("invalid_user_data"),
     INVALID_TOKEN("invalid_token"),
 
+    MAX_ATTEMPTS_EXCEEDED("max_attempts_exceeded"),
+    SAME_PASSWORD("same_password"),
+
     INVALID_ROOM_POSITION("invalid_room_position");
 
     private final String message;

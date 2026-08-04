@@ -13,7 +13,7 @@ public class User {
     private final UUID userId;
     private String username;
     private final String email;
-    private final String passwordHash;
+    private String passwordHash;
     private final String googleId;
     private UUID currentGameId;
     private boolean canChangeNickname;
@@ -176,5 +176,9 @@ public class User {
 
     public void setCanChangeNickname(boolean canChangeNickname) {
         this.canChangeNickname = canChangeNickname;
+    }
+
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 }

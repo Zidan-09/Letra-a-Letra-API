@@ -2,7 +2,7 @@ package com.letraaletra.api.features.admin.infrastructure.config;
 
 import com.letraaletra.api.features.admin.application.port.AdminInvitationEmailService;
 import com.letraaletra.api.features.admin.application.usecase.*;
-import com.letraaletra.api.features.admin.domain.TokenHashService;
+import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;

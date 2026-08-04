@@ -2,15 +2,10 @@ package com.letraaletra.api.features.user.infrastructure.presentation.dto.reques
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
-public record CreateUserRequest(
+public record ForgotPasswordRequest(
         @NotBlank
         @Email
-        String email,
-
-        @NotBlank
-        @Size(min = 8, max = 16)
-        String password
+        String email
 ) {
 }
