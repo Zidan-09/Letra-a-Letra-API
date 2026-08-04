@@ -68,10 +68,13 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Should return empty Optional immediately when the input user identifier context is null")
     void shouldReturnEmptyWhenUserIdIsNull() {
+        // Arrange
         DisconnectParticipantInput nullInput = new DisconnectParticipantInput(null, null);
 
+        // Act
         Optional<DisconnectParticipantOutput> result = useCase.execute(nullInput);
 
+        // Assert
         assertTrue(result.isEmpty());
         verifyNoInteractions(matchmakingRepository, userRepository, gameActorManager, disconnectScheduler);
     }
@@ -79,68 +82,83 @@ class DisconnectUseCaseTest {
     @Test
     @DisplayName("Should remove user from matchmaking queue if they are currently waiting in line")
     void shouldRemoveUserFromQueueWhenUserIsOnMatchmaking() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(true);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
 
+        // Act
         Optional<DisconnectParticipantOutput> result = useCase.execute(input);
 
+        // Assert
         assertTrue(result.isEmpty());
-        verify(matchmakingRepository, times(1)).onQueue(userId);
-        verify(matchmakingRepository, times(1)).remove(userId);
-        verify(userRepository, times(1)).find(userId);
-        verifyNoInteractions(gameActorManager);
+        verify(matchmakingRepository).onQueue(userId);
+        verify(matchmakingRepository).remove(userId);
+        verify(userRepository).find(userId);
+        verifyNoInteractions(gameActorManager, disconnectScheduler);
     }
 
     @Test
     @DisplayName("Should throw UserNotFoundException when target user does not exist in repository")
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verify(userRepository, times(1)).find(userId);
-        verifyNoInteractions(gameActorManager);
+        verify(userRepository).find(userId);
+        verifyNoInteractions(gameActorManager, disconnectScheduler);
     }
 
     @Test
     @DisplayName("Should return empty Optional when user context exists but user profile state is not in a live game")
     void shouldReturnEmptyWhenUserIsNotInAGame() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
 
+        // Act
         Optional<DisconnectParticipantOutput> result = useCase.execute(input);
 
+        // Assert
         assertTrue(result.isEmpty());
         verify(matchmakingRepository, never()).remove(any());
-        verifyNoInteractions(gameActorManager);
+        verifyNoInteractions(gameActorManager, disconnectScheduler);
     }
 
     @Test
-    @DisplayName("Should successfully handle active game participant disconnect, leaving actor pipeline alive")
+    @DisplayName("Should successfully handle active game participant disconnect, scheduling disconnect timer")
     void shouldDisconnectActiveParticipantSuccessfully() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
+        when(mockGame.getId()).thenReturn(gameId);
         CompletableFuture<Optional<Game>> future = CompletableFuture.completedFuture(Optional.of(mockGame));
         when(mockActor.enqueueCommand(any(DisconnectParticipantActorCommand.class))).thenReturn(future);
 
+        // Act
         Optional<DisconnectParticipantOutput> result = useCase.execute(input);
 
+        // Assert
         assertTrue(result.isPresent());
         assertEquals(userId, result.get().user());
         assertEquals(mockGame, result.get().game());
+
+        verify(disconnectScheduler).start(userId, gameId);
         verify(userRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should force user state cleanup and save changes locally if actor mailbox signals game state is dead")
     void shouldCleanUpUserStateWhenActorReturnsEmptyGameState() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
@@ -150,16 +168,20 @@ class DisconnectUseCaseTest {
         CompletableFuture<Optional<Game>> future = CompletableFuture.completedFuture(Optional.empty());
         when(mockActor.enqueueCommand(any(DisconnectParticipantActorCommand.class))).thenReturn(future);
 
+        // Act
         Optional<DisconnectParticipantOutput> result = useCase.execute(input);
 
+        // Assert
         assertTrue(result.isEmpty());
-        verify(mockUser, times(1)).leaveGame();
-        verify(userRepository, times(1)).save(mockUser);
+        verify(mockUser).leaveGame();
+        verify(userRepository).save(mockUser);
+        verifyNoInteractions(disconnectScheduler);
     }
 
     @Test
     @DisplayName("Should propagate CompletionException directly when actor asynchronous queue command processing execution crashes")
     void shouldPropagateExceptionWhenActorCommandPipelineFails() {
+        // Arrange
         when(matchmakingRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
@@ -170,7 +192,9 @@ class DisconnectUseCaseTest {
         failedFuture.completeExceptionally(new RuntimeException("Actor context thread pool heavily degraded"));
         when(mockActor.enqueueCommand(any(DisconnectParticipantActorCommand.class))).thenReturn(failedFuture);
 
+        // Act & Assert
         assertThrows(CompletionException.class, () -> useCase.execute(input));
         verify(userRepository, never()).save(any());
+        verifyNoInteractions(disconnectScheduler);
     }
 }

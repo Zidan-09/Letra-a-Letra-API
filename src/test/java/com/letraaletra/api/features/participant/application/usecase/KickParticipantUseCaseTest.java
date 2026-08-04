@@ -2,10 +2,9 @@ package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.KickParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.participant.application.input.KickParticipantInput;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
-import com.letraaletra.api.features.participant.application.output.ModerationContext;
-import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -25,13 +24,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class KickParticipantUseCaseTest {
 
     @Mock
-    private ModerationContextService moderationContextService;
+    private GameRepository gameRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -44,11 +44,7 @@ class KickParticipantUseCaseTest {
 
     private UUID gameId;
     private UUID targetUserId;
-    private UUID moderatorId;
     private KickParticipantInput input;
-
-    @Mock
-    private ModerationContext mockContext;
 
     @Mock
     private Game mockGame;
@@ -63,23 +59,19 @@ class KickParticipantUseCaseTest {
     void setUp() {
         gameId = UUID.randomUUID();
         targetUserId = UUID.randomUUID();
-        moderatorId = UUID.randomUUID();
+        UUID moderatorId = UUID.randomUUID();
         input = new KickParticipantInput(gameId, targetUserId, moderatorId);
     }
 
     @Test
-    @DisplayName("Should successfully kick participant, process async actor command, and update user status")
+    @DisplayName("Should successfully kick participant, process async actor command, and save updated state")
     void shouldKickParticipantSuccessfully() {
         // Arrange
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
+        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockUser));
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
         CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
         when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(future);
-
-        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockUser));
 
         // Act
         KickParticipantOutput output = useCase.execute(input);
@@ -88,71 +80,54 @@ class KickParticipantUseCaseTest {
         assertNotNull(output);
         assertEquals(mockGame, output.game());
 
-        verify(moderationContextService, times(1)).resolve(gameId, targetUserId, moderatorId);
-        verify(gameActorManager, times(1)).get(gameId);
-        verify(mockActor, times(1)).enqueueCommand(any(KickParticipantActorCommand.class));
-        verify(userRepository, times(1)).find(targetUserId);
-        verify(mockUser, times(1)).leaveGame();
-        verify(userRepository, times(1)).save(mockUser);
+        verify(userRepository).find(targetUserId);
+        verify(gameActorManager).get(gameId);
+        verify(mockActor).enqueueCommand(any(KickParticipantActorCommand.class));
+        verify(userRepository).save(mockUser);
+        verify(gameRepository).save(mockGame);
     }
 
     @Test
     @DisplayName("Should throw UserNotFoundException when target user does not exist in repository")
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
         // Arrange
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
-        when(gameActorManager.get(gameId)).thenReturn(mockActor);
-
-        CompletableFuture<Game> future = CompletableFuture.completedFuture(mockGame);
-        when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(future);
-
         when(userRepository.find(targetUserId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verify(userRepository, times(1)).find(targetUserId);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should propagate exception and halt workflow when moderation security or validation context resolution fails")
-    void shouldThrowExceptionWhenModerationContextFailsToResolve() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId))
-                .thenThrow(new SecurityException("User does not have required permissions to kick from this session"));
-
-        assertThrows(SecurityException.class, () -> useCase.execute(input));
-
+        verify(userRepository).find(targetUserId);
         verifyNoInteractions(gameActorManager);
-        verifyNoInteractions(userRepository);
+        verify(userRepository, never()).save(any());
+        verify(gameRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should propagate CompletionException directly when actor asynchronous queue command processing execution crashes")
     void shouldPropagateExceptionWhenActorCommandPipelineFails() {
-        when(moderationContextService.resolve(gameId, targetUserId, moderatorId)).thenReturn(mockContext);
-        when(mockContext.game()).thenReturn(mockGame);
-        when(mockGame.getId()).thenReturn(gameId);
+        // Arrange
+        when(userRepository.find(targetUserId)).thenReturn(Optional.of(mockUser));
         when(gameActorManager.get(gameId)).thenReturn(mockActor);
 
         CompletableFuture<Game> failedFuture = new CompletableFuture<>();
         failedFuture.completeExceptionally(new RuntimeException("Actor system mailbox processing interrupted"));
         when(mockActor.enqueueCommand(any(KickParticipantActorCommand.class))).thenReturn(failedFuture);
 
+        // Act & Assert
         assertThrows(CompletionException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(userRepository);
+        verify(userRepository).find(targetUserId);
+        verify(gameActorManager).get(gameId);
+        verify(userRepository, never()).save(any());
+        verify(gameRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Should throw NullPointerException when the input parameter is null")
     void shouldThrowExceptionWhenInputContextIsNull() {
+        // Act & Assert
         assertThrows(NullPointerException.class, () -> useCase.execute(null));
 
-        verifyNoInteractions(moderationContextService);
-        verifyNoInteractions(gameActorManager);
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(gameActorManager, userRepository, gameRepository);
     }
 }

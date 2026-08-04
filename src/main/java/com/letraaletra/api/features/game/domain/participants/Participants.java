@@ -108,8 +108,11 @@ public class Participants {
         return participants.keySet().iterator().next();
     }
 
-    public void changePosition(UUID userId, int position) {
-        if (position < 0 || position > 6) {
+    public void changePosition(UUID userId, int position, RoomSettings roomSettings) {
+        boolean isFullWithoutSpectators = !roomSettings.roomAllowSpectators() && participants.size() >= 2;
+        boolean isFullWithSpectators = participants.size() >= 7;
+
+        if (position < 0 || isFullWithoutSpectators || isFullWithSpectators) {
             throw new InvalidRoomPositionException();
         }
 
@@ -188,9 +191,7 @@ public class Participants {
     }
 
     private ParticipantRole determineRole() {
-        long players = participants.values().stream()
-                .filter(p -> p.getRole() == ParticipantRole.PLAYER)
-                .count();
+        int players = getAmountPlayers();
 
         return players >= 2
                 ? ParticipantRole.SPECTATOR

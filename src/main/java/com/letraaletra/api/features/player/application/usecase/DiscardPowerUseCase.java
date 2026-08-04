@@ -8,7 +8,6 @@ import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPowerOutput> {
@@ -19,9 +18,7 @@ public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPo
     }
 
     public DiscardPowerOutput execute(DiscardPowerInput input) {
-        UUID gameId = UUID.fromString(input.gameId());
-
-        Actor actor = gameActorManager.get(gameId);
+        Actor actor = gameActorManager.get(input.gameId());
 
         CompletableFuture<Game> future = actor.enqueueCommand(
                 new DiscardPowerActorCommand(input.userId(), input.powerId())
@@ -29,10 +26,6 @@ public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPo
 
         Game game = future.join();
 
-        return buildOutput(game);
-    }
-
-    private DiscardPowerOutput buildOutput(Game game) {
         return new DiscardPowerOutput(game);
     }
 }

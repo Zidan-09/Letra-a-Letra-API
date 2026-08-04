@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.participant.infrastructure.config;
 
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.participant.application.service.ModerationContextService;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
@@ -17,13 +17,13 @@ import org.springframework.context.annotation.Configuration;
 public class ParticipantConfig {
     @Bean
     public BanParticipantUseCase banParticipantUseCase(
-            ModerationContextService moderationContextService,
             UserRepository userRepository,
+            GameRepository gameRepository,
             GameActorManager gameActorManager
     ) {
         return new BanParticipantUseCase(
-                moderationContextService,
                 userRepository,
+                gameRepository,
                 gameActorManager
         );
     }
@@ -44,12 +44,12 @@ public class ParticipantConfig {
     }
     @Bean
     public KickParticipantUseCase kickParticipantUseCase(
-            ModerationContextService moderationContextService,
+            GameRepository gameRepository,
             UserRepository userRepository,
             GameActorManager gameActorManager
     ) {
         return new KickParticipantUseCase(
-                moderationContextService,
+                gameRepository,
                 userRepository,
                 gameActorManager
         );
@@ -83,13 +83,15 @@ public class ParticipantConfig {
             UserRepository userRepository,
             GameRepository gameRepository,
             GameTimeoutManager gameTimeoutManager,
-            ActorManager<Game> actorManager
+            ActorManager<Game> actorManager,
+            GameOverService gameOverService
     ) {
         return new RemoveDisconnectedParticipantUseCase(
                 userRepository,
                 gameRepository,
                 gameTimeoutManager,
-                actorManager
+                actorManager,
+                gameOverService
         );
     }
 }

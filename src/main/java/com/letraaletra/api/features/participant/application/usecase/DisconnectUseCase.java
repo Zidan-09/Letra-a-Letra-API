@@ -54,7 +54,7 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         Actor actor = gameActorManager.get(user.getCurrentGameId());
 
         CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
-                new DisconnectParticipantActorCommand(userId, disconnectScheduler)
+                new DisconnectParticipantActorCommand(userId)
         );
 
         Optional<Game> game = future.join();
@@ -63,6 +63,8 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
             user.leaveGame();
             userRepository.save(user);
             return Optional.empty();
+        } else {
+            disconnectScheduler.start(userId, game.get().getId());
         }
 
         return buildReturn(game.get(), userId);

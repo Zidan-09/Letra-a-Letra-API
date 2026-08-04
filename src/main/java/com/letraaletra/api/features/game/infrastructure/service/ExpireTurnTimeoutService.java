@@ -1,9 +1,12 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
-import com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult;
+import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -19,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class ExpireTurnTimeoutService implements ExpireTurnService {
     private final ActorManager<Game> gameActorManager;
-    private final GameOverHandler gameOverHandler;
+    private final GameOverService gameOverService;
     private final UserRepository userRepository;
 
     @Override
@@ -27,19 +30,27 @@ public class ExpireTurnTimeoutService implements ExpireTurnService {
         Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<Optional<ExpireTurnResult>> future = actor.enqueueCommand(
-                new ExpireTurnActorCommand(userRepository, version)
+                new ExpireTurnActorCommand(version)
         );
 
         Optional<ExpireTurnResult> result = future.join();
 
-        result.ifPresent(r -> r.gameOver().ifPresent(gameOver ->
-                    gameOverHandler.handle(r.game(), gameOver)
+        result.ifPresent(r -> r.gameOver().ifPresent(gameOver -> {
+                    User user = userRepository.find(r.whoPassed())
+                            .orElseThrow(UserNotFoundException::new);
+
+                    user.leaveGame();
+
+                    userRepository.save(user);
+
+                    gameOverService.handle(r.game(), gameOver);
+                }
         ));
 
         return result.flatMap(this::buildOutput);
     }
 
-    private Optional<ExpireTurnTimeoutResult> buildOutput(com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult result) {
+    private Optional<ExpireTurnTimeoutResult> buildOutput(com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult result) {
         return Optional.of(
                 new ExpireTurnTimeoutResult(
                         "TURN_EXPIRED",

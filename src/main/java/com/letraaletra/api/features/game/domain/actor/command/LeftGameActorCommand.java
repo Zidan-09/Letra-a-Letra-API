@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.GameType;
-import com.letraaletra.api.features.game.domain.actor.output.LeftGameResult;
+import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
@@ -45,7 +45,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
             return new LeftGameResult(
                     game,
-                    participantId,
                     Optional.empty()
             );
         }
@@ -58,7 +57,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
             return new LeftGameResult(
                     game,
-                    participantId,
                     Optional.empty()
             );
         }
@@ -82,7 +80,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
 
         return new LeftGameResult(
                 game,
-                participantId,
                 gameOver
         );
     }

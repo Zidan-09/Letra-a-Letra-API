@@ -4,7 +4,9 @@ import com.letraaletra.api.features.game.domain.CloseRoomResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.RoomCloseReasons;
 import com.letraaletra.api.features.game.domain.actor.command.CloseGameActorCommand;
+import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -16,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -44,18 +47,30 @@ class CloseRoomDueToTimeoutServiceTest {
 
     private UUID gameId;
     private Game game;
+    private Participants participants;
 
     @BeforeEach
     void setup() {
         gameId = UUID.randomUUID();
         game = mock(Game.class);
+        participants = mock(Participants.class);
+
         lenient().when(game.getId()).thenReturn(gameId);
+        lenient().when(game.getParticipants()).thenReturn(participants);
     }
 
     @Test
-    @DisplayName("Deve fechar a sala por inatividade com sucesso")
+    @DisplayName("Deve fechar a sala por inatividade e atualizar os usuários com sucesso")
     void shouldCloseRoomSuccessfullyDueToTimeout() {
         // Arrange
+        UUID userId = UUID.randomUUID();
+        User user = mock(User.class);
+        List<UUID> participantIds = List.of(userId);
+        List<User> userList = List.of(user);
+
+        when(participants.getIds()).thenReturn(participantIds);
+        when(userRepository.findUsersById(participantIds)).thenReturn(userList);
+
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(CloseGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
@@ -69,9 +84,12 @@ class CloseRoomDueToTimeoutServiceTest {
         assertEquals("ROOM_CLOSED", output.event());
         assertEquals(RoomCloseReasons.INACTIVITY, output.reason());
 
-        // Verificações das interações do Serviço
+        // Verificações
         verify(actorManager).get(gameId);
         verify(actor).enqueueCommand(any(CloseGameActorCommand.class));
+        verify(userRepository).findUsersById(participantIds);
+        verify(user).leaveGame();
+        verify(userRepository).saveAll(userList);
         verify(actorManager).remove(gameId);
         verify(gameRepository).save(game);
     }
@@ -87,10 +105,11 @@ class CloseRoomDueToTimeoutServiceTest {
         when(actor.enqueueCommand(any(CloseGameActorCommand.class))).thenReturn(failedFuture);
 
         // Act & Assert
-        // Chamadas com .join() lançam CompletionException quando o Future falha
         assertThrows(CompletionException.class, () -> service.close(game));
 
-        // Se o actor falhar no .join(), não deve remover nem salvar o estado inconsistente
+        // Verificações de segurança no caso de falha
+        verify(userRepository, never()).findUsersById(any());
+        verify(userRepository, never()).saveAll(any());
         verify(actorManager, never()).remove(any());
         verify(gameRepository, never()).save(any());
     }

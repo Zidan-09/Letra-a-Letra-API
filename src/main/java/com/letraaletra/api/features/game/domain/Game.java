@@ -5,9 +5,10 @@ import com.letraaletra.api.features.game.domain.exception.GameIsRunningException
 import com.letraaletra.api.features.game.domain.exception.InsufficientPlayersException;
 import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
+import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
 import com.letraaletra.api.features.user.domain.User;
 
 import java.util.*;
@@ -24,7 +25,7 @@ public class Game {
     private GameStatus gameStatus;
     private GameState gameState;
 
-    public Game(
+    private Game(
             UUID id,
             String code,
             String roomName,
@@ -47,6 +48,22 @@ public class Game {
     ) {
         return new Game(
                 UUID.randomUUID(),
+                code,
+                roomName,
+                roomSettings,
+                gameType
+        );
+    }
+
+    public static Game restore(
+            UUID id,
+            String code,
+            String roomName,
+            RoomSettings roomSettings,
+            GameType gameType
+    ) {
+        return new Game(
+                id,
                 code,
                 roomName,
                 roomSettings,
@@ -95,12 +112,9 @@ public class Game {
     }
 
     public void join(User user, String session) {
-
         Participant participant = Participant.create(user, session);
 
         if (participants.getParticipants().isEmpty()) {
-            participant.changeRole(ParticipantRole.PLAYER);
-
             createdById = participant.getUserId();
             hostId = participant.getUserId();
         }
@@ -128,7 +142,7 @@ public class Game {
             throw new GameIsRunningException();
         }
 
-        participants.changePosition(userId, position);
+        participants.changePosition(userId, position, roomSettings);
     }
 
     public void remove(UUID userId) {
@@ -153,5 +167,35 @@ public class Game {
 
     public void updateGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public void banParticipant(UUID hostId, UUID targetId) {
+        validateHostAction(hostId, targetId);
+
+        participants.addToBlackList(targetId);
+        remove(targetId);
+    }
+
+    public void removeBan(UUID hostId, UUID targetId) {
+        validateHostAction(hostId, targetId);
+
+        participants.removeFromBlackList(targetId);
+
+    }
+
+    public void kickParticipant(UUID hostId, UUID targetId) {
+        validateHostAction(hostId, targetId);
+
+        remove(targetId);
+    }
+
+    private void validateHostAction(UUID hostId, UUID targetId) {
+        if (!this.hostId.equals(hostId)) {
+            throw new OnlyHostCanModerateException();
+        }
+
+        if (hostId.equals(targetId)) {
+            throw new InvalidModerateActionException();
+        }
     }
 }

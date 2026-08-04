@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
 import com.letraaletra.api.features.ranking.application.service.UpdateRankingPointsService;
@@ -58,13 +59,15 @@ public class GameConfig {
             GameActorManager gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager
+            GameTimeoutManager gameTimeoutManager,
+            GameOverService gameOverService
     ) {
         return new LeftGameUseCase(
                 gameActorManager,
                 userRepository,
                 gameRepository,
-                gameTimeoutManager
+                gameTimeoutManager,
+                gameOverService
         );
     }
 
