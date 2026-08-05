@@ -5,6 +5,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 import org.springframework.web.method.HandlerMethod;
@@ -25,9 +26,9 @@ public class AuditInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler,
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull Object handler,
             @Nullable Exception ex
     ) {
         if (!(handler instanceof HandlerMethod handlerMethod)) {
@@ -39,10 +40,12 @@ public class AuditInterceptor implements HandlerInterceptor {
         String userId = user == null ? "" : user.auth().toString();
         String action = getAction(handlerMethod);
         String resourceId = getResourceId(request);
+
+        Exception exception = (Exception) request.getAttribute("AUDIT_EXCEPTION");
         String exMessage = "";
 
-        if (ex != null) {
-            Throwable result = ex;
+        if (exception != null) {
+            Throwable result = exception;
 
             while (result.getCause() != null) {
                 result = result.getCause();

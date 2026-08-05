@@ -3,39 +3,44 @@ package com.letraaletra.api.features.game.domain;
 import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum GameMessages implements MessageCode {
-    GAME_NOT_FOUND("game_not_found"),
-    GAME_ALREADY_STARTED("game_already_started"),
-    GAME_ALREADY_FINISHED("game_already_finished"),
-    GAME_NOT_STARTED("game_not_started"),
-    ONLY_HOST_CAN_START("only_host_can_start"),
-    ONLY_HOST_CAN_MODERATE("only_host_can_moderate"),
-    INVALID_MODERATE_ACTION("invalid_moderate_action"),
+    GAME_NOT_FOUND("the game was not found"),
+    GAME_ALREADY_STARTED("the game has already started"),
+    GAME_ALREADY_FINISHED("the game has already finished"),
+    GAME_NOT_STARTED("the game has not started yet"),
+    ONLY_HOST_CAN_START("only the host can start the game"),
+    ONLY_HOST_CAN_MODERATE("only the host can perform this moderation action"),
+    INVALID_MODERATE_ACTION("the requested moderation action is invalid"),
 
-    GAME_IS_RUNNING("game_is_running"),
-    GAME_NOT_RUNNING("game_not_running"),
-    INSUFFICIENT_PLAYERS("insufficient_players"),
-    ROOM_FULL("room_full"),
+    GAME_IS_RUNNING("the game is already running"),
+    GAME_NOT_RUNNING("the game is not running"),
+    INSUFFICIENT_PLAYERS("there are not enough players to perform this action"),
+    ROOM_FULL("the room is full"),
 
-    YOU_ARE_BANNED_OF_THIS_ROOM("you_are_banned_of_this_room"),
-    PARTICIPANT_ALREADY_BANNED("participant_already_banned"),
-    PARTICIPANT_NOT_BANNED("participant_not_banned"),
+    YOU_ARE_BANNED_OF_THIS_ROOM("you are banned from this room"),
+    PARTICIPANT_ALREADY_BANNED("the participant is already banned"),
+    PARTICIPANT_NOT_BANNED("the participant is not banned"),
 
-    NOT_YOUR_TURN("not_your_turn"),
-    INVALID_MOVE("invalid_move"),
-    CELL_ALREADY_REVEALED("cell_already_revealed"),
-    CELL_ALREADY_HAS_AN_EFFECT("cell_already_has_an_effect"),
-    INVALID_POSITION("invalid_position"),
-    SPECTATOR_CAN_NOT_PLAY("spectator_can_not_play"),
+    NOT_YOUR_TURN("it is not your turn"),
+    INVALID_MOVE("the requested move is invalid"),
+    CELL_ALREADY_REVEALED("the selected cell has already been revealed"),
+    CELL_ALREADY_HAS_AN_EFFECT("the selected cell already has an effect"),
+    INVALID_POSITION("the provided position is invalid"),
+    SPECTATOR_CAN_NOT_PLAY("spectators cannot play"),
 
-    WORD_ALREADY_FOUND("word_already_found"),
-    THEME_NOT_FOUND("theme_not_found"),
+    WORD_ALREADY_FOUND("the word has already been found"),
+    THEME_NOT_FOUND("the theme was not found"),
 
-    MAX_PLAYERS_REACHED("max_players_reached");
+    MAX_PLAYERS_REACHED("the maximum number of players has been reached");
 
     private final String message;
 
     GameMessages(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String getCode() {
+        return name();
     }
 
     public String getMessage() {

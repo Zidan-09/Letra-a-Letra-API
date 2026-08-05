@@ -3,6 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.scheduler;
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
 import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
 import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameState;
@@ -54,7 +55,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
             try {
                 handleTurnTimeout(next);
             } catch (Exception e) {
-                if (!"game_not_found".equals(e.getMessage())) {
+                if (!(e instanceof GameNotFoundException)) {
                     logger.error("Error on process end of turn: {}", e.getMessage(), e);
                 }
             }
@@ -62,9 +63,9 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
-        Optional<ExpireTurnTimeoutResult> output = expireTurnService.expire(gameTurn.gameId(), gameTurn.version());
+        Optional<ExpireTurnTimeoutResult> optResult = expireTurnService.expire(gameTurn.gameId(), gameTurn.version());
 
-        if (output.isEmpty()) return;
+        if (optResult.isEmpty()) return;
 
         auditService.game(
                 gameTurn.gameId().toString(),
@@ -89,7 +90,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
             );
         }
 
-        ExpireTurnTimeoutResult result = output.get();
+        ExpireTurnTimeoutResult result = optResult.get();
 
         TurnExpired data = new TurnExpired(
                 result.event(),
