@@ -1,39 +1,35 @@
 package com.letraaletra.api.features.admin.application.usecase;
 
 import com.letraaletra.api.features.admin.application.input.VerifyResetTokenInput;
-import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.AdminPasswordResetToken;
-import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminResetTokenRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
+import org.springframework.transaction.annotation.Transactional;
 
 public class VerifyResetTokenUseCase implements UseCase<VerifyResetTokenInput, Void> {
-    private final AdminRepository adminRepository;
     private final TokenHashService tokenHashService;
     private final AdminResetTokenRepository tokenRepository;
 
     public VerifyResetTokenUseCase(
-            AdminRepository adminRepository,
             TokenHashService tokenHashService,
             AdminResetTokenRepository tokenRepository
     ) {
-        this.adminRepository = adminRepository;
         this.tokenHashService = tokenHashService;
         this.tokenRepository = tokenRepository;
     }
 
     @Override
+    @Transactional
     public Void execute(VerifyResetTokenInput input) {
-        Admin admin = adminRepository.findByEmail(input.email())
+        String tokenHash = tokenHashService.hash(input.token());
+
+        AdminPasswordResetToken resetToken = tokenRepository
+                .findByTokenHash(tokenHash)
                 .orElseThrow(InvalidTokenException::new);
 
-        AdminPasswordResetToken resetToken =
-                tokenRepository.findLatestByAdminId(admin.getId())
-                        .orElseThrow(InvalidTokenException::new);
-
-        resetToken.validate(input.token(), tokenHashService);
+        resetToken.validate(tokenHash);
 
         tokenRepository.save(resetToken);
 

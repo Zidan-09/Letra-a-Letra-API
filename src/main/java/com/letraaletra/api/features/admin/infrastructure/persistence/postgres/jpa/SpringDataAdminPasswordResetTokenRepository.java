@@ -20,4 +20,15 @@ public interface SpringDataAdminPasswordResetTokenRepository extends JpaReposito
         AND p.used = false
     """)
     void invalidateAllByAdminId(@Param("adminId") UUID adminId);
+
+    @Query("""
+        SELECT p
+        FROM AdminPasswordResetTokenJpaEntity p
+        WHERE p.tokenHash = :tokenHash
+          AND p.used = false
+          AND p.expiresAt > CURRENT_TIMESTAMP
+    """)
+    Optional<AdminPasswordResetTokenJpaEntity> findValidByTokenHash(
+            @Param("tokenHash") String tokenHash
+    );
 }
