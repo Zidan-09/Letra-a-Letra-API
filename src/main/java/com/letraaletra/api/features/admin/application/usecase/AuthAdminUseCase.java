@@ -32,7 +32,7 @@ public class AuthAdminUseCase implements UseCase<AuthAdminInput, AuthAdminOutput
         Admin admin = adminRepository.findByEmail(input.email())
                 .orElseThrow(AdminNotFoundException::new);
 
-        checkMatch(input.password(), admin.getHashPassword());
+        checkMatch(input.password(), admin.getPasswordHash());
 
         String token = tokenService.generateAdminToken(admin.getId());
 

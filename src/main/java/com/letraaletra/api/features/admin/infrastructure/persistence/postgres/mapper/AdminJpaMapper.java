@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AdminMapper {
+public class AdminJpaMapper {
     public static Admin toDomain(AdminJpaEntity entity, List<AdminPermissionJpaEntity> permissionEntities) {
         Permissions permissions = new Permissions();
 
@@ -48,7 +48,7 @@ public class AdminMapper {
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setSuper(domain.isSuper());
-        entity.setHashPassword(domain.getHashPassword());
+        entity.setHashPassword(domain.getPasswordHash());
         entity.setCreatedAt(domain.getCreatedAt());
 
         return entity;

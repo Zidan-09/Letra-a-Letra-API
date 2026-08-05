@@ -4,9 +4,9 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -27,18 +27,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/admin/logs/admin")
 @Tag(name = "Admin", description = "Rotas relacionadas aos logs administrativos")
 public class FindAdminLogsController {
 
     private final Path root = Paths.get("logs", "admin");
     private final AdminChecker adminChecker;
-
-    public FindAdminLogsController(
-            AdminChecker adminChecker
-    ) {
-        this.adminChecker = adminChecker;
-    }
 
     @GetMapping
     public List<String> findLogs(

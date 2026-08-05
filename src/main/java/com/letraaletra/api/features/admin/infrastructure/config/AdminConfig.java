@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.admin.infrastructure.config;
 
 import com.letraaletra.api.features.admin.application.port.AdminInvitationEmailService;
+import com.letraaletra.api.features.admin.application.port.PasswordResetTokenEmailService;
 import com.letraaletra.api.features.admin.application.usecase.*;
+import com.letraaletra.api.features.admin.domain.repository.AdminResetTokenRepository;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
@@ -108,6 +110,50 @@ public class AdminConfig {
                 adminRepository,
                 adminTokenRepository,
                 passwordService
+        );
+    }
+
+    @Bean
+    public ForgotAdminPasswordUseCase forgotAdminPasswordUseCase(
+            AdminRepository adminRepository,
+            TokenHashService tokenHashService,
+            AdminResetTokenRepository tokenRepository,
+            PasswordResetTokenEmailService emailService
+    ) {
+        return new ForgotAdminPasswordUseCase(
+                adminRepository,
+                tokenHashService,
+                tokenRepository,
+                emailService
+        );
+
+    }
+
+    @Bean
+    public VerifyResetTokenUseCase verifyResetTokenUseCase(
+            AdminRepository adminRepository,
+            TokenHashService tokenHashService,
+            AdminResetTokenRepository tokenRepository
+    ) {
+        return new VerifyResetTokenUseCase(
+                adminRepository,
+                tokenHashService,
+                tokenRepository
+        );
+    }
+
+    @Bean
+    public ResetAdminPasswordUseCase resetAdminPasswordUseCase(
+            AdminRepository adminRepository,
+            TokenHashService tokenHashService,
+            PasswordService passwordService,
+            AdminResetTokenRepository tokenRepository
+    ) {
+        return new ResetAdminPasswordUseCase(
+                adminRepository,
+                tokenHashService,
+                passwordService,
+                tokenRepository
         );
     }
 }

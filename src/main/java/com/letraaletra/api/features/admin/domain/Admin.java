@@ -9,7 +9,7 @@ public class Admin {
     private final UUID id;
     private String name;
     private String email;
-    private String hashPassword;
+    private String passwordHash;
     private boolean isSuper;
     private final Permissions permissions;
     private final LocalDateTime createdAt;
@@ -18,7 +18,7 @@ public class Admin {
             UUID id,
             String name,
             String email,
-            String hashPassword,
+            String passwordHash,
             boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
@@ -26,7 +26,7 @@ public class Admin {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.hashPassword = hashPassword;
+        this.passwordHash = passwordHash;
         this.isSuper = isSuper;
         this.permissions = permissions;
         this.createdAt = createdAt;
@@ -51,7 +51,7 @@ public class Admin {
             UUID id,
             String name,
             String email,
-            String hashPassword,
+            String passwordHash,
             boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
@@ -60,7 +60,7 @@ public class Admin {
                 id,
                 name,
                 email,
-                hashPassword,
+                passwordHash,
                 isSuper,
                 permissions,
                 createdAt
@@ -87,12 +87,16 @@ public class Admin {
         this.email = email;
     }
 
-    public String getHashPassword() {
-        return hashPassword;
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void activateAccount(String hashPassword) {
-        this.hashPassword = hashPassword;
+        this.passwordHash = hashPassword;
     }
 
     public void promoteSuperAdmin() {

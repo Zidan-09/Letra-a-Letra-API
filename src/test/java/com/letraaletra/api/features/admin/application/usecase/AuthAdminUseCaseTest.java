@@ -64,7 +64,7 @@ class AuthAdminUseCaseTest {
         AuthAdminInput input = new AuthAdminInput(email, password);
 
         when(adminRepository.findByEmail(email)).thenReturn(Optional.of(adminMock));
-        when(adminMock.getHashPassword()).thenReturn(hashPassword);
+        when(adminMock.getPasswordHash()).thenReturn(hashPassword);
         when(adminMock.getId()).thenReturn(adminId);
         when(passwordService.matches(password, hashPassword)).thenReturn(true);
         when(tokenService.generateAdminToken(adminId)).thenReturn(generatedToken);
@@ -99,7 +99,7 @@ class AuthAdminUseCaseTest {
         AuthAdminInput input = new AuthAdminInput(email, password);
 
         when(adminRepository.findByEmail(email)).thenReturn(Optional.of(adminMock));
-        when(adminMock.getHashPassword()).thenReturn(hashPassword);
+        when(adminMock.getPasswordHash()).thenReturn(hashPassword);
         when(passwordService.matches(password, hashPassword)).thenReturn(false);
 
         assertThrows(InvalidPasswordException.class, () -> authAdminUseCase.execute(input));
@@ -143,7 +143,7 @@ class AuthAdminUseCaseTest {
         AuthAdminInput input = new AuthAdminInput(email, password);
 
         when(adminRepository.findByEmail(email)).thenReturn(Optional.of(adminMock));
-        when(adminMock.getHashPassword()).thenReturn(hashPassword);
+        when(adminMock.getPasswordHash()).thenReturn(hashPassword);
         when(adminMock.getId()).thenReturn(adminId);
         when(passwordService.matches(password, hashPassword)).thenReturn(true);
         when(tokenService.generateAdminToken(adminId)).thenThrow(new RuntimeException("Token generation failed due to internal error"));
