@@ -44,7 +44,7 @@ export async function runFlow(context) {
     res = await http(
         "POST",
         "/user/auth/verify-reset-code",
-        { email: user.email, code: "123458" }
+        { code: "123458" }
     );
 
     ensureStatus(res, 400, "Check if invalid code throws");
@@ -52,7 +52,7 @@ export async function runFlow(context) {
     res = await http(
         "POST",
         "/user/auth/verify-reset-code",
-        { email: user.email, code: "123456" }
+        { code: "123456" }
     );
 
     ensureStatus(res, 204, "Check if valid code pass");
@@ -60,7 +60,7 @@ export async function runFlow(context) {
     res = await http(
         "POST",
         "/user/auth/reset-password",
-        { email: user.email, newPassword: "abacate123", code: "123456" }
+        { newPassword: "abacate123", code: "123456" }
     );
 
     ensureStatus(res, 204, "Check if the new password was saved");

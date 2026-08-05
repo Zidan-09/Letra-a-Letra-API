@@ -33,14 +33,16 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     @Override
     @Transactional
     public Void execute(ResetPasswordInput input) {
-        User user = userRepository.findByEmail(input.email())
-                .orElseThrow(InvalidTokenException::new);
+        String codeHash = tokenHashService.hash(input.code());
 
         PasswordResetCode resetCode =
-                codeRepository.findLatestByUserId(user.getUserId())
+                codeRepository.findByCodeHash(codeHash)
                         .orElseThrow(InvalidTokenException::new);
 
-        resetCode.validate(input.code(), tokenHashService);
+        resetCode.validate(codeHash);
+
+        User user = userRepository.find(resetCode.getUserId())
+                .orElseThrow(InvalidTokenException::new);
 
         if (passwordService.matches(input.newPassword(), user.getPasswordHash())) {
             throw new SamePasswordException();

@@ -9,4 +9,5 @@ public interface FindResetCode {
     Optional<PasswordResetCode> findById(UUID id);
     Optional<PasswordResetCode> findByUserId(UUID userId);
     Optional<PasswordResetCode> findLatestByUserId(UUID userId);
+    Optional<PasswordResetCode> findByCodeHash(String codeHash);
 }

@@ -22,4 +22,15 @@ public interface SpringDataPasswordResetCodeRepository extends JpaRepository<Pas
     void invalidateAllByUserId(@Param("userId") UUID userId);
 
     Optional<PasswordResetCodeJpaEntity> findFirstByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    @Query("""
+        SELECT p
+        FROM PasswordResetCodeJpaEntity p
+        WHERE p.codeHash = :codeHash
+            AND p.used = false
+            AND p.expiresAt > CURRENT_TIMESTAMP
+    """)
+    Optional<PasswordResetCodeJpaEntity> findValidByCodeHash(
+            @Param("codeHash") String codeHash
+    );
 }

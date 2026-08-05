@@ -110,7 +110,7 @@ public class PasswordResetCode {
         used = true;
     }
 
-    public void validate(String code, TokenHashService tokenHashService) {
+    public void validate(String codeHashed) {
         if (used) {
             throw new InvalidTokenException();
         }
@@ -119,7 +119,7 @@ public class PasswordResetCode {
             throw new InvalidTokenException();
         }
 
-        if (!tokenHashService.matches(code, codeHash)) {
+        if (!codeHashed.equals(codeHash)) {
             incrementAttempts();
             throw new InvalidTokenException();
         }

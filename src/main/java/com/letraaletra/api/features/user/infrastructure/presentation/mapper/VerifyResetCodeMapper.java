@@ -6,7 +6,6 @@ import com.letraaletra.api.features.user.infrastructure.presentation.dto.request
 public class VerifyResetCodeMapper {
     public static VerifyResetCodeInput toInput(VerifyResetCodeRequest request) {
         return new VerifyResetCodeInput(
-                request.email(),
                 request.code()
         );
     }
