@@ -35,6 +35,13 @@ public class JpaPasswordResetCodeRepository implements ResetCodeRepository {
     }
 
     @Override
+    public Optional<PasswordResetCode> findByCodeHash(String codeHash) {
+        return repository
+                .findValidByCodeHash(codeHash)
+                .map(PasswordResetCodeJpaMapper::toDomain);
+    }
+
+    @Override
     public void save(PasswordResetCode passwordResetCode) {
         repository.save(PasswordResetCodeJpaMapper.toEntity(passwordResetCode));
     }
