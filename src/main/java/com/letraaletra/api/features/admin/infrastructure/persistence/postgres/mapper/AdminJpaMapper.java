@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AdminMapper {
+public class AdminJpaMapper {
     public static Admin toDomain(AdminJpaEntity entity, List<AdminPermissionJpaEntity> permissionEntities) {
         Permissions permissions = new Permissions();
 

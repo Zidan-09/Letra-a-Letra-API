@@ -7,7 +7,7 @@ import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.en
 import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.entity.AdminPermissionJpaEntity;
 import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.jpa.SpringDataAdminRepository;
 import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.jpa.SpringDataPermissionRepository;
-import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.mapper.AdminMapper;
+import com.letraaletra.api.features.admin.infrastructure.persistence.postgres.mapper.AdminJpaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +39,7 @@ public class JpaAdminRepository implements AdminRepository {
                     List<AdminPermissionJpaEntity> permissions =
                             permissionRepository.findByIdAdminId(adminId);
 
-                    return AdminMapper.toDomain(entity, permissions);
+                    return AdminJpaMapper.toDomain(entity, permissions);
                 });
     }
 
@@ -50,7 +50,7 @@ public class JpaAdminRepository implements AdminRepository {
                     List<AdminPermissionJpaEntity> permissions =
                             permissionRepository.findByIdAdminId(entity.getId());
 
-                    return AdminMapper.toDomain(entity, permissions);
+                    return AdminJpaMapper.toDomain(entity, permissions);
                 });
     }
 
@@ -76,7 +76,7 @@ public class JpaAdminRepository implements AdminRepository {
                         ));
 
         return admins.map(entity ->
-                AdminMapper.toDomain(
+                AdminJpaMapper.toDomain(
                         entity,
                         permissionsByAdmin.getOrDefault(
                                 entity.getId(),
@@ -93,12 +93,12 @@ public class JpaAdminRepository implements AdminRepository {
 
     @Override
     public void save(Admin admin) {
-        repository.save(AdminMapper.toEntity(admin));
+        repository.save(AdminJpaMapper.toEntity(admin));
 
         permissionRepository.deleteByIdAdminId(admin.getId());
 
         permissionRepository.saveAll(
-                AdminMapper.toPermissionEntities(admin)
+                AdminJpaMapper.toPermissionEntities(admin)
         );
     }
 
@@ -109,6 +109,6 @@ public class JpaAdminRepository implements AdminRepository {
 
     @Override
     public void delete(Admin admin) {
-        repository.delete(AdminMapper.toEntity(admin));
+        repository.delete(AdminJpaMapper.toEntity(admin));
     }
 }
