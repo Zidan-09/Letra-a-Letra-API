@@ -25,6 +25,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletionException;
 
 @Component
 @RequiredArgsConstructor
@@ -90,7 +91,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
         Throwable cause = ex;
 
-        if (ex instanceof java.util.concurrent.CompletionException && ex.getCause() != null) {
+        if (ex instanceof CompletionException && ex.getCause() != null) {
             cause = ex.getCause();
         }
 
@@ -99,7 +100,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         if (cause instanceof DomainException appEx) {
             message = appEx.getMessage();
         } else {
-            message = "an_intern_error_ocurrered";
+            message = "an unexpected internal server error occurred";
         }
 
         ErrorWsResponse json = new ErrorWsResponse(message);
