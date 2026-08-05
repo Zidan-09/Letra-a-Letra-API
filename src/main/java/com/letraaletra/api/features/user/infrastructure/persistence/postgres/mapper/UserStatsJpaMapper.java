@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
 
-public class UserStatsMapper {
+public class UserStatsJpaMapper {
     public static UserStats toDomain(UserStatsJpaEntity entity) {
         return UserStats.restore(
                 entity.getTotalMatches(),

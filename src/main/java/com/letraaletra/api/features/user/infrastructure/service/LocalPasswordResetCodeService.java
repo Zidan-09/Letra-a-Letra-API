@@ -4,16 +4,12 @@ import com.letraaletra.api.features.user.application.port.ResetCodeService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-
 @Service
-@Profile("!test")
-public class PasswordResetCodeService implements ResetCodeService {
-    private final SecureRandom secureRandom = new SecureRandom();
+@Profile("test")
+public class LocalPasswordResetCodeService implements ResetCodeService {
 
     @Override
     public String generate() {
-        int code = secureRandom.nextInt(1_000_000);
-        return String.format("%06d", code);
+        return "123456";
     }
 }
