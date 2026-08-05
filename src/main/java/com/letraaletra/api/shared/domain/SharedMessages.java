@@ -1,13 +1,18 @@
 package com.letraaletra.api.shared.domain;
 
 public enum SharedMessages implements MessageCode {
-    ERROR_TO_SEND_EMAIL("error_to_send_email"),
-    INVALID_WEBSOCKET_RESPONSE("invalid_websocket_response");
+    FAILED_TO_SEND_EMAIL("failed to send the email"),
+    INVALID_WEBSOCKET_RESPONSE("the websocket response is invalid");
 
     private final String message;
 
     SharedMessages(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String getCode() {
+        return name();
     }
 
     @Override

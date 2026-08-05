@@ -1,8 +1,10 @@
 package com.letraaletra.api.shared.infrastructure.presentation.dto.handlers;
 
 import com.letraaletra.api.shared.domain.DomainException;
+import com.letraaletra.api.shared.domain.MessageCode;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ErrorResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ServerMessages;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,21 @@ public class GlobalExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<ErrorResponse> handleHttpException(DomainException ex) {
+    public ResponseEntity<ErrorResponse> handleHttpException(
+            DomainException ex,
+            HttpServletRequest request
+    ) {
+        request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        MessageCode code = ex.getMessageCode();
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(false, ex.getMessage()));
+                .body(new ErrorResponse(
+                        false,
+                        code.getCode(),
+                        code.getMessage())
+                );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -39,7 +52,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorResponse(false, message));
+                .body(new ErrorResponse(
+                        false,
+                        "INVALID_REQUEST",
+                        message
+                ));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -53,7 +70,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorResponse(false, message));
+                .body(new ErrorResponse(
+                        false,
+                        "INVALID_REQUEST",
+                        message
+                ));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -63,7 +84,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(
                 new ErrorResponse(
                         false,
-                        "invalid_input"
+                        "INVALID_INPUT",
+                        ex.getMessage()
                 )
         );
     }
@@ -75,16 +97,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(
                         false,
-                        "resource_not_found"
+                        "RESOURCE_NOT_FOUND",
+                        ex.getMessage()
                 ));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleGenericException(
+            Exception ex,
+            HttpServletRequest request
+    ) {
         logger.error("An internal error has been threw:", ex);
+
+        request.setAttribute("AUDIT_EXCEPTION", ex);
 
         return ResponseEntity
                 .status(500)
-                .body(new ErrorResponse(false, ServerMessages.INTERNAL_ERROR.getMessage()));
+                .body(new ErrorResponse(
+                        false,
+                        ServerMessages.INTERNAL_ERROR.getCode(),
+                        ServerMessages.INTERNAL_ERROR.getMessage()
+                ));
     }
 }

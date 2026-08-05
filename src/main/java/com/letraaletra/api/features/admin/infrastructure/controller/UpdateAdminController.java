@@ -11,6 +11,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/admin")
 @Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
 public class UpdateAdminController {
     private final UseCase<UpdateAdminInput, UpdateAdminOutput> useCase;
-
-    public UpdateAdminController(
-            UseCase<UpdateAdminInput, UpdateAdminOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @PutMapping(path = "/{adminId}")
     public synchronized ResponseEntity<SuccessResponse<UpdateAdminResponse>> handle(

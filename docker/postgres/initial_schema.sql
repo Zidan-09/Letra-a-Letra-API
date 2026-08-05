@@ -27,6 +27,16 @@ CREATE TABLE "user_wallet" (
                         "hard_gems" bigint NOT NULL DEFAULT 0 CHECK ("hard_gems" >= 0)
 );
 
+CREATE TABLE "password_reset_code" (
+                        "password_reset_code_id" uuid PRIMARY KEY NOT NULL,
+                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "code_hash" varchar(100) NOT NULL,
+                        "used" boolean DEFAULT false,
+                        "attempts" integer NOT NULL DEFAULT 0,
+                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE "game" (
                         "game_id" uuid PRIMARY KEY NOT NULL,
                         "host_id" uuid REFERENCES "user" ("user_id"),
@@ -144,6 +154,16 @@ CREATE TABLE "admin_setup_password_token" (
                       "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
                       "expires_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                       "used" boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE "admin_password_reset_token" (
+                      "password_reset_token_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                      "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "token_hash" varchar(100) NOT NULL,
+                      "used" boolean DEFAULT false,
+                      "attempts" integer NOT NULL DEFAULT 0,
+                      "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                      "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "level" (

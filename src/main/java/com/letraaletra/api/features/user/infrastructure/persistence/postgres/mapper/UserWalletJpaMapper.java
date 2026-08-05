@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserWalletJpaEntity;
 
-public class UserWalletMapper {
+public class UserWalletJpaMapper {
     public static Wallet toDomain(UserWalletJpaEntity entity) {
         return Wallet.restore(
                 entity.getSoftCoins(),

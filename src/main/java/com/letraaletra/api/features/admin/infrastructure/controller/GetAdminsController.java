@@ -10,6 +10,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiRe
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,16 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/admin")
 @Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
 public class GetAdminsController {
     private final UseCase<GetAdminsInput, GetAdminsOutput> useCase;
-
-    public GetAdminsController(
-            UseCase<GetAdminsInput, GetAdminsOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @GetMapping
     public ResponseEntity<SuccessResponse<PageResponse<AdminResponse>>> handle(

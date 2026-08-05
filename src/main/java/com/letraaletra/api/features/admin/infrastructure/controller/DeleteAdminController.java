@@ -9,6 +9,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,16 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/admin")
 @Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
 public class DeleteAdminController {
     private final UseCase<DeleteAdminInput, DeleteAdminOutput> useCase;
-
-    public DeleteAdminController(
-            UseCase<DeleteAdminInput, DeleteAdminOutput> useCase
-    ) {
-        this.useCase = useCase;
-    }
 
     @DeleteMapping(path = "/{adminId}")
     public ResponseEntity<SuccessResponse<DeleteAdminResponse>> handle(

@@ -1,6 +1,6 @@
-package com.letraaletra.api.features.admin.infrastructure.service;
+package com.letraaletra.api.shared.infrastructure.service;
 
-import com.letraaletra.api.features.admin.domain.TokenHashService;
+import com.letraaletra.api.shared.domain.service.TokenHashService;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -21,5 +21,10 @@ public class TokenHashServiceImpl implements TokenHashService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error to generate hash token", e);
         }
+    }
+
+    @Override
+    public boolean matches(String raw, String hash) {
+        return hash(raw).equals(hash);
     }
 }

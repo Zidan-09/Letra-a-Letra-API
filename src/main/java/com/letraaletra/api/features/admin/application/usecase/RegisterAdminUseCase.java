@@ -5,7 +5,7 @@ import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput
 import com.letraaletra.api.features.admin.application.port.AdminInvitationEmailService;
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.AdminPasswordSetupToken;
-import com.letraaletra.api.features.admin.domain.TokenHashService;
+import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;

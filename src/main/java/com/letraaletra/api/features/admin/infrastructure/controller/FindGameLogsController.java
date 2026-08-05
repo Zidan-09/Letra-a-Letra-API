@@ -6,6 +6,7 @@ import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,18 +24,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/admin/logs/game")
 @Tag(name = "Admin", description = "Logs das partidas")
 public class FindGameLogsController {
 
     private final Path root = Paths.get("logs", "game");
     private final AdminChecker adminChecker;
-
-    public FindGameLogsController(
-            AdminChecker adminChecker
-    ) {
-        this.adminChecker = adminChecker;
-    }
 
     @GetMapping
     public List<String> findDates(
