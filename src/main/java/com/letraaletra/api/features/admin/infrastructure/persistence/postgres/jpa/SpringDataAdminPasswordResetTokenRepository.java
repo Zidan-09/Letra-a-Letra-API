@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataAdminPasswordResetTokenRepository extends JpaRepository<AdminPasswordResetTokenJpaEntity, UUID> {
-    Optional<AdminPasswordResetTokenJpaEntity> findByAdminId(UUID adminId);
-
     @Modifying
     @Query("""
         UPDATE AdminPasswordResetTokenJpaEntity p
@@ -28,7 +26,5 @@ public interface SpringDataAdminPasswordResetTokenRepository extends JpaReposito
           AND p.used = false
           AND p.expiresAt > CURRENT_TIMESTAMP
     """)
-    Optional<AdminPasswordResetTokenJpaEntity> findValidByTokenHash(
-            @Param("tokenHash") String tokenHash
-    );
+    Optional<AdminPasswordResetTokenJpaEntity> findValidByTokenHash(@Param("tokenHash") String tokenHash);
 }
