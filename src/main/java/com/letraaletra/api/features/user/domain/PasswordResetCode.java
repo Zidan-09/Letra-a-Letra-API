@@ -111,19 +111,15 @@ public class PasswordResetCode {
     }
 
     public void validate(String code, TokenHashService tokenHashService) {
-        System.out.println("\n\nEntrou no método---------------------------------------\n\n");
         if (used) {
-            System.out.println("\nFoi usado\n");
             throw new InvalidTokenException();
         }
 
         if (isExpired()) {
-            System.out.println("\nExpirado");
             throw new InvalidTokenException();
         }
 
         if (!tokenHashService.matches(code, codeHash)) {
-            System.out.println("\nToken Inválido mermo");
             incrementAttempts();
             throw new InvalidTokenException();
         }

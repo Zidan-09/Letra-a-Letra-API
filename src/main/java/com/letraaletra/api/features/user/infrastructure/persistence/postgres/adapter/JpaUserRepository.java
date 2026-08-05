@@ -8,10 +8,10 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +37,13 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public void save(User user) {
-        repository.save(UserMapper.toEntity(user));
+        repository.save(UserJpaMapper.toEntity(user));
 
-        statsRepository.save(UserStatsMapper.toEntity(user));
-        walletRepository.save(UserWalletMapper.toEntity(user));
+        statsRepository.save(UserStatsJpaMapper.toEntity(user));
+        walletRepository.save(UserWalletJpaMapper.toEntity(user));
 
         List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
-                .map(item -> UserInventoryMapper.toEntity(user.getUserId(), item))
+                .map(item -> UserInventoryJpaMapper.toEntity(user.getUserId(), item))
                 .toList();
 
         inventoryRepository.saveAll(inventoryEntities);
@@ -53,7 +53,7 @@ public class JpaUserRepository implements UserRepository {
     public void saveAll(List<User> users) {
         repository.saveAll(
                 users.stream()
-                        .map(UserMapper::toEntity)
+                        .map(UserJpaMapper::toEntity)
                         .toList()
         );
     }
@@ -62,7 +62,7 @@ public class JpaUserRepository implements UserRepository {
     public Optional<User> find(UUID id) {
         return repository.findDetailsById(id)
                 .map(projection ->
-                        UserMapper.toDomain(
+                        UserJpaMapper.toDomain(
                                 projection,
                                 inventoryRepository.findInventory(id)
                         )
@@ -77,7 +77,7 @@ public class JpaUserRepository implements UserRepository {
                 inventoryRepository.findInventoryByUserIds(ids);
 
         return users.stream()
-                .map(user -> UserMapper.toDomain(
+                .map(user -> UserJpaMapper.toDomain(
                         user,
                         inventories.stream()
                                 .filter(item -> item.getUserId().equals(user.getUserId()))
@@ -90,7 +90,7 @@ public class JpaUserRepository implements UserRepository {
     public Optional<User> findByUsername(String username) {
         return repository.findDetailsByUsername(username)
                 .map(projection ->
-                        UserMapper.toDomain(
+                        UserJpaMapper.toDomain(
                                 projection,
                                 inventoryRepository.findInventory(projection.getUserId())
                         )
@@ -101,7 +101,7 @@ public class JpaUserRepository implements UserRepository {
     public Optional<User> findByEmail(String email) {
         return repository.findDetailsByEmail(email)
                 .map(projection ->
-                        UserMapper.toDomain(
+                        UserJpaMapper.toDomain(
                                 projection,
                                 inventoryRepository.findInventory(projection.getUserId())
                         )
@@ -112,7 +112,7 @@ public class JpaUserRepository implements UserRepository {
     public Optional<User> findByGoogleId(String googleId) {
         return repository.findDetailsByGoogleId(googleId)
                 .map(projection ->
-                        UserMapper.toDomain(
+                        UserJpaMapper.toDomain(
                                 projection,
                                 inventoryRepository.findInventory(projection.getUserId())
                         )
@@ -156,7 +156,7 @@ public class JpaUserRepository implements UserRepository {
                         ));
 
         return users.map(user ->
-                UserMapper.toDomain(
+                UserJpaMapper.toDomain(
                         user,
                         inventories.getOrDefault(
                                 user.getUserId(),

@@ -10,7 +10,7 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.pro
 
 import java.util.List;
 
-public class UserMapper {
+public class UserJpaMapper {
     public static UserJpaEntity toEntity(User user) {
         if (user == null) return null;
 
@@ -28,8 +28,6 @@ public class UserMapper {
     }
 
     public static User toDomain(UserProjection projection, List<InventoryProjection> inventory) {
-        System.out.println("Entrou no Mapper do Repositório: " + projection);
-
         return User.restore(
                 projection.getUserId(),
                 projection.getUsername(),
@@ -50,7 +48,7 @@ public class UserMapper {
                         inventory == null
                                 ? List.of()
                                 : inventory.stream()
-                                .map(UserInventoryMapper::toDomain)
+                                .map(UserInventoryJpaMapper::toDomain)
                                 .toList()
                 ),
                 Wallet.restore(
