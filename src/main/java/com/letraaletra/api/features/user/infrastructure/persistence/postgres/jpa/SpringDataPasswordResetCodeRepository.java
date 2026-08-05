@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataPasswordResetCodeRepository extends JpaRepository<PasswordResetCodeJpaEntity, UUID> {
-    Optional<PasswordResetCodeJpaEntity> findByUserId(UUID userId);
-
     @Modifying
     @Query("""
         UPDATE PasswordResetCodeJpaEntity p
@@ -21,8 +19,6 @@ public interface SpringDataPasswordResetCodeRepository extends JpaRepository<Pas
     """)
     void invalidateAllByUserId(@Param("userId") UUID userId);
 
-    Optional<PasswordResetCodeJpaEntity> findFirstByUserIdOrderByCreatedAtDesc(UUID userId);
-
     @Query("""
         SELECT p
         FROM PasswordResetCodeJpaEntity p
@@ -30,7 +26,5 @@ public interface SpringDataPasswordResetCodeRepository extends JpaRepository<Pas
             AND p.used = false
             AND p.expiresAt > CURRENT_TIMESTAMP
     """)
-    Optional<PasswordResetCodeJpaEntity> findValidByCodeHash(
-            @Param("codeHash") String codeHash
-    );
+    Optional<PasswordResetCodeJpaEntity> findValidByCodeHash(@Param("codeHash") String codeHash);
 }

@@ -22,19 +22,6 @@ public class JpaPasswordResetCodeRepository implements ResetCodeRepository {
     }
 
     @Override
-    public Optional<PasswordResetCode> findByUserId(UUID userId) {
-        return repository.findByUserId(userId)
-                .map(PasswordResetCodeJpaMapper::toDomain);
-    }
-
-    @Override
-    public Optional<PasswordResetCode> findLatestByUserId(UUID userId) {
-        return repository
-                .findFirstByUserIdOrderByCreatedAtDesc(userId)
-                .map(PasswordResetCodeJpaMapper::toDomain);
-    }
-
-    @Override
     public Optional<PasswordResetCode> findByCodeHash(String codeHash) {
         return repository
                 .findValidByCodeHash(codeHash)
