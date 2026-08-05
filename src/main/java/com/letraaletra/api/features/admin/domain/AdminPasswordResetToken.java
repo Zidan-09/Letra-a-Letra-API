@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.admin.domain;
 
+import com.letraaletra.api.features.user.domain.exception.MaxAttemptsExceededException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
@@ -11,6 +12,7 @@ public class AdminPasswordResetToken {
     private final UUID adminId;
     private final String tokenHash;
     private boolean used;
+    private int attempts;
     private final LocalDateTime createdAt;
     private final LocalDateTime expiresAt;
 
@@ -19,6 +21,7 @@ public class AdminPasswordResetToken {
             UUID adminId,
             String tokenHash,
             boolean used,
+            int attempts,
             LocalDateTime createdAt,
             LocalDateTime expiresAt
     ) {
@@ -26,6 +29,7 @@ public class AdminPasswordResetToken {
         this.adminId = adminId;
         this.tokenHash = tokenHash;
         this.used = used;
+        this.attempts = attempts;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
     }
@@ -39,6 +43,7 @@ public class AdminPasswordResetToken {
                 adminId,
                 tokenHash,
                 false,
+                0,
                 LocalDateTime.now(),
                 LocalDateTime.now().plusMinutes(15)
         );
@@ -49,6 +54,7 @@ public class AdminPasswordResetToken {
             UUID adminId,
             String tokenHash,
             boolean used,
+            int attempts,
             LocalDateTime createdAt,
             LocalDateTime expiresAt
     ) {
@@ -57,6 +63,7 @@ public class AdminPasswordResetToken {
                 adminId,
                 tokenHash,
                 used,
+                attempts,
                 createdAt,
                 expiresAt
         );
@@ -86,6 +93,18 @@ public class AdminPasswordResetToken {
         return expiresAt;
     }
 
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void incrementAttempts() {
+        if (attempts >= 5) {
+            throw new MaxAttemptsExceededException();
+        }
+
+        attempts++;
+    }
+
     private boolean isExpired() {
         return LocalDateTime.now().isAfter(expiresAt);
     }
@@ -103,6 +122,7 @@ public class AdminPasswordResetToken {
         }
 
         if (!tokenHashService.matches(token, tokenHash)) {
+            incrementAttempts();
             throw new InvalidTokenException();
         }
     }

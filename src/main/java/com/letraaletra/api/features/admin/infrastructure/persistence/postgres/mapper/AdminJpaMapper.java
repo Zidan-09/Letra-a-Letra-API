@@ -48,7 +48,7 @@ public class AdminJpaMapper {
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setSuper(domain.isSuper());
-        entity.setHashPassword(domain.getHashPassword());
+        entity.setHashPassword(domain.getPasswordHash());
         entity.setCreatedAt(domain.getCreatedAt());
 
         return entity;

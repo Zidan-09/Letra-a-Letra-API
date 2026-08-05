@@ -28,6 +28,9 @@ public class AdminPasswordResetTokenJpaEntity {
     @Column(name = "used")
     private boolean used;
 
+    @Column(name = "attempts")
+    private int attempts;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

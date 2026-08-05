@@ -161,6 +161,7 @@ CREATE TABLE "admin_password_reset_token" (
                       "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE CASCADE,
                       "token_hash" varchar(100) NOT NULL,
                       "used" boolean DEFAULT false,
+                      "attempts" integer NOT NULL DEFAULT 0,
                       "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                       "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );

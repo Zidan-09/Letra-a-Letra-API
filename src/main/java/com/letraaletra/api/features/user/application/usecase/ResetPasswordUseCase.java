@@ -4,7 +4,6 @@ import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
 import com.letraaletra.api.features.user.domain.PasswordResetCode;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.SamePasswordException;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.ResetCodeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -35,7 +34,7 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     @Transactional
     public Void execute(ResetPasswordInput input) {
         User user = userRepository.findByEmail(input.email())
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(InvalidTokenException::new);
 
         PasswordResetCode resetCode =
                 codeRepository.findLatestByUserId(user.getUserId())

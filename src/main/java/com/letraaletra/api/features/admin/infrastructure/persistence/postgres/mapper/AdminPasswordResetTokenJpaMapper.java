@@ -10,6 +10,7 @@ public class AdminPasswordResetTokenJpaMapper {
                 entity.getAdminId(),
                 entity.getTokenHash(),
                 entity.isUsed(),
+                entity.getAttempts(),
                 entity.getCreatedAt(),
                 entity.getExpiresAt()
         );
@@ -22,6 +23,7 @@ public class AdminPasswordResetTokenJpaMapper {
         entity.setAdminId(domain.getAdminId());
         entity.setTokenHash(domain.getTokenHash());
         entity.setUsed(domain.isUsed());
+        entity.setAttempts(domain.getAttempts());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setExpiresAt(domain.getExpiresAt());
 
