@@ -6,7 +6,6 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.dto.reques
 public class VerifyResetTokenMapper {
     public static VerifyResetTokenInput toInput(VerifyResetTokenRequest request) {
         return new VerifyResetTokenInput(
-                request.email(),
                 request.token()
         );
     }

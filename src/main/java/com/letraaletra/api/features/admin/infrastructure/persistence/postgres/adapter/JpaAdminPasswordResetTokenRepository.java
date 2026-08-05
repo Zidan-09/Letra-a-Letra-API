@@ -15,7 +15,6 @@ import java.util.UUID;
 public class JpaAdminPasswordResetTokenRepository implements AdminResetTokenRepository {
     private final SpringDataAdminPasswordResetTokenRepository repository;
 
-
     @Override
     public Optional<AdminPasswordResetToken> findById(UUID id) {
         return repository.findById(id)
@@ -25,6 +24,13 @@ public class JpaAdminPasswordResetTokenRepository implements AdminResetTokenRepo
     @Override
     public Optional<AdminPasswordResetToken> findLatestByAdminId(UUID adminId) {
         return repository.findByAdminId(adminId)
+                .map(AdminPasswordResetTokenJpaMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AdminPasswordResetToken> findByTokenHash(String tokenHash) {
+        return repository
+                .findValidByTokenHash(tokenHash)
                 .map(AdminPasswordResetTokenJpaMapper::toDomain);
     }
 

@@ -10,6 +10,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
+import org.springframework.transaction.annotation.Transactional;
 
 public class ResetAdminPasswordUseCase implements UseCase<ResetAdminPasswordInput, Void> {
     private final AdminRepository adminRepository;
@@ -30,15 +31,18 @@ public class ResetAdminPasswordUseCase implements UseCase<ResetAdminPasswordInpu
     }
 
     @Override
+    @Transactional
     public Void execute(ResetAdminPasswordInput input) {
-        Admin admin = adminRepository.findByEmail(input.email())
+        String tokenHash = tokenHashService.hash(input.token());
+
+        AdminPasswordResetToken resetToken = tokenRepository
+                .findByTokenHash(tokenHash)
                 .orElseThrow(InvalidTokenException::new);
 
-        AdminPasswordResetToken resetToken =
-                tokenRepository.findLatestByAdminId(admin.getId())
-                        .orElseThrow(InvalidTokenException::new);
+        resetToken.validate(tokenHash);
 
-        resetToken.validate(input.token(), tokenHashService);
+        Admin admin = adminRepository.find(resetToken.getAdminId())
+                .orElseThrow(InvalidTokenException::new);
 
         if (passwordService.matches(input.newPassword(), admin.getPasswordHash())) {
             throw new SamePasswordException();

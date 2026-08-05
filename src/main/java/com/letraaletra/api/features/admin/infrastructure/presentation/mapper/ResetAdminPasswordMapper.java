@@ -6,7 +6,6 @@ import com.letraaletra.api.features.admin.infrastructure.presentation.dto.reques
 public class ResetAdminPasswordMapper {
     public static ResetAdminPasswordInput toInput(ResetAdminPasswordRequest request) {
         return new ResetAdminPasswordInput(
-                request.email(),
                 request.newPassword(),
                 request.token()
         );

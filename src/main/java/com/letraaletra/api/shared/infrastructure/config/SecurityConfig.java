@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/user/auth/**",
                                 "/user",
-                                "/admin/auth",
+                                "/admin/auth/**",
                                 "/ws/**",
                                 "/h2-console/**",
                                 "/index.html",

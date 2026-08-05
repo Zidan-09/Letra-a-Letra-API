@@ -2,7 +2,6 @@ package com.letraaletra.api.features.admin.domain;
 
 import com.letraaletra.api.features.user.domain.exception.MaxAttemptsExceededException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
-import com.letraaletra.api.shared.domain.service.TokenHashService;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -112,7 +111,8 @@ public class AdminPasswordResetToken {
     public void markAsUsed() {
         used = true;
     }
-    public void validate(String token, TokenHashService tokenHashService) {
+
+    public void validate(String tokenHashed) {
         if (used) {
             throw new InvalidTokenException();
         }
@@ -121,7 +121,7 @@ public class AdminPasswordResetToken {
             throw new InvalidTokenException();
         }
 
-        if (!tokenHashService.matches(token, tokenHash)) {
+        if (!tokenHashed.equals(tokenHash)) {
             incrementAttempts();
             throw new InvalidTokenException();
         }
