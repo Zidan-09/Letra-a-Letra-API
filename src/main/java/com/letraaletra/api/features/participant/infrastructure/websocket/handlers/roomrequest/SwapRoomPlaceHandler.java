@@ -28,9 +28,9 @@ public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRe
     public void handle(SwapPositionWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        SwapPositionInput command = SwapPositionMapper.toInput(request, userId);
+        SwapPositionInput input = SwapPositionMapper.toInput(request, userId);
 
-        SwapPositionOutput output = useCase.execute(command);
+        SwapPositionOutput output = useCase.execute(input);
 
         SwapPositionResponse dto = SwapPositionMapper.toResponse(output);
 

@@ -9,7 +9,6 @@ import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeReposi
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 public class ForgotPasswordUseCase implements UseCase<ForgotPasswordInput, Void> {
     private final UserRepository userRepository;
@@ -33,7 +32,6 @@ public class ForgotPasswordUseCase implements UseCase<ForgotPasswordInput, Void>
     }
 
     @Override
-    @Transactional
     public Void execute(ForgotPasswordInput input) {
         User user = userRepository.findByEmail(input.email()).orElse(null);
 

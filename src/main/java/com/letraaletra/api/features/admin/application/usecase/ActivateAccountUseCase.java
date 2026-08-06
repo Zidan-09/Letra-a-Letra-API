@@ -10,7 +10,6 @@ import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
-import org.springframework.transaction.annotation.Transactional;
 
 public class ActivateAccountUseCase implements UseCase<ActivateAccountInput, Void> {
     private final TokenHashService tokenHashService;
@@ -31,7 +30,6 @@ public class ActivateAccountUseCase implements UseCase<ActivateAccountInput, Voi
     }
 
     @Override
-    @Transactional
     public Void execute(ActivateAccountInput input) {
         String tokenHash = tokenHashService.hash(input.token());
 

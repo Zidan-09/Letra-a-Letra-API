@@ -10,6 +10,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ModerationResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.BanParticipantMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
@@ -27,13 +28,14 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
         this.gameNotifier = gameNotifier;
     }
 
+    @Transactional
     @Override
     public void handle(BanParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        BanParticipantInput command = BanParticipantMapper.toInput(request, userId);
+        BanParticipantInput input = BanParticipantMapper.toInput(request, userId);
 
-        BanParticipantOutput output = useCase.execute(command);
+        BanParticipantOutput output = useCase.execute(input);
 
         BanParticipantResponse dto = BanParticipantMapper.toResponse(output);
 

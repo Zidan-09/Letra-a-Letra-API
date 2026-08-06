@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class UpdateCosmeticController {
     private final UseCase<UpdateCosmeticInput, UpdateCosmeticOutput> useCase;
 
+    @Transactional
     @PutMapping("/{cosmeticId}")
     public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

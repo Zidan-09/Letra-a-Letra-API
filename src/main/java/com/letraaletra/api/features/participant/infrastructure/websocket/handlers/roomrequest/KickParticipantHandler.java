@@ -10,6 +10,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ModerationResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.KickParticipantMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
@@ -27,13 +28,14 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
         this.gameNotifier = gameNotifier;
     }
 
+    @Transactional
     @Override
     public void handle(KickParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        KickParticipantInput command = KickParticipantMapper.toInput(request, userId);
+        KickParticipantInput input = KickParticipantMapper.toInput(request, userId);
 
-        KickParticipantOutput output = useCase.execute(command);
+        KickParticipantOutput output = useCase.execute(input);
 
         KickParticipantResponse dto = KickParticipantMapper.toResponse(output);
 

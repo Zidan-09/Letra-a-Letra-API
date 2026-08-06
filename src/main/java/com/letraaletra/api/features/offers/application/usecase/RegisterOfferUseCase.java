@@ -11,7 +11,6 @@ import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +31,6 @@ public class RegisterOfferUseCase implements UseCase<RegisterOfferInput, Registe
     }
 
     @Override
-    @Transactional
     public RegisterOfferOutput execute(RegisterOfferInput input) {
         adminChecker.check(input.principal(), PermissionKey.OFFERS, PermissionAction.CREATE);
 

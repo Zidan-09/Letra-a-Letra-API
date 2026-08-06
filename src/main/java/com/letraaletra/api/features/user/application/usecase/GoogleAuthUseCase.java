@@ -10,7 +10,6 @@ import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
@@ -31,7 +30,6 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     }
 
     @Override
-    @Transactional
     public SignInOutput execute(AuthInput input) {
         GoogleAuthData payload = googleTokenService.verify(input.token());
 

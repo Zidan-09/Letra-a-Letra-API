@@ -12,7 +12,6 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdminOutput> {
     private final AdminRepository adminRepository;
@@ -27,7 +26,6 @@ public class UpdateAdminUseCase implements UseCase<UpdateAdminInput, UpdateAdmin
     }
 
     @Override
-    @Transactional
     public UpdateAdminOutput execute(UpdateAdminInput input) {
         adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.EDIT);
 

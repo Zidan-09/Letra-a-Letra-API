@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class DeleteCosmeticController {
     private final UseCase<DeleteCosmeticInput, DeleteCosmeticOutput> useCase;
 
+    @Transactional
     @DeleteMapping(path = "/{cosmeticId}")
     public ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

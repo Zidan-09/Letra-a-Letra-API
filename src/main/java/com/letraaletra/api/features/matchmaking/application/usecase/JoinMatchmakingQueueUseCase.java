@@ -26,6 +26,7 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
         this.queueChecker = queueChecker;
     }
 
+    @Override
     public Void execute(JoinMatchmakingInput input) {
         OnlineUser onlineUser = input.onlineUser();
 

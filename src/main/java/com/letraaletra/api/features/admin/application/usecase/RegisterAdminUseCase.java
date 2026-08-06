@@ -13,7 +13,6 @@ import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -40,7 +39,6 @@ public class RegisterAdminUseCase implements UseCase<RegisterAdminInput, Registe
     }
 
     @Override
-    @Transactional
     public RegisterAdminOutput execute(RegisterAdminInput input) {
         adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.CREATE);
 

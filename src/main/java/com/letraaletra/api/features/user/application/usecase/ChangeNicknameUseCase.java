@@ -8,7 +8,6 @@ import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 public class ChangeNicknameUseCase implements UseCase<ChangeNicknameInput, ChangeNicknameOutput> {
     private final UserRepository userRepository;
@@ -18,7 +17,6 @@ public class ChangeNicknameUseCase implements UseCase<ChangeNicknameInput, Chang
     }
 
     @Override
-    @Transactional
     public ChangeNicknameOutput execute(ChangeNicknameInput input) {
         User user = userRepository.find(input.user()).orElse(null);
         validateUser(user);

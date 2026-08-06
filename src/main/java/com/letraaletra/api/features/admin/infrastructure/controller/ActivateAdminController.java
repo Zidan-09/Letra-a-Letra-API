@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ActivateAdminController {
     private final UseCase<ActivateAccountInput, Void> useCase;
 
+    @Transactional
     @PatchMapping(path = "/activate")
     public ResponseEntity<SuccessResponse<Void>> handle(
             @RequestParam String token,

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class EnableCosmeticController {
     private final UseCase<EnableCosmeticInput, EnableCosmeticOutput> useCase;
 
+    @Transactional
     @PatchMapping(path = "/enable/{cosmeticId}")
     public ResponseEntity<SuccessResponse<EnableCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
