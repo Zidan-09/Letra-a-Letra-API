@@ -1,11 +1,13 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ChangeNicknameRequest(
         @NotBlank
-        @Size(min = 5, max = 10)
+        @NotNull
+        @Size(min = 3, max = 16)
         String nickname
 ) {
 }
