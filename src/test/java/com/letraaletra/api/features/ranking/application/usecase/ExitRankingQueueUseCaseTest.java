@@ -4,7 +4,7 @@ import com.letraaletra.api.features.ranking.application.input.ExitRankingQueueIn
 import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.QueueChecker;
 import com.letraaletra.api.shared.domain.exception.UserIsNotOnQueueException;
 import org.junit.jupiter.api.BeforeEach;

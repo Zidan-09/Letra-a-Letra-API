@@ -13,6 +13,7 @@ public interface UserProjection {
 
     UUID getCurrentGameId();
     boolean isCanChangeNickname();
+    boolean isBanned();
 
     int getTotalMatches();
     int getTotalWins();

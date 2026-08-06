@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.infrastructure.listener.ShutdownListener;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;

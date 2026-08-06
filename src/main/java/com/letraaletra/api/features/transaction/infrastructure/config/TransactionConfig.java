@@ -4,7 +4,7 @@ import com.letraaletra.api.features.transaction.application.usecase.FindTransact
 import com.letraaletra.api.features.transaction.application.usecase.FindTransactionUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.FindTransactionsByUserUsernameUseCase;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

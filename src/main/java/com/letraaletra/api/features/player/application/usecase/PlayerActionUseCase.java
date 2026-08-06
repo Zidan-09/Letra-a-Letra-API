@@ -6,7 +6,7 @@ import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorC
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;

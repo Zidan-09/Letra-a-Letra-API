@@ -10,10 +10,10 @@ import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.concurrent.CompletableFuture;
 
-public class UnbanUserUseCase implements UseCase<UnbanParticipantInput, UnbanParticipantOutput> {
+public class UnbanParticipantUseCase implements UseCase<UnbanParticipantInput, UnbanParticipantOutput> {
     private final ActorManager<Game> gameActorManager;
 
-    public UnbanUserUseCase(ActorManager<Game> gameActorManager) {
+    public UnbanParticipantUseCase(ActorManager<Game> gameActorManager) {
         this.gameActorManager = gameActorManager;
     }
 

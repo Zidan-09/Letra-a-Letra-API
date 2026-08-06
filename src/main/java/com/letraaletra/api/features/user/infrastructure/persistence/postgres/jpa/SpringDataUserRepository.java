@@ -23,6 +23,7 @@ public interface SpringDataUserRepository
         u.googleId AS googleId,
 
         u.currentGameId AS currentGameId,
+        u.banned AS banned,
         u.canChangeNickname AS canChangeNickname,
 
         s.totalMatches AS totalMatches,

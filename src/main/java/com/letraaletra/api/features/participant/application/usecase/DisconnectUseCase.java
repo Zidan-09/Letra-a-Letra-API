@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -10,7 +11,7 @@ import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,28 +52,27 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
 
         if (user.isNotInGame()) return Optional.empty();
 
-        Actor actor = gameActorManager.get(user.getCurrentGameId());
+        try {
+            Actor actor = gameActorManager.get(user.getCurrentGameId());
 
-        CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
-                new DisconnectParticipantActorCommand(userId)
-        );
+            CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
+                    new DisconnectParticipantActorCommand(userId)
+            );
 
-        Optional<Game> game = future.join();
+            Optional<Game> game = future.join();
 
-        if (game.isEmpty()) {
-            user.leaveGame();
-            userRepository.save(user);
+            if (game.isEmpty()) {
+                user.leaveGame();
+                userRepository.save(user);
+                return Optional.empty();
+            } else {
+                disconnectScheduler.start(userId, game.get().getId());
+            }
+
+            return Optional.of(new DisconnectParticipantOutput(userId, game.get()));
+
+        } catch (GameNotFoundException e) {
             return Optional.empty();
-        } else {
-            disconnectScheduler.start(userId, game.get().getId());
         }
-
-        return buildReturn(game.get(), userId);
-    }
-
-    private Optional<DisconnectParticipantOutput> buildReturn(Game game, UUID user) {
-        return Optional.of(
-                new DisconnectParticipantOutput(user, game)
-        );
     }
 }

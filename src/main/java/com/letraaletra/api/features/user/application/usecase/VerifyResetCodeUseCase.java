@@ -2,7 +2,7 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.VerifyResetCodeInput;
 import com.letraaletra.api.features.user.domain.PasswordResetCode;
-import com.letraaletra.api.features.user.domain.repository.ResetCodeRepository;
+import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;

@@ -4,7 +4,7 @@ import com.letraaletra.api.features.admin.application.output.GetApplicationStatu
 import com.letraaletra.api.features.admin.application.port.ApplicationStatusService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

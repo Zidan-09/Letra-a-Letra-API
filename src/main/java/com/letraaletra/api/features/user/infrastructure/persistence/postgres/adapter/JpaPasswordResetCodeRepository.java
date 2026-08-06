@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.user.domain.PasswordResetCode;
-import com.letraaletra.api.features.user.domain.repository.ResetCodeRepository;
+import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataPasswordResetCodeRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.PasswordResetCodeJpaMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +18,6 @@ public class JpaPasswordResetCodeRepository implements ResetCodeRepository {
     @Override
     public Optional<PasswordResetCode> findById(UUID id) {
         return repository.findById(id)
-                .map(PasswordResetCodeJpaMapper::toDomain);
-    }
-
-    @Override
-    public Optional<PasswordResetCode> findByUserId(UUID userId) {
-        return repository.findByUserId(userId)
-                .map(PasswordResetCodeJpaMapper::toDomain);
-    }
-
-    @Override
-    public Optional<PasswordResetCode> findLatestByUserId(UUID userId) {
-        return repository
-                .findFirstByUserIdOrderByCreatedAtDesc(userId)
                 .map(PasswordResetCodeJpaMapper::toDomain);
     }
 

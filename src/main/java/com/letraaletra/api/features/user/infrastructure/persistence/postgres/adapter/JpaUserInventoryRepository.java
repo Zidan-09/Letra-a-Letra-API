@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.user.domain.repository.inventory.InventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryJpaMapper;

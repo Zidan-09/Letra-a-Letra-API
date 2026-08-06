@@ -7,7 +7,7 @@ import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
 import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.OnlineUser;
 

@@ -49,6 +49,7 @@ class CreateUserControllerTest {
                 null,
                 UUID.randomUUID(),
                 false,
+                false,
                 mock(UserStats.class),
                 Inventory.create(),
                 mock(Wallet.class),
