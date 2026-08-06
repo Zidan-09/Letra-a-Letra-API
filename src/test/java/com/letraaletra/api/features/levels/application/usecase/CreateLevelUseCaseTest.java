@@ -2,17 +2,18 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
+import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.offers.domain.RewardType;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
+import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,10 +26,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,10 +40,10 @@ class CreateLevelUseCaseTest {
     private LevelRepository levelRepository;
 
     @Mock
-    private CosmeticRepository cosmeticRepository;
+    private AdminChecker adminChecker;
 
     @Mock
-    private AdminChecker adminChecker;
+    private RewardFactory rewardFactory;
 
     @InjectMocks
     private CreateLevelUseCase useCase;
@@ -67,17 +69,20 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
+        when(rewardFactory.create(RewardType.COIN, 500, null)).thenReturn(new SoftCoinsReward(500));
 
-        useCase.execute(input);
+        CreateLevelOutput output = useCase.execute(input);
 
+        assertNotNull(output);
         verify(adminChecker, times(1)).check(principal, key, action);
+        verify(rewardFactory, times(1)).create(RewardType.COIN, 500, null);
         verify(levelRepository, times(1)).save(levelCaptor.capture());
-        verifyNoInteractions(cosmeticRepository);
 
         Level savedLevel = levelCaptor.getValue();
         assertNotNull(savedLevel);
+        assertEquals(targetLevel, savedLevel.getLevel());
+        assertEquals(1, savedLevel.getRewards().size());
     }
 
     @Test
@@ -87,31 +92,29 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(gemsRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
+        when(rewardFactory.create(RewardType.GEMS, 50, null)).thenReturn(new HardGemsReward(50));
 
         useCase.execute(input);
 
+        verify(rewardFactory, times(1)).create(RewardType.GEMS, 50, null);
         verify(levelRepository, times(1)).save(any(Level.class));
-        verifyNoInteractions(cosmeticRepository);
     }
 
     @Test
     @DisplayName("Should successfully create a level with COSMETIC reward type when the reference exists")
     void shouldCreateLevelWithCosmeticRewardSuccessfully() {
         UUID cosmeticId = UUID.randomUUID();
-        Cosmetic mockCosmetic = mock(Cosmetic.class);
         CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
-        when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
+        when(rewardFactory.create(RewardType.COSMETIC, 1, cosmeticId)).thenReturn(new SoftCoinsReward(1));
 
         useCase.execute(input);
 
-        verify(cosmeticRepository, times(1)).find(cosmeticId);
+        verify(rewardFactory, times(1)).create(RewardType.COSMETIC, 1, cosmeticId);
         verify(levelRepository, times(1)).save(any(Level.class));
     }
 
@@ -119,22 +122,20 @@ class CreateLevelUseCaseTest {
     @DisplayName("Should successfully create a level with multiple mixed reward types")
     void shouldCreateLevelWithMixedRewardsSuccessfully() {
         UUID cosmeticId = UUID.randomUUID();
-        Cosmetic mockCosmetic = mock(Cosmetic.class);
-        CreateLevelRewardInput coinReward = new CreateLevelRewardInput(RewardType.COIN, null, 100);
+        CreateLevelRewardInput coinReward = new CreateLevelRewardInput(RewardType.COSMETIC, null, 100);
         CreateLevelRewardInput gemsReward = new CreateLevelRewardInput(RewardType.GEMS, null, 10);
         CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
 
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
-        when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
+        when(rewardFactory.create(any(), anyInt(), any())).thenReturn(new SoftCoinsReward(10));
 
         useCase.execute(input);
 
+        verify(rewardFactory, times(3)).create(any(), anyInt(), any());
         verify(levelRepository, times(1)).save(any(Level.class));
-        verify(cosmeticRepository, times(1)).find(cosmeticId);
     }
 
     @Test
@@ -143,11 +144,11 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
 
         useCase.execute(input);
 
+        verify(rewardFactory, never()).create(any(), anyInt(), any());
         verify(levelRepository, times(1)).save(any(Level.class));
     }
 
@@ -161,7 +162,7 @@ class CreateLevelUseCaseTest {
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(cosmeticRepository);
+        verifyNoInteractions(rewardFactory);
     }
 
     @Test
@@ -170,26 +171,29 @@ class CreateLevelUseCaseTest {
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, Collections.emptyList());
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(true);
+        when(levelRepository.existsByLevel(input.level())).thenReturn(true);
 
-        assertThrows(LevelAlreadyExistsException.class, () ->
-                useCase.execute(input));
+        assertThrows(LevelAlreadyExistsException.class, () -> useCase.execute(input));
+
+        verify(levelRepository, never()).save(any());
+        verifyNoInteractions(rewardFactory);
     }
 
     @Test
-    @DisplayName("Should throw CosmeticNotFoundException when reward type is COSMETIC but reference cannot be resolved")
-    void shouldThrowExceptionWhenCosmeticNotFound() {
-        UUID nonExistentCosmeticId = UUID.randomUUID();
-        CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
-        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
+    @DisplayName("Should propagate exception when RewardFactory fails to create reward")
+    void shouldPropagateExceptionWhenRewardFactoryFails() {
+        UUID invalidRef = UUID.randomUUID();
+        CreateLevelRewardInput invalidRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, invalidRef, 1);
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(invalidRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.existsByLevel(input.level()))
-                .thenReturn(false);
-        when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
+        when(levelRepository.existsByLevel(input.level())).thenReturn(false);
+        when(rewardFactory.create(RewardType.COSMETIC, 1, invalidRef))
+                .thenThrow(new IllegalArgumentException("Invalid reward reference"));
 
-        assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(input));
+
+        verify(levelRepository, never()).save(any());
     }
 
     @Test
@@ -199,6 +203,6 @@ class CreateLevelUseCaseTest {
 
         verifyNoInteractions(adminChecker);
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(cosmeticRepository);
+        verifyNoInteractions(rewardFactory);
     }
 }

@@ -14,6 +14,6 @@ public record RegisterOfferInput(
         List<RegisterOfferRewardInput> rewards,
         boolean repeatable,
         boolean hasExpiration,
-        long expiresIn
+        Long expiresIn
 ) {
 }

@@ -9,7 +9,7 @@ import java.util.Optional;
 public record CosmeticReward(Cosmetic cosmetic) implements Reward {
 
     @Override
-    public Optional<WalletMovement> deliver(User user) {
+    public Optional<WalletMovement> apply(User user) {
         user.getInventory().unlock(cosmetic);
 
         return Optional.empty();

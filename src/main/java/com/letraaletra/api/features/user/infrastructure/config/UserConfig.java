@@ -12,6 +12,7 @@ import com.letraaletra.api.features.user.domain.repository.inventory.InventoryRe
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
@@ -195,6 +196,21 @@ public class UserConfig {
                 userRepository,
                 banHistoryRepository,
                 adminChecker
+        );
+    }
+
+    @Bean
+    public GrantUserRewardUseCase grantUserRewardUseCase(
+            UserRepository userRepository,
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker,
+            RewardFactory rewardFactory
+    ) {
+        return new GrantUserRewardUseCase(
+                userRepository,
+                transactionRepository,
+                adminChecker,
+                rewardFactory
         );
     }
 }
