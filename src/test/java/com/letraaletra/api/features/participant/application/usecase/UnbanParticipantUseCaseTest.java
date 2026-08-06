@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UnbanUserUseCaseTest {
+class UnbanParticipantUseCaseTest {
 
     @Mock
     private ActorManager<Game> gameActorManager;
 
     @InjectMocks
-    private UnbanUserUseCase useCase;
+    private UnbanParticipantUseCase useCase;
 
     private UUID gameId;
     private UnbanParticipantInput input;

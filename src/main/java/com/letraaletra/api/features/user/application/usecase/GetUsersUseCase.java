@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UsersPage;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.data.domain.Page;

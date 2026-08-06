@@ -8,7 +8,7 @@ import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.service.GameOver;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 
 import java.util.Optional;
 import java.util.UUID;

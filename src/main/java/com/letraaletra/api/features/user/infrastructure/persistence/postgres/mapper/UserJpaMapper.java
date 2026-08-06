@@ -22,6 +22,7 @@ public class UserJpaMapper {
         entity.setGoogleId(user.getGoogleId());
         entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCurrentGameId(user.getCurrentGameId());
+        entity.setBanned(user.isBanned());
         entity.setCreatedAt(user.getCreatedAt());
 
         return entity;
@@ -35,6 +36,7 @@ public class UserJpaMapper {
                 projection.getPasswordHash(),
                 projection.getGoogleId(),
                 projection.getCurrentGameId(),
+                projection.isBanned(),
                 projection.isCanChangeNickname(),
                 UserStats.restore(
                         projection.getTotalMatches(),

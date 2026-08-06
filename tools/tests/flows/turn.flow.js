@@ -47,6 +47,11 @@ export async function runFlow(context) {
         [users[1].id]: ws2
     };
 
+    const events = {
+        [users[0].id]: context.events.get(users[0]),
+        [users[1].id]: context.events.get(users[1]),
+    };
+
     const script = [
         { player: 1, action: "PLAY" },
         { player: 2, action: "PLAY" },
@@ -111,10 +116,13 @@ export async function runFlow(context) {
         } else {
 
             if (i === script.length - 1) {
+                const removedPlayer = players[1];
+                const winner = players[2];
+
                 await waitForEvent(
                     "TURN_EXPIRED LAST",
                     e => e.event === "TURN_EXPIRED",
-                    eventsUser2,
+                    events[winner.id],
                     90000
                 );
 
@@ -123,7 +131,7 @@ export async function runFlow(context) {
                 await waitForEvent(
                     "REMOVED_BECAUSE_INACTIVITY",
                     e => e.event === "REMOVED_BECAUSE_INACTIVITY",
-                    eventsUser1,
+                    events[removedPlayer.id]
                 );
 
                 await sleep(1000);
@@ -131,7 +139,7 @@ export async function runFlow(context) {
                 await waitForEvent(
                     "GAME_OVER",
                     e => e.event === "GAME_OVER",
-                    eventsUser2
+                    events[winner.id]
                 );
 
                 await sleep(1000);

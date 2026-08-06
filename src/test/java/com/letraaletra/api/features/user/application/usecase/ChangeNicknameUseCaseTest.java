@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.exception.UserCannotChangeNicknameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

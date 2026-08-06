@@ -4,7 +4,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.player.domain.HandlerResult;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.websocket.handlers.action.InGameActionHandler;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.AuditService;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;

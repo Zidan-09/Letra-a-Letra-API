@@ -6,6 +6,7 @@ CREATE TABLE "user" (
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "current_game_id" uuid,
+                        "banned" boolean DEFAULT FALSE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
@@ -25,6 +26,19 @@ CREATE TABLE "user_wallet" (
                         "user_id" uuid PRIMARY KEY REFERENCES "user" ("user_id") ON DELETE CASCADE,
                         "soft_coins" bigint NOT NULL DEFAULT 0 CHECK ("soft_coins" >= 0),
                         "hard_gems" bigint NOT NULL DEFAULT 0 CHECK ("hard_gems" >= 0)
+);
+
+CREATE TABLE "ban_history" (
+                        "ban_history_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                        "user_id" uuid REFERENCES "user"(user_id) ON DELETE SET NULL,
+                        "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL,
+                        "reason" varchar(500) NOT NULL,
+                        "type" varchar(50) NOT NULL,
+                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "removed_at" timestamp,
+                        "removed_by" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL
+
 );
 
 CREATE TABLE "password_reset_code" (

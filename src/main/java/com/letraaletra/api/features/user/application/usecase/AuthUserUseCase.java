@@ -2,13 +2,14 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
+import com.letraaletra.api.features.user.domain.exception.UserBannedFromGameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 
 public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
@@ -25,6 +26,10 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     public SignInOutput execute(SignInInput input) {
         User user = userRepository.findByEmail(input.email())
                 .orElseThrow(UserNotFoundException::new);
+
+        if (user.isBanned()) {
+            throw new UserBannedFromGameException();
+        }
 
         checkMatch(input.password(), user.getPasswordHash());
 

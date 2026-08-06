@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.application.usecase;
 import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import org.springframework.transaction.annotation.Transactional;

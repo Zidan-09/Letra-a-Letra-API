@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
