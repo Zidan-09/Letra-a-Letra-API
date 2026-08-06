@@ -23,8 +23,11 @@ public interface SpringDataUserRepository
         u.googleId AS googleId,
 
         u.currentGameId AS currentGameId,
-        u.banned AS banned,
         u.canChangeNickname AS canChangeNickname,
+    
+        b.type AS banType,
+        b.reason AS banReason,
+        b.expiresAt AS banExpiresAt,
 
         s.totalMatches AS totalMatches,
         s.totalWins AS totalWins,
@@ -45,6 +48,11 @@ public interface SpringDataUserRepository
 
     JOIN UserWalletJpaEntity w
         ON w.userId = u.id
+    
+    LEFT JOIN BanHistoryJpaEntity b
+        ON b.userId = u.id
+       AND b.removedAt IS NULL
+       AND (b.expiresAt IS NULL OR b.expiresAt > CURRENT_TIMESTAMP)
     """;
 
     boolean existsByUsername(String username);

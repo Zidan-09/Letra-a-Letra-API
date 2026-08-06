@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.user.domain.BanHistory;
+import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.BanHistoryJpaEntity;
 
 public class BanHistoryJpaMapper {

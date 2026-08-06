@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.user.domain.BanHistory;
+import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.domain.repository.banhistory.BanHistoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataBanHistoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.BanHistoryJpaMapper;
