@@ -3,7 +3,7 @@ package com.letraaletra.api.features.ranking.infrastructure.service;
 import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
 import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

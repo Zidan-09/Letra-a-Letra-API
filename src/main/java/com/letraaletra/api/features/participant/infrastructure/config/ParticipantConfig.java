@@ -8,7 +8,7 @@ import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -74,8 +74,8 @@ public class ParticipantConfig {
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(GameActorManager gameActorManager) {
-        return new UnbanUserUseCase(gameActorManager);
+    public UnbanParticipantUseCase unbanParticipantUseCase(GameActorManager gameActorManager) {
+        return new UnbanParticipantUseCase(gameActorManager);
     }
 
     @Bean

@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.domain.actor.command.CloseGameActorComm
 import com.letraaletra.api.features.game.domain.participants.Participants;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;

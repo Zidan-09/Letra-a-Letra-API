@@ -5,7 +5,7 @@ import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.application.usecase.*;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.user.application.usecase.ChangeCosmeticUseCase;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.repository;
+package com.letraaletra.api.features.user.domain.repository.inventory;
 
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 

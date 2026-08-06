@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.repository;
+package com.letraaletra.api.features.user.domain.repository.user;
 
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UsersPage;

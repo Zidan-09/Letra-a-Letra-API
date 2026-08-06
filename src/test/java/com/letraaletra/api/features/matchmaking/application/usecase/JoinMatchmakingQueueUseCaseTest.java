@@ -6,7 +6,7 @@ import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRep
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.QueueChecker;
 import com.letraaletra.api.shared.domain.OnlineUser;
 import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;

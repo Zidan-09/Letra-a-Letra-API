@@ -11,7 +11,7 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;

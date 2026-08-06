@@ -6,7 +6,7 @@ import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

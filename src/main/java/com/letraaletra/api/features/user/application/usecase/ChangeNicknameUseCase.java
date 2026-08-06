@@ -4,7 +4,7 @@ import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.domain.exception.UserCannotChangeNicknameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;

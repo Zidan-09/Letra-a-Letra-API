@@ -7,7 +7,7 @@ import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

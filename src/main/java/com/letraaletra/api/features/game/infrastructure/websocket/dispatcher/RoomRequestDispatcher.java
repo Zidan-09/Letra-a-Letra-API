@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.websocket.dispatcher;
 
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionWsRequest;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequest;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;

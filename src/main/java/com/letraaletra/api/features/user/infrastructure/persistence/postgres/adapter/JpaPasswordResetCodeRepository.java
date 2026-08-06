@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.user.domain.PasswordResetCode;
-import com.letraaletra.api.features.user.domain.repository.ResetCodeRepository;
+import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataPasswordResetCodeRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.PasswordResetCodeJpaMapper;
 import lombok.RequiredArgsConstructor;

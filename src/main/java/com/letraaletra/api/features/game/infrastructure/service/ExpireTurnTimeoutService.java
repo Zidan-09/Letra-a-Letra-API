@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;

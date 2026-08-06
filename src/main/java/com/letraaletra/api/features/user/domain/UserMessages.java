@@ -28,6 +28,10 @@ public enum UserMessages implements MessageCode {
     MAX_ATTEMPTS_EXCEEDED("the maximum number of attempts has been exceeded"),
     SAME_PASSWORD("the new password must be different from the current password"),
 
+    USER_BANNED_FROM_GAME("the user was banned from game"),
+    USER_ALREADY_BANNED("the user is already banned"),
+    USER_DOES_NOT_HAVE_BAN("the user does not have an active ban"),
+
     INVALID_ROOM_POSITION("the provided room position is invalid");
 
     private final String message;
