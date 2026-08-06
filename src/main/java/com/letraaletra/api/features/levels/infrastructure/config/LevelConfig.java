@@ -4,6 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepositor
 import com.letraaletra.api.features.levels.application.usecase.*;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.RewardFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,13 +13,13 @@ public class LevelConfig {
     @Bean
     public CreateLevelUseCase createLevelUseCase(
             LevelRepository levelRepository,
-            CosmeticRepository cosmeticRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            RewardFactory rewardFactory
     ) {
         return new CreateLevelUseCase(
                 levelRepository,
-                cosmeticRepository,
-                adminChecker
+                adminChecker,
+                rewardFactory
         );
     }
 
