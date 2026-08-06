@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +25,6 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
     }
 
     @Override
-    @Transactional
     public JoinGameOutput execute(JoinGameInput input) {
         UUID gameId = input.gameId();
 

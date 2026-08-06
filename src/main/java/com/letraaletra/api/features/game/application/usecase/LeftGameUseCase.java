@@ -13,7 +13,6 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.game.domain.Game;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -39,7 +38,6 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
     }
 
     @Override
-    @Transactional
     public LeftGameOutput execute(LeftGameInput input) {
         Actor actor = actorManager.get(input.gameId());
 

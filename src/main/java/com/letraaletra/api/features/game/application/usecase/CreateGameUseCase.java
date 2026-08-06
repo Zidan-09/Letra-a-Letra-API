@@ -12,7 +12,6 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOutput> {
     private final UserRepository userRepository;
@@ -36,7 +35,6 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
     }
 
     @Override
-    @Transactional
     public CreateGameOutput execute(CreateGameInput input) {
         User user = userRepository.find(input.user())
                 .orElseThrow(UserNotFoundException::new);

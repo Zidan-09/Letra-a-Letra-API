@@ -17,6 +17,7 @@ public class DiscardPowerUseCase implements UseCase<DiscardPowerInput, DiscardPo
         this.gameActorManager = gameActorManager;
     }
 
+    @Override
     public DiscardPowerOutput execute(DiscardPowerInput input) {
         Actor actor = gameActorManager.get(input.gameId());
 

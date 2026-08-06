@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class RegisterCosmeticController {
     private final UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> useCase;
 
+    @Transactional
     @PostMapping()
     public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

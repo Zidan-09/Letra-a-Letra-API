@@ -10,7 +10,6 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
-import org.springframework.transaction.annotation.Transactional;
 
 public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     private final UserRepository userRepository;
@@ -31,7 +30,6 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     }
 
     @Override
-    @Transactional
     public Void execute(ResetPasswordInput input) {
         String codeHash = tokenHashService.hash(input.code());
 

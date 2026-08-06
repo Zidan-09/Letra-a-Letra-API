@@ -6,7 +6,6 @@ import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeReposi
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
-import org.springframework.transaction.annotation.Transactional;
 
 public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Void> {
     private final ResetCodeRepository codeRepository;
@@ -21,7 +20,6 @@ public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Voi
     }
 
     @Override
-    @Transactional
     public Void execute(VerifyResetCodeInput input) {
         String codeHash = tokenHashService.hash(input.code());
 

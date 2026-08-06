@@ -5,7 +5,6 @@ import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 public class RemoveFriendUseCase implements UseCase<RemoveFriendInput, Void> {
     private final FriendRepository friendRepository;
@@ -17,7 +16,6 @@ public class RemoveFriendUseCase implements UseCase<RemoveFriendInput, Void> {
     }
 
     @Override
-    @Transactional
     public Void execute(RemoveFriendInput input) {
         Friend friend = friendRepository.find(input.userId(), input.friendId())
                 .orElseThrow(FriendNotFoundException::new);

@@ -11,7 +11,6 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 public class DeleteAdminUseCase implements UseCase<DeleteAdminInput, DeleteAdminOutput> {
     private final AdminRepository adminRepository;
@@ -26,7 +25,6 @@ public class DeleteAdminUseCase implements UseCase<DeleteAdminInput, DeleteAdmin
     }
 
     @Override
-    @Transactional
     public DeleteAdminOutput execute(DeleteAdminInput input) {
         adminChecker.check(input.principal(), PermissionKey.ADMIN, PermissionAction.DELETE);
 

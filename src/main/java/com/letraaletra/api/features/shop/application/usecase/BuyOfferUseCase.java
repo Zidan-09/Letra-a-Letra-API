@@ -17,7 +17,6 @@ import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,7 +37,6 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     @Override
-    @Transactional
     public BuyOfferOutput execute(BuyOfferInput input) {
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);

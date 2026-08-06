@@ -10,7 +10,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +30,6 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
     }
 
     @Override
-    @Transactional
     public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantInput input) {
         UUID userId = input.user();
         if (userId == null) return Optional.empty();

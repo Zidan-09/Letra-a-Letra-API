@@ -9,6 +9,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.dto.
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.UnbanParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.UnbanParticipantMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
@@ -26,13 +27,14 @@ public class UnbanParticipantHandler implements RoomRequestHandler<UnbanParticip
         this.gameNotifier = gameNotifier;
     }
 
+    @Transactional
     @Override
     public void handle(UnbanParticipantWsRequest request, WebSocketSession session) {
         UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
-        UnbanParticipantInput command = UnbanParticipantMapper.toInput(request, userId);
+        UnbanParticipantInput input = UnbanParticipantMapper.toInput(request, userId);
 
-        UnbanParticipantOutput output = useCase.execute(command);
+        UnbanParticipantOutput output = useCase.execute(input);
 
         UnbanParticipantResponse dto = UnbanParticipantMapper.toResponse(output);
 

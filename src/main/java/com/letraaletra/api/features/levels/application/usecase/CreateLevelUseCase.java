@@ -12,7 +12,6 @@ import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +32,6 @@ public class CreateLevelUseCase implements UseCase<CreateLevelInput, CreateLevel
     }
 
     @Override
-    @Transactional
     public CreateLevelOutput execute(CreateLevelInput input) {
         adminChecker.check(input.principal(), PermissionKey.LEVELS, PermissionAction.CREATE);
 

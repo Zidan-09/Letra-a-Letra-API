@@ -9,7 +9,6 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 public class EnableOfferUseCase implements UseCase<EnableOfferInput, EnableOfferOutput> {
     private final OfferRepository offerRepository;
@@ -24,7 +23,6 @@ public class EnableOfferUseCase implements UseCase<EnableOfferInput, EnableOffer
     }
 
     @Override
-    @Transactional
     public EnableOfferOutput execute(EnableOfferInput input) {
         adminChecker.check(input.principal(), PermissionKey.OFFERS, PermissionAction.TOGGLE);
 

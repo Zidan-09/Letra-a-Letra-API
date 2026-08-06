@@ -8,6 +8,7 @@ import com.letraaletra.api.features.participant.infrastructure.presentation.mapp
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class DisconnectParticipantHandler {
     private final UseCase<DisconnectParticipantInput, Optional<DisconnectParticipantOutput>> useCase;
     private final GameNotifier gameNotifier;
 
+    @Transactional
     public void handler(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 

@@ -40,7 +40,6 @@ public class RemoveDisconnectedParticipantUseCase implements UseCase<RemoveDisco
     }
 
     @Override
-    @Transactional
     public Void execute(RemoveDisconnectedParticipantInput input) {
         Actor actor = actorManager.get(input.gameId());
 

@@ -9,7 +9,6 @@ import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.EmailAlreadyInUseException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOutput> {
     private final UserRepository userRepository;
@@ -27,7 +26,6 @@ public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOut
     }
 
     @Override
-    @Transactional
     public CreateUserOutput execute(CreateUserInput input) {
 
         String email = input.email();

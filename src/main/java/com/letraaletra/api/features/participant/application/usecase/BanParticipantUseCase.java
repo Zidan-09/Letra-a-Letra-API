@@ -11,7 +11,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -31,7 +30,6 @@ public class BanParticipantUseCase implements UseCase<BanParticipantInput, BanPa
     }
 
     @Override
-    @Transactional
     public BanParticipantOutput execute(BanParticipantInput input) {
         User target = userRepository.find(input.target())
                 .orElseThrow(UserNotFoundException::new);

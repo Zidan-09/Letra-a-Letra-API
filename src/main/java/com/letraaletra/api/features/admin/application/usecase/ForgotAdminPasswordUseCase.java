@@ -8,7 +8,6 @@ import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminResetTokenRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -31,7 +30,6 @@ public class ForgotAdminPasswordUseCase implements UseCase<ForgotAdminPasswordIn
     }
 
     @Override
-    @Transactional
     public Void execute(ForgotAdminPasswordInput input) {
         Admin admin = adminRepository.findByEmail(input.email()).orElse(null);
 
