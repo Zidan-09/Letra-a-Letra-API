@@ -5,5 +5,6 @@ public interface CosmeticRepository extends
         FindCosmetic,
         GetCosmetics,
         DeleteCosmetic,
-        CheckIfExists
+        CheckIfExists,
+        SearchCosmetic
 {}

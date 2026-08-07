@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +38,18 @@ public class JpaCosmeticRepository implements CosmeticRepository {
     @Override
     public Optional<Cosmetic> findByName(String name) {
         return repository.findByName(name).map(CosmeticMapper::toDomain);
+    }
+
+    @Override
+    public Page<Cosmetic> search(String search, CosmeticsPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.search(search, pageable)
+                .map(CosmeticMapper::toDomain);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class UpdateCosmeticMapper {
         return new UpdateCosmeticInput(
                 principal,
                 cosmeticId,
-                request.name(),
+                request.name().toLowerCase(),
                 request.type(),
                 request.asset(),
                 request.isNewAsset()

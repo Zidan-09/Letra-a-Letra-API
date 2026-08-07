@@ -213,11 +213,9 @@ class UpdateCosmeticUseCaseTest {
         when(input.principal()).thenReturn(principal);
         when(input.id()).thenReturn(cosmeticId);
         when(input.name()).thenReturn(collidingName);
-        when(input.type()).thenReturn(oldType);
 
         Cosmetic anotherCosmetic = mock(Cosmetic.class);
         when(anotherCosmetic.getId()).thenReturn(UUID.randomUUID());
-        when(anotherCosmetic.getType()).thenReturn(oldType);
 
         when(cosmeticRepository.find(cosmeticId))
                 .thenReturn(Optional.of(cosmetic));

@@ -115,7 +115,7 @@ class RegisterCosmeticUseCaseTest {
         when(cosmeticRepository.checkIfExistsByName(cosmeticName)).thenReturn(true);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> useCase.execute(input));
-        assertEquals("cosmetic_already_exists", exception.getMessage());
+        assertEquals("A cosmetic with this name already exists", exception.getMessage());
 
         verify(adminChecker).check(principal, key, action);
         verify(imageConverter, never()).convertToWebp(any());
