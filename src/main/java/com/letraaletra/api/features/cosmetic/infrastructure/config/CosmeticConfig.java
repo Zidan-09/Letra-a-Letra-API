@@ -99,4 +99,13 @@ public class CosmeticConfig {
                 cosmeticRepository
         );
     }
+
+    @Bean
+    public SearchCosmeticUseCase searchCosmeticUseCase(
+            CosmeticRepository cosmeticRepository
+    ) {
+        return new SearchCosmeticUseCase(
+                cosmeticRepository
+        );
+    }
 }

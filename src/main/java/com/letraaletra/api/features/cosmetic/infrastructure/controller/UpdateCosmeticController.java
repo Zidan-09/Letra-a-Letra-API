@@ -30,7 +30,7 @@ public class UpdateCosmeticController {
     @PutMapping("/{cosmeticId}")
     public ResponseEntity<SuccessResponse<UpdateCosmeticResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestBody UpdateCosmeticRequest request,
+            @Valid @ModelAttribute UpdateCosmeticRequest request,
             @PathVariable UUID cosmeticId
     ) {
         UpdateCosmeticInput input = UpdateCosmeticMapper.toInput(principal, request, cosmeticId);

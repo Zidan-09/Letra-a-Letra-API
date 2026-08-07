@@ -7,6 +7,7 @@ import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmetic
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticAlreadyExistsException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -66,7 +67,7 @@ public class RegisterCosmeticUseCase implements UseCase<RegisterCosmeticInput, R
 
     private void validateIfExists(String name) {
         if (cosmeticRepository.checkIfExistsByName(name)) {
-            throw new RuntimeException("cosmetic_already_exists");
+            throw new CosmeticAlreadyExistsException();
         }
     }
 }

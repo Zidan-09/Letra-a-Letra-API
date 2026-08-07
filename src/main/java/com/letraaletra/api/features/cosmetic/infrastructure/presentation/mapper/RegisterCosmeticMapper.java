@@ -10,7 +10,7 @@ public class RegisterCosmeticMapper {
     public static RegisterCosmeticInput toInput(AuthenticatedUser principal, RegisterCosmeticRequest request) {
         return new RegisterCosmeticInput(
                 principal,
-                request.name(),
+                request.name().toLowerCase(),
                 request.cosmeticType(),
                 request.asset()
         );

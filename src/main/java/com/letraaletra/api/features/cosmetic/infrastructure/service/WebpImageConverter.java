@@ -1,8 +1,12 @@
-package com.letraaletra.api.features.cosmetic.infrastructure.persistence.cloudflare;
+package com.letraaletra.api.features.cosmetic.infrastructure.service;
 
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.ImageConversionException;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.ImageTooLargeException;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
-import org.springframework.stereotype.Component;
+import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidImageTypeException;
+import com.letraaletra.api.shared.domain.DomainException;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -12,17 +16,17 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 
-@Component
+@Service
 public class WebpImageConverter implements ImageConverter {
 
     @Override
     public byte[] convertToWebp(MultipartFile image) {
         if (image.getSize() > 5_000_000) {
-            throw new RuntimeException("image_too_large");
+            throw new ImageTooLargeException();
         }
 
         if (!Objects.requireNonNull(image.getContentType()).startsWith("image/")) {
-            throw new RuntimeException("invalid_file_type");
+            throw new InvalidImageTypeException();
         }
 
         try {
@@ -33,12 +37,13 @@ public class WebpImageConverter implements ImageConverter {
             }
 
             try (ByteArrayOutputStream output = new ByteArrayOutputStream();
-                 ImageOutputStream ios = ImageIO.createImageOutputStream(output)) {
+                ImageOutputStream ios = ImageIO.createImageOutputStream(output)) {
+                ImageWriter writer;
 
-                ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
-
-                if (writer == null) {
-                    throw new RuntimeException("Writer not found");
+                try {
+                    writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
+                } catch (Exception e) {
+                    throw new IllegalStateException("No WebP ImageWriter is available.");
                 }
 
                 writer.setOutput(ios);
@@ -49,9 +54,12 @@ public class WebpImageConverter implements ImageConverter {
 
                 return output.toByteArray();
             }
-
         } catch (Exception e) {
-            throw new RuntimeException("failed_to_convert_image", e);
+            if (e instanceof DomainException de) {
+                throw de;
+            };
+
+            throw new ImageConversionException();
         }
     }
 }
