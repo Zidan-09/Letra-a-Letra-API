@@ -1,8 +1,7 @@
 package com.letraaletra.api.features.user.domain.repository.banhistory;
 
-import com.letraaletra.api.features.user.domain.BanHistory;
+import com.letraaletra.api.features.user.domain.ban.BanHistory;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

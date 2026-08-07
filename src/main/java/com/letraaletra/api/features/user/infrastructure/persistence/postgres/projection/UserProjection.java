@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection;
 
+import com.letraaletra.api.features.user.domain.BanType;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,7 +15,10 @@ public interface UserProjection {
 
     UUID getCurrentGameId();
     boolean isCanChangeNickname();
-    boolean isBanned();
+
+    BanType getBanType();
+    String getBanReason();
+    LocalDateTime getBanExpiresAt();
 
     int getTotalMatches();
     int getTotalWins();

@@ -4,6 +4,7 @@ import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
@@ -49,7 +50,7 @@ class CreateUserControllerTest {
                 null,
                 UUID.randomUUID(),
                 false,
-                false,
+                BanInfo.create(),
                 mock(UserStats.class),
                 Inventory.create(),
                 mock(Wallet.class),

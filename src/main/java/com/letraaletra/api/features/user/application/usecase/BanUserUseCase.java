@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.application.usecase;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.user.application.input.BanUserInput;
-import com.letraaletra.api.features.user.domain.BanHistory;
+import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.banhistory.BanHistoryRepository;
@@ -33,8 +33,6 @@ public class BanUserUseCase implements UseCase<BanUserInput, Void> {
         User user = userRepository.find(input.userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        user.ban();
-
         BanHistory banHistory = BanHistory.create(
                 input.userId(),
                 input.principal().auth(),
@@ -42,6 +40,8 @@ public class BanUserUseCase implements UseCase<BanUserInput, Void> {
                 input.type(),
                 input.expiresIn()
         );
+
+        user.ban(banHistory.getExpiresAt(), banHistory.getReason());
 
         banHistoryRepository.save(banHistory);
         userRepository.save(user);

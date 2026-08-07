@@ -9,6 +9,7 @@ public record UserResponse(
         UUID userId,
         String nickname,
         String email,
+        BanInfoResponse banInfo,
         UserStats stats,
         List<InventoryItemResponse> equipped,
         WalletResponse wallet
