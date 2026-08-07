@@ -43,19 +43,11 @@ public class Wallet {
 
         switch (coinType) {
             case SOFT -> {
-                if (softCoins < value) {
-                    throw new InsufficientBalanceException();
-                }
-
                 softCoins += value;
 
                 return new WalletMovement(CoinType.SOFT, balanceBefore, getBalance(), value, OperationType.CREDIT);
             }
             case HARD -> {
-                if (hardGems < value) {
-                    throw new InsufficientBalanceException();
-                }
-
                 hardGems += value;
 
                 return new WalletMovement(CoinType.HARD, balanceBefore, getBalance(), value, OperationType.CREDIT);

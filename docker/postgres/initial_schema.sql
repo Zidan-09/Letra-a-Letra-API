@@ -192,19 +192,6 @@ CREATE TABLE "level_reward" (
                     "quantity" integer NOT NULL DEFAULT 1
 );
 
-CREATE TABLE "ban_history" (
-                               "ban_history_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                               "user_id" uuid REFERENCES "user"(user_id) ON DELETE SET NULL,
-                               "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL,
-                               "reason" varchar(500) NOT NULL,
-                               "type" varchar(50) NOT NULL,
-                               "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-                               "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-                               "removed_at" timestamp,
-                               "removed_by" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL
-
-);
-
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
 CREATE INDEX idx_user_stats_wins ON "user_stats" ("total_wins" DESC);
 CREATE INDEX idx_match_players_user ON "match_players" ("user_id");

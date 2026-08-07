@@ -73,7 +73,7 @@ public class UserConfig {
     }
 
     @Bean
-    public GetMyInventoryUseCase getUserInventoryUseCase(
+    public GetMyInventoryUseCase getMyInventoryUseCase(
             InventoryRepository inventoryRepository
     ) {
         return new GetMyInventoryUseCase(
@@ -211,6 +211,41 @@ public class UserConfig {
                 transactionRepository,
                 adminChecker,
                 rewardFactory
+        );
+    }
+
+    @Bean
+    public GetUserInventoryUseCase getUserInventoryUseCase(
+            InventoryRepository inventoryRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetUserInventoryUseCase(
+                inventoryRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public RevokeUserCosmeticUseCase revokeUserCosmeticUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new RevokeUserCosmeticUseCase(
+                userRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public RevokeUserWalletUseCase revokeUserWalletUseCase(
+            UserRepository userRepository,
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker
+    ) {
+        return new RevokeUserWalletUseCase(
+                userRepository,
+                transactionRepository,
+                adminChecker
         );
     }
 }
