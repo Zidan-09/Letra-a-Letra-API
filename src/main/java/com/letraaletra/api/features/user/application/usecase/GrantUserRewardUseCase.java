@@ -15,6 +15,8 @@ import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.rewards.Reward;
 
+import java.util.UUID;
+
 public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Void> {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
@@ -47,14 +49,14 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
         );
 
         reward.apply(user)
-                .ifPresent(walletMovement -> saveAdminGrantTransaction(walletMovement, user));
+                .ifPresent(walletMovement -> saveAdminGrantTransaction(walletMovement, user, input.principal().auth()));
 
         userRepository.save(user);
 
         return null;
     }
 
-    private void saveAdminGrantTransaction(WalletMovement walletMovement, User user) {
+    private void saveAdminGrantTransaction(WalletMovement walletMovement, User user, UUID adminId) {
         transactionRepository.save(Transaction.create(
                 user.getUserId(),
                 walletMovement.coinType(),
@@ -65,7 +67,7 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
                         .getAmountFor(walletMovement.coinType()),
                 walletMovement.operation(),
                 TransactionReason.ADMIN_GIVE,
-                null
+                adminId
         ));
     }
 }

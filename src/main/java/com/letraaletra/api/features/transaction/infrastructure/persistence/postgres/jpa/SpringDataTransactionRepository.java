@@ -12,54 +12,71 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataTransactionRepository extends JpaRepository<TransactionJpaEntity, UUID> {
-    @Query("""
-    SELECT
-        t.transactionId AS transactionId,
-        t.userId AS userId,
-        u.username AS username,
 
-        t.coinType AS coinType,
-        t.amount AS amount,
-        t.balanceBefore AS balanceBefore,
-        t.balanceAfter AS balanceAfter,
+    String FIND_DETAILS = """
+        SELECT
+            t.transactionId AS transactionId,
+            t.userId AS userId,
+            u.username AS username,
 
-        t.operation AS operation,
-        t.reason AS reason,
+            t.coinType AS coinType,
+            t.amount AS amount,
+            t.balanceBefore AS balanceBefore,
+            t.balanceAfter AS balanceAfter,
 
-        t.referenceId AS referenceId,
+            t.operation AS operation,
+            t.reason AS reason,
 
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN 'OFFER'
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN 'LEVEL'
-            ELSE NULL
-        END AS referenceType,
+            t.referenceId AS referenceId,
 
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN o.title
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN CONCAT('Nível ', l.level)
-            ELSE NULL
-        END AS referenceName,
+            CASE
+                 WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN 'OFFER'
+                 WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN 'LEVEL'
+                 WHEN t.reason IN (
+                     com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_GIVE,
+                     com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_REVOKE
+                 ) THEN 'ADMIN'
+                 ELSE NULL
+             END AS referenceType,
 
-        t.createdAt AS transactionDate
+             CASE
+                 WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN o.title
+                 WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN CONCAT('Nível ', l.level)
+                 WHEN t.reason IN (
+                     com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_GIVE,
+                     com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_REVOKE
+                 ) THEN a.name
+                 ELSE NULL
+             END AS referenceName,
 
-    FROM TransactionJpaEntity t
+            t.createdAt AS transactionDate
 
-    JOIN UserJpaEntity u
-        ON u.id = t.userId
+        FROM TransactionJpaEntity t
 
-    LEFT JOIN OfferJpaEntity o
-        ON o.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE
+        JOIN UserJpaEntity u
+            ON u.id = t.userId
 
-    LEFT JOIN LevelJpaEntity l
-        ON l.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP
-    WHERE t.userId = :userId
-    """)
-        Page<TransactionProjection> findByUserIdDetails(
-                UUID userId,
-                Pageable pageable
-        );
+        LEFT JOIN OfferJpaEntity o
+            ON o.id = t.referenceId
+           AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE
+
+        LEFT JOIN LevelJpaEntity l
+            ON l.id = t.referenceId
+           AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP
+        
+        LEFT JOIN AdminJpaEntity a
+            ON a.id = t.referenceId
+           AND t.reason IN (
+                com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_GIVE,
+                com.letraaletra.api.features.transaction.domain.TransactionReason.ADMIN_REVOKE
+           )
+        """;
+
+    @Query(FIND_DETAILS + " WHERE t.userId = :userId")
+    Page<TransactionProjection> findByUserIdDetails(
+            UUID userId,
+            Pageable pageable
+    );
 
     @Query("""
         SELECT COUNT(t) > 0
@@ -68,101 +85,16 @@ public interface SpringDataTransactionRepository extends JpaRepository<Transacti
           AND t.referenceId = :referenceId
           AND t.reason = :reason
     """)
-        boolean hasPurchasedOffer(
-                UUID userId,
-                UUID referenceId,
-                TransactionReason reason
-        );
+    boolean hasPurchasedOffer(
+            UUID userId,
+            UUID referenceId,
+            TransactionReason reason
+    );
 
-    @Query("""
-    SELECT
-        t.transactionId AS transactionId,
-        t.userId AS userId,
-        u.username AS username,
-
-        t.coinType AS coinType,
-        t.amount AS amount,
-        t.balanceBefore AS balanceBefore,
-        t.balanceAfter AS balanceAfter,
-
-        t.operation AS operation,
-        t.reason AS reason,
-
-        t.referenceId AS referenceId,
-
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN 'OFFER'
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN 'LEVEL'
-            ELSE NULL
-        END AS referenceType,
-
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN o.title
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN CONCAT('Nível ', l.level)
-            ELSE NULL
-        END AS referenceName,
-
-        t.createdAt AS transactionDate
-
-    FROM TransactionJpaEntity t
-
-    JOIN UserJpaEntity u
-        ON u.id = t.userId
-
-    LEFT JOIN OfferJpaEntity o
-        ON o.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE
-
-    LEFT JOIN LevelJpaEntity l
-        ON l.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP
-""")
+    @Query(FIND_DETAILS)
     Page<TransactionProjection> findAllDetails(Pageable pageable);
 
-    @Query("""
-    SELECT
-        t.transactionId AS transactionId,
-        t.userId AS userId,
-        u.username AS username,
-
-        t.coinType AS coinType,
-        t.amount AS amount,
-        t.balanceBefore AS balanceBefore,
-        t.balanceAfter AS balanceAfter,
-
-        t.operation AS operation,
-        t.reason AS reason,
-
-        t.referenceId AS referenceId,
-
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN 'OFFER'
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN 'LEVEL'
-            ELSE NULL
-        END AS referenceType,
-
-        CASE
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE THEN o.title
-            WHEN t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP THEN CONCAT('Nível ', l.level)
-            ELSE NULL
-        END AS referenceName,
-
-        t.createdAt AS transactionDate
-
-    FROM TransactionJpaEntity t
-
-    JOIN UserJpaEntity u
-        ON u.id = t.userId
-
-    LEFT JOIN OfferJpaEntity o
-        ON o.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE
-
-    LEFT JOIN LevelJpaEntity l
-        ON l.id = t.referenceId
-        AND t.reason = com.letraaletra.api.features.transaction.domain.TransactionReason.LEVEL_UP
-    WHERE t.transactionId = :transactionId
-    """)
+    @Query(FIND_DETAILS + " WHERE t.transactionId = :transactionId")
     Optional<TransactionProjection> findByIdDetails(
             UUID transactionId
     );
