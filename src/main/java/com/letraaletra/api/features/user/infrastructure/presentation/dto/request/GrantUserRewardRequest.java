@@ -5,8 +5,8 @@ import com.letraaletra.api.features.offers.domain.RewardType;
 import java.util.UUID;
 
 public record GrantUserRewardRequest(
-        RewardType type,
-        int amount,
-        UUID reference
+        RewardType rewardType,
+        int quantity,
+        UUID rewardReference
 ) {
 }

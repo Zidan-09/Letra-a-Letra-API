@@ -11,9 +11,9 @@ public class GrantUserRewardMapper {
         return new GrantUserRewardInput(
                 principal,
                 userId,
-                request.type(),
-                request.reference(),
-                request.amount()
+                request.rewardType(),
+                request.rewardReference(),
+                request.quantity()
         );
     }
 }

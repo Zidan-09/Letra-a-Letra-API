@@ -45,7 +45,7 @@ public class JpaUserRepository implements UserRepository {
         List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
                 .map(item -> UserInventoryJpaMapper.toEntity(user.getUserId(), item))
                 .toList();
-
+        inventoryRepository.deleteAllByUserId(user.getUserId());
         inventoryRepository.saveAll(inventoryEntities);
     }
 
