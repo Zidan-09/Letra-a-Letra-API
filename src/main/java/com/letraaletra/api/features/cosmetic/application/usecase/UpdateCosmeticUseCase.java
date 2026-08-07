@@ -7,13 +7,11 @@ import com.letraaletra.api.features.cosmetic.application.output.UpdateCosmeticOu
 import com.letraaletra.api.features.cosmetic.application.port.AssetStorageGateway;
 import com.letraaletra.api.features.cosmetic.application.port.ImageConverter;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -37,11 +35,10 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
     }
 
     @Override
-    @Transactional
     public UpdateCosmeticOutput execute(UpdateCosmeticInput input) {
         adminChecker.check(input.principal(), PermissionKey.COSMETIC, PermissionAction.EDIT);
 
-        Cosmetic cosmetic = checkCosmetic(input.id(), input.name(), input.type());
+        Cosmetic cosmetic = checkCosmetic(input.id(), input.name());
 
         String oldAssetPath = cosmetic.getAssetPath();
         String newAssetPath = null;
@@ -76,26 +73,21 @@ public class UpdateCosmeticUseCase implements UseCase<UpdateCosmeticInput, Updat
             storageGateway.delete(oldAssetPath);
         }
 
-        return buildOutput(cosmetic);
+        return new UpdateCosmeticOutput(cosmetic);
     }
 
-    private Cosmetic checkCosmetic(UUID id, String name, CosmeticTypes type) {
+    private Cosmetic checkCosmetic(UUID id, String name) {
         Cosmetic cosmetic = cosmeticRepository.find(id)
                 .orElseThrow(CosmeticNotFoundException::new);
 
         cosmeticRepository.findByName(name)
                 .filter(found ->
-                        !found.getId().equals(cosmetic.getId())
-                                && found.getType().equals(type))
+                        !found.getId().equals(cosmetic.getId()))
                 .ifPresent(found -> {
                     throw new InvalidCosmeticException();
                 });
 
         return cosmetic;
-    }
-
-    private UpdateCosmeticOutput buildOutput(Cosmetic cosmetic) {
-        return new UpdateCosmeticOutput(cosmetic);
     }
 
     private boolean shouldMoveAsset(UpdateCosmeticInput input, Cosmetic cosmetic) {

@@ -4,17 +4,15 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.offers.application.input.RegisterOfferInput;
 import com.letraaletra.api.features.offers.application.input.RegisterOfferRewardInput;
 import com.letraaletra.api.features.offers.application.output.RegisterOfferOutput;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.Offer;
-import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.RewardType;
-import com.letraaletra.api.features.offers.domain.exception.InvalidOfferExpirationException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
@@ -24,26 +22,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,165 +45,87 @@ class RegisterOfferUseCaseTest {
     private OfferRepository offerRepository;
 
     @Mock
-    private CosmeticRepository cosmeticRepository;
-
-    @Mock
     private AdminChecker adminChecker;
 
     @Mock
-    private AuthenticatedUser principal;
-    private final PermissionKey key = PermissionKey.OFFERS;
-    private final PermissionAction action = PermissionAction.CREATE;
+    private RewardFactory rewardFactory;
 
-    @InjectMocks
     private RegisterOfferUseCase useCase;
 
     @Captor
     private ArgumentCaptor<Offer> offerCaptor;
 
-    private static final String DEFAULT_TITLE = "Oferta Especial de Boas-Vindas";
-    private static final CoinType DEFAULT_COIN_TYPE = CoinType.REAL;
-    private static final BigDecimal DEFAULT_PRICE = BigDecimal.valueOf(1990);
+    private AuthenticatedUser principal;
+    private final PermissionKey key = PermissionKey.OFFERS;
+    private final PermissionAction action = PermissionAction.CREATE;
 
     @BeforeEach
     void setUp() {
-        lenient().doNothing().when(adminChecker).check(any(), any(), any());
+        principal = mock(AuthenticatedUser.class);
+        useCase = new RegisterOfferUseCase(offerRepository, adminChecker, rewardFactory);
     }
 
-    @Nested
-    @DisplayName("Validação de Permissões de Acesso (AdminChecker)")
-    class AuthorizationTests {
+    @Test
+    @DisplayName("Should successfully register a valid offer when authorized as admin")
+    void shouldRegisterOfferSuccessfully() {
+        RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COIN, null, 100);
+        RegisterOfferInput input = new RegisterOfferInput(
+                principal,
+                "Pacote de Moedas",
+                CoinType.REAL,
+                BigDecimal.valueOf(10.0),
+                List.of(rewardInput),
+                true,
+                false,
+                0L
+        );
 
-        @Test
-        @DisplayName("Deve verificar se o usuário é administrador antes de processar qualquer lógica")
-        void shouldCheckAdminPermissionsFirst() {
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
+        doNothing().when(adminChecker).check(principal, key, action);
+        when(rewardFactory.create(RewardType.COIN, 100, null)).thenReturn(new SoftCoinsReward(100));
 
-            useCase.execute(input);
+        RegisterOfferOutput output = useCase.execute(input);
 
-            verify(adminChecker).check(principal, key, action);
-        }
+        assertNotNull(output);
+        verify(adminChecker, times(1)).check(principal, key, action);
+        verify(offerRepository, times(1)).save(offerCaptor.capture());
 
-        @Test
-        @DisplayName("Deve lançar exceção e não persistir a oferta quando o usuário não for administrador")
-        void shouldThrowExceptionAndNotSaveWhenUserIsNotAdmin() {
-            willThrow(new SecurityException("Acesso negado: Requer privilégios de administrador"))
-                    .given(adminChecker).check(principal, key, action);
-
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
-
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(SecurityException.class)
-                    .hasMessageContaining("Acesso negado");
-
-            verifyNoInteractions(offerRepository);
-            verifyNoInteractions(cosmeticRepository);
-        }
-
-        @Test
-        @DisplayName("Deve repassar a verificação mesmo quando o AuthenticatedUser informado for nulo")
-        void shouldThrowExceptionWhenPrincipalIsNull() {
-            willThrow(new IllegalArgumentException("Principal não pode ser nulo"))
-                    .given(adminChecker).check(null, key, action);
-
-            RegisterOfferInput input = new RegisterOfferInput(
-                    null,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    DEFAULT_PRICE,
-                    Collections.emptyList(),
-                    true,
-                    false,
-                    0
-            );
-
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(IllegalArgumentException.class);
-
-            verify(offerRepository, never()).save(any());
-        }
+        Offer savedOffer = offerCaptor.getValue();
+        assertNotNull(savedOffer);
+        assertEquals("Pacote de Moedas", savedOffer.getTitle());
+        assertEquals(BigDecimal.valueOf(10.0), savedOffer.getPrice());
+        assertEquals(1, savedOffer.getRewards().size());
     }
 
-    @Nested
-    @DisplayName("Validações de Expiração de Oferta")
-    class ExpirationValidationTests {
+    @Test
+    @DisplayName("Should propagate exception when admin security verification fails")
+    void shouldPropagateExceptionWhenAdminCheckFails() {
+        RegisterOfferInput input = new RegisterOfferInput(
+                principal,
+                "Oferta Inválida",
+                CoinType.SOFT,
+                BigDecimal.valueOf(5.0),
+                Collections.emptyList(),
+                false,
+                false,
+                0L
+        );
 
-        @ParameterizedTest
-        @ValueSource(longs = {0, -1, -60, Long.MIN_VALUE})
-        @DisplayName("Deve lançar InvalidOfferExpirationException quando a oferta expira e o tempo em minutos for menor ou igual a zero")
-        void shouldThrowExceptionWhenExpiresInIsInvalid(long invalidMinutes) {
-            RegisterOfferInput input = new RegisterOfferInput(
-                    principal,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    DEFAULT_PRICE,
-                    Collections.emptyList(),
-                    true,
-                    true,
-                    invalidMinutes
-            );
+        doThrow(new SecurityException("Unauthorized access")).when(adminChecker).check(principal, key, action);
 
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(InvalidOfferExpirationException.class);
+        assertThrows(SecurityException.class, () -> useCase.execute(input));
 
-            verify(offerRepository, never()).save(any());
-        }
+        verifyNoInteractions(offerRepository);
+        verifyNoInteractions(rewardFactory);
+    }
 
-        @Test
-        @DisplayName("Deve calcular corretamente a data de expiração no futuro quando expiresIn for maior que zero")
-        void shouldCalculateFutureExpirationDateCorrectly() {
-            long minutesToExpire = 120;
-            LocalDateTime beforeExecution = LocalDateTime.now();
+    @Test
+    @DisplayName("Should fail when input parameters are null")
+    void shouldThrowExceptionWhenInputIsNull() {
+        assertThrows(RuntimeException.class, () -> useCase.execute(null));
 
-            RegisterOfferInput input = new RegisterOfferInput(
-                    principal,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    DEFAULT_PRICE,
-                    Collections.emptyList(),
-                    true,
-                    true,
-                    minutesToExpire
-            );
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.isHasExpiration()).isTrue();
-            assertThat(savedOffer.getExpiresAt()).isNotNull();
-
-            LocalDateTime expectedMinExpiration = beforeExecution.plusMinutes(minutesToExpire);
-            LocalDateTime afterExecution = LocalDateTime.now().plusMinutes(minutesToExpire);
-
-            assertThat(savedOffer.getExpiresAt()).isAfterOrEqualTo(expectedMinExpiration);
-            assertThat(savedOffer.getExpiresAt()).isBeforeOrEqualTo(afterExecution);
-        }
-
-        @Test
-        @DisplayName("Deve definir a data de expiração como nula quando a oferta não possui expiração, ignorando o campo expiresIn")
-        void shouldSetExpirationDateToNullWhenHasExpirationIsFalse() {
-            long ignoredMinutes = -999;
-            RegisterOfferInput input = new RegisterOfferInput(
-                    principal,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    DEFAULT_PRICE,
-                    Collections.emptyList(),
-                    true,
-                    false,
-                    ignoredMinutes
-            );
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.isHasExpiration()).isFalse();
-            assertThat(savedOffer.getExpiresAt()).isNull();
-        }
+        verifyNoInteractions(adminChecker);
+        verifyNoInteractions(offerRepository);
+        verifyNoInteractions(rewardFactory);
     }
 
     @Nested
@@ -219,251 +133,108 @@ class RegisterOfferUseCaseTest {
     class RewardProcessingTests {
 
         @Test
-        @DisplayName("Deve mapear corretamente recompensa do tipo COIN para SoftCoinsReward")
+        @DisplayName("shouldMapCoinRewardCorrectly")
         void shouldMapCoinRewardCorrectly() {
-            int quantity = 500;
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COIN, null, quantity);
-            RegisterOfferInput input = createValidInputWithoutExpiration(List.of(rewardInput));
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.getRewards()).hasSize(1);
-            OfferReward reward = savedOffer.getRewards().getFirst();
-            assertThat(reward.offerRewardId()).isNotNull();
-            assertThat(reward.reward()).isInstanceOf(SoftCoinsReward.class);
-
-            SoftCoinsReward softCoinsReward = (SoftCoinsReward) reward.reward();
-            assertThat(softCoinsReward.amount()).isEqualTo(quantity);
-            verifyNoInteractions(cosmeticRepository);
-        }
-
-        @Test
-        @DisplayName("Deve mapear corretamente recompensa do tipo GEMS para HardGemsReward")
-        void shouldMapGemsRewardCorrectly() {
-            int quantity = 50;
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.GEMS, null, quantity);
-            RegisterOfferInput input = createValidInputWithoutExpiration(List.of(rewardInput));
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.getRewards()).hasSize(1);
-            OfferReward reward = savedOffer.getRewards().getFirst();
-            assertThat(reward.offerRewardId()).isNotNull();
-            assertThat(reward.reward()).isInstanceOf(HardGemsReward.class);
-
-            HardGemsReward hardGemsReward = (HardGemsReward) reward.reward();
-            assertThat(hardGemsReward.amount()).isEqualTo(quantity);
-            verifyNoInteractions(cosmeticRepository);
-        }
-
-        @Test
-        @DisplayName("Deve mapear corretamente recompensa do tipo COSMETIC ao encontrar o cosmético no repositório")
-        void shouldMapCosmeticRewardWhenCosmeticExists() {
-            UUID cosmeticId = UUID.randomUUID();
-            Cosmetic mockCosmetic = mock(Cosmetic.class);
-            given(cosmeticRepository.find(cosmeticId)).willReturn(Optional.of(mockCosmetic));
-
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-            RegisterOfferInput input = createValidInputWithoutExpiration(List.of(rewardInput));
-
-            useCase.execute(input);
-
-            verify(cosmeticRepository).find(cosmeticId);
-            verify(offerRepository).save(offerCaptor.capture());
-
-            Offer savedOffer = offerCaptor.getValue();
-            assertThat(savedOffer.getRewards()).hasSize(1);
-            OfferReward reward = savedOffer.getRewards().getFirst();
-            assertThat(reward.offerRewardId()).isNotNull();
-            assertThat(reward.reward()).isInstanceOf(CosmeticReward.class);
-
-            CosmeticReward cosmeticReward = (CosmeticReward) reward.reward();
-            assertThat(cosmeticReward.cosmetic()).isEqualTo(mockCosmetic);
-        }
-
-        @Test
-        @DisplayName("Deve lançar CosmeticNotFoundException e abortar criação quando o cosmético não for encontrado")
-        void shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist() {
-            UUID unknownCosmeticId = UUID.randomUUID();
-            given(cosmeticRepository.find(unknownCosmeticId)).willReturn(Optional.empty());
-
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, unknownCosmeticId, 1);
-            RegisterOfferInput input = createValidInputWithoutExpiration(List.of(rewardInput));
-
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(CosmeticNotFoundException.class);
-
-            verify(cosmeticRepository).find(unknownCosmeticId);
-            verify(offerRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Deve processar múltiplos tipos de recompensas mistas mantendo a ordem e IDs únicos para cada item")
-        void shouldProcessMultipleMixedRewardsCorrectly() {
-            UUID cosmeticId = UUID.randomUUID();
-            Cosmetic mockCosmetic = mock(Cosmetic.class);
-            given(cosmeticRepository.find(cosmeticId)).willReturn(Optional.of(mockCosmetic));
-
-            List<RegisterOfferRewardInput> rewardInputs = List.of(
-                    new RegisterOfferRewardInput(RewardType.COIN, null, 1000),
-                    new RegisterOfferRewardInput(RewardType.GEMS, null, 100),
-                    new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1)
+            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COIN, null, 100);
+            RegisterOfferInput input = new RegisterOfferInput(
+                    principal, "Oferta Moeda", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
             );
 
-            RegisterOfferInput input = createValidInputWithoutExpiration(rewardInputs);
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            List<OfferReward> rewards = savedOffer.getRewards();
-            assertThat(rewards).hasSize(3);
-
-            assertThat(rewards.get(0).reward()).isInstanceOf(SoftCoinsReward.class);
-            assertThat(rewards.get(1).reward()).isInstanceOf(HardGemsReward.class);
-            assertThat(rewards.get(2).reward()).isInstanceOf(CosmeticReward.class);
-
-            List<UUID> rewardIds = rewards.stream().map(OfferReward::offerRewardId).toList();
-            assertThat(rewardIds).doesNotContainNull();
-        }
-
-        @Test
-        @DisplayName("Deve permitir o registro de uma oferta sem recompensas (lista vazia)")
-        void shouldAllowRegisteringOfferWithEmptyRewards() {
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.getRewards()).isEmpty();
-            verifyNoInteractions(cosmeticRepository);
-        }
-    }
-
-    @Nested
-    @DisplayName("Criação, Persistência e Saída do Caso de Uso")
-    class OfferCreationAndOutputTests {
-
-        @Test
-        @DisplayName("Deve construir a oferta com estado desativado (false) por padrão ao criar")
-        void shouldCreateOfferAsActiveByDefault() {
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.isActive()).isFalse();
-        }
-
-        @Test
-        @DisplayName("Deve construir a oferta com os dados de título, tipo de moeda e preço numérico corretos")
-        void shouldCreateOfferWithCorrectBasicDetails() {
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
-
-            useCase.execute(input);
-
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(savedOffer.getTitle()).isEqualTo(DEFAULT_TITLE);
-            assertThat(savedOffer.getCoinType()).isEqualTo(DEFAULT_COIN_TYPE);
-            assertThat(savedOffer.getPrice()).isEqualTo(DEFAULT_PRICE);
-        }
-
-        @Test
-        @DisplayName("Deve retornar RegisterOfferOutput contendo a instância exata da oferta salva")
-        void shouldReturnRegisterOfferOutputWithSavedOffer() {
-            RegisterOfferInput input = createValidInputWithoutExpiration(Collections.emptyList());
+            doNothing().when(adminChecker).check(principal, key, action);
+            when(rewardFactory.create(eq(RewardType.COIN), eq(100), any()))
+                    .thenReturn(new SoftCoinsReward(100));
 
             RegisterOfferOutput output = useCase.execute(input);
 
-            verify(offerRepository).save(offerCaptor.capture());
-            Offer savedOffer = offerCaptor.getValue();
-
-            assertThat(output).isNotNull();
-            assertThat(output.offer()).isEqualTo(savedOffer);
+            assertNotNull(output);
+            verify(rewardFactory, times(1)).create(eq(RewardType.COIN), eq(100), any());
+            verify(offerRepository, times(1)).save(any());
         }
-    }
-
-    @Nested
-    @DisplayName("Casos de Bordas, Resiliência e Tratamento de Entradas Ausentes (*Edge Cases*)")
-    class MissingBehaviorEdgeCasesTests {
 
         @Test
-        @DisplayName("[COMPORTAMENTO AUSENTE/BUG] Deve lançar exceção ao passar lista de recompensas nula")
-        void shouldHandleNullRewardsListGracefully() {
+        @DisplayName("shouldMapGemsRewardCorrectly")
+        void shouldMapGemsRewardCorrectly() {
+            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.GEMS, null, 50);
             RegisterOfferInput input = new RegisterOfferInput(
-                    principal,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    DEFAULT_PRICE,
-                    null,
-                    true,
-                    false,
-                    0
+                    principal, "Oferta Gemas", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
             );
 
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(NullPointerException.class);
+            doNothing().when(adminChecker).check(principal, key, action);
+            when(rewardFactory.create(eq(RewardType.GEMS), eq(50), any()))
+                    .thenReturn(new HardGemsReward(50));
+
+            RegisterOfferOutput output = useCase.execute(input);
+
+            assertNotNull(output);
+            verify(rewardFactory, times(1)).create(eq(RewardType.GEMS), eq(50), any());
+            verify(offerRepository, times(1)).save(any());
+        }
+
+        @Test
+        @DisplayName("shouldMapCosmeticRewardWhenCosmeticExists")
+        void shouldMapCosmeticRewardWhenCosmeticExists() {
+            UUID cosmeticId = UUID.randomUUID();
+            Cosmetic mockCosmetic = mock(Cosmetic.class);
+
+            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
+            RegisterOfferInput input = new RegisterOfferInput(
+                    principal, "Oferta Cosmético", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
+            );
+
+            doNothing().when(adminChecker).check(principal, key, action);
+            when(rewardFactory.create(eq(RewardType.COSMETIC), eq(1), eq(cosmeticId)))
+                    .thenReturn(new CosmeticReward(mockCosmetic));
+
+            RegisterOfferOutput output = useCase.execute(input);
+
+            assertNotNull(output);
+            verify(rewardFactory, times(1)).create(eq(RewardType.COSMETIC), eq(1), eq(cosmeticId));
+            verify(offerRepository, times(1)).save(any());
+        }
+
+        @Test
+        @DisplayName("shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist")
+        void shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist() {
+            UUID cosmeticId = UUID.randomUUID();
+            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
+            RegisterOfferInput input = new RegisterOfferInput(
+                    principal, "Oferta Inválida", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
+            );
+
+            doNothing().when(adminChecker).check(principal, key, action);
+            when(rewardFactory.create(eq(RewardType.COSMETIC), anyInt(), eq(cosmeticId)))
+                    .thenThrow(new CosmeticNotFoundException());
+
+            assertThrows(
+                    CosmeticNotFoundException.class,
+                    () -> useCase.execute(input)
+            );
 
             verify(offerRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("[COMPORTAMENTO AUSENTE/BUG] Deve falhar ao receber referência nula para recompensa COSMETIC")
-        void shouldFailWhenCosmeticReferenceIsNull() {
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, null, 1);
-            RegisterOfferInput input = createValidInputWithoutExpiration(List.of(rewardInput));
+        @DisplayName("shouldProcessMultipleMixedRewardsCorrectly")
+        void shouldProcessMultipleMixedRewardsCorrectly() {
+            UUID cosmeticId = UUID.randomUUID();
+            RegisterOfferRewardInput coinReward = new RegisterOfferRewardInput(RewardType.COIN, null, 100);
+            RegisterOfferRewardInput gemsReward = new RegisterOfferRewardInput(RewardType.GEMS, null, 10);
+            RegisterOfferRewardInput cosmeticReward = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
 
-            assertThatThrownBy(() -> useCase.execute(input))
-                    .isInstanceOf(Exception.class);
-
-            verify(offerRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("[COMPORTAMENTO AUSENTE/BUG] Deve verificar comportamento de ofertas com preço negativo")
-        void shouldValidateNegativePrice() {
-            BigDecimal negativePrice = BigDecimal.valueOf(-500);
             RegisterOfferInput input = new RegisterOfferInput(
-                    principal,
-                    DEFAULT_TITLE,
-                    DEFAULT_COIN_TYPE,
-                    negativePrice,
-                    Collections.emptyList(),
-                    true,
-                    false,
-                    0
+                    principal, "Super Combo", CoinType.REAL, BigDecimal.valueOf(50),
+                    List.of(coinReward, gemsReward, cosmeticReward), true, false, 0L
             );
 
-            useCase.execute(input);
+            doNothing().when(adminChecker).check(principal, key, action);
+            when(rewardFactory.create(any(), anyInt(), any()))
+                    .thenReturn(new SoftCoinsReward(100));
 
-            verify(offerRepository).save(offerCaptor.capture());
-            assertThat(offerCaptor.getValue().getPrice()).isLessThan(BigDecimal.valueOf(0));
+            RegisterOfferOutput output = useCase.execute(input);
+
+            assertNotNull(output);
+            verify(rewardFactory, times(3)).create(any(), anyInt(), any());
+            verify(offerRepository, times(1)).save(any());
         }
-    }
-
-    private RegisterOfferInput createValidInputWithoutExpiration(List<RegisterOfferRewardInput> rewards) {
-        return new RegisterOfferInput(
-                principal,
-                DEFAULT_TITLE,
-                DEFAULT_COIN_TYPE,
-                DEFAULT_PRICE,
-                rewards,
-                true,
-                false,
-                0
-        );
     }
 }

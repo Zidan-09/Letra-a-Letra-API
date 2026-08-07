@@ -10,6 +10,7 @@ import com.letraaletra.api.features.player.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.DiscardPowerResponseMapper;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsReq
         this.gameNotifier = gameNotifier;
     }
 
+    @Transactional
     @Override
     public void handle(DiscardPowerWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");

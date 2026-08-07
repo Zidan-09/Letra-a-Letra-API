@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RejectFriendRequestController {
     private final UseCase<RejectFriendRequestInput, Void> useCase;
 
+    @Transactional
     @PatchMapping(path = "/reject")
     public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

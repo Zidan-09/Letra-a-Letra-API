@@ -14,6 +14,7 @@ public class GetPublicGamesUseCase implements UseCase<GetPublicGamesInput, GetPu
         this.gameQueryService = gameQueryService;
     }
 
+    @Override
     public GetPublicGamesOutput execute(GetPublicGamesInput input) {
         Page<Game> games = gameQueryService.getPublic(input);
 

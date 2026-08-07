@@ -19,7 +19,7 @@ public class TokenHashServiceImpl implements TokenHashService {
             return HexFormat.of().formatHex(hash);
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error to generate hash token", e);
+            throw new IllegalStateException("SHA-256 algorithm is not available.", e);
         }
     }
 

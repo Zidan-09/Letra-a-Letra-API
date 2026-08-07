@@ -8,7 +8,6 @@ import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -25,7 +24,6 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
     }
 
     @Override
-    @Transactional
     public SendFriendRequestOutput execute(SendFriendRequestInput input) {
         checkFriendRequest(input.userId(), input.friendId());
 

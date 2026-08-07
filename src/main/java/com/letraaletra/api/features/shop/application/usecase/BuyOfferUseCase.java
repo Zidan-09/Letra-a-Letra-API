@@ -13,12 +13,10 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -39,7 +37,6 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     @Override
-    @Transactional
     public BuyOfferOutput execute(BuyOfferInput input) {
         Offer offer = offerRepository.findById(input.offerId())
                 .orElseThrow(OfferNotFoundException::new);
@@ -72,15 +69,18 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     }
 
     private void processPayment(User user, Offer offer) {
-        WalletMovement walletMovement = user.getWallet().pay(offer.getCoinType(), offer.getPrice().intValueExact());
+        WalletMovement walletMovement = user.getWallet()
+                .remove(offer.getCoinType(), offer.getPrice().intValueExact());
 
         transactionRepository.save(
                 Transaction.create(
                         user.getUserId(),
                         walletMovement.coinType(),
                         walletMovement.amount(),
-                        getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
-                        getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                        (int) walletMovement.balanceBefore()
+                                .getAmountFor(walletMovement.coinType()),
+                        (int) walletMovement.balanceAfter()
+                                .getAmountFor(walletMovement.coinType()),
                         walletMovement.operation(),
                         TransactionReason.SHOP_PURCHASE,
                         offer.getOfferId()
@@ -92,30 +92,22 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
 
     private void processRewards(User user, Offer offer) {
         offer.getRewards().forEach(offerReward -> {
-            Optional<WalletMovement> movement = offerReward.reward().deliver(user);
+            Optional<WalletMovement> movement = offerReward.reward().apply(user);
 
             movement.ifPresent(walletMovement -> transactionRepository.save(
                     Transaction.create(
                             user.getUserId(),
                             walletMovement.coinType(),
                             walletMovement.amount(),
-                            getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
-                            getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                            (int) walletMovement.balanceBefore()
+                                    .getAmountFor(walletMovement.coinType()),
+                            (int) walletMovement.balanceAfter()
+                                    .getAmountFor(walletMovement.coinType()),
                             walletMovement.operation(),
                             TransactionReason.SHOP_PURCHASE,
                             offer.getOfferId()
                     )
             ));
         });
-    }
-
-    private int getBalance(Balance balance, CoinType coinType) {
-        return switch (coinType) {
-            case SOFT -> (int) balance.coins();
-            case HARD -> (int) balance.gems();
-            case REAL -> throw new IllegalStateException(
-                    "Wallet movements cannot use REAL coin type."
-            );
-        };
     }
 }

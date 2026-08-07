@@ -39,7 +39,7 @@ public class UpdateStatsService implements UserStatsService {
             Optional<Level> level = levelRepository.findByLevel(afterLevel);
 
             level.ifPresent(l -> l.getRewards().forEach(levelReward -> {
-                Optional<WalletMovement> movement = levelReward.reward().deliver(user);
+                Optional<WalletMovement> movement = levelReward.reward().apply(user);
 
                 movement.ifPresent(walletMovement -> walletTransactionRepository.save(
                         Transaction.create(

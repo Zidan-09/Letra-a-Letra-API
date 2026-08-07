@@ -6,5 +6,5 @@ import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import java.util.Optional;
 
 public sealed interface Reward permits SoftCoinsReward, HardGemsReward, CosmeticReward {
-    Optional<WalletMovement> deliver(User user);
+    Optional<WalletMovement> apply(User user);
 }

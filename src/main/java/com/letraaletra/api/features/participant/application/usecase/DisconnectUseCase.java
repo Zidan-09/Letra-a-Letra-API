@@ -13,7 +13,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,7 +37,6 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
     }
 
     @Override
-    @Transactional
     public Optional<DisconnectParticipantOutput> execute(DisconnectParticipantInput input) {
         UUID userId = input.user();
         if (userId == null) return Optional.empty();

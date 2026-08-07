@@ -13,7 +13,6 @@ import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -40,7 +39,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
     }
 
     @Override
-    @Transactional
     public StartGameOutput execute(StartGameInput input) {
         List<String> words = themeService.select(input.settings().getThemeId());
 
