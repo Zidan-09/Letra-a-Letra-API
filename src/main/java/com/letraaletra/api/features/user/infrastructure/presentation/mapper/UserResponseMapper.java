@@ -10,6 +10,7 @@ public class UserResponseMapper {
                 user.getUserId(),
                 user.getUsername(),
                 user.getEmail(),
+                BanInfoResponseMapper.toResponse(user.getBanInfo()),
                 user.getStats(),
                 user.getInventory()
                         .getItems().stream()

@@ -36,9 +36,7 @@ public class ActivateAccountUseCase implements UseCase<ActivateAccountInput, Voi
         AdminPasswordSetupToken setupToken = tokenRepository.findByTokenHash(tokenHash)
                 .orElseThrow(InvalidTokenException::new);
 
-        if (setupToken.isExpired()) {
-            throw new InvalidTokenException();
-        }
+        setupToken.validate();
 
         Admin admin = adminRepository.find(setupToken.getAdminId())
                 .orElseThrow(AdminNotFoundException::new);

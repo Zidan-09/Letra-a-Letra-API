@@ -1,4 +1,6 @@
-package com.letraaletra.api.features.user.domain;
+package com.letraaletra.api.features.user.domain.ban;
+
+import com.letraaletra.api.features.user.domain.BanType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

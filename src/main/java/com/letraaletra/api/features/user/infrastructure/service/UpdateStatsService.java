@@ -2,11 +2,9 @@ package com.letraaletra.api.features.user.infrastructure.service;
 
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
-import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.transaction.domain.Transaction;
@@ -46,8 +44,10 @@ public class UpdateStatsService implements UserStatsService {
                                 user.getUserId(),
                                 walletMovement.coinType(),
                                 walletMovement.amount(),
-                                getBalance(walletMovement.balanceBefore(), walletMovement.coinType()),
-                                getBalance(user.getWallet().getBalance(), walletMovement.coinType()),
+                                (int) walletMovement.balanceBefore()
+                                        .getAmountFor(walletMovement.coinType()),
+                                (int) walletMovement.balanceAfter()
+                                        .getAmountFor(walletMovement.coinType()),
                                 walletMovement.operation(),
                                 TransactionReason.LEVEL_UP,
                                 l.getLevelId()
@@ -55,15 +55,5 @@ public class UpdateStatsService implements UserStatsService {
                 ));
             }));
         }
-    }
-
-    private int getBalance(Balance balance, CoinType coinType) {
-        return switch (coinType) {
-            case SOFT -> (int) balance.coins();
-            case HARD -> (int) balance.gems();
-            case REAL -> throw new IllegalStateException(
-                    "Wallet movements cannot use REAL coin type."
-            );
-        };
     }
 }

@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.user.domain;
 
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
+import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyWasBannedException;
 import com.letraaletra.api.features.user.domain.exception.UserDoesNotHaveBanException;
@@ -18,7 +19,7 @@ public class User {
     private String passwordHash;
     private final String googleId;
     private UUID currentGameId;
-    private boolean banned;
+    private BanInfo banInfo;
     private boolean canChangeNickname;
     private final UserStats stats;
     private final Inventory inventory;
@@ -32,7 +33,7 @@ public class User {
             String passwordHash,
             String googleId,
             UUID currentGameId,
-            boolean banned,
+            BanInfo banInfo,
             boolean canChangeNickname,
             UserStats stats,
             Inventory inventory,
@@ -45,7 +46,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.googleId = googleId;
         this.currentGameId = currentGameId;
-        this.banned = banned;
+        this.banInfo = banInfo;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
@@ -67,7 +68,7 @@ public class User {
                 hashPassword,
                 googleId,
                 null,
-                false,
+                BanInfo.create(),
                 canChangeNickname,
                 UserStats.create(),
                 Inventory.create(),
@@ -83,8 +84,8 @@ public class User {
             String hashPassword,
             String googleId,
             UUID currentGameId,
-            boolean banned,
             boolean canChangeNickname,
+            BanInfo banInfo,
             UserStats stats,
             Inventory inventory,
             Wallet wallet,
@@ -97,7 +98,7 @@ public class User {
                 hashPassword,
                 googleId,
                 currentGameId,
-                banned,
+                banInfo,
                 canChangeNickname,
                 stats,
                 inventory,
@@ -131,7 +132,11 @@ public class User {
     }
 
     public boolean isBanned() {
-        return banned;
+        return banInfo.type() != null;
+    }
+
+    public BanInfo getBanInfo() {
+        return banInfo;
     }
 
     public boolean canChangeNickname() {
@@ -194,19 +199,19 @@ public class User {
         this.passwordHash = newPasswordHash;
     }
 
-    public void ban() {
-        if (banned) {
+    public void ban(LocalDateTime expiresAt, String reason) {
+        if (banInfo.type() != null) {
             throw new UserAlreadyWasBannedException();
         }
 
-        banned = true;
+        banInfo = BanInfo.ban(expiresAt, reason);
     }
 
     public void unban() {
-        if (!banned) {
+        if (banInfo.type() == null) {
             throw new UserDoesNotHaveBanException();
         }
 
-        banned = false;
+        banInfo = null;
     }
 }

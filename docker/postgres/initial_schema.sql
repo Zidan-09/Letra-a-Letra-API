@@ -6,7 +6,6 @@ CREATE TABLE "user" (
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "current_game_id" uuid,
-                        "banned" boolean DEFAULT FALSE,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)

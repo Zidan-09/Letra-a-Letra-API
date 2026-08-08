@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.application.usecase;
 import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.user.application.input.UnbanUserInput;
-import com.letraaletra.api.features.user.domain.BanHistory;
+import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserDoesNotHaveBanException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;

@@ -3,6 +3,7 @@ package com.letraaletra.api.features.user.domain;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.InvalidUserCosmeticSelectedException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
@@ -120,9 +121,12 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("Deve lançar IllegalArgumentException ao tentar equipar um item que o usuário não possui")
+        @DisplayName("Deve lançar InvalidUserCosmeticSelectedException ao tentar equipar um item que o usuário não possui")
         void shouldThrowExceptionWhenItemNotFoundInInventory() {
-            assertThrows(IllegalArgumentException.class, () -> user.getInventory().equipCosmetic(UUID.randomUUID()));
+            assertThrows(
+                    InvalidUserCosmeticSelectedException.class,
+                    () -> user.getInventory().equipCosmetic(UUID.randomUUID())
+            );
         }
     }
 }

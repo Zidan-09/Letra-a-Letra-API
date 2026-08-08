@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
+import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
@@ -22,7 +23,6 @@ public class UserJpaMapper {
         entity.setGoogleId(user.getGoogleId());
         entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCurrentGameId(user.getCurrentGameId());
-        entity.setBanned(user.isBanned());
         entity.setCreatedAt(user.getCreatedAt());
 
         return entity;
@@ -36,8 +36,14 @@ public class UserJpaMapper {
                 projection.getPasswordHash(),
                 projection.getGoogleId(),
                 projection.getCurrentGameId(),
-                projection.isBanned(),
                 projection.isCanChangeNickname(),
+                projection.getBanType() == null
+                        ? BanInfo.create()
+                        : BanInfo.restore(
+                        projection.getBanType(),
+                        projection.getBanReason(),
+                        projection.getBanExpiresAt()
+                ),
                 UserStats.restore(
                         projection.getTotalMatches(),
                         projection.getTotalWins(),
