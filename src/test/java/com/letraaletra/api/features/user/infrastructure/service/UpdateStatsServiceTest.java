@@ -9,10 +9,14 @@ import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
+import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
+import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
 import com.letraaletra.api.shared.domain.rewards.Reward;
+import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,10 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -67,13 +68,10 @@ class UpdateStatsServiceTest {
         userId = UUID.randomUUID();
         mockUser = mock(User.class);
         mockUserStats = mock(UserStats.class);
-
-        when(mockUser.getUserId()).thenReturn(userId);
-        when(mockUser.getStats()).thenReturn(mockUserStats);
     }
 
     @Nested
-    @DisplayName("Sucesso no Fluxo Principal - Sem Subida de Nível")
+    @DisplayName("sucesso no Fluxo Principal - Sem subida de Nível")
     class SuccessFlowsWithoutLevelUp {
 
         @Test
@@ -83,19 +81,21 @@ class UpdateStatsServiceTest {
             int maxLevel = 10;
             int initialLevel = 2;
 
+            when(mockUser.getStats()).thenReturn(mockUserStats);
             when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
-            when(mockUserStats.getLevel()).thenReturn(initialLevel);
+            when(mockUserStats.getLevel())
+                    .thenReturn(initialLevel)
+                    .thenReturn(initialLevel);
 
             service.update(mockUser, isWinner);
 
-            InOrder inOrder = inOrder(mockUser, levelRepository, mockUserStats);
-            inOrder.verify(mockUser).registerMatchResult(true);
-            inOrder.verify(levelRepository).findBiggestLevel();
-            inOrder.verify(mockUserStats).getLevel();
-            inOrder.verify(mockUserStats).incrementExperience(30, maxLevel);
-            inOrder.verify(mockUserStats).getLevel();
+            verify(mockUser).registerMatchResult(true);
+            verify(levelRepository).findBiggestLevel();
+            verify(mockUserStats).incrementExperience(30, maxLevel);
 
-            verify(levelRepository, never()).findByLevel(any(Integer.class));
+            verify(levelRepository, never())
+                    .findByLevel(any(Integer.class));
+
             verifyNoInteractions(walletTransactionRepository);
         }
 
@@ -106,20 +106,27 @@ class UpdateStatsServiceTest {
             int maxLevelFromRepo = 0;
             int initialLevel = 1;
 
+            when(mockUser.getStats()).thenReturn(mockUserStats);
             when(levelRepository.findBiggestLevel()).thenReturn(maxLevelFromRepo);
-            when(mockUserStats.getLevel()).thenReturn(initialLevel);
+            when(mockUserStats.getLevel())
+                    .thenReturn(initialLevel)
+                    .thenReturn(initialLevel);
 
             service.update(mockUser, isWinner);
 
-            verify(mockUser, times(1)).registerMatchResult(false);
-            verify(mockUserStats, times(1)).incrementExperience(10, 1);
-            verify(levelRepository, never()).findByLevel(any(Integer.class));
+            verify(mockUser).registerMatchResult(false);
+            verify(levelRepository).findBiggestLevel();
+            verify(mockUserStats).incrementExperience(10, 1);
+
+            verify(levelRepository, never())
+                    .findByLevel(any(Integer.class));
+
             verifyNoInteractions(walletTransactionRepository);
         }
     }
 
     @Nested
-    @DisplayName("Sucesso no Fluxo Principal - Com Subida de Nível e Recompensas")
+    @DisplayName("sucesso no Fluxo Principal - Com subida de Nível e Recompensas")
     class SuccessFlowsWithLevelUp {
 
         @Test
@@ -131,30 +138,63 @@ class UpdateStatsServiceTest {
             int afterLevel = 2;
             UUID levelId = UUID.randomUUID();
 
-            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
-            when(mockUserStats.getLevel()).thenReturn(beforeLevel).thenReturn(afterLevel);
+            Wallet wallet = mock(Wallet.class);
 
-            Reward rewardMock = mock(Reward.class);
-            LevelReward levelReward = new LevelReward(levelId, rewardMock);
-            Level level = new Level(levelId, afterLevel, List.of(levelReward));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+            when(mockUser.getWallet()).thenReturn(wallet);
 
-            when(levelRepository.findByLevel(afterLevel)).thenReturn(Optional.of(level));
+            when(levelRepository.findBiggestLevel())
+                    .thenReturn(maxLevel);
+
+            when(mockUserStats.getLevel())
+                    .thenReturn(beforeLevel)
+                    .thenReturn(afterLevel);
 
             Balance balanceBefore = new Balance(100, 10);
             Balance balanceAfter = new Balance(200, 10);
-            WalletMovement movement = new WalletMovement(CoinType.SOFT, balanceBefore, balanceAfter, 100, OperationType.CREDIT);
 
-            when(rewardMock.apply(mockUser)).thenReturn(Optional.of(movement));
+            WalletMovement movement = new WalletMovement(
+                    CoinType.SOFT,
+                    balanceBefore,
+                    balanceAfter,
+                    100,
+                    OperationType.CREDIT
+            );
+
+            when(wallet.add(CoinType.SOFT, 100))
+                    .thenReturn(movement);
+
+            Reward reward = new SoftCoinsReward(100);
+
+            LevelReward levelReward = new LevelReward(
+                    levelId,
+                    reward
+            );
+
+            Level level = new Level(
+                    levelId,
+                    afterLevel,
+                    List.of(levelReward)
+            );
+
+            when(levelRepository.findByLevel(afterLevel))
+                    .thenReturn(Optional.of(level));
 
             service.update(mockUser, isWinner);
 
-            verify(mockUser, times(1)).registerMatchResult(true);
-            verify(mockUserStats, times(1)).incrementExperience(30, maxLevel);
-            verify(levelRepository, times(1)).findByLevel(afterLevel);
-            verify(rewardMock, times(1)).apply(mockUser);
-            verify(walletTransactionRepository, times(1)).save(transactionCaptor.capture());
+            verify(mockUser).registerMatchResult(true);
+            verify(mockUserStats).incrementExperience(30, maxLevel);
+            verify(levelRepository).findByLevel(afterLevel);
+
+            verify(wallet).add(CoinType.SOFT, 100);
+
+            verify(walletTransactionRepository)
+                    .save(transactionCaptor.capture());
 
             Transaction captured = transactionCaptor.getValue();
+
+            assertNotNull(captured);
             assertNotNull(captured.transactionId());
             assertEquals(userId, captured.userId());
             assertEquals(CoinType.SOFT, captured.coinType());
@@ -176,38 +216,71 @@ class UpdateStatsServiceTest {
             int afterLevel = 2;
             UUID levelId = UUID.randomUUID();
 
-            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
-            when(mockUserStats.getLevel()).thenReturn(beforeLevel).thenReturn(afterLevel);
+            Inventory inventory = mock(Inventory.class);
 
-            Reward rewardMock = mock(Reward.class);
-            LevelReward levelReward = new LevelReward(levelId, rewardMock);
-            Level level = new Level(levelId, afterLevel, List.of(levelReward));
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+            when(mockUser.getInventory()).thenReturn(inventory);
 
-            when(levelRepository.findByLevel(afterLevel)).thenReturn(Optional.of(level));
-            when(rewardMock.apply(mockUser)).thenReturn(Optional.empty());
+            when(levelRepository.findBiggestLevel())
+                    .thenReturn(maxLevel);
+
+            when(mockUserStats.getLevel())
+                    .thenReturn(beforeLevel)
+                    .thenReturn(afterLevel);
+
+            Reward reward = new CosmeticReward(null);
+
+            LevelReward levelReward = new LevelReward(
+                    levelId,
+                    reward
+            );
+
+            Level level = new Level(
+                    levelId,
+                    afterLevel,
+                    List.of(levelReward)
+            );
+
+            when(levelRepository.findByLevel(afterLevel))
+                    .thenReturn(Optional.of(level));
 
             service.update(mockUser, isWinner);
 
-            verify(levelRepository, times(1)).findByLevel(afterLevel);
-            verify(rewardMock, times(1)).apply(mockUser);
+            verify(mockUser).registerMatchResult(true);
+            verify(mockUserStats).incrementExperience(30, maxLevel);
+            verify(levelRepository).findByLevel(afterLevel);
+
+            verify(inventory).unlock(null);
+
             verifyNoInteractions(walletTransactionRepository);
         }
 
         @Test
         @DisplayName("Não deve processar recompensas se o nível subir mas o Level não for encontrado no repositório")
-        void execute_WhenLevelUpButLevelNotFoundInRepository_ShouldNotThrowAndNotSaveTransaction() {
+        void update_WhenLevelUpButLevelNotFoundInRepository_ShouldNotThrowAndNotSaveTransaction() {
             boolean isWinner = true;
             int maxLevel = 20;
             int beforeLevel = 1;
             int afterLevel = 2;
 
-            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
-            when(mockUserStats.getLevel()).thenReturn(beforeLevel).thenReturn(afterLevel);
-            when(levelRepository.findByLevel(afterLevel)).thenReturn(Optional.empty());
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+
+            when(levelRepository.findBiggestLevel())
+                    .thenReturn(maxLevel);
+
+            when(mockUserStats.getLevel())
+                    .thenReturn(beforeLevel)
+                    .thenReturn(afterLevel);
+
+            when(levelRepository.findByLevel(afterLevel))
+                    .thenReturn(Optional.empty());
 
             service.update(mockUser, isWinner);
 
-            verify(levelRepository, times(1)).findByLevel(afterLevel);
+            verify(mockUser).registerMatchResult(true);
+            verify(mockUserStats).incrementExperience(30, maxLevel);
+            verify(levelRepository).findByLevel(afterLevel);
+
             verifyNoInteractions(walletTransactionRepository);
         }
     }
@@ -220,15 +293,23 @@ class UpdateStatsServiceTest {
         @DisplayName("Deve propagar exceção caso LevelRepository.findBiggestLevel falhe")
         void update_WhenFindBiggestLevelFails_ShouldPropagateException() {
             when(levelRepository.findBiggestLevel())
-                    .thenThrow(new RuntimeException("Erro ao buscar maior nível"));
+                    .thenThrow(new RuntimeException(
+                            "Erro ao buscar maior nível"
+                    ));
 
             RuntimeException exception = assertThrows(
                     RuntimeException.class,
                     () -> service.update(mockUser, true)
             );
 
-            assertEquals("Erro ao buscar maior nível", exception.getMessage());
-            verify(mockUser, times(1)).registerMatchResult(true);
+            assertEquals(
+                    "Erro ao buscar maior nível",
+                    exception.getMessage()
+            );
+
+            verify(mockUser).registerMatchResult(true);
+            verify(levelRepository).findBiggestLevel();
+
             verifyNoInteractions(walletTransactionRepository);
         }
 
@@ -241,30 +322,69 @@ class UpdateStatsServiceTest {
             int afterLevel = 2;
             UUID levelId = UUID.randomUUID();
 
-            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
-            when(mockUserStats.getLevel()).thenReturn(beforeLevel).thenReturn(afterLevel);
+            Wallet wallet = mock(Wallet.class);
 
-            Reward rewardMock = mock(Reward.class);
-            LevelReward levelReward = new LevelReward(levelId, rewardMock);
-            Level level = new Level(levelId, afterLevel, List.of(levelReward));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+            when(mockUser.getWallet()).thenReturn(wallet);
 
-            when(levelRepository.findByLevel(afterLevel)).thenReturn(Optional.of(level));
+            when(levelRepository.findBiggestLevel())
+                    .thenReturn(maxLevel);
+
+            when(mockUserStats.getLevel())
+                    .thenReturn(beforeLevel)
+                    .thenReturn(afterLevel);
 
             Balance balanceBefore = new Balance(0, 0);
             Balance balanceAfter = new Balance(50, 0);
-            WalletMovement movement = new WalletMovement(CoinType.SOFT, balanceBefore, balanceAfter, 50, OperationType.CREDIT);
 
-            when(rewardMock.apply(mockUser)).thenReturn(Optional.of(movement));
-            doThrow(new RuntimeException("Erro de persistência na transação"))
-                    .when(walletTransactionRepository).save(any(Transaction.class));
+            WalletMovement movement = new WalletMovement(
+                    CoinType.SOFT,
+                    balanceBefore,
+                    balanceAfter,
+                    50,
+                    OperationType.CREDIT
+            );
+
+            when(wallet.add(CoinType.SOFT, 50))
+                    .thenReturn(movement);
+
+            Reward reward = new SoftCoinsReward(50);
+
+            LevelReward levelReward = new LevelReward(
+                    levelId,
+                    reward
+            );
+
+            Level level = new Level(
+                    levelId,
+                    afterLevel,
+                    List.of(levelReward)
+            );
+
+            when(levelRepository.findByLevel(afterLevel))
+                    .thenReturn(Optional.of(level));
+
+            doThrow(new RuntimeException(
+                    "Erro de persistência na transação"
+            ))
+                    .when(walletTransactionRepository)
+                    .save(any(Transaction.class));
 
             RuntimeException exception = assertThrows(
                     RuntimeException.class,
                     () -> service.update(mockUser, isWinner)
             );
 
-            assertEquals("Erro de persistência na transação", exception.getMessage());
-            verify(walletTransactionRepository, times(1)).save(any(Transaction.class));
+            assertEquals(
+                    "Erro de persistência na transação",
+                    exception.getMessage()
+            );
+
+            verify(wallet).add(CoinType.SOFT, 50);
+
+            verify(walletTransactionRepository)
+                    .save(any(Transaction.class));
         }
     }
 }
