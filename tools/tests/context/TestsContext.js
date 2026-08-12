@@ -7,11 +7,18 @@ export class TestContext {
 
     events = new Map();
 
+    sharedEvents = [];
+    sharedEventIds = new Set();
+
     sockets = [];
 
     addUser(nickname) {
-        const user = new User(nickname, `${nickname.toLowerCase()}@email.com`, "12345678");
-        
+        const user = new User(
+            nickname,
+            `${nickname.toLowerCase()}@email.com`,
+            "12345678"
+        );
+
         this.users.push(user);
         this.events.set(user, []);
     }
@@ -26,17 +33,43 @@ export class TestContext {
     async connectSockets() {
         this.sockets = await Promise.all(
             this.users.map(user =>
-                connect(user, this.events.get(user))
+                connect(
+                    user,
+                    this.events.get(user),
+                    event => this.addSharedEvent(event)
+                )
             )
         );
     }
 
-    clearEvents() {
-        this.events = new Map();
+    addSharedEvent(event) {
+        if (this.sharedEventIds.has(event.eventId)) {
+            return;
+        }
 
-        this.users.forEach(user =>
-            this.events.set(user, [])
-        );
+        this.sharedEventIds.add(event.eventId);
+        this.sharedEvents.push(event);
+
+        if (this.sharedEvents._listeners) {
+            this.sharedEvents._listeners =
+                this.sharedEvents._listeners.filter(
+                    listener => !listener(event)
+                );
+        }
+    }
+
+    getSharedEvents() {
+        return this.sharedEvents;
+    }
+
+    clearEvents() {
+        for (const events of this.events.values()) {
+            events.length = 0;
+            delete events._listeners;
+        }
+
+        this.sharedEvents.length = 0;
+        this.sharedEventIds.clear();
     }
 
     dispose() {

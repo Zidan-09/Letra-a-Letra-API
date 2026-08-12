@@ -35,6 +35,13 @@ public class MatchmakingScheduler {
 
     private void startGame(MatchmakingPair pair, GameMode mode, QueueType type) {
         Game game = assembler.create(pair, mode, type);
+
+        logger.info("Matchmaking game started: gameId={}, mode={}, queueType={}",
+                game.getId(),
+                mode,
+                type
+        );
+
         sender.notify(game, type);
     }
 }

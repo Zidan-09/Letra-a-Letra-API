@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -36,8 +37,13 @@ public class BroadcastService implements GameNotifier {
         }
 
         final String json;
+
         try {
-            json = objectMapper.writeValueAsString(dto);
+            ObjectNode message = objectMapper.valueToTree(dto);
+            message.put("eventId", UUID.randomUUID().toString());
+
+            json = objectMapper.writeValueAsString(message);
+
         } catch (Exception e) {
             logger.warn("Error serializing broadcast message: {}", e.getMessage());
             return;
@@ -63,10 +69,18 @@ public class BroadcastService implements GameNotifier {
         }
 
         try {
-            String json = objectMapper.writeValueAsString(dto);
+            ObjectNode message = objectMapper.valueToTree(dto);
+            message.put("eventId", UUID.randomUUID().toString());
+
+            String json = objectMapper.writeValueAsString(message);
+
             send(session, json);
         } catch (Exception e) {
-            logger.warn("Error serializing message for user {}: {}", userId, e.getMessage());
+            logger.warn(
+                    "Error serializing message for user {}: {}",
+                    userId,
+                    e.getMessage()
+            );
         }
     }
 

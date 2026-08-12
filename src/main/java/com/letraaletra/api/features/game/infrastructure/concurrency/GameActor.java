@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
+import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
 import com.letraaletra.api.features.game.domain.actor.command.ActorCommand;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.features.game.domain.Game;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameActor implements Actor {
     private final Queue<CommandEnvelope<?>> mailbox = new ConcurrentLinkedQueue<>();
     private final ExecutorService executor;
+    private final TransactionalExecutorService transactionExecutor;
     private final Game game;
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
@@ -21,8 +23,9 @@ public class GameActor implements Actor {
             CompletableFuture<T> future
     ) {}
 
-    public GameActor(ExecutorService executor, Game game) {
+    public GameActor(ExecutorService executor, TransactionalExecutorService transactionExecutor, Game game) {
         this.game = game;
+        this.transactionExecutor = transactionExecutor;
         this.executor = executor;
     }
 
@@ -57,7 +60,9 @@ public class GameActor implements Actor {
 
     private <T> void executeEnvelope(CommandEnvelope<T> envelope) {
         try {
-            T result = envelope.command().execute(game);
+            T result = transactionExecutor.execute(() ->
+                    envelope.command().execute(game)
+            );
 
             envelope.future().complete(result);
 
