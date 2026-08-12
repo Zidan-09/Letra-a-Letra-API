@@ -6,8 +6,7 @@ export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
     
     const users = context.users;
-    const eventsUser1 = context.events.get(users[0]);
-    const eventsUser2 = context.events.get(users[1]);
+    const events = context.getSharedEvents();
 
     send(ws1, {
         type: "MATCHMAKING_GAME",
@@ -22,7 +21,7 @@ export async function runFlow(context) {
     const started = await waitForEvent(
         "MATCHMAKING_GAME",
         e => e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED",
-        eventsUser1
+        events
     );
 
     await sleep(1000);
@@ -45,11 +44,6 @@ export async function runFlow(context) {
     const sockets = {
         [users[0].id]: ws1,
         [users[1].id]: ws2
-    };
-
-    const events = {
-        [users[0].id]: context.events.get(users[0]),
-        [users[1].id]: context.events.get(users[1]),
     };
 
     const script = [
@@ -102,7 +96,7 @@ export async function runFlow(context) {
                         e.event === "PLAYER_ACTION_RESULT" &&
                         e.data.currentTurnPlayerId !== currentPlayer
                     ),
-                    eventsUser1
+                    events
             );
 
             await sleep(1000);
@@ -116,13 +110,10 @@ export async function runFlow(context) {
         } else {
 
             if (i === script.length - 1) {
-                const removedPlayer = players[1];
-                const winner = players[2];
-
                 await waitForEvent(
                     "TURN_EXPIRED LAST",
                     e => e.event === "TURN_EXPIRED",
-                    events[winner.id],
+                    events,
                     90000
                 );
 
@@ -131,7 +122,7 @@ export async function runFlow(context) {
                 await waitForEvent(
                     "REMOVED_BECAUSE_INACTIVITY",
                     e => e.event === "REMOVED_BECAUSE_INACTIVITY",
-                    events[removedPlayer.id]
+                    events
                 );
 
                 await sleep(1000);
@@ -139,7 +130,7 @@ export async function runFlow(context) {
                 await waitForEvent(
                     "GAME_OVER",
                     e => e.event === "GAME_OVER",
-                    events[winner.id]
+                    events
                 );
 
                 await sleep(1000);
@@ -150,7 +141,7 @@ export async function runFlow(context) {
             const expired = await waitForEvent(
                 "TURN_EXPIRED GENERAL",
                 e => e.event === "TURN_EXPIRED",
-                eventsUser2,
+                events,
                 90000
             );
 

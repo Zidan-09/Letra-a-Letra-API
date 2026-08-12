@@ -6,7 +6,7 @@ export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
-    const events = context.getSharedEvents();
+    const events = context.events.get(users[0]);
 
     let gameId;
 
@@ -93,7 +93,7 @@ export async function runFlow(context) {
                     events
             );
 
-            await sleep(125);
+            await sleep(3000);
 
             if (result.event === "GAME_OVER") {
                 gameRunning = false;
@@ -104,25 +104,11 @@ export async function runFlow(context) {
         }
     }
 
-    await play();
+    while (true) {
+        await play();
 
-    context.clearEvents();
+        context.clearEvents();
 
-    await sleep(1000);
-
-    await play();
-
-    context.clearEvents();
-
-    await sleep(1000);
-
-    await play();
-
-    context.clearEvents();
-
-    await sleep(1000);
-
-    await play();
-
-    context.clearEvents();
+        await sleep(1000);
+    }
 }
