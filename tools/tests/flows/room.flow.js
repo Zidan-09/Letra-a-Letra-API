@@ -6,7 +6,7 @@ export async function runFlow(context) {
     const [ws1, ws2, ws3] = context.sockets;
 
     const users = context.users;
-    const events = context.events.get(users[0]);
+    const events = context.getSharedEvents();
 
     send(ws1, {
         type: "CREATE_GAME",

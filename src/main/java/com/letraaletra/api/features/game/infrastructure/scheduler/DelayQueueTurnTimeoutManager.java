@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
+import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
 import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
@@ -27,6 +28,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
     private final GameResponseAssembler gameResponseAssembler;
     private final GameTimeoutManager gameTimeoutManager;
+    private final TransactionalExecutorService transactionExecutor;
 
     private final DelayQueue<GameTurn> queue = new DelayQueue<>();
 
@@ -63,7 +65,13 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
-        Optional<ExpireTurnTimeoutResult> optResult = expireTurnService.expire(gameTurn.gameId(), gameTurn.version());
+        Optional<ExpireTurnTimeoutResult> optResult =
+                transactionExecutor.execute(() ->
+                        expireTurnService.expire(
+                                gameTurn.gameId(),
+                                gameTurn.version()
+                        )
+                );
 
         if (optResult.isEmpty()) return;
 

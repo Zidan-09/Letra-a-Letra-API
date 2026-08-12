@@ -29,15 +29,16 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        TokenContent content = tokenService.getTokenContent(token);
+        try {
+            TokenContent content = tokenService.getTokenContent(token);
 
-        if (content == null) {
+            attributes.put("userId", content.id().toString());
+
+            return true;
+
+        } catch (Exception e) {
             return false;
         }
-
-        attributes.put("userId", content.id().toString());
-
-        return true;
     }
 
     @Override

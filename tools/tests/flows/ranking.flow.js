@@ -6,7 +6,7 @@ export async function runRankingGame(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
-    const events = context.events.get(users[0]);
+    const events = context.getSharedEvents();
 
     send(ws1, {
         type: "RANKING_GAME"
