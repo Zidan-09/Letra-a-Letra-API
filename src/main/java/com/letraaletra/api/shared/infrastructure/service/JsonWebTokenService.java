@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -22,10 +23,13 @@ public class JsonWebTokenService implements TokenService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateUserToken(UUID id) {
+    public String generateUserToken(UUID id, int tokenVersion) {
         return Jwts.builder()
                 .subject(id.toString())
-                .claim("role", Roles.USER.name())
+                .claims(Map.of(
+                        "role", Roles.USER.name(),
+                        "tokenVersion", tokenVersion)
+                )
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
                 .signWith(getSigningKey())
@@ -33,10 +37,13 @@ public class JsonWebTokenService implements TokenService {
     }
 
     @Override
-    public String generateAdminToken(UUID id) {
+    public String generateAdminToken(UUID id, int tokenVersion) {
         return Jwts.builder()
                 .subject(id.toString())
-                .claim("role", Roles.ADMIN.name())
+                .claims(Map.of(
+                        "role", Roles.ADMIN.name(),
+                        "tokenVersion", tokenVersion)
+                )
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
                 .signWith(getSigningKey())
@@ -54,8 +61,9 @@ public class JsonWebTokenService implements TokenService {
 
             UUID id = UUID.fromString(claims.getSubject());
             Roles role = Roles.valueOf(claims.get("role", String.class));
+            int tokenVersion = claims.get("tokenVersion", Integer.class);
 
-            return new TokenContent(id, role);
+            return new TokenContent(id, role, tokenVersion);
 
         } catch (Exception ex) {
             throw new InvalidTokenException();

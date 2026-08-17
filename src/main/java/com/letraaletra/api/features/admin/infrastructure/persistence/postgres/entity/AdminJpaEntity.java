@@ -31,6 +31,9 @@ public class AdminJpaEntity {
     @Column(name = "password_hash")
     private String hashPassword;
 
+    @Column(name = "token_version")
+    private int tokenVersion;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

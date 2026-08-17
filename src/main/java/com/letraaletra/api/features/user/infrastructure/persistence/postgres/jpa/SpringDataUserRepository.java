@@ -21,6 +21,7 @@ public interface SpringDataUserRepository
         u.email AS email,
         u.passwordHash AS passwordHash,
         u.googleId AS googleId,
+        u.tokenVersion as tokenVersion,
 
         u.currentGameId AS currentGameId,
         u.canChangeNickname AS canChangeNickname,

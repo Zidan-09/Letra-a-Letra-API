@@ -4,9 +4,11 @@ import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserBannedFromGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.domain.exception.SessionExpiredException;
 import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
@@ -57,6 +59,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         User user = userRepository.find(content.id())
                                 .orElseThrow(UserNotFoundException::new);
 
+                        if (user.isBanned()) {
+                            throw new UserBannedFromGameException();
+                        }
+
+                        if (user.getTokenVersion() != content.tokenVersion()) {
+                            throw new SessionExpiredException();
+                        }
+
                         authentication = new UsernamePasswordAuthenticationToken(
                             new AuthenticatedUser(user.getUserId(), user.getUsername(), false, false),
                             null,
@@ -66,6 +76,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     case ADMIN -> {
                         Admin admin = adminRepository.find(content.id())
                                 .orElseThrow(AdminNotFoundException::new);
+
+                        if (admin.getTokenVersion() != content.tokenVersion()) {
+                            throw new SessionExpiredException();
+                        }
 
                         authentication = new UsernamePasswordAuthenticationToken(
                             new AuthenticatedUser(admin.getId(), admin.getName(), true, admin.isSuper()),

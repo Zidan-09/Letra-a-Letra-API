@@ -32,6 +32,6 @@ echo [5] API pronta!
 
 echo [6] Iniciando testes de integração...
 
-call node tools\tests\runner.js
+call node tools\runner.js
 
 echo [8] Testes finalizados!
