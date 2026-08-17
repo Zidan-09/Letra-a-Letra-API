@@ -104,7 +104,7 @@ export async function runFlow(context) {
         }
     }
 
-    while (true) {
+    for (let i = 0; i < 3; i++) {
         await play();
 
         context.clearEvents();
