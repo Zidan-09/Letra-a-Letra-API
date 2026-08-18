@@ -12,4 +12,4 @@ echo ==========================
 echo Loading Containers
 echo ==========================
 
-docker-compose up --build
+docker-compose --env-file .env.dev up --build
