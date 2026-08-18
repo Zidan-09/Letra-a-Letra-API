@@ -28,14 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GoogleAuthUseCase Unit Tests")
@@ -60,6 +53,7 @@ class GoogleAuthUseCaseTest {
     private String googleId;
     private String email;
     private UUID userId;
+    private int tokenVersion;
     private String jwtToken;
     private GoogleAuthData googleAuthData;
     private User mockUser;
@@ -71,6 +65,7 @@ class GoogleAuthUseCaseTest {
         email = "usuario.google@teste.com";
         userId = UUID.randomUUID();
         jwtToken = "generated.app.jwt_token";
+        tokenVersion = 1;
 
         googleAuthData = new GoogleAuthData(email, googleId);
         mockUser = mock(User.class);
@@ -85,10 +80,11 @@ class GoogleAuthUseCaseTest {
         void execute_WhenUserAlreadyExists_ShouldReturnSignInOutputWithoutCreatingNewUser() {
             AuthInput input = new AuthInput(validGoogleToken);
 
-            org.mockito.Mockito.when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
-            org.mockito.Mockito.when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.of(mockUser));
-            org.mockito.Mockito.when(mockUser.getUserId()).thenReturn(userId);
-            org.mockito.Mockito.when(tokenService.generateUserToken(userId)).thenReturn(jwtToken);
+            when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
+            when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(mockUser.getTokenVersion()).thenReturn(tokenVersion);
+            when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             SignInOutput output = useCase.execute(input);
 
@@ -96,13 +92,14 @@ class GoogleAuthUseCaseTest {
             assertEquals(userId, output.id());
             assertEquals(jwtToken, output.token());
 
-            InOrder inOrder = inOrder(googleTokenService, userRepository, tokenService);
+            InOrder inOrder = inOrder(googleTokenService, userRepository, mockUser, tokenService);
             inOrder.verify(googleTokenService).verify(validGoogleToken);
             inOrder.verify(userRepository).findByGoogleId(googleId);
-            inOrder.verify(tokenService).generateUserToken(userId);
+            inOrder.verify(mockUser).incrementTokenVersion();
+            inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
+            inOrder.verify(userRepository).save(mockUser);
 
             verifyNoInteractions(nicknameService);
-            verify(userRepository, never()).save(any());
         }
 
         @Test
@@ -112,11 +109,12 @@ class GoogleAuthUseCaseTest {
             AuthInput input = new AuthInput(validGoogleToken);
             User createdUser = mock(User.class);
 
-            org.mockito.Mockito.when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
-            org.mockito.Mockito.when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
-            org.mockito.Mockito.when(nicknameService.get()).thenReturn(generatedNickname);
-            org.mockito.Mockito.when(createdUser.getUserId()).thenReturn(userId);
-            org.mockito.Mockito.when(tokenService.generateUserToken(userId)).thenReturn(jwtToken);
+            when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
+            when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
+            when(nicknameService.get()).thenReturn(generatedNickname);
+            when(createdUser.getUserId()).thenReturn(userId);
+            when(createdUser.getTokenVersion()).thenReturn(tokenVersion);
+            when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             try (MockedStatic<UserFactory> userFactoryMock = mockStatic(UserFactory.class)) {
                 userFactoryMock.when(() -> UserFactory.createGoogle(generatedNickname, email, googleId))
@@ -128,12 +126,13 @@ class GoogleAuthUseCaseTest {
                 assertEquals(userId, output.id());
                 assertEquals(jwtToken, output.token());
 
-                InOrder inOrder = inOrder(googleTokenService, userRepository, nicknameService, tokenService);
+                InOrder inOrder = inOrder(googleTokenService, userRepository, nicknameService, createdUser, tokenService);
                 inOrder.verify(googleTokenService).verify(validGoogleToken);
                 inOrder.verify(userRepository).findByGoogleId(googleId);
                 inOrder.verify(nicknameService).get();
+                inOrder.verify(createdUser).incrementTokenVersion();
+                inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
                 inOrder.verify(userRepository).save(createdUser);
-                inOrder.verify(tokenService).generateUserToken(userId);
 
                 userFactoryMock.verify(() -> UserFactory.createGoogle(generatedNickname, email, googleId), times(1));
             }
@@ -172,8 +171,8 @@ class GoogleAuthUseCaseTest {
         void execute_WhenNicknameServiceFails_ShouldPropagateExceptionAndNotSaveUser() {
             AuthInput input = new AuthInput(validGoogleToken);
 
-            org.mockito.Mockito.when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
-            org.mockito.Mockito.when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
+            when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
+            when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
             doThrow(new RuntimeException("Falha ao gerar nickname único"))
                     .when(nicknameService).get();
 
@@ -191,15 +190,18 @@ class GoogleAuthUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve propagar exceção caso o UserRepository falhe ao salvar o novo usuário")
-        void execute_WhenUserRepositorySaveFails_ShouldPropagateExceptionAndNotGenerateJwtToken() {
+        @DisplayName("Deve propagar exceção caso o UserRepository falhe ao salvar o usuário no final do fluxo")
+        void execute_WhenUserRepositorySaveFails_ShouldPropagateException() {
             String generatedNickname = "FalconHunter99a";
             AuthInput input = new AuthInput(validGoogleToken);
             User createdUser = mock(User.class);
 
-            org.mockito.Mockito.when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
-            org.mockito.Mockito.when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
-            org.mockito.Mockito.when(nicknameService.get()).thenReturn(generatedNickname);
+            when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
+            when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
+            when(nicknameService.get()).thenReturn(generatedNickname);
+            when(createdUser.getUserId()).thenReturn(userId);
+            when(createdUser.getTokenVersion()).thenReturn(tokenVersion);
+            when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             doThrow(new RuntimeException("Erro de conexão com o banco de dados"))
                     .when(userRepository).save(any(User.class));
@@ -214,8 +216,8 @@ class GoogleAuthUseCaseTest {
                 );
 
                 assertEquals("Erro de conexão com o banco de dados", exception.getMessage());
+                verify(tokenService).generateUserToken(userId, tokenVersion);
                 verify(userRepository, times(1)).save(createdUser);
-                verifyNoInteractions(tokenService);
             }
         }
     }

@@ -13,6 +13,8 @@ public interface UserProjection {
     String getPasswordHash();
     String getGoogleId();
 
+    int getTokenVersion();
+
     UUID getCurrentGameId();
     boolean isCanChangeNickname();
 

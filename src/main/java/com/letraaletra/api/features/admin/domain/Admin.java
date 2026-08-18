@@ -10,6 +10,7 @@ public class Admin {
     private String name;
     private String email;
     private String passwordHash;
+    private int tokenVersion;
     private boolean isSuper;
     private final Permissions permissions;
     private final LocalDateTime createdAt;
@@ -19,6 +20,7 @@ public class Admin {
             String name,
             String email,
             String passwordHash,
+            int tokenVersion,
             boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
@@ -27,6 +29,7 @@ public class Admin {
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.tokenVersion = tokenVersion;
         this.isSuper = isSuper;
         this.permissions = permissions;
         this.createdAt = createdAt;
@@ -41,6 +44,7 @@ public class Admin {
                 name,
                 email,
                 null,
+                0,
                 false,
                 new Permissions(),
                 LocalDateTime.now()
@@ -52,6 +56,7 @@ public class Admin {
             String name,
             String email,
             String passwordHash,
+            int tokenVersion,
             boolean isSuper,
             Permissions permissions,
             LocalDateTime createdAt
@@ -61,6 +66,7 @@ public class Admin {
                 name,
                 email,
                 passwordHash,
+                tokenVersion,
                 isSuper,
                 permissions,
                 createdAt
@@ -89,6 +95,14 @@ public class Admin {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void incrementTokenVersion() {
+        tokenVersion++;
     }
 
     public void changePassword(String passwordHash) {

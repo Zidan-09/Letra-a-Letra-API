@@ -10,6 +10,7 @@ public enum ServerMessages implements MessageCode {
     UNAUTHORIZED("authentication is required to access this resource"),
     CONFLICT("the request conflicts with the current state of the resource"),
     FORBIDDEN("you do not have permission to access this resource"),
+    SESSION_EXPIRED("the session has expired or was invalidated by another login"),
     INVALID_ID("the provided identifier is invalid");
 
     private final String message;

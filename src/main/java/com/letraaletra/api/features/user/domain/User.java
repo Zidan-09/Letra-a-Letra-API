@@ -17,6 +17,7 @@ public class User {
     private String username;
     private final String email;
     private String passwordHash;
+    private int tokenVersion;
     private final String googleId;
     private UUID currentGameId;
     private BanInfo banInfo;
@@ -31,6 +32,7 @@ public class User {
             String username,
             String email,
             String passwordHash,
+            int tokenVersion,
             String googleId,
             UUID currentGameId,
             BanInfo banInfo,
@@ -44,6 +46,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.tokenVersion = tokenVersion;
         this.googleId = googleId;
         this.currentGameId = currentGameId;
         this.banInfo = banInfo;
@@ -66,6 +69,7 @@ public class User {
                 username,
                 email,
                 hashPassword,
+                0,
                 googleId,
                 null,
                 BanInfo.create(),
@@ -82,6 +86,7 @@ public class User {
             String username,
             String email,
             String hashPassword,
+            int tokenVersion,
             String googleId,
             UUID currentGameId,
             boolean canChangeNickname,
@@ -96,6 +101,7 @@ public class User {
                 username,
                 email,
                 hashPassword,
+                tokenVersion,
                 googleId,
                 currentGameId,
                 banInfo,
@@ -125,6 +131,10 @@ public class User {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
     }
 
     public String getGoogleId() {
@@ -189,6 +199,10 @@ public class User {
         } else {
             stats.registerLose();
         }
+    }
+
+    public void incrementTokenVersion() {
+        tokenVersion++;
     }
 
     public void setCanChangeNickname(boolean canChangeNickname) {

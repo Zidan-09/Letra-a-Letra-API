@@ -10,8 +10,6 @@ import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
 
-import java.util.UUID;
-
 public class AuthAdminUseCase implements UseCase<AuthAdminInput, AuthAdminOutput> {
     private final AdminRepository adminRepository;
     private final PasswordService passwordService;
@@ -34,9 +32,12 @@ public class AuthAdminUseCase implements UseCase<AuthAdminInput, AuthAdminOutput
 
         checkMatch(input.password(), admin.getPasswordHash());
 
-        String token = tokenService.generateAdminToken(admin.getId());
+        admin.incrementTokenVersion();
+        String token = tokenService.generateAdminToken(admin.getId(), admin.getTokenVersion());
 
-        return buildOutput(admin.getId(), token);
+        adminRepository.save(admin);
+
+        return new AuthAdminOutput(admin.getId(), token);
     }
 
     private void checkMatch(String password, String hash) {
@@ -45,12 +46,5 @@ public class AuthAdminUseCase implements UseCase<AuthAdminInput, AuthAdminOutput
         if (!matches) {
             throw new InvalidPasswordException();
         }
-    }
-
-    private AuthAdminOutput buildOutput(UUID id, String token) {
-        return new AuthAdminOutput(
-                id,
-                token
-        );
     }
 }

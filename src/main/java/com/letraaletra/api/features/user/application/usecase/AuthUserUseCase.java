@@ -33,7 +33,10 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
 
         checkMatch(input.password(), user.getPasswordHash());
 
-        String token = tokenService.generateUserToken(user.getUserId());
+        user.incrementTokenVersion();
+        String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
+
+        userRepository.save(user);
 
         return new SignInOutput(user.getUserId(), token);
     }

@@ -28,6 +28,9 @@ public class UserJpaEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
+    @Column(name = "token_version")
+    private int tokenVersion;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
