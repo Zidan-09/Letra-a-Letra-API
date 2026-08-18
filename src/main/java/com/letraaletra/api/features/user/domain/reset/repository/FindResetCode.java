@@ -1,6 +1,6 @@
-package com.letraaletra.api.features.user.domain.repository.reset;
+package com.letraaletra.api.features.user.domain.reset.repository;
 
-import com.letraaletra.api.features.user.domain.PasswordResetCode;
+import com.letraaletra.api.features.user.domain.reset.PasswordResetCode;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection;
 
-import com.letraaletra.api.features.user.domain.BanType;
+import com.letraaletra.api.features.user.domain.ban.BanType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.repository.user;
+package com.letraaletra.api.features.user.domain.repository;
 
 public interface UserRepository extends
         SaveUser,

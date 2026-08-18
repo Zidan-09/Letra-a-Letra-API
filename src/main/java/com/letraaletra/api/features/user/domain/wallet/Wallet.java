@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.domain.wallet;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.transaction.domain.OperationType;
-import com.letraaletra.api.features.user.domain.exception.InsufficientBalanceException;
+import com.letraaletra.api.features.user.domain.wallet.exception.InsufficientBalanceException;
 
 public class Wallet {
     private long softCoins;

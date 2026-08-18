@@ -5,10 +5,10 @@ import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.EmailAlreadyInUseException;
-import com.letraaletra.api.features.user.domain.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.UserFactory;
 
 public class CreateUserUseCase implements UseCase<CreateUserInput, CreateUserOutput> {
     private final UserRepository userRepository;

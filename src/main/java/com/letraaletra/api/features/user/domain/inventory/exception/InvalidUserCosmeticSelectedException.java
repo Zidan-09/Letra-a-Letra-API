@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.exception;
+package com.letraaletra.api.features.user.domain.inventory.exception;
 
 import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.features.user.domain.UserMessages;

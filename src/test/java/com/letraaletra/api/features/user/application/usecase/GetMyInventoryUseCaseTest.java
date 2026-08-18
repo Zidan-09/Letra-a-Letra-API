@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.application.usecase;
 import com.letraaletra.api.features.user.application.input.GetMyInventoryInput;
 import com.letraaletra.api.features.user.application.output.GetMyInventoryOutput;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-import com.letraaletra.api.features.user.domain.repository.inventory.InventoryRepository;
+import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

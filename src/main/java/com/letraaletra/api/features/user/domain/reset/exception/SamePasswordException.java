@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.exception;
+package com.letraaletra.api.features.user.domain.reset.exception;
 
 import com.letraaletra.api.features.user.domain.UserMessages;
 import com.letraaletra.api.shared.domain.DomainException;

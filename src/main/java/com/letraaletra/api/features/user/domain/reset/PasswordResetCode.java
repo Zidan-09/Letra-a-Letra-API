@@ -1,8 +1,7 @@
-package com.letraaletra.api.features.user.domain;
+package com.letraaletra.api.features.user.domain.reset;
 
-import com.letraaletra.api.features.user.domain.exception.MaxAttemptsExceededException;
+import com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
-import com.letraaletra.api.shared.domain.service.TokenHashService;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.admin.domain;
 
-import com.letraaletra.api.features.user.domain.exception.MaxAttemptsExceededException;
+import com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 
 import java.time.LocalDateTime;
