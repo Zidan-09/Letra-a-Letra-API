@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
-import com.letraaletra.api.features.user.domain.PasswordResetCode;
+import com.letraaletra.api.features.user.domain.reset.PasswordResetCode;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.SamePasswordException;
-import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.reset.exception.SamePasswordException;
+import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;

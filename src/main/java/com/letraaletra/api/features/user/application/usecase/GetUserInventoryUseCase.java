@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.application.input.GetUserInventoryInput
 import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
 import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-import com.letraaletra.api.features.user.domain.repository.inventory.InventoryRepository;
+import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.data.domain.Page;

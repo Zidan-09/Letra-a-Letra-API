@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.application.input;
 
-import com.letraaletra.api.features.user.domain.BanType;
+import com.letraaletra.api.features.user.domain.ban.BanType;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 import java.util.UUID;

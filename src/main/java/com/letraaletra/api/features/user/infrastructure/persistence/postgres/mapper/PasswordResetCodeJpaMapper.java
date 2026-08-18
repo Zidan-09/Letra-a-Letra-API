@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
-import com.letraaletra.api.features.user.domain.PasswordResetCode;
+import com.letraaletra.api.features.user.domain.reset.PasswordResetCode;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.PasswordResetCodeJpaEntity;
 
 public class PasswordResetCodeJpaMapper {

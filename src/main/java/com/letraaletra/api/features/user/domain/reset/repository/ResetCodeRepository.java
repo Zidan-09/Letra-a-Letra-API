@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.domain.repository.reset;
+package com.letraaletra.api.features.user.domain.reset.repository;
 
 import com.letraaletra.api.features.user.application.port.InvalidateCode;
 

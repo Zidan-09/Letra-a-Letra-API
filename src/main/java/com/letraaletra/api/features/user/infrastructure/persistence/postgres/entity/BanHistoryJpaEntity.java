@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity;
 
-import com.letraaletra.api.features.user.domain.BanType;
+import com.letraaletra.api.features.user.domain.ban.BanType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

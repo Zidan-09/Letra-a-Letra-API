@@ -5,10 +5,10 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.user.application.input.UnbanUserInput;
 import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.UserDoesNotHaveBanException;
+import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.banhistory.BanHistoryRepository;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
