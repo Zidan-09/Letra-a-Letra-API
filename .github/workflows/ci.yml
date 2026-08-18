@@ -32,6 +32,13 @@ jobs:
     needs: unit-tests
     runs-on: ubuntu-latest
 
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -76,11 +83,11 @@ jobs:
           exit 1
 
       - name: Install integration test dependencies
-        working-directory: tools/tests
+        working-directory: tools
         run: npm install
 
       - name: Run integration tests
-        working-directory: tools/tests
+        working-directory: tools
         run: node runner.js
 
       - name: Show API log on failure
