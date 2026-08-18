@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResultResponse;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameOverResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerResponseMapper;
 

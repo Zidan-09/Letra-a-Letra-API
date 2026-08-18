@@ -3,8 +3,8 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ac
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
-import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
-import com.letraaletra.api.features.game.domain.board.power.actions.RevealCellAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.RevealCellAction;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.RevealActionRequest;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;

@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.domain.board;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
 import com.letraaletra.api.features.game.domain.board.cell.effect.TrapEffect;
-import com.letraaletra.api.features.game.domain.board.exception.InvalidCellPositionException;
+import com.letraaletra.api.features.game.domain.board.cell.exception.InvalidCellPositionException;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.game.domain.board.word.Word;
 

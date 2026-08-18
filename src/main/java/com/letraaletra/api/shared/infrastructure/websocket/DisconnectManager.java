@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
-import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

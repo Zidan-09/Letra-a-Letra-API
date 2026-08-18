@@ -2,9 +2,9 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
-import com.letraaletra.api.features.game.domain.factory.GameFactory;
+import com.letraaletra.api.features.game.domain.GameFactory;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
 import com.letraaletra.api.features.game.domain.Game;
@@ -17,20 +17,20 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final ActorManager<Game> actorManager;
-    private final GameTimeoutManager gameTimeoutManager;
+    private final RoomTimeoutManager roomTimeoutManager;
     private final RoomCodeService roomCodeService;
 
     public CreateGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
             ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService
     ) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.actorManager = actorManager;
-        this.gameTimeoutManager = gameTimeoutManager;
+        this.roomTimeoutManager = roomTimeoutManager;
         this.roomCodeService = roomCodeService;
     }
 
@@ -51,7 +51,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
 
         actorManager.create(game.getId(), game);
 
-        gameTimeoutManager.start(game);
+        roomTimeoutManager.start(game);
 
         return new CreateGameOutput(game);
     }

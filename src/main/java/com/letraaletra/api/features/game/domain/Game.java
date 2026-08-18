@@ -2,10 +2,11 @@ package com.letraaletra.api.features.game.domain;
 
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
-import com.letraaletra.api.features.game.domain.exception.InsufficientPlayersException;
-import com.letraaletra.api.features.game.domain.participants.Participants;
+import com.letraaletra.api.features.game.domain.room.exception.InsufficientPlayersException;
+import com.letraaletra.api.features.game.domain.participant.Participants;
+import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
+import com.letraaletra.api.features.game.domain.state.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
