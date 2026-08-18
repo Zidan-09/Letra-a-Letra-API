@@ -55,7 +55,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: tools/tests/package-lock.json
+          cache-dependency-path: tools/package-lock.json
 
       - name: Build API
         run: mvn clean package -DskipTests
