@@ -20,6 +20,7 @@ public class UserJpaMapper {
         entity.setUsername(user.getUsername());
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getPasswordHash());
+        entity.setTokenVersion(user.getTokenVersion());
         entity.setGoogleId(user.getGoogleId());
         entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCurrentGameId(user.getCurrentGameId());
@@ -34,6 +35,7 @@ public class UserJpaMapper {
                 projection.getUsername(),
                 projection.getEmail(),
                 projection.getPasswordHash(),
+                projection.getTokenVersion(),
                 projection.getGoogleId(),
                 projection.getCurrentGameId(),
                 projection.isCanChangeNickname(),

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.application.input;
 
-import com.letraaletra.api.features.game.domain.RoomSettings;
+import com.letraaletra.api.features.game.domain.room.RoomSettings;
 
 import java.util.UUID;
 

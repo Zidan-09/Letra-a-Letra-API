@@ -1,13 +1,13 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
-import com.letraaletra.api.features.game.domain.CloseRoomResult;
+import com.letraaletra.api.features.game.domain.room.CloseRoomResult;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.RoomCloseReasons;
+import com.letraaletra.api.features.game.domain.room.RoomCloseReasons;
 import com.letraaletra.api.features.game.domain.actor.command.CloseGameActorCommand;
-import com.letraaletra.api.features.game.domain.participants.Participants;
+import com.letraaletra.api.features.game.domain.participant.Participants;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;

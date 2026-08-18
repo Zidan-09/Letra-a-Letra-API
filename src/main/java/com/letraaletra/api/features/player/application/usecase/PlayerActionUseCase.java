@@ -6,11 +6,11 @@ import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorC
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 
@@ -18,20 +18,20 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerActionOutput> {
-    private final GameTimeoutManager gameTimeoutManager;
+    private final RoomTimeoutManager roomTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
     private final GameOverService gameOverService;
     private final UserRepository userRepository;
 
     public PlayerActionUseCase(
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager,
             GameOverService gameOverService,
             UserRepository userRepository
     ) {
-        this.gameTimeoutManager = gameTimeoutManager;
+        this.roomTimeoutManager = roomTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
         this.gameOverService = gameOverService;
@@ -51,7 +51,7 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
         PlayerActionResult result = future.join();
 
         if (result.game().getGameStatus().equals(GameStatus.WAITING)) {
-            gameTimeoutManager.start(result.game());
+            roomTimeoutManager.start(result.game());
 
         } else if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
             gameActorManager.remove(result.game().getId());

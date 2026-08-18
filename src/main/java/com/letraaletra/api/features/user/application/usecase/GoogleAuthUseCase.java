@@ -6,10 +6,10 @@ import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.UserFactory;
 
 public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
@@ -36,12 +36,17 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
         User user = userRepository.findByGoogleId(payload.googleId())
                 .orElseGet(() -> {
                     String nickname = nicknameService.get();
-                    User newUser = UserFactory.createGoogle(nickname, payload.email(), payload.googleId());
-                    userRepository.save(newUser);
-                    return newUser;
+                    return UserFactory.createGoogle(
+                            nickname,
+                            payload.email(),
+                            payload.googleId()
+                    );
                 });
 
-        String token = tokenService.generateUserToken(user.getUserId());
+        user.incrementTokenVersion();
+        String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
+
+        userRepository.save(user);
 
         return new SignInOutput(user.getUserId(), token);
     }

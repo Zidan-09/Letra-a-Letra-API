@@ -2,10 +2,10 @@ package com.letraaletra.api.features.game.domain.state;
 
 import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.board.Board;
-import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
+import com.letraaletra.api.features.game.domain.participant.exception.UserNotInGameException;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 
 import java.time.Instant;
 import java.util.*;

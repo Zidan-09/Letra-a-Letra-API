@@ -7,13 +7,12 @@ import com.letraaletra.api.features.ranking.application.port.RankingPointsServic
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
@@ -27,14 +26,14 @@ public class GameConfig {
             UserRepository userRepository,
             GameRepository gameRepository,
             ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService
     ) {
         return new CreateGameUseCase(
                 userRepository,
                 gameRepository,
                 actorManager,
-                gameTimeoutManager,
+                roomTimeoutManager,
                 roomCodeService
         );
     }
@@ -59,14 +58,14 @@ public class GameConfig {
             GameActorManager gameActorManager,
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             GameOverService gameOverService
     ) {
         return new LeftGameUseCase(
                 gameActorManager,
                 userRepository,
                 gameRepository,
-                gameTimeoutManager,
+                roomTimeoutManager,
                 gameOverService
         );
     }
@@ -74,23 +73,18 @@ public class GameConfig {
     @Bean
     public StartGameUseCase startGameUseCase(
             GameRepository gameRepository,
-             GameTimeoutManager gameTimeoutManager,
+             RoomTimeoutManager roomTimeoutManager,
              SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
                 gameRepository,
-                gameTimeoutManager,
+                roomTimeoutManager,
                 themeService,
                 turnTimeoutManager,
                 gameActorManager
         );
-    }
-
-    @Bean
-    public GenerateRoomCode generateRoomCode() {
-        return new GenerateRoomCode();
     }
 
     @Bean

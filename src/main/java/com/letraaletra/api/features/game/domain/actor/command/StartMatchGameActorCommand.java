@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.board.Board;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 
 public class StartMatchGameActorCommand implements ActorCommand<Game> {
     private final Board board;

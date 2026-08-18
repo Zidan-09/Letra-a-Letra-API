@@ -6,12 +6,12 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.RemoveDisconnectedParticipantActorCommand;
 import com.letraaletra.api.features.game.domain.actor.result.RemoveParticipantResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameOver;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.GameOver;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GameTimeoutManager gameTimeoutManager;
+    private RoomTimeoutManager roomTimeoutManager;
 
     @Mock
     private ActorManager<Game> actorManager;
@@ -90,7 +90,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
 
         // Assert
         assertNull(output);
-        verify(gameTimeoutManager).start(game);
+        verify(roomTimeoutManager).start(game);
         verify(userRepository).save(mockUser);
         verify(gameRepository).save(game);
         verify(actorManager, never()).remove(any());
@@ -121,7 +121,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         verify(actorManager).remove(gameId);
         verify(userRepository).save(mockUser);
         verify(gameRepository).save(game);
-        verify(gameTimeoutManager, never()).start(any());
+        verify(roomTimeoutManager, never()).start(any());
     }
 
     @Test
@@ -147,7 +147,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         assertNull(output);
         verify(userRepository).save(mockUser);
         verify(gameRepository).save(game);
-        verify(gameTimeoutManager, never()).start(any());
+        verify(roomTimeoutManager, never()).start(any());
         verify(actorManager, never()).remove(any());
     }
 

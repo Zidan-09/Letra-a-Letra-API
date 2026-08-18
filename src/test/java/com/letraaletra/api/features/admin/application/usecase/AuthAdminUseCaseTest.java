@@ -41,6 +41,7 @@ class AuthAdminUseCaseTest {
     private AuthAdminUseCase authAdminUseCase;
 
     private UUID adminId;
+    private int tokenVersion;
     private String email;
     private String password;
     private String hashPassword;
@@ -50,6 +51,7 @@ class AuthAdminUseCaseTest {
     @BeforeEach
     void setUp() {
         adminId = UUID.randomUUID();
+        tokenVersion = 1;
         email = "admin@letraaletra.com";
         password = "SecurePassword123!";
         hashPassword = "$2a$12$hashedPasswordExample";
@@ -65,9 +67,10 @@ class AuthAdminUseCaseTest {
 
         when(adminRepository.findByEmail(email)).thenReturn(Optional.of(adminMock));
         when(adminMock.getPasswordHash()).thenReturn(hashPassword);
+        when(adminMock.getTokenVersion()).thenReturn(tokenVersion);
         when(adminMock.getId()).thenReturn(adminId);
         when(passwordService.matches(password, hashPassword)).thenReturn(true);
-        when(tokenService.generateAdminToken(adminId)).thenReturn(generatedToken);
+        when(tokenService.generateAdminToken(adminId, tokenVersion)).thenReturn(generatedToken);
 
         AuthAdminOutput output = authAdminUseCase.execute(input);
 
@@ -77,7 +80,7 @@ class AuthAdminUseCaseTest {
 
         verify(adminRepository, times(1)).findByEmail(email);
         verify(passwordService, times(1)).matches(password, hashPassword);
-        verify(tokenService, times(1)).generateAdminToken(adminId);
+        verify(tokenService, times(1)).generateAdminToken(adminId, tokenVersion);
     }
 
     @Test
@@ -146,7 +149,7 @@ class AuthAdminUseCaseTest {
         when(adminMock.getPasswordHash()).thenReturn(hashPassword);
         when(adminMock.getId()).thenReturn(adminId);
         when(passwordService.matches(password, hashPassword)).thenReturn(true);
-        when(tokenService.generateAdminToken(adminId)).thenThrow(new RuntimeException("Token generation failed due to internal error"));
+        when(tokenService.generateAdminToken(adminId, tokenVersion)).thenThrow(new RuntimeException("Token generation failed due to internal error"));
 
         assertThrows(RuntimeException.class, () -> authAdminUseCase.execute(input));
     }

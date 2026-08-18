@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.domain.stats;
 
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.factory.UserFactory;
+import com.letraaletra.api.features.user.domain.UserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

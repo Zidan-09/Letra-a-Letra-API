@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
-import com.letraaletra.api.features.game.domain.exception.ThemeNotFoundException;
-import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
+import com.letraaletra.api.features.game.domain.board.theme.exception.ThemeNotFoundException;
+import com.letraaletra.api.features.game.domain.board.theme.repository.ThemeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

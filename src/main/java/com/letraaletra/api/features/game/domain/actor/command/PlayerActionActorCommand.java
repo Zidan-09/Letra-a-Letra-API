@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
@@ -12,12 +12,12 @@ import com.letraaletra.api.features.game.domain.exception.GameNotRunningExceptio
 import com.letraaletra.api.features.game.domain.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;

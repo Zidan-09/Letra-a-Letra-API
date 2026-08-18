@@ -8,9 +8,9 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorCommand;
 import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameOver;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.game.domain.GameOver;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +43,7 @@ class LeftGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GameTimeoutManager gameTimeoutManager;
+    private RoomTimeoutManager roomTimeoutManager;
 
     @Mock
     private GameOverService gameOverService;
@@ -87,7 +87,7 @@ class LeftGameUseCaseTest {
         assertEquals(game, output.game());
         assertTrue(output.gameOver().isEmpty());
 
-        verify(gameTimeoutManager).start(game);
+        verify(roomTimeoutManager).start(game);
         verify(gameRepository).save(game);
         verify(gameOverService, never()).handle(any(), any());
         verify(actorManager, never()).remove(any());
@@ -122,7 +122,7 @@ class LeftGameUseCaseTest {
         verify(gameOverService).handle(game, gameOver);
         verify(actorManager).remove(gameId);
         verify(gameRepository).save(game);
-        verify(gameTimeoutManager, never()).start(any());
+        verify(roomTimeoutManager, never()).start(any());
     }
 
     @Test

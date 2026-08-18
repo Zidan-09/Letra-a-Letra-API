@@ -6,12 +6,12 @@ import com.letraaletra.api.features.game.domain.actor.command.LeftGameActorComma
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
 import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.application.output.LeftGameOutput;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,20 +20,20 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
     private final ActorManager<Game> actorManager;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final GameTimeoutManager gameTimeoutManager;
+    private final RoomTimeoutManager roomTimeoutManager;
     private final GameOverService gameOverService;
 
     public LeftGameUseCase(
             ActorManager<Game> actorManager,
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             GameOverService gameOverService
     ) {
         this.actorManager = actorManager;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
-        this.gameTimeoutManager = gameTimeoutManager;
+        this.roomTimeoutManager = roomTimeoutManager;
         this.gameOverService = gameOverService;
     }
 
@@ -49,7 +49,7 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
         LeftGameResult result = future.join();
 
         if (result.game().getGameStatus().equals(GameStatus.WAITING)) {
-            gameTimeoutManager.start(result.game());
+            roomTimeoutManager.start(result.game());
 
         } else if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
             actorManager.remove(result.game().getId());

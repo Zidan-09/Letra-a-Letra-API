@@ -2,14 +2,14 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
-import com.letraaletra.api.features.user.domain.exception.UserBannedFromGameException;
+import com.letraaletra.api.features.user.domain.ban.exception.UserBannedFromGameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
@@ -33,7 +33,10 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
 
         checkMatch(input.password(), user.getPasswordHash());
 
-        String token = tokenService.generateUserToken(user.getUserId());
+        user.incrementTokenVersion();
+        String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
+
+        userRepository.save(user);
 
         return new SignInOutput(user.getUserId(), token);
     }

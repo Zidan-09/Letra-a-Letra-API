@@ -6,8 +6,8 @@ import com.letraaletra.api.features.game.application.port.SelectThemeService;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.StartCustomGameActorCommand;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameSettings;
 import com.letraaletra.api.shared.application.port.Actor;
@@ -36,7 +36,7 @@ class StartGameUseCaseTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GameTimeoutManager gameTimeoutManager;
+    private RoomTimeoutManager roomTimeoutManager;
 
     @Mock
     private SelectThemeService themeService;

@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
@@ -12,13 +12,13 @@ import java.util.UUID;
 public class StartCustomGameActorCommand implements ActorCommand<Game> {
     private final String session;
     private final Board board;
-    private final GameTimeoutManager gameTimeoutManager;
+    private final RoomTimeoutManager roomTimeoutManager;
     private final TurnTimeoutManager turnTimeoutManager;
 
-    public StartCustomGameActorCommand(String session, Board board, GameTimeoutManager gameTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
+    public StartCustomGameActorCommand(String session, Board board, RoomTimeoutManager roomTimeoutManager, TurnTimeoutManager turnTimeoutManager) {
         this.session = session;
         this.board = board;
-        this.gameTimeoutManager = gameTimeoutManager;
+        this.roomTimeoutManager = roomTimeoutManager;
         this.turnTimeoutManager = turnTimeoutManager;
     }
 
@@ -27,7 +27,7 @@ public class StartCustomGameActorCommand implements ActorCommand<Game> {
         Participant participant = game.getParticipants().findBySession(session);
         validateHost(participant, game.getHostId());
 
-        gameTimeoutManager.cancel(game);
+        roomTimeoutManager.cancel(game);
 
         game.start(board);
 

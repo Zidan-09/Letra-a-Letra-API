@@ -2,13 +2,13 @@ package com.letraaletra.api.features.participant.infrastructure.config;
 
 import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,14 +82,14 @@ public class ParticipantConfig {
     public RemoveDisconnectedParticipantUseCase removeDisconnectedParticipantUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
-            GameTimeoutManager gameTimeoutManager,
+            RoomTimeoutManager roomTimeoutManager,
             ActorManager<Game> actorManager,
             GameOverService gameOverService
     ) {
         return new RemoveDisconnectedParticipantUseCase(
                 userRepository,
                 gameRepository,
-                gameTimeoutManager,
+                roomTimeoutManager,
                 actorManager,
                 gameOverService
         );

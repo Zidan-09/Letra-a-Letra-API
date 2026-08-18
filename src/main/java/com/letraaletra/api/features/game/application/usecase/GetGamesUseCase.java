@@ -4,7 +4,7 @@ import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
 import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
-import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.domain.history.GameHistory;
 import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;

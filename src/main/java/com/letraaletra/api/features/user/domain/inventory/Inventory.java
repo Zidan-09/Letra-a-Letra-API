@@ -3,7 +3,7 @@ package com.letraaletra.api.features.user.domain.inventory;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
-import com.letraaletra.api.features.user.domain.exception.InvalidUserCosmeticSelectedException;
+import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserCosmeticSelectedException;
 
 import java.util.ArrayList;
 import java.util.List;

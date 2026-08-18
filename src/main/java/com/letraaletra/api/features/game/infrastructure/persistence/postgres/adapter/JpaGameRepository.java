@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameHistory;
+import com.letraaletra.api.features.game.domain.history.GameHistory;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;

@@ -2,13 +2,13 @@ package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
-import com.letraaletra.api.features.game.domain.service.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;

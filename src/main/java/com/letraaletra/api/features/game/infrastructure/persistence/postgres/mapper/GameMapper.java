@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameHistory;
-import com.letraaletra.api.features.game.domain.state.MatchHistory;
+import com.letraaletra.api.features.game.domain.history.GameHistory;
+import com.letraaletra.api.features.game.domain.history.MatchHistory;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.GameJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchPlayersJpaEntity;

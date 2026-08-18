@@ -7,16 +7,16 @@ import com.letraaletra.api.features.user.application.port.PasswordResetCodeEmail
 import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
-import com.letraaletra.api.features.user.domain.repository.banhistory.BanHistoryRepository;
-import com.letraaletra.api.features.user.domain.repository.inventory.InventoryRepository;
+import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
+import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.repository.reset.ResetCodeRepository;
+import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
-import com.letraaletra.api.features.user.domain.repository.user.UserRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

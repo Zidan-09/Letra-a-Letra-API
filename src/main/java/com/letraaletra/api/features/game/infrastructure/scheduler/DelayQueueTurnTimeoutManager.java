@@ -5,9 +5,13 @@ import com.letraaletra.api.features.game.application.port.TransactionalExecutorS
 import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
-import com.letraaletra.api.features.game.domain.service.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.RemovedBecauseInactivity;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.domain.turn.GameTurn;
+import com.letraaletra.api.features.game.domain.turn.TurnExpired;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
@@ -27,7 +31,7 @@ import java.util.concurrent.DelayQueue;
 public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
     private final GameResponseAssembler gameResponseAssembler;
-    private final GameTimeoutManager gameTimeoutManager;
+    private final RoomTimeoutManager roomTimeoutManager;
     private final TransactionalExecutorService transactionExecutor;
 
     private final DelayQueue<GameTurn> queue = new DelayQueue<>();
@@ -132,7 +136,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
 
             gameNotifier.notifierGameOver(result.game(), dto);
 
-            gameTimeoutManager.start(game);
+            roomTimeoutManager.start(game);
         });
 
         if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {
