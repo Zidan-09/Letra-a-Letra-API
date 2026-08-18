@@ -2,50 +2,40 @@ package com.letraaletra.api.features.cosmetic.infrastructure.controller;
 
 import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
-import com.letraaletra.api.features.cosmetic.application.usecase.RegisterCosmeticUseCase;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.RegisterCosmeticMapper;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/cosmetic")
+@Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
 public class RegisterCosmeticController {
-    private final RegisterCosmeticUseCase useCase;
+    private final UseCase<RegisterCosmeticInput, RegisterCosmeticOutput> useCase;
 
-    public RegisterCosmeticController(
-            RegisterCosmeticUseCase useCase
+    @Transactional
+    @PostMapping()
+    public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @Valid @ModelAttribute RegisterCosmeticRequest request
     ) {
-        this.useCase = useCase;
-    }
-
-    @PostMapping(path = "/cosmetic")
-    public ResponseEntity<SuccessResponse<RegisterCosmeticResponse>> registerCosmetic(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody RegisterCosmeticRequest request
-    ) {
-        validateUser(user);
-
-        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(request);
+        RegisterCosmeticInput input = RegisterCosmeticMapper.toInput(principal, request);
 
         RegisterCosmeticOutput output = useCase.execute(input);
 
         RegisterCosmeticResponse dto = RegisterCosmeticMapper.toResponse(output);
 
-       return ApiResponseService.success(dto);
-    }
-
-    private void validateUser(User user) {
-        if (!user.isAdmin()) {
-            throw new UserIsNotAdminException();
-        }
+       return ApiResponseHandler.success(dto);
     }
 }

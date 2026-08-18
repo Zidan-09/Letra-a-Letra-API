@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
+import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
@@ -16,9 +17,11 @@ import java.util.concurrent.ExecutorService;
 public class GameActorManager implements ActorManager<Game> {
     private final Map<UUID, Actor> actors = new ConcurrentHashMap<>();
     private final ExecutorService executor;
+    private final TransactionalExecutorService transactionExecutor;
 
-    public GameActorManager(ExecutorService executor) {
+    public GameActorManager(ExecutorService executor, TransactionalExecutorService transactionExecutor) {
         this.executor = executor;
+        this.transactionExecutor = transactionExecutor;
     }
 
     @Override
@@ -27,7 +30,7 @@ public class GameActorManager implements ActorManager<Game> {
             throw new GameNotFoundException();
         }
 
-        Actor newActor = new GameActor(executor, actor);
+        Actor newActor = new GameActor(executor, transactionExecutor, actor);
         actors.putIfAbsent(id, newActor);
     }
 
@@ -50,5 +53,10 @@ public class GameActorManager implements ActorManager<Game> {
     @Override
     public void remove(UUID id) {
         actors.remove(id);
+    }
+
+    @Override
+    public long count() {
+        return actors.size();
     }
 }

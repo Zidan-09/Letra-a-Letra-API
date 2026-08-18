@@ -1,0 +1,39 @@
+package com.letraaletra.api.features.offers.infrastructure.controller;
+
+import com.letraaletra.api.features.offers.application.input.FindOfferInput;
+import com.letraaletra.api.features.offers.application.output.FindOfferOutput;
+import com.letraaletra.api.features.offers.infrastructure.presentation.dto.response.FindOfferResponse;
+import com.letraaletra.api.features.offers.infrastructure.presentation.mapper.FindOfferMapper;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/offer")
+@Tag(name = "Offer", description = "Rotas relacionadas ao gerenciamento de ofertas da loja")
+public class FindOfferController {
+    private final UseCase<FindOfferInput, FindOfferOutput> useCase;
+
+    @GetMapping(path = "/{offerId}")
+    public ResponseEntity<SuccessResponse<FindOfferResponse>> handle(
+            @PathVariable UUID offerId
+    ) {
+        FindOfferInput input = FindOfferMapper.toInput(offerId);
+
+        FindOfferOutput output = useCase.execute(input);
+
+        FindOfferResponse dto = FindOfferMapper.toResponse(output);
+
+        return ApiResponseHandler.success(dto);
+    }
+}

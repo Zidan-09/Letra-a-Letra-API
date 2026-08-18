@@ -4,8 +4,8 @@ import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "\"cosmetic\"")
@@ -13,8 +13,8 @@ import org.hibernate.type.SqlTypes;
 @Setter
 public class CosmeticJpaEntity {
     @Id
-    @Column(name = "cosmetic_id", nullable = false)
-    private String id;
+    @Column(name = "cosmeticId", nullable = false)
+    private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -28,4 +28,7 @@ public class CosmeticJpaEntity {
 
     @Column(name = "version")
     private int version;
+
+    @Column(name = "available")
+    private boolean available;
 }

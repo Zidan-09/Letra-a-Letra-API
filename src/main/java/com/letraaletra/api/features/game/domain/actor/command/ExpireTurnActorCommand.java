@@ -1,11 +1,12 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
-import com.letraaletra.api.features.game.domain.actor.output.ExpireTurnResult;
+import com.letraaletra.api.features.game.domain.GameType;
+import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.GameOver;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
 
     @Override
     public Optional<ExpireTurnResult> execute(Game game) {
-        if (game == null || game.getGameStatus() == GameStatus.WAITING) {
+        if (game.getGameStatus() != GameStatus.RUNNING) {
             return Optional.empty();
         }
 
@@ -43,21 +44,25 @@ public class ExpireTurnActorCommand implements ActorCommand<Optional<ExpireTurnR
         Player player = state.getPlayerOrThrow(whoPassed);
         player.passedTurn();
 
-        boolean shouldRemove = player.getPassedTurn() >= 3;
+        Optional<GameOver> gameOver = state.gameOverBecauseAfk();
 
-        if (shouldRemove) {
+        if (gameOver.isPresent()) {
             game.remove(whoPassed);
+
+            if (game.getGameType() == GameType.CUSTOM) {
+                game.setGameStatus(GameStatus.WAITING);
+            } else {
+                game.setGameStatus(GameStatus.CLOSED);
+            }
+
         } else {
             state.nextTurn(now.plusSeconds(45));
         }
 
-        GameOverResult gameOverResult = state.gameOverChecker();
-
         return Optional.of(new ExpireTurnResult(
                 whoPassed,
                 game,
-                gameOverResult,
-                shouldRemove
+                gameOver
         ));
     }
 }

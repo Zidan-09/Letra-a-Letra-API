@@ -28,6 +28,9 @@ public class UserJpaEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
+    @Column(name = "token_version")
+    private int tokenVersion;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -37,6 +40,6 @@ public class UserJpaEntity {
     @Column(name = "can_change_nickname", nullable = false)
     private boolean canChangeNickname;
 
-    @Column(name = "is_admin", nullable = false)
-    private boolean isAdmin;
+    @Column(name = "current_game_id")
+    private UUID currentGameId;
 }

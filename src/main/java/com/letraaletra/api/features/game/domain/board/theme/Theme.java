@@ -10,6 +10,8 @@ public class Theme {
     private final String name;
     private final List<String> words;
 
+    private final Random random = new Random();
+
     public Theme(String id, String name, List<String> words) {
         this.id = id;
         this.name = name;
@@ -28,7 +30,7 @@ public class Theme {
         return words;
     }
 
-    public List<String> pickRandomWords(int amount, Random random) {
+    public List<String> pickRandomWords(int amount) {
         List<String> shuffled = new ArrayList<>(this.words);
         Collections.shuffle(shuffled, random);
 

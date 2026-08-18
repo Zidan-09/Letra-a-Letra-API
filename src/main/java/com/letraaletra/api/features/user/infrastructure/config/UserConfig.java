@@ -1,21 +1,24 @@
 package com.letraaletra.api.features.user.infrastructure.config;
 
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
-import com.letraaletra.api.features.user.application.service.UnlockCosmeticService;
-import com.letraaletra.api.features.user.application.usecase.GetUserInventoryUseCase;
-import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.user.application.port.GoogleTokenService;
+import com.letraaletra.api.features.user.application.port.NicknameService;
+import com.letraaletra.api.features.user.application.port.ResetCodeService;
+import com.letraaletra.api.features.user.application.port.PasswordResetCodeEmailService;
+import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
+import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
+import com.letraaletra.api.features.user.application.usecase.*;
+import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
+import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
+import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
+import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
+import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.RewardFactory;
+import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
-import com.letraaletra.api.features.user.application.service.SelectNicknameService;
-import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
-import com.letraaletra.api.features.user.application.usecase.SignInUseCase;
-import com.letraaletra.api.features.user.application.usecase.UpdateNicknameUseCase;
-import com.letraaletra.api.features.user.domain.factory.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Random;
 
 @Configuration
 public class UserConfig {
@@ -23,43 +26,46 @@ public class UserConfig {
     public CreateUserUseCase createUserUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
-            UserFactory userFactory,
-            SelectNicknameService selectNicknameService
+            NicknameService nicknameService
     ) {
         return new CreateUserUseCase(
                 userRepository,
                 passwordService,
-                userFactory,
-                selectNicknameService
+                nicknameService
         );
     }
 
     @Bean
-    public SelectNicknameService selectNicknameService(
-            UserRepository userRepository
+    public GoogleAuthUseCase authUseCase(
+            TokenService tokenService,
+            NicknameService nicknameService,
+            UserRepository userRepository,
+            GoogleTokenService googleTokenService
     ) {
-        return new SelectNicknameService(
+        return new GoogleAuthUseCase(
+                tokenService,
+                nicknameService,
                 userRepository,
-                new Random()
+                googleTokenService
         );
     }
 
     @Bean
-    public UpdateNicknameUseCase setNicknameUseCase(
+    public ChangeNicknameUseCase setNicknameUseCase(
             UserRepository userRepository
     ) {
-        return new UpdateNicknameUseCase(
+        return new ChangeNicknameUseCase(
                 userRepository
         );
     }
 
     @Bean
-    public SignInUseCase signInUseCase(
+    public AuthUserUseCase signInUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
             TokenService tokenService
     ) {
-        return new SignInUseCase(
+        return new AuthUserUseCase(
                 userRepository,
                 passwordService,
                 tokenService
@@ -67,27 +73,179 @@ public class UserConfig {
     }
 
     @Bean
-    public UserFactory userFactory() {
-        return new UserFactory();
+    public GetMyInventoryUseCase getMyInventoryUseCase(
+            InventoryRepository inventoryRepository
+    ) {
+        return new GetMyInventoryUseCase(
+                inventoryRepository
+        );
     }
 
     @Bean
-    public UnlockCosmeticService unlockCosmeticService(
-            UserRepository userRepository,
-            CosmeticRepository cosmeticRepository
+    public GetMyProfileUseCase getMyProfileUseCase(
+            UserRepository userRepository
     ) {
-        return new UnlockCosmeticService(
+        return new GetMyProfileUseCase(
+                userRepository
+        );
+    }
+
+    @Bean
+    public GetTransactionsUseCase getTransactionsUseCase(
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetTransactionsUseCase(
+                transactionRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetUsersUseCase getUsersUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetUsersUseCase(
                 userRepository,
-                cosmeticRepository
+                adminChecker
+        );
+    }
+
+    @Bean
+    public FindUserByUsernameUseCase findUserByUsernameUseCase(
+            UserRepository userRepository
+    ) {
+        return new FindUserByUsernameUseCase(
+                userRepository
+        );
+    }
+
+    @Bean
+    public GetMyTransactionsUseCase getMyTransactionsUseCase(
+            TransactionRepository transactionRepository
+    ) {
+        return new GetMyTransactionsUseCase(
+                transactionRepository
+        );
+    }
+
+    @Bean
+    public ForgotPasswordUseCase forgotPasswordUseCase(
+            UserRepository userRepository,
+            TokenHashService tokenHashService,
+            ResetCodeRepository resetCodeRepository,
+            ResetCodeService resetCodeService,
+            PasswordResetCodeEmailService emailService
+    ) {
+        return new ForgotPasswordUseCase(
+                userRepository,
+                tokenHashService,
+                resetCodeRepository,
+                resetCodeService,
+                emailService
+        );
+    }
+
+    @Bean
+    public VerifyResetCodeUseCase verifyResetCodeUseCase(
+            ResetCodeRepository resetCodeRepository,
+            TokenHashService tokenHashService
+    ) {
+        return new VerifyResetCodeUseCase(
+                resetCodeRepository,
+                tokenHashService
+        );
+    }
+
+    @Bean
+    public ResetPasswordUseCase resetPasswordUseCase(
+            UserRepository userRepository,
+            TokenHashService tokenHashService,
+            PasswordService passwordService,
+            ResetCodeRepository resetCodeRepository
+    ) {
+        return new ResetPasswordUseCase(
+                userRepository,
+                tokenHashService,
+                passwordService,
+                resetCodeRepository
+        );
+    }
+
+    @Bean
+    public BanUserUseCase banUserUseCase(
+            UserRepository userRepository,
+            BanHistoryRepository banHistoryRepository,
+            AdminChecker adminChecker
+    ) {
+        return new BanUserUseCase(
+                userRepository,
+                banHistoryRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public UnbanUserUseCase unbanUserUseCase(
+            UserRepository userRepository,
+            BanHistoryRepository banHistoryRepository,
+            AdminChecker adminChecker
+    ) {
+        return new UnbanUserUseCase(
+                userRepository,
+                banHistoryRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GrantUserRewardUseCase grantUserRewardUseCase(
+            UserRepository userRepository,
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker,
+            RewardFactory rewardFactory
+    ) {
+        return new GrantUserRewardUseCase(
+                userRepository,
+                transactionRepository,
+                adminChecker,
+                rewardFactory
         );
     }
 
     @Bean
     public GetUserInventoryUseCase getUserInventoryUseCase(
-            InventoryRepository inventoryRepository
+            InventoryRepository inventoryRepository,
+            AdminChecker adminChecker
     ) {
         return new GetUserInventoryUseCase(
-                inventoryRepository
+                inventoryRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public RevokeUserCosmeticUseCase revokeUserCosmeticUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker
+    ) {
+        return new RevokeUserCosmeticUseCase(
+                userRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public RevokeUserWalletUseCase revokeUserWalletUseCase(
+            UserRepository userRepository,
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker
+    ) {
+        return new RevokeUserWalletUseCase(
+                userRepository,
+                transactionRepository,
+                adminChecker
         );
     }
 }

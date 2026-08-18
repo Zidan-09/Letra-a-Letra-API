@@ -1,10 +1,9 @@
 package com.letraaletra.api.features.user.application.output;
 
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public record GetUserInventoryOutput(
-        List<InventoryItem> inventory
+        Page<InventoryItem> inventory
 ) {
 }

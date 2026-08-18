@@ -1,27 +1,65 @@
 package com.letraaletra.api.features.cosmetic.domain;
 
+import java.util.UUID;
+
 public class Cosmetic {
-    private final String id;
+    private final UUID id;
     private String name;
-    private final CosmeticTypes type;
-    private final String assetPath;
+    private CosmeticTypes type;
+    private String assetPath;
     private int version;
+    private boolean available;
 
     public Cosmetic(
-            String id,
+            UUID id,
             String name,
             CosmeticTypes type,
             String assetPath,
-            int version
+            int version,
+            boolean available
     ) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.assetPath = assetPath;
         this.version = version;
+        this.available = available;
     }
 
-    public String getId() {
+    public static Cosmetic create(
+            String name,
+            CosmeticTypes type,
+            String assetPath
+    ) {
+        return new Cosmetic(
+                UUID.randomUUID(),
+                name,
+                type,
+                assetPath,
+                1,
+                true
+        );
+    }
+
+    public static Cosmetic restore(
+            UUID id,
+            String name,
+            CosmeticTypes type,
+            String assetPath,
+            int version,
+            boolean available
+    ) {
+        return new Cosmetic(
+            id,
+            name,
+            type,
+            assetPath,
+            version,
+            available
+        );
+    }
+
+    public UUID getId() {
         return id;
     }
 
@@ -41,11 +79,27 @@ public class Cosmetic {
         return version;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
+    public void setType(CosmeticTypes type) {
+        this.type = type;
+    }
+
+    public void setAssetPath(String assetPath) {
+        this.assetPath = assetPath;
+    }
+
     public void incrementVersion() {
         this.version++;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

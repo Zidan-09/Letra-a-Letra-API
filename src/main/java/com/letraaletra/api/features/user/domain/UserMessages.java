@@ -3,41 +3,36 @@ package com.letraaletra.api.features.user.domain;
 import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum UserMessages implements MessageCode {
-    USER_CREATED("user_created"),
-    USER_UPDATED("user_updated"),
-    USER_DELETED("user_deleted"),
-    USER_BANNED("user_banned"),
+    USER_NOT_FOUND("the user was not found"),
 
-    USER_LOGGED("user_logged"),
+    SESSION_NOT_FOUND("the session was not found"),
 
-    USER_FOUND("user_found"),
-    USERS_FOUND("users_found"),
-    USER_NOT_FOUND("user_not_found"),
+    USER_ALREADY_EXISTS("the user already exists"),
+    EMAIL_ALREADY_IN_USE("the email address is already in use"),
+    NICKNAME_ALREADY_IN_USE("the nickname is already in use"),
+    USER_CANNOT_CHANGE_NICKNAME("the user cannot change their nickname at this time"),
 
-    SESSION_NOT_FOUND("session_not_found"),
+    INVALID_COSMETIC("the selected cosmetic is invalid"),
+    INSUFFICIENT_BALANCE("the user does not have enough balance"),
 
-    USER_ALREADY_EXISTS("user_already_exists"),
-    EMAIL_ALREADY_IN_USE("email_already_in_use"),
-    NICKNAME_SETTER("nickname_setter"),
-    NICKNAME_ALREADY_IN_USE("nickname_already_in_use"),
-    USER_CANNOT_CHANGE_NICKNAME("user_cannot_change_nickname"),
+    INVALID_CREDENTIALS("the provided credentials are invalid"),
+    USER_DISABLED("the user account is disabled"),
+    USER_BLOCKED("the user account is blocked"),
 
-    COSMETIC_EQUIPPED("cosmetic_equipped"),
-    COSMETIC_UNLOCKED("cosmetic_unlocked"),
-    INVALID_COSMETIC("invalid_cosmetic"),
-    INSUFFICIENT_BALANCE("insufficient_balance"),
+    USER_ALREADY_IN_GAME("the user is already in a game"),
+    USER_NOT_IN_GAME("the user is not currently in a game"),
 
-    INVALID_CREDENTIALS("invalid_credentials"),
-    USER_DISABLED("user_disabled"),
-    USER_BLOCKED("user_blocked"),
+    INVALID_USER_DATA("the provided user data is invalid"),
+    INVALID_TOKEN("the provided token is invalid"),
 
-    USER_ALREADY_IN_GAME("user_already_in_game"),
-    USER_NOT_IN_GAME("user_not_in_game"),
+    MAX_ATTEMPTS_EXCEEDED("the maximum number of attempts has been exceeded"),
+    SAME_PASSWORD("the new password must be different from the current password"),
 
-    INVALID_USER_DATA("invalid_user_data"),
-    INVALID_TOKEN("invalid_token"),
+    USER_BANNED_FROM_GAME("the user was banned from game"),
+    USER_ALREADY_BANNED("the user is already banned"),
+    USER_DOES_NOT_HAVE_BAN("the user does not have an active ban"),
 
-    INVALID_ROOM_POSITION("invalid_room_position");
+    INVALID_ROOM_POSITION("the provided room position is invalid");
 
     private final String message;
 
@@ -45,6 +40,12 @@ public enum UserMessages implements MessageCode {
         this.message = message;
     }
 
+    @Override
+    public String getCode() {
+        return name();
+    }
+
+    @Override
     public String getMessage() {
         return message;
     }

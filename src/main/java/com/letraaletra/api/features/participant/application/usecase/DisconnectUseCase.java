@@ -1,11 +1,13 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
@@ -34,38 +36,41 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         this.userRepository = userRepository;
     }
 
+    @Override
     public Optional<DisconnectParticipantOutput> execute(DisconnectParticipantInput input) {
         UUID userId = input.user();
         if (userId == null) return Optional.empty();
 
         if (matchmakingRepository.onQueue(userId)) {
-            matchmakingRepository.removeById(userId);
+            matchmakingRepository.remove(userId);
         }
 
-        User user = userRepository.find(userId).orElse(null);
-        if (user == null || user.isNotInGame()) return Optional.empty();
+        User user = userRepository.find(userId)
+                .orElseThrow(UserNotFoundException::new);
 
+        if (user.isNotInGame()) return Optional.empty();
 
-        Actor actor = gameActorManager.get(user.getCurrentGameId());
+        try {
+            Actor actor = gameActorManager.get(user.getCurrentGameId());
 
-        CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
-                new DisconnectParticipantActorCommand(userId, disconnectScheduler)
-        );
+            CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
+                    new DisconnectParticipantActorCommand(userId)
+            );
 
-        Optional<Game> gameOpt = future.join();
+            Optional<Game> game = future.join();
 
-        if (gameOpt.isEmpty()) {
-            user.leaveGame();
-            userRepository.save(user);
+            if (game.isEmpty()) {
+                user.leaveGame();
+                userRepository.save(user);
+                return Optional.empty();
+            } else {
+                disconnectScheduler.start(userId, game.get().getId());
+            }
+
+            return Optional.of(new DisconnectParticipantOutput(userId, game.get()));
+
+        } catch (GameNotFoundException e) {
             return Optional.empty();
         }
-
-        return buildReturn(gameOpt.get(), userId);
-    }
-
-    private Optional<DisconnectParticipantOutput> buildReturn(Game game, UUID user) {
-        return Optional.of(
-                new DisconnectParticipantOutput(user, game)
-        );
     }
 }

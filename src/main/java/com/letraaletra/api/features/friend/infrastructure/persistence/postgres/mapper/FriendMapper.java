@@ -6,7 +6,7 @@ import com.letraaletra.api.features.friend.infrastructure.persistence.postgres.e
 
 public class FriendMapper {
     public static Friend toDomain(FriendJpaEntity entity) {
-        return new Friend(
+        return Friend.restore(
                 entity.getFriendId().getUserId1(),
                 entity.getFriendId().getUserId2(),
                 entity.getStatus(),

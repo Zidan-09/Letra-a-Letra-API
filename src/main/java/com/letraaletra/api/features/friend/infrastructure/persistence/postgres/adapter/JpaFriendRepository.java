@@ -24,7 +24,15 @@ public class JpaFriendRepository implements FriendRepository {
     @Override
     public List<Friend> getFriends(UUID userId) {
         return repository.getFriendsList(userId, FriendStatus.ACCEPT)
-                .stream().map(FriendMapper::toDomain).toList();
+                .stream().map(FriendMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Friend> getPendingRequests(UUID userId) {
+        return repository.getReceivedPendingRequests(userId, FriendStatus.PENDING)
+                .stream().map(FriendMapper::toDomain)
+                .toList();
     }
 
     @Override

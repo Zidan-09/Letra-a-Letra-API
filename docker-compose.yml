@@ -18,16 +18,29 @@ services:
       timeout: 5s
       retries: 5
 
+  mail:
+    image: mailhog/mailhog:latest
+    container_name: lal-mail
+    entrypoint: ["sh", "-c", "exec MailHog > /dev/null 2>&1"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
   app:
     build: .
     container_name: lal-api
     depends_on:
       postgres:
         condition: service_healthy
+      mail:
+        condition: service_started
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - .env.dev
 
 volumes:
   postgres_data:

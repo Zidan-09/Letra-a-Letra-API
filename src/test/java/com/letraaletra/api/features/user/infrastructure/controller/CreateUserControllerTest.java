@@ -4,7 +4,8 @@ import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.UserMessages;
+import com.letraaletra.api.features.user.domain.ban.BanInfo;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
@@ -21,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,16 +42,18 @@ class CreateUserControllerTest {
     void createUser() {
         CreateUserRequest request = new CreateUserRequest("teste@email.com", "12341234");
 
-        User user = new User(
+        User user = User.restore(
                 UUID.randomUUID(),
-                "nickname",
+                "email",
                 "email@email.com",
                 "hash-password",
+                1,
                 null,
+                UUID.randomUUID(),
                 false,
-                false,
+                BanInfo.create(),
                 mock(UserStats.class),
-                List.of(),
+                Inventory.create(),
                 mock(Wallet.class),
                 LocalDateTime.now()
         );
@@ -62,7 +64,7 @@ class CreateUserControllerTest {
                 .execute(any(CreateUserInput.class)))
                 .thenReturn(output);
 
-        ResponseEntity<SuccessResponse<CreateUserResponse>> responseEntity = controller.createUser(request);
+        ResponseEntity<SuccessResponse<CreateUserResponse>> responseEntity = controller.handle(request);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
@@ -70,7 +72,6 @@ class CreateUserControllerTest {
         SuccessResponse<CreateUserResponse> body = responseEntity.getBody();
         assertNotNull(body);
 
-        assertEquals(UserMessages.USER_CREATED.getMessage(), body.message());
         assertNotNull(body.data());
         Assertions.assertTrue(body.success());
     }

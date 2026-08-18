@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
@@ -22,6 +23,30 @@ public class Participant {
         this.role = ParticipantRole.SPECTATOR;
     }
 
+    public static Participant create(User user, String sessionId) {
+        return new Participant(
+                user.getUserId(),
+                sessionId,
+                user.getUsername(),
+                user.getInventory()
+                        .getItems().stream()
+                        .filter(InventoryItem::equipped)
+                        .toList()
+        );
+    }
+
+    public static Participant restore(User user) {
+        return new Participant(
+                user.getUserId(),
+                "not-connected",
+                user.getUsername(),
+                user.getInventory()
+                        .getItems().stream()
+                        .filter(InventoryItem::equipped)
+                        .toList()
+        );
+    }
+
     public UUID getUserId() {
         return userId;
     }
@@ -40,6 +65,14 @@ public class Participant {
 
     public ParticipantRole getRole() {
         return role;
+    }
+
+    public boolean isSpectator() {
+        return role.equals(ParticipantRole.SPECTATOR);
+    }
+
+    public boolean isPlayer() {
+        return role.equals(ParticipantRole.PLAYER);
     }
 
     public void changeRole(ParticipantRole role) {

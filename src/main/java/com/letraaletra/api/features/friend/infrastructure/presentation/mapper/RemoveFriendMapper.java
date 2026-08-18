@@ -5,9 +5,9 @@ import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
 import java.util.UUID;
 
 public class RemoveFriendMapper {
-    public static RemoveFriendInput toInput(String userId, String friendId) {
+    public static RemoveFriendInput toInput(UUID userId, String friendId) {
         return new RemoveFriendInput(
-                UUID.fromString(userId),
+                userId,
                 UUID.fromString(friendId)
         );
     }

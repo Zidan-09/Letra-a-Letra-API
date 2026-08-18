@@ -3,10 +3,11 @@ CREATE TABLE "user" (
                         "username" varchar(15) UNIQUE NOT NULL,
                         "email" varchar(50) UNIQUE NOT NULL,
                         "password_hash" varchar(100),
+                        "token_version" integer NOT NULL DEFAULT 1,
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
+                        "current_game_id" uuid,
                         "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-                        "is_admin" boolean NOT NULL DEFAULT false,
                         CONSTRAINT check_auth_method
                             CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
@@ -27,68 +28,102 @@ CREATE TABLE "user_wallet" (
                         "hard_gems" bigint NOT NULL DEFAULT 0 CHECK ("hard_gems" >= 0)
 );
 
+CREATE TABLE "password_reset_code" (
+                        "password_reset_code_id" uuid PRIMARY KEY NOT NULL,
+                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "code_hash" varchar(100) NOT NULL,
+                        "used" boolean DEFAULT false,
+                        "attempts" integer NOT NULL DEFAULT 0,
+                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                        "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE "game" (
                         "game_id" uuid PRIMARY KEY NOT NULL,
                         "host_id" uuid REFERENCES "user" ("user_id"),
+                        "room_name" varchar(50) NOT NULL,
                         "created_by_id" uuid REFERENCES "user" ("user_id"),
                         "room_code" varchar(50) NOT NULL,
                         "game_type" varchar(50) NOT NULL,
+                        "allow_spectators" boolean DEFAULT true,
+                        "private_game" boolean default false,
                         "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                         "status" varchar(50)
 );
 
 CREATE TABLE "matches" (
                         "match_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                        "game_id" uuid REFERENCES "game" ("game_id") ON DELETE CASCADE,
+                        "game_id" uuid NOT NULL REFERENCES "game" ("game_id") ON DELETE CASCADE,
                         "game_mode" varchar(50) NOT NULL,
                         "started_at" timestamp DEFAULT CURRENT_TIMESTAMP,
                         "ended_at" timestamp
 );
 
 CREATE TABLE "match_players" (
-                        "match_id" uuid REFERENCES "matches" ("match_id") ON DELETE CASCADE,
-                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "match_id" uuid NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
+                        "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "nickname" varchar(15) NOT NULL,
                         "score" integer DEFAULT 0,
                         "is_winner" boolean DEFAULT false,
                         PRIMARY KEY ("match_id", "user_id")
 );
 
 CREATE TABLE "cosmetic" (
-                        "cosmetic_id" varchar(50) PRIMARY KEY NOT NULL,
-                        "name" varchar(50) NOT NULL,
+                        "cosmetic_id" uuid PRIMARY KEY NOT NULL,
+                        "name" varchar(50) UNIQUE NOT NULL,
                         "type" varchar(50) NOT NULL,
                         "asset_path" varchar(50) NOT NULL,
-                        "version" integer NOT NULL DEFAULT 1
+                        "version" integer NOT NULL DEFAULT 1,
+                        "available" boolean DEFAULT true
 );
 
 CREATE TABLE "user_inventory" (
-                        "user_id" uuid REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                        "cosmetic_id" varchar(50) REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
+                        "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+                        "cosmetic_id" uuid NOT NULL REFERENCES "cosmetic" ("cosmetic_id") ON DELETE CASCADE,
                         "equipped" boolean DEFAULT false,
                         "unlocked_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
                         PRIMARY KEY ("user_id", "cosmetic_id")
 );
 
-CREATE TABLE "store_offer" (
+CREATE TABLE "offer" (
                        "offer_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                        "title" varchar(100) NOT NULL,
                        "coin_type" varchar(50) NOT NULL,
-                       "price" integer NOT NULL CHECK ("price" > 0),
-                       "target_cosmetic_id" varchar(50) REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
-                       "reward_soft_coins" integer DEFAULT 0,
-                       "reward_hard_gems" integer DEFAULT 0,
+                       "price" NUMERIC(10,2) NOT NULL CHECK ("price" > 0),
                        "active" boolean NOT NULL DEFAULT true,
-                       "expires_at" timestamptz
+                       "repeatable" boolean NOT NULL DEFAULT false,
+                       "has_expiration" boolean NOT NULL DEFAULT true,
+                       "expires_at" timestamptz,
+                       "created_at" timestamptz
 );
 
-CREATE TABLE "wallet_log" (
-                      "log_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                      "user_id" uuid NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
-                      "coin_type" varchar(50) NOT NULL,
-                      "amount" integer NOT NULL,
-                      "balance_after" integer NOT NULL,
-                      "reason" varchar(50) NOT NULL,
-                      "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "offer_reward" (
+                        "offer_reward_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                        "offer_id" uuid NOT NULL REFERENCES "offer" ("offer_id") ON DELETE CASCADE,
+                        "reward_type" varchar(50) NOT NULL,
+                        "reward_reference" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
+                        "quantity" integer NOT NULL DEFAULT 1
+);
+
+CREATE TABLE "transaction" (
+                        transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+                        user_id uuid NOT NULL REFERENCES "user"(user_id) ON DELETE SET NULL,
+
+                        coin_type varchar(50) NOT NULL,
+
+                        amount integer NOT NULL,
+
+                        balance_before integer NOT NULL,
+                        balance_after integer NOT NULL,
+
+                        operation varchar(20) NOT NULL,
+
+                        reason varchar(50) NOT NULL,
+
+                        reference_id uuid NULL,
+
+                        created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "friend" (
@@ -97,6 +132,66 @@ CREATE TABLE "friend" (
                       "status" varchar(50) NOT NULL,
                       "request_date" timestamp DEFAULT CURRENT_TIMESTAMP,
                       PRIMARY KEY ("user_id_1", "user_id_2")
+);
+
+CREATE TABLE "admin" (
+                    "admin_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "name" varchar(50) NOT NULL,
+                    "email" varchar(50) UNIQUE NOT NULL,
+                    "password_hash" varchar(100),
+                    "token_version" integer NOT NULL DEFAULT 1,
+                    "is_super" boolean NOT NULL DEFAULT false,
+                    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "admin_permission" (
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "permission_key" VARCHAR(30) NOT NULL,
+                      "action" VARCHAR(30) NOT NULL,
+                      PRIMARY KEY ("admin_id", "permission_key", "action")
+);
+
+CREATE TABLE "admin_setup_password_token" (
+                      "token_hash" varchar(100) PRIMARY KEY NOT NULL,
+                      "admin_id" UUID NOT NULL REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "expires_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      "used" boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE "admin_password_reset_token" (
+                      "password_reset_token_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                      "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE CASCADE,
+                      "token_hash" varchar(100) NOT NULL,
+                      "used" boolean DEFAULT false,
+                      "attempts" integer NOT NULL DEFAULT 0,
+                      "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                      "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "ban_history" (
+                               "ban_history_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                               "user_id" uuid REFERENCES "user"(user_id) ON DELETE SET NULL,
+                               "admin_id" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL,
+                               "reason" varchar(500) NOT NULL,
+                               "type" varchar(50) NOT NULL,
+                               "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                               "expires_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+                               "removed_at" timestamp,
+                               "removed_by" uuid REFERENCES "admin"(admin_id) ON DELETE SET NULL
+
+);
+
+CREATE TABLE "level" (
+                    "level_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "level" integer NOT NULL UNIQUE
+);
+
+CREATE TABLE "level_reward" (
+                    "level_reward_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    "level_id" uuid NOT NULL REFERENCES "level" ("level_id") ON DELETE CASCADE,
+                    "reward_type" varchar(50) NOT NULL,
+                    "reward_reference" uuid REFERENCES "cosmetic" ("cosmetic_id") ON DELETE SET NULL,
+                    "quantity" integer NOT NULL DEFAULT 1
 );
 
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';

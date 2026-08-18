@@ -17,7 +17,7 @@ public class LeftGameMapper {
 
     public static LeftGameResponse toResponse(LeftGameOutput output) {
         return new LeftGameResponse(
-                GameDTOMapper.toDTO(output.game())
+                GameResponseMapper.toResponse(output.game())
         );
     }
 }

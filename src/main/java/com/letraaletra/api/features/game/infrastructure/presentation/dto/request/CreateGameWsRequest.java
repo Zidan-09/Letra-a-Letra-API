@@ -13,6 +13,11 @@ public record CreateGameWsRequest(
 
         @Valid
         @NotNull
-        RoomSettingsDTO settings
+        RoomSettingsRequest settings
 ) implements WsRequest {
+
+        @Override
+        public String getAudit() {
+                return "create game";
+        }
 }

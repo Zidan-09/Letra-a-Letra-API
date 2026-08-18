@@ -2,7 +2,7 @@ package com.letraaletra.api.features.game.infrastructure.presentation.mapper.gam
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
-import com.letraaletra.api.features.game.domain.RoomSettings;
+import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.CreateGameWsRequest;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.CreateGameResponse;
 
@@ -21,9 +21,9 @@ public class CreateGameMapper {
         );
     }
 
-    public static CreateGameResponse toResponseDTO(CreateGameOutput output) {
+    public static CreateGameResponse toResponse(CreateGameOutput output) {
         return new CreateGameResponse(
-               GameDTOMapper.toDTO(output.game())
+               GameResponseMapper.toResponse(output.game())
         );
     }
 }

@@ -19,7 +19,7 @@ public class ThemeLoader {
     public Map<String, Theme> load() {
         try (InputStream inputStream = getClass().getResourceAsStream("/data/themes.json")) {
             if (inputStream == null) {
-                throw new RuntimeException("File /data/themes.json not found!");
+                throw new IllegalStateException("File /data/themes.json not found!");
             }
 
             List<ThemeJson> themes = objectMapper.readValue(
@@ -32,7 +32,7 @@ public class ThemeLoader {
                     .collect(Collectors.toMap(ThemeJson::id, theme -> new Theme(theme.id(), theme.name(), theme.words())));
 
         } catch (Exception ex) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     ThemeMessages.FAILED_TO_LOAD_THEMES.getMessage(),
                     ex
             );

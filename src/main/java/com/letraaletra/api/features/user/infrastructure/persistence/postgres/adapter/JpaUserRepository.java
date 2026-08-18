@@ -1,83 +1,122 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.*;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class JpaUserRepository implements UserRepository {
+
     private final SpringDataUserRepository repository;
-    private final SpringDataUserStatsRepository statsRepository;
     private final SpringDataUserInventoryRepository inventoryRepository;
     private final SpringDataUserWalletRepository walletRepository;
+    private final SpringDataUserStatsRepository statsRepository;
 
-    public JpaUserRepository(
-            SpringDataUserRepository repository,
-            SpringDataUserStatsRepository statsRepository,
-            SpringDataUserInventoryRepository inventoryRepository,
-            SpringDataUserWalletRepository walletRepository
-    ) {
-        this.repository = repository;
-        this.statsRepository = statsRepository;
-        this.inventoryRepository = inventoryRepository;
-        this.walletRepository = walletRepository;
+    @Override
+    public void save(User user) {
+        repository.save(UserJpaMapper.toEntity(user));
+
+        statsRepository.save(UserStatsJpaMapper.toEntity(user));
+        walletRepository.save(UserWalletJpaMapper.toEntity(user));
+
+        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
+                .map(item -> UserInventoryJpaMapper.toEntity(user.getUserId(), item))
+                .toList();
+        inventoryRepository.deleteAllByUserId(user.getUserId());
+        inventoryRepository.saveAll(inventoryEntities);
     }
 
     @Override
-    public User save(User user) {
-        repository.save(UserMapper.toEntity(user));
-        statsRepository.save(UserStatsMapper.toEntity(user.getStats(), user.getId()));
-        walletRepository.save(UserWalletMapper.toEntity(user.getWallet(), user.getId()));
-
-        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().stream()
-                .map(item -> UserInventoryMapper.toEntity(user.getId(), item))
-                .toList();
-
-        inventoryRepository.saveAll(inventoryEntities);
-
-        return user;
-    }
-
-    private User assembleUser(UserJpaEntity userEntity) {
-        UUID userId = userEntity.getId();
-
-        UserStatsJpaEntity statsEntity = statsRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("UserStats not found for user " + userId));
-
-        List<InventoryItem> inventoryItems = inventoryRepository.findInventoryItemsByUserId(userId);
-
-        UserWalletJpaEntity userWalletJpaEntity = walletRepository.findByUserId(userId);
-
-        return UserMapper.toDomain(userEntity, statsEntity, inventoryItems, userWalletJpaEntity);
+    public void saveAll(List<User> users) {
+        repository.saveAll(
+                users.stream()
+                        .map(UserJpaMapper::toEntity)
+                        .toList()
+        );
     }
 
     @Override
     public Optional<User> find(UUID id) {
-        return repository.findById(id).map(this::assembleUser);
+        return repository.findDetailsById(id)
+                .map(projection ->
+                        UserJpaMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(id)
+                        )
+                );
+    }
+
+    @Override
+    public List<User> findUsersById(List<UUID> ids) {
+        List<UserProjection> users = repository.findDetailsByIds(ids);
+
+        List<InventoryProjection> inventories =
+                inventoryRepository.findInventoryByUserIds(ids);
+
+        return users.stream()
+                .map(user -> UserJpaMapper.toDomain(
+                        user,
+                        inventories.stream()
+                                .filter(item -> item.getUserId().equals(user.getUserId()))
+                                .toList()
+                ))
+                .toList();
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return repository.findDetailsByUsername(username)
+                .map(projection ->
+                        UserJpaMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email).map(this::assembleUser);
+        return repository.findDetailsByEmail(email)
+                .map(projection ->
+                        UserJpaMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
     public Optional<User> findByGoogleId(String googleId) {
-        return repository.findByGoogleId(googleId).map(this::assembleUser);
+        return repository.findDetailsByGoogleId(googleId)
+                .map(projection ->
+                        UserJpaMapper.toDomain(
+                                projection,
+                                inventoryRepository.findInventory(projection.getUserId())
+                        )
+                );
     }
 
     @Override
@@ -88,5 +127,42 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public boolean existsByNickname(String nickname) {
         return repository.existsByUsername(nickname);
+    }
+
+    @Override
+    public long countUsers() {
+        return repository.count();
+    }
+
+    @Override
+    public Page<User> get(UsersPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        Page<UserProjection> users = repository.findDetails(pageable);
+
+        List<UUID> ids = users.stream()
+                .map(UserProjection::getUserId)
+                .toList();
+
+        Map<UUID, List<InventoryProjection>> inventories =
+                inventoryRepository.findInventoryByUserIds(ids)
+                        .stream()
+                        .collect(Collectors.groupingBy(
+                                InventoryProjection::getUserId
+                        ));
+
+        return users.map(user ->
+                UserJpaMapper.toDomain(
+                        user,
+                        inventories.getOrDefault(
+                                user.getUserId(),
+                                List.of()
+                        )
+                )
+        );
     }
 }

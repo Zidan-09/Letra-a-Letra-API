@@ -6,4 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         use = JsonTypeInfo.Id.NAME,
         property = "type"
 )
-public interface WsRequest {}
+public interface WsRequest {
+    String getAudit();
+}

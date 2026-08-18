@@ -1,11 +1,12 @@
 package com.letraaletra.api.features.participant.infrastructure.config;
 
-import com.letraaletra.api.features.participant.application.service.ModerationContextService;
+import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.domain.repository.GameRepository;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
@@ -16,13 +17,13 @@ import org.springframework.context.annotation.Configuration;
 public class ParticipantConfig {
     @Bean
     public BanParticipantUseCase banParticipantUseCase(
-            ModerationContextService moderationContextService,
             UserRepository userRepository,
+            GameRepository gameRepository,
             GameActorManager gameActorManager
     ) {
         return new BanParticipantUseCase(
-                moderationContextService,
                 userRepository,
+                gameRepository,
                 gameActorManager
         );
     }
@@ -43,10 +44,15 @@ public class ParticipantConfig {
     }
     @Bean
     public KickParticipantUseCase kickParticipantUseCase(
-            ModerationContextService moderationContextService,
+            GameRepository gameRepository,
+            UserRepository userRepository,
             GameActorManager gameActorManager
     ) {
-        return new KickParticipantUseCase(moderationContextService, gameActorManager);
+        return new KickParticipantUseCase(
+                gameRepository,
+                userRepository,
+                gameActorManager
+        );
     }
 
     @Bean
@@ -68,16 +74,24 @@ public class ParticipantConfig {
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(GameActorManager gameActorManager) {
-        return new UnbanUserUseCase(gameActorManager);
+    public UnbanParticipantUseCase unbanParticipantUseCase(GameActorManager gameActorManager) {
+        return new UnbanParticipantUseCase(gameActorManager);
     }
 
     @Bean
-    public RemoveParticipantUseCase removeParticipantUseCase(
-            GameActorManager gameActorManager,
+    public RemoveDisconnectedParticipantUseCase removeDisconnectedParticipantUseCase(
+            UserRepository userRepository,
             GameRepository gameRepository,
-            UserRepository userRepository
+            RoomTimeoutManager roomTimeoutManager,
+            ActorManager<Game> actorManager,
+            GameOverService gameOverService
     ) {
-        return new RemoveParticipantUseCase(gameActorManager, gameRepository, userRepository);
+        return new RemoveDisconnectedParticipantUseCase(
+                userRepository,
+                gameRepository,
+                roomTimeoutManager,
+                actorManager,
+                gameOverService
+        );
     }
 }

@@ -22,4 +22,10 @@ public interface SpringDataFriendRepository extends JpaRepository<FriendJpaEntit
             @Param("userId1") UUID userId1,
             @Param("userId2") UUID userId2
     );
+
+    @Query("SELECT r FROM FriendJpaEntity r WHERE r.friendId.userId2 = :receiverId AND r.status = :status")
+    List<FriendJpaEntity> getReceivedPendingRequests(
+            @Param("receiverId") UUID receiverId,
+            @Param("status") FriendStatus status
+    );
 }

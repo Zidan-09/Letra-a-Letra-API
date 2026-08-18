@@ -1,40 +1,40 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
-import com.letraaletra.api.features.friend.application.usecase.RemoveFriendUseCase;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.RemoveFriendRequest;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.RemoveFriendMapper;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/friend")
+@Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class RemoveFriendController {
-    private final RemoveFriendUseCase useCase;
+    private final UseCase<RemoveFriendInput, Void> useCase;
 
-    public RemoveFriendController(
-            RemoveFriendUseCase useCase
-    ) {
-        this.useCase = useCase;
-    }
-
+    @Transactional
     @PatchMapping("/remove")
-    public ResponseEntity<SuccessResponse<Void>> removeFriend(
-            @AuthenticationPrincipal User user,
+    public ResponseEntity<SuccessResponse<Void>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @Valid @RequestBody RemoveFriendRequest request
     ) {
-        RemoveFriendInput input = RemoveFriendMapper.toInput(user.getId().toString(), request.friendId());
+        RemoveFriendInput input = RemoveFriendMapper.toInput(principal.auth(), request.friendId());
 
         useCase.execute(input);
 
-        return ApiResponseService.success(null);
+        return ApiResponseHandler.success(null);
     }
 }

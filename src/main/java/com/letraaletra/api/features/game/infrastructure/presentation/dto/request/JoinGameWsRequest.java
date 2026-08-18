@@ -9,4 +9,8 @@ public record JoinGameWsRequest(
         @NotBlank
         String gameId
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "joined in game";
+        }
 }

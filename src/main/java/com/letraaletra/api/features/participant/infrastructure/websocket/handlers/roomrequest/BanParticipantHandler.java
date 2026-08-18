@@ -2,38 +2,40 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.participant.application.input.BanParticipantInput;
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
-import com.letraaletra.api.features.participant.application.usecase.BanParticipantUseCase;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.BanParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ModerationResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.BanParticipantMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
 
 @Component
 public class BanParticipantHandler implements RoomRequestHandler<BanParticipantWsRequest> {
-    private final BanParticipantUseCase banParticipant;
+    private final UseCase<BanParticipantInput, BanParticipantOutput> useCase;
     private final GameNotifier gameNotifier;
 
     public BanParticipantHandler(
-            BanParticipantUseCase banParticipant,
+            UseCase<BanParticipantInput, BanParticipantOutput> useCase,
             GameNotifier gameNotifier
     ) {
-        this.banParticipant = banParticipant;
+        this.useCase = useCase;
         this.gameNotifier = gameNotifier;
     }
 
+    @Transactional
     @Override
     public void handle(BanParticipantWsRequest request, WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        BanParticipantInput command = BanParticipantMapper.toInput(request, userId);
+        BanParticipantInput input = BanParticipantMapper.toInput(request, userId);
 
-        BanParticipantOutput output = banParticipant.execute(command);
+        BanParticipantOutput output = useCase.execute(input);
 
         BanParticipantResponse dto = BanParticipantMapper.toResponse(output);
 

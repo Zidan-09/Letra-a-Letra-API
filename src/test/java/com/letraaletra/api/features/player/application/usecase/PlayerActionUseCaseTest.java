@@ -1,15 +1,17 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameOverReasons;
+import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
-import com.letraaletra.api.features.game.domain.actor.output.PlayerActionResult;
+import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.game.domain.event.Event;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,11 +33,12 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerActionUseCaseTest {
+
     @Mock
     private ActorManager<Game> actorManager;
 
     @Mock
-    private GameOverHandler gameOverHandler;
+    private GameOverService gameOverService;
 
     @Mock
     private Actor actor;
@@ -61,12 +65,15 @@ class PlayerActionUseCaseTest {
         UUID userId = UUID.randomUUID();
 
         PlayerActionInput input = new PlayerActionInput(gameId.toString(), userId, mockGameAction);
-
-        GameOverResult activeGameResult = new GameOverResult(false, null, null);
         List<Event> events = List.of(mockEvent);
 
-        PlayerActionResult actionResult = new PlayerActionResult(events, activeGameResult, mockGame);
+        PlayerActionResult actionResult = new PlayerActionResult(
+                events,
+                Optional.empty(),
+                mockGame
+        );
 
+        when(mockGame.getGameStatus()).thenReturn(GameStatus.RUNNING);
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
@@ -78,13 +85,12 @@ class PlayerActionUseCaseTest {
         assertEquals(events, output.events());
         assertTrue(output.gameOver().isEmpty(), "O Optional 'gameOver' deveria estar vazio");
 
-        verify(gameOverHandler, times(1)).handle(mockGame, activeGameResult);
+        verifyNoInteractions(gameOverService);
 
         ArgumentCaptor<PlayerActionActorCommand> commandCaptor = ArgumentCaptor.forClass(PlayerActionActorCommand.class);
         verify(actor).enqueueCommand(commandCaptor.capture());
 
         PlayerActionActorCommand capturedCommand = commandCaptor.getValue();
-
         assertNotNull(capturedCommand);
     }
 
@@ -95,10 +101,20 @@ class PlayerActionUseCaseTest {
         UUID userId = UUID.randomUUID();
         PlayerActionInput input = new PlayerActionInput(gameId.toString(), userId, mockGameAction);
 
-        GameOverResult finishedGameResult = new GameOverResult(true, mockPlayer, mockPlayer);
-        List<Event> events = List.of();
-        PlayerActionResult actionResult = new PlayerActionResult(events, finishedGameResult, mockGame);
+        GameOver finishedGameResult = new GameOver(
+                GameOverReasons.SCORE,
+                mockPlayer,
+                mockPlayer
+        );
 
+        List<Event> events = List.of();
+        PlayerActionResult actionResult = new PlayerActionResult(
+                events,
+                Optional.of(finishedGameResult),
+                mockGame
+        );
+
+        when(mockGame.getGameStatus()).thenReturn(GameStatus.CLOSED); // Ou o status retornado após o término
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
@@ -109,6 +125,6 @@ class PlayerActionUseCaseTest {
         assertTrue(output.gameOver().isPresent(), "O Optional 'gameOver' deveria conter o resultado");
         assertEquals(finishedGameResult, output.gameOver().get());
 
-        verify(gameOverHandler).handle(mockGame, finishedGameResult);
+        verify(gameOverService).handle(mockGame, finishedGameResult);
     }
 }

@@ -3,15 +3,14 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ac
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.ParticipantRole;
+import com.letraaletra.api.features.player.domain.HandlerResult;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -20,14 +19,19 @@ import java.util.UUID;
 public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         implements InGameActionHandler<T> {
 
-    @Autowired
-    protected PlayerActionUseCase playerActionUseCase;
+    protected final UseCase<PlayerActionInput, PlayerActionOutput> useCase;
+    protected final GameNotifier notifier;
 
-    @Autowired
-    protected GameNotifier gameNotifier;
+    public AbstractPlayerActionHandler(
+            UseCase<PlayerActionInput, PlayerActionOutput> useCase,
+            GameNotifier notifier
+    ) {
+        this.useCase = useCase;
+        this.notifier = notifier;
+    }
 
     @Override
-    public void handle(T request, WebSocketSession session, String gameId) {
+    public HandlerResult handle(T request, WebSocketSession session, String gameId) {
         UUID userId = UUID.fromString((String) session.getAttributes().get("userId"));
 
         GameAction action = createAction(request);
@@ -35,11 +39,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         PlayerActionInput input =
                 PlayerActionMapper.toInput(gameId, userId, action);
 
-        PlayerActionOutput output = playerActionUseCase.execute(input);
+        PlayerActionOutput output = useCase.execute(input);
 
         send(output);
 
         afterHandle(output);
+
+        return new HandlerResult(output.game(), output.gameOver());
     }
 
     protected abstract GameAction createAction(T request);
@@ -52,20 +58,20 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .getPlayers().values()
                 .stream().toList();
 
-        List<Participant> spectators = output.game().getParticipants().stream()
-                .filter(participant -> participant.getRole().equals(ParticipantRole.SPECTATOR))
+        List<Participant> spectators = output.game().getParticipants().getParticipants().stream()
+                .filter(Participant::isSpectator)
                 .toList();
 
         for (Player player : players) {
             PlayerActionResponse dto = PlayerActionMapper.toResponse(output, player.getUserId());
 
-            gameNotifier.notifierOne(player.getUserId(), dto);
+            notifier.notifierOne(player.getUserId(), dto);
         }
 
         for (Participant spectator : spectators) {
             PlayerActionResponse dto = PlayerActionMapper.toGlobalResponse(output);
 
-            gameNotifier.notifierOne(spectator.getUserId(), dto);
+            notifier.notifierOne(spectator.getUserId(), dto);
         }
     }
 }

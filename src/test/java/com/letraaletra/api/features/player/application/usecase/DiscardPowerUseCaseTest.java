@@ -46,7 +46,7 @@ class DiscardPowerUseCaseTest {
         UUID userId = UUID.randomUUID();
         String powerId = "power-uuid";
 
-        DiscardPowerInput input = new DiscardPowerInput(gameId.toString(), userId, powerId);
+        DiscardPowerInput input = new DiscardPowerInput(gameId, userId, powerId);
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 

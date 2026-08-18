@@ -2,9 +2,9 @@ package com.letraaletra.api.features.player.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.power.domain.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameStateResponseMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class PlayerActionMapper {
         return new PlayerActionResponse(
                 output.game().getGameState().getCurrentTurnEnds(),
                 output.events(),
-                GameStateDTOMapper.toDto(output.game(), viewer)
+                GameStateResponseMapper.toResponse(output.game(), viewer)
         );
     }
 
@@ -31,7 +31,7 @@ public class PlayerActionMapper {
         return new PlayerActionResponse(
                 output.game().getGameState().getCurrentTurnEnds(),
                 output.events(),
-                GameStateDTOMapper.toGlobalDto(output.game())
+                GameStateResponseMapper.toGlobalResponse(output.game())
         );
     }
 }

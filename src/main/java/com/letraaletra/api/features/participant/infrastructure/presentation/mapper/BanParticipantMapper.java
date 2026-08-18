@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.BanParticipant
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.BanParticipantResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameDTOMapper;
+import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameResponseMapper;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public class BanParticipantMapper {
 
     public static BanParticipantResponse toResponse(BanParticipantOutput output) {
         return new BanParticipantResponse(
-               GameDTOMapper.toDTO(output.game())
+               GameResponseMapper.toResponse(output.game())
         );
     }
 }

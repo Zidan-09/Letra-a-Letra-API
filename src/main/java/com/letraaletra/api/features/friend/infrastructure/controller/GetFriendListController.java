@@ -2,13 +2,14 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
-import com.letraaletra.api.features.friend.application.usecase.GetFriendListUseCase;
-import com.letraaletra.api.features.friend.domain.FriendMessages;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendListResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.shared.application.service.ApiResponseService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,26 +17,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/friend")
+@Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class GetFriendListController {
-    private final GetFriendListUseCase useCase;
-
-    public GetFriendListController(
-            GetFriendListUseCase useCase
-    ) {
-        this.useCase = useCase;
-    }
+    private final UseCase<GetFriendListInput, GetFriendListOutput> useCase;
 
     @GetMapping
-    public ResponseEntity<SuccessResponse<GetFriendListResponse>> getFriends(
-            @AuthenticationPrincipal User user
+    public ResponseEntity<SuccessResponse<GetFriendListResponse>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal
     ) {
-        GetFriendListInput input = GetFriendListMapper.toInput(user.getId().toString());
+        GetFriendListInput input = GetFriendListMapper.toInput(principal.auth());
 
         GetFriendListOutput output = useCase.execute(input);
 
         GetFriendListResponse dto = GetFriendListMapper.toResponse(output);
 
-        return ApiResponseService.success(dto, FriendMessages.FRIENDS_FOUND.getMessage());
+        return ApiResponseHandler.success(dto);
     }
 }

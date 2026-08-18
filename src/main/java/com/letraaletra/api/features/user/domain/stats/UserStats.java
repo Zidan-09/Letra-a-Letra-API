@@ -6,22 +6,51 @@ public class UserStats {
     private int winStreak;
     private int level;
     private int experience;
-    private int points;
+    private int rankingPoints;
 
-    public UserStats(
+    private UserStats(
             int totalMatches,
             int totalWins,
             int winStreak,
             int level,
             int experience,
-            int points
+            int rankingPoints
     ) {
         this.totalMatches = totalMatches;
         this.totalWins = totalWins;
         this.winStreak = winStreak;
         this.level = level;
         this.experience = experience;
-        this.points = points;
+        this.rankingPoints = rankingPoints;
+    }
+
+    public static UserStats create() {
+        return new UserStats(
+                0,
+                0,
+                0,
+                1,
+                0,
+                0
+        );
+    }
+
+    public static UserStats restore(
+            int totalMatches,
+            int totalWins,
+            int winStreak,
+            int level,
+            int experience,
+            int rankingPoints
+    ) {
+        return new UserStats(
+                totalMatches,
+                totalWins,
+                winStreak,
+                level,
+                experience,
+                rankingPoints
+        );
     }
 
     public int getTotalMatches() {
@@ -44,14 +73,14 @@ public class UserStats {
         return experience;
     }
 
-    public int getPoints() {
-        return points;
+    public int getRankingPoints() {
+        return rankingPoints;
     }
 
-    public void incrementExperience(int value) {
+    public void incrementExperience(int value, int maxLevel) {
         experience += value;
 
-        advanceLevel();
+        advanceLevel(maxLevel);
     }
 
     public void registerWin() {
@@ -65,16 +94,22 @@ public class UserStats {
         winStreak = 0;
     }
 
-    private void incrementPoints(int userPoints, int opponentPoints) {
-        points += Math.max(userPoints, opponentPoints) - Math.min(userPoints, opponentPoints);
+    public int incrementPoints(int userPoints, int opponentPoints) {
+        int pointsToIncrement = userPoints == 3 ?
+                40 - opponentPoints * 10 :
+                -30 + (userPoints * 10) + (userPoints > 0 ? 5 : 0);
+
+        rankingPoints = Math.max(0, rankingPoints + pointsToIncrement);
+
+        return pointsToIncrement;
     }
 
-    private void advanceLevel() {
+    private void advanceLevel(int maxLevel) {
         double multiplier = 20.0;
         double factor = 1.0 / 1.6;
 
         int newLevel = (int) Math.floor(Math.pow((experience / multiplier), factor));
 
-        level = Math.clamp(newLevel, 1, 50);
+        level = Math.clamp(newLevel, 1, maxLevel);
     }
 }

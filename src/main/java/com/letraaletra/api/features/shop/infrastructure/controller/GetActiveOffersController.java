@@ -1,0 +1,31 @@
+package com.letraaletra.api.features.shop.infrastructure.controller;
+
+import com.letraaletra.api.features.shop.application.output.GetActiveOffersOutput;
+import com.letraaletra.api.features.shop.infrastructure.presentation.dto.response.GetActiveOffersResponse;
+import com.letraaletra.api.features.shop.infrastructure.presentation.mapper.GetActiveOffersMapper;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/shop/offers")
+@Tag(name = "Shop", description = "Rotas relacionadas a funcionalidade da loja do jogo")
+public class GetActiveOffersController {
+    private final UseCase<Void, GetActiveOffersOutput> useCase;
+
+    @GetMapping()
+    public ResponseEntity<SuccessResponse<GetActiveOffersResponse>> handle() {
+        GetActiveOffersOutput output = useCase.execute(null);
+
+        GetActiveOffersResponse dto = GetActiveOffersMapper.toResponse(output);
+
+        return ApiResponseHandler.success(dto);
+    }
+}

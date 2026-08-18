@@ -5,28 +5,30 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.features.game.domain.service.GameOverResult;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.GameOverResponse;
-import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @Component
 public class BroadcastService implements GameNotifier {
-    @Autowired
-    private SessionRepository sessionRepository;
+    private final SessionRepository sessionRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(BroadcastService.class);
+
+    public BroadcastService(
+            SessionRepository sessionRepository
+    ) {
+        this.sessionRepository = sessionRepository;
+    }
 
     @Override
     public void notifierAll(Game game, Object dto) {
@@ -35,14 +37,19 @@ public class BroadcastService implements GameNotifier {
         }
 
         final String json;
+
         try {
-            json = objectMapper.writeValueAsString(dto);
+            ObjectNode message = objectMapper.valueToTree(dto);
+            message.put("eventId", UUID.randomUUID().toString());
+
+            json = objectMapper.writeValueAsString(message);
+
         } catch (Exception e) {
             logger.warn("Error serializing broadcast message: {}", e.getMessage());
             return;
         }
 
-        for (Participant participant : game.getParticipants()) {
+        for (Participant participant : game.getParticipants().getParticipants()) {
             WebSocketSession session = sessionRepository.find(participant.getSocketId());
 
             if (session == null || !session.isOpen()) {
@@ -62,17 +69,23 @@ public class BroadcastService implements GameNotifier {
         }
 
         try {
-            String json = objectMapper.writeValueAsString(dto);
+            ObjectNode message = objectMapper.valueToTree(dto);
+            message.put("eventId", UUID.randomUUID().toString());
+
+            String json = objectMapper.writeValueAsString(message);
+
             send(session, json);
         } catch (Exception e) {
-            logger.warn("Error serializing message for user {}: {}", userId, e.getMessage());
+            logger.warn(
+                    "Error serializing message for user {}: {}",
+                    userId,
+                    e.getMessage()
+            );
         }
     }
 
     @Override
-    public void notifierGameOver(Game game, GameOverResult gameOverResult) {
-        GameOverResponse dto = GameOverMapper.toResponse(gameOverResult, game);
-
+    public void notifierGameOver(Game game, Object dto) {
         notifierAll(game, dto);
     }
 

@@ -9,4 +9,5 @@ public interface SessionRepository {
     WebSocketSession findByUserId(UUID userId);
     WebSocketSession find(String sessionId);
     void remove(WebSocketSession webSocketSession);
+    long playersOnline();
 }

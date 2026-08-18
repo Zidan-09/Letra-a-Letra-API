@@ -15,4 +15,8 @@ public record SwapPositionWsRequest(
         @Max(6)
         Integer position
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "swap position on game";
+        }
 }

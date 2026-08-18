@@ -4,7 +4,7 @@ import com.letraaletra.api.features.participant.application.input.ReconnectParti
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.features.game.application.port.DisconnectScheduler;
+import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.participant.domain.Participant;
@@ -29,6 +29,7 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
         this.userRepository = userRepository;
     }
 
+    @Override
     public Optional<ReconnectParticipantOutput> execute(ReconnectParticipantInput input) {
         UUID userId = input.user();
         if (userId == null) return Optional.empty();
@@ -45,12 +46,12 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
 
             Game game = actor.getGame();
 
-            Participant participant = game.getParticipantByUserId(userId);
+            Participant participant = game.getParticipants().getParticipantByUserId(userId);
             if (participant == null) return Optional.empty();
 
             disconnectScheduler.cancel(userId, game.getId());
 
-            game.reconnect(userId, input.session());
+            game.getParticipants().reconnect(userId, input.session());
 
             return buildReturn(game);
 

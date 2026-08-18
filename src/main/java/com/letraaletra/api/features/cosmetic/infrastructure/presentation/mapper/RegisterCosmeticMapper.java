@@ -4,12 +4,13 @@ import com.letraaletra.api.features.cosmetic.application.input.RegisterCosmeticI
 import com.letraaletra.api.features.cosmetic.application.output.RegisterCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.request.RegisterCosmeticRequest;
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.RegisterCosmeticResponse;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 public class RegisterCosmeticMapper {
-    public static RegisterCosmeticInput toInput(RegisterCosmeticRequest request) {
+    public static RegisterCosmeticInput toInput(AuthenticatedUser principal, RegisterCosmeticRequest request) {
         return new RegisterCosmeticInput(
-                request.id(),
-                request.name(),
+                principal,
+                request.name().toLowerCase(),
                 request.cosmeticType(),
                 request.asset()
         );

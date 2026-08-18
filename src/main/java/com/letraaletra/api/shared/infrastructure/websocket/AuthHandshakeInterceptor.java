@@ -1,8 +1,9 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
 import com.letraaletra.api.shared.domain.security.TokenService;
+import com.letraaletra.api.shared.domain.security.TokenContent;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,11 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
-
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     @Override
     public boolean beforeHandshake(
@@ -30,15 +29,16 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         UriComponents uri = UriComponentsBuilder.fromUri(request.getURI()).build();
         String token = uri.getQueryParams().getFirst("token");
 
-        UUID userId = tokenService.getTokenContent(token);
+        try {
+            TokenContent content = tokenService.getTokenContent(token);
 
-        if (userId == null) {
+            attributes.put("userId", content.id().toString());
+
+            return true;
+
+        } catch (Exception e) {
             return false;
         }
-
-        attributes.put("userId", userId.toString());
-
-        return true;
     }
 
     @Override

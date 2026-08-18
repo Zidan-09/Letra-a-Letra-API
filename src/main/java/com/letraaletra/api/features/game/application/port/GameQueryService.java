@@ -1,12 +1,15 @@
 package com.letraaletra.api.features.game.application.port;
 
+import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
+import com.letraaletra.api.features.game.application.input.GetPublicGamesInput;
 import com.letraaletra.api.features.game.domain.Game;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface GameQueryService {
-    Game findByCode(String code);
+    Optional<Game> findByCode(String code);
     boolean existsByCode(String code);
-    List<Game> getAllActiveGames();
-    List<Game> getPublic();
+    Page<Game> getAllActiveGames(GetActiveGamesInput input);
+    Page<Game> getPublic(GetPublicGamesInput input);
 }

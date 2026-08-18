@@ -8,4 +8,8 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.request.WsRequ
 public record JoinMatchmakingGameWsRequest(
         GameMode gameMode
 ) implements WsRequest {
+    @Override
+    public String getAudit() {
+        return "joined in matchmaking queue";
+    }
 }

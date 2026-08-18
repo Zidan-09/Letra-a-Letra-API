@@ -7,16 +7,16 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import java.util.UUID;
 
 public class SendFriendRequestMapper {
-    public static SendFriendRequestInput toInput(String userId, String friendId) {
+    public static SendFriendRequestInput toInput(UUID auth, String friendId) {
         return new SendFriendRequestInput(
-                UUID.fromString(userId),
+                auth,
                 UUID.fromString(friendId)
         );
     }
 
     public static SendFriendRequestResponse toResponse(SendFriendRequestOutput output) {
         return new SendFriendRequestResponse(
-                output.friend()
+                FriendResponseMapper.toResponse(output.friend())
         );
     }
 }

@@ -1,14 +1,34 @@
 package com.letraaletra.api.features.user.domain.wallet;
 
-import com.letraaletra.api.features.user.domain.exceptions.InsufficientBalanceException;
+import com.letraaletra.api.features.offers.domain.CoinType;
+import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
+import com.letraaletra.api.features.transaction.domain.OperationType;
+import com.letraaletra.api.features.user.domain.wallet.exception.InsufficientBalanceException;
 
 public class Wallet {
     private long softCoins;
     private long hardGems;
 
-    public Wallet(long softCoins, long hardGems) {
+    private Wallet(long softCoins, long hardGems) {
         this.softCoins = softCoins;
         this.hardGems = hardGems;
+    }
+
+    public static Wallet create() {
+        return new Wallet(
+                0,
+                0
+        );
+    }
+
+    public static Wallet restore(
+            long softCoins,
+            long hardGems
+    ) {
+        return new Wallet(
+                softCoins,
+                hardGems
+        );
     }
 
     public Balance getBalance() {
@@ -18,36 +38,47 @@ public class Wallet {
         );
     }
 
-    public void addSoft(int value) {
-        softCoins += value;
-    }
+    public WalletMovement add(CoinType coinType, int value) {
+        Balance balanceBefore = getBalance();
 
-    public void addHard(int value) {
-        hardGems += value;
-    }
-
-    private void removeSoft(long value) {
-        softCoins -= value;
-    }
-
-    private void removeHard(long value) {
-        hardGems -= value;
-    }
-
-    public void pay(CoinType coinType, long amount) {
         switch (coinType) {
             case SOFT -> {
-                if (softCoins < amount) {
-                    throw new InsufficientBalanceException();
-                }
-                removeSoft(amount);
+                softCoins += value;
+
+                return new WalletMovement(CoinType.SOFT, balanceBefore, getBalance(), value, OperationType.CREDIT);
             }
             case HARD -> {
-                if (hardGems < amount) {
+                hardGems += value;
+
+                return new WalletMovement(CoinType.HARD, balanceBefore, getBalance(), value, OperationType.CREDIT);
+            }
+            case null, default -> throw new InvalidPaymentException();
+        }
+    }
+
+    public WalletMovement remove(CoinType coinType, int value) {
+        Balance balanceBefore = getBalance();
+
+        switch (coinType) {
+            case SOFT -> {
+                if (softCoins < value) {
                     throw new InsufficientBalanceException();
                 }
-                removeHard(amount);
+
+                softCoins -= value;
+
+                return new WalletMovement(CoinType.SOFT, balanceBefore, getBalance(), value, OperationType.DEBIT);
             }
+            case HARD -> {
+                if (hardGems < value) {
+                    throw new InsufficientBalanceException();
+                }
+
+                hardGems -= value;
+
+                return new WalletMovement(CoinType.HARD, balanceBefore, getBalance(), value, OperationType.DEBIT);
+            }
+            case null, default -> throw new InvalidPaymentException();
         }
     }
 }

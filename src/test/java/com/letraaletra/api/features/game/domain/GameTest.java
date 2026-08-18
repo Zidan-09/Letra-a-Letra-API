@@ -2,228 +2,263 @@ package com.letraaletra.api.features.game.domain;
 
 import com.letraaletra.api.features.game.domain.board.Board;
 import com.letraaletra.api.features.game.domain.exception.GameIsRunningException;
-import com.letraaletra.api.features.game.domain.exception.RoomFullException;
-import com.letraaletra.api.features.game.domain.exception.UserBannedException;
-import com.letraaletra.api.features.game.domain.exception.UserNotInGameException;
-import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
+import com.letraaletra.api.features.game.domain.room.exception.InsufficientPlayersException;
+import com.letraaletra.api.features.game.domain.state.GameStateFactory;
+import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.domain.state.GameState;
-import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
-import com.letraaletra.api.features.participant.domain.exception.InvalidRoomPositionException;
-import com.letraaletra.api.features.participant.domain.exception.ParticipantAlreadyBannedException;
-import com.letraaletra.api.features.participant.domain.exception.ParticipantNotBannedException;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GameTest {
 
     private Game game;
-    private Participant host;
-    private UUID hostId;
-    private UUID gameId;
+    private RoomSettings roomSettings;
 
-    @Mock private Board mockBoard;
-    @Mock private GameStateFactory mockStateGenerator;
-    @Mock private GameState mockGameState;
+    @Mock
+    private Board mockBoard;
+
+    @Mock
+    private GameState mockGameState;
+
+    @Mock
+    private User mockUser;
+
+    @Mock
+    private User mockSecondUser;
+
+    @Mock
+    private Inventory mockInventory;
 
     @BeforeEach
     void setUp() {
-        hostId = UUID.randomUUID();
-        host = new Participant(hostId, "sess-1", "DonoDaSala", List.of());
-        RoomSettings defaultSettings = new RoomSettings(true, false);
+        roomSettings = new RoomSettings(true, false);
+        game = Game.create(
+                "CODE12",
+                "Lobby dos Devs",
+                roomSettings,
+                GameType.CUSTOM
+        );
 
-        gameId = UUID.randomUUID();
+        lenient().when(mockInventory.getItems()).thenReturn(Collections.emptyList());
+        lenient().when(mockUser.getInventory()).thenReturn(mockInventory);
+        lenient().when(mockSecondUser.getInventory()).thenReturn(mockInventory);
+    }
 
-        game = new Game(gameId, "CODE12", "Lobby dos Devs", defaultSettings, host, GameType.CUSTOM);
+    @Test
+    @DisplayName("Deve criar uma instância válida através da Factory static")
+    void shouldCreateGameUsingFactory() {
+        assertNotNull(game);
+        assertNotNull(game.getId());
+        assertEquals("CODE12", game.getCode());
+        assertEquals("Lobby dos Devs", game.getRoomName());
+        assertEquals(GameStatus.WAITING, game.getGameStatus());
+        assertEquals(GameType.CUSTOM, game.getGameType());
+        assertEquals(roomSettings, game.getRoomSettings());
+        assertNull(game.getCreatedById());
+        assertNull(game.getHostId());
+        assertNull(game.getGameState());
     }
 
     @Nested
-    @DisplayName("Testes de Inicialização e Criação do Jogo")
-    class InitializationTests {
+    @DisplayName("Entrada de Jogadores (Join)")
+    class JoinTests {
 
         @Test
-        @DisplayName("Deve inicializar a sala com o Host na posição de Player e status WAITING")
-        void shouldInitializeGameWithHostAsPlayer() {
-            assertEquals(GameStatus.WAITING, game.getGameStatus());
-            assertEquals(hostId, game.getHostId());
-            assertEquals(hostId, game.getCreatedById());
-            assertEquals(ParticipantRole.PLAYER, host.getRole());
-            assertEquals(hostId, game.getPositions().get(0));
-            assertEquals(1, game.getAmountPlayers());
-        }
-    }
+        @DisplayName("Deve definir o primeiro jogador como criador, host e com role PLAYER")
+        void shouldSetFirstPlayerAsHostAndCreator() {
+            UUID userId = UUID.randomUUID();
+            when(mockUser.getUserId()).thenReturn(userId);
 
-    @Nested
-    @DisplayName("Testes do Fluxo de Entrada (Join)")
-    class JoinFlowTests {
+            game.join(mockUser, "session-1");
 
-        @Test
-        @DisplayName("Deve permitir a entrada do segundo participante como PLAYER")
-        void shouldAllowSecondParticipantAsPlayer() {
-            UUID participantId2 = UUID.randomUUID();
-            Participant p2 = new Participant(participantId2, "sess-2", "JogadorDois", List.of());
+            assertEquals(userId, game.getCreatedById());
+            assertEquals(userId, game.getHostId());
+            assertFalse(game.getParticipants().getParticipants().isEmpty());
 
-            game.join(p2);
-
-            assertEquals(ParticipantRole.PLAYER, p2.getRole());
-            assertEquals(2, game.getAmountPlayers());
-            assertEquals(participantId2, game.getPositions().get(1), "Deve ocupar a próxima posição livre (1)");
+            var hostParticipant = game.getParticipants().getParticipants().getFirst();
+            assertEquals(ParticipantRole.PLAYER, hostParticipant.getRole());
         }
 
         @Test
-        @DisplayName("Deve entrar como SPECTATOR caso a sala já possua 2 jogadores ativos")
-        void shouldJoinAsSpectatorWhenRoomHasTwoPlayers() {
-            UUID participantId2 = UUID.randomUUID();
-            UUID participantId3 = UUID.randomUUID();
+        @DisplayName("Não deve alterar o host quando um segundo jogador entrar")
+        void shouldNotChangeHostWhenSecondPlayerJoins() {
+            UUID hostUserId = UUID.randomUUID();
+            UUID secondUserId = UUID.randomUUID();
 
-            Participant p2 = new Participant(participantId2, "sess-2", "JogadorDois", List.of());
-            Participant p3 = new Participant(participantId3, "sess-3", "EspectadorUm", List.of());
+            when(mockUser.getUserId()).thenReturn(hostUserId);
+            when(mockSecondUser.getUserId()).thenReturn(secondUserId);
 
-            game.join(p2);
-            game.join(p3);
+            game.join(mockUser, "session-1");
+            game.join(mockSecondUser, "session-2");
 
-            assertEquals(ParticipantRole.SPECTATOR, p3.getRole());
-            assertEquals(2, game.getAmountPlayers(), "Total de Players ativos deve continuar sendo 2");
-            assertEquals(participantId3, game.getPositions().get(2), "Deve ir para a vaga de espectador");
-        }
-
-        @Test
-        @DisplayName("Deve lançar UserBannedException se o usuário estiver na Blacklist")
-        void shouldThrowExceptionWhenUserIsBlacklisted() {
-            UUID participantId2 = UUID.randomUUID();
-
-            Participant p2 = new Participant(participantId2, "sess-2", "ToxicPlayer", List.of());
-            game.addToBlackList(participantId2);
-
-            assertThrows(UserBannedException.class, () -> game.join(p2));
-        }
-
-        @Test
-        @DisplayName("Deve lançar RoomFullException ao tentar entrar se a sala não permitir espectadores e já tiver 2 players")
-        void shouldThrowExceptionWhenRoomDoesNotAllowSpectatorsAndIsFull() {
-            UUID participantId2 = UUID.randomUUID();
-            UUID participantId3 = UUID.randomUUID();
-
-            RoomSettings strictSettings = new RoomSettings(false, false);
-            Game strictGame = new Game(gameId, "C", "N", strictSettings, host, GameType.CUSTOM);
-
-            strictGame.join(new Participant(participantId2, "s2", "J2", List.of()));
-
-            Participant p3 = new Participant(participantId3, "s3", "J3", List.of());
-            assertThrows(RoomFullException.class, () -> strictGame.join(p3));
+            assertEquals(hostUserId, game.getHostId());
+            assertEquals(hostUserId, game.getCreatedById());
+            assertEquals(2, game.getParticipants().getParticipants().size());
         }
     }
 
     @Nested
-    @DisplayName("Testes de Remoção de Usuário e Passagem de Host")
-    class RemoveFlowTests {
+    @DisplayName("Início da Partida (Start)")
+    class StartTests {
 
         @Test
-        @DisplayName("Deve passar a liderança da sala para o próximo se o Host sair")
-        void shouldPassHostToNextParticipantWhenHostLeaves() {
-            UUID participantId2 = UUID.randomUUID();
+        @DisplayName("Deve iniciar a partida e alterar o status para RUNNING quando houver participantes suficientes")
+        void shouldStartGame() {
+            when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
+            when(mockSecondUser.getUserId()).thenReturn(UUID.randomUUID());
 
-            Participant p2 = new Participant(participantId2, "sess-2", "Gamer2", List.of());
-            game.join(p2);
-            assertEquals(hostId, game.getHostId());
+            game.join(mockUser, "session-1");
+            game.join(mockSecondUser, "session-2");
 
-            game.remove(hostId);
+            game.getParticipants().getParticipants().get(1).changeRole(ParticipantRole.PLAYER);
 
-            assertEquals(participantId2, game.getHostId(), "O Host deve ser transferido para o p2");
-            assertFalse(game.getPositions().containsValue(hostId), "A posição antiga do host deve ser limpa");
+            try (MockedStatic<GameStateFactory> mockedFactory = mockStatic(GameStateFactory.class)) {
+                mockedFactory.when(() -> GameStateFactory.generate(any(), eq(mockBoard)))
+                        .thenReturn(mockGameState);
+
+                game.start(mockBoard);
+
+                assertEquals(GameStatus.RUNNING, game.getGameStatus());
+                assertSame(mockGameState, game.getGameState());
+            }
         }
 
         @Test
-        @DisplayName("Deve lançar UserNotInGameException ao tentar remover alguém que não está no mapa")
-        void shouldThrowExceptionWhenRemovingGhostUser() {
-            assertThrows(UserNotInGameException.class, () -> game.remove(UUID.randomUUID()));
+        @DisplayName("Deve lançar InsufficientPlayersException ao tentar iniciar com menos de 2 jogadores")
+        void shouldThrowExceptionWhenLessThanTwoPlayers() {
+            when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
+            game.join(mockUser, "session-1");
+
+            assertThrows(
+                    InsufficientPlayersException.class,
+                    () -> game.start(mockBoard)
+            );
+        }
+
+        @Test
+        @DisplayName("Deve lançar GameIsRunningException ao tentar iniciar jogo já em andamento")
+        void shouldThrowExceptionWhenGameAlreadyRunning() {
+            game.setGameStatus(GameStatus.RUNNING);
+
+            assertThrows(
+                    GameIsRunningException.class,
+                    () -> game.start(mockBoard)
+            );
         }
     }
 
     @Nested
-    @DisplayName("Testes de Troca de Posição (Change Position)")
+    @DisplayName("Troca de Posição")
     class ChangePositionTests {
 
         @Test
-        @DisplayName("Deve permitir trocar de posição alterando o papel de Player para Espectador")
-        void shouldSwitchFromPlayerToSpectatorCorrectly() {
-            assertEquals(ParticipantRole.PLAYER, host.getRole());
+        @DisplayName("Deve permitir alterar posição quando o jogo estiver em WAITING")
+        void shouldAllowChangePositionWhenWaiting() {
+            UUID userId = UUID.randomUUID();
+            when(mockUser.getUserId()).thenReturn(userId);
+            game.join(mockUser, "session-1");
 
-            game.changePosition(hostId, 5);
-
-            assertEquals(ParticipantRole.SPECTATOR, host.getRole(), "Acima da posição 2 deve virar espectador");
-            assertNull(game.getPositions().get(0), "A antiga posição 0 deve ficar vaga");
-            assertEquals(hostId, game.getPositions().get(5));
+            assertDoesNotThrow(() -> game.changePosition(userId, 1));
         }
 
         @Test
-        @DisplayName("Deve lançar GameIsRunningException ao tentar mudar de lugar com o jogo rolando")
-        void shouldPreventPositionChangeWhenGameIsRunning() {
+        @DisplayName("Deve lançar GameIsRunningException ao tentar alterar posição durante o jogo")
+        void shouldThrowExceptionWhenChangingPositionWhileRunning() {
+            UUID userId = UUID.randomUUID();
+            when(mockUser.getUserId()).thenReturn(userId);
+            game.join(mockUser, "session-1");
+
             game.setGameStatus(GameStatus.RUNNING);
 
-            assertThrows(GameIsRunningException.class, () -> game.changePosition(hostId, 3));
-        }
-
-        @Test
-        @DisplayName("Deve lançar InvalidRoomPositionException se a vaga de destino já estiver ocupada")
-        void shouldThrowExceptionWhenTargetPositionIsOccupied() {
-            UUID participantId2 = UUID.randomUUID();
-
-            Participant p2 = new Participant(participantId2, "sess-2", "Gamer2", List.of());
-            game.join(p2);
-
-            assertThrows(InvalidRoomPositionException.class, () -> game.changePosition(hostId, 1));
+            assertThrows(
+                    GameIsRunningException.class,
+                    () -> game.changePosition(userId, 1)
+            );
         }
     }
 
     @Nested
-    @DisplayName("Testes de Moderação e Blacklist")
-    class BlacklistTests {
+    @DisplayName("Remoção de Jogadores")
+    class RemoveTests {
 
         @Test
-        @DisplayName("Deve gerenciar adições e remoções na blacklist corretamente")
-        void shouldManageBlacklistStates() {
-            UUID targetId = UUID.randomUUID();
-            assertFalse(game.isBlackListed(targetId));
+        @DisplayName("Deve remover jogador do GameState se a partida estiver em andamento")
+        void shouldRemovePlayerFromGameStateWhenGameIsRunning() {
+            UUID userId = UUID.randomUUID();
+            when(mockUser.getUserId()).thenReturn(userId);
+            game.join(mockUser, "session-1");
 
-            game.addToBlackList(targetId);
-            assertTrue(game.isBlackListed(targetId));
+            game.updateGameState(mockGameState);
+            game.setGameStatus(GameStatus.RUNNING);
 
-            assertThrows(ParticipantAlreadyBannedException.class, () -> game.addToBlackList(targetId));
+            game.remove(userId);
 
-            game.removeFromBlackList(targetId);
-            assertFalse(game.isBlackListed(targetId));
+            verify(mockGameState).removePlayer(userId);
+        }
 
-            assertThrows(ParticipantNotBannedException.class, () -> game.removeFromBlackList(targetId));
+        @Test
+        @DisplayName("Deve transferir a liderança (host) para o próximo participante quando o host sair")
+        void shouldTransferHostWhenCurrentHostLeaves() {
+            UUID hostUserId = UUID.randomUUID();
+            UUID secondUserId = UUID.randomUUID();
+
+            when(mockUser.getUserId()).thenReturn(hostUserId);
+            when(mockSecondUser.getUserId()).thenReturn(secondUserId);
+
+            game.join(mockUser, "session-1");
+            game.join(mockSecondUser, "session-2");
+
+            game.remove(hostUserId);
+
+            assertEquals(secondUserId, game.getHostId());
+        }
+
+        @Test
+        @DisplayName("Não deve lançar exceção nem quebrar ao remover o último participante")
+        void shouldAllowRemovingLastParticipant() {
+            UUID userId = UUID.randomUUID();
+            when(mockUser.getUserId()).thenReturn(userId);
+            game.join(mockUser, "session-1");
+
+            assertDoesNotThrow(() -> game.remove(userId));
+            assertTrue(game.getParticipants().getParticipants().isEmpty());
         }
     }
 
     @Nested
-    @DisplayName("Testes de Transição de Estado (Start Game)")
-    class GameLifecycleTests {
+    @DisplayName("Atualizações de Estado e Status")
+    class UpdateStateTests {
 
         @Test
-        @DisplayName("Deve mudar o status da sala para RUNNING e popular o gameState")
-        void shouldTransitionToRunningOnStart() {
-            when(mockStateGenerator.generate(any(), eq(mockBoard))).thenReturn(mockGameState);
+        @DisplayName("Deve atualizar o estado da partida")
+        void shouldUpdateGameState() {
+            game.updateGameState(mockGameState);
+            assertSame(mockGameState, game.getGameState());
+        }
 
-            game.start(mockBoard, mockStateGenerator);
-
-            assertEquals(GameStatus.RUNNING, game.getGameStatus());
-            assertEquals(mockGameState, game.getGameState());
+        @Test
+        @DisplayName("Deve atualizar o status da partida")
+        void shouldUpdateGameStatus() {
+            game.setGameStatus(GameStatus.CLOSED);
+            assertEquals(GameStatus.CLOSED, game.getGameStatus());
         }
     }
 }

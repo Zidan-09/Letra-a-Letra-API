@@ -1,91 +1,150 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
-import com.letraaletra.api.features.game.application.input.ExpireTurnInput;
-import com.letraaletra.api.features.game.application.output.ExpireTurnOutput;
+import com.letraaletra.api.features.game.application.port.ExpireTurnService;
+import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
+import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.ExpireTurnService;
-import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
+import com.letraaletra.api.features.game.domain.room.RemovedBecauseInactivity;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
+import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.domain.turn.GameTurn;
+import com.letraaletra.api.features.game.domain.turn.TurnExpired;
+import com.letraaletra.api.features.player.domain.Player;
+import com.letraaletra.api.shared.application.port.AuditService;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.DelayQueue;
 
 @Service
+@RequiredArgsConstructor
 public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final ExpireTurnService expireTurnService;
+    private final GameResponseAssembler gameResponseAssembler;
+    private final RoomTimeoutManager roomTimeoutManager;
+    private final TransactionalExecutorService transactionExecutor;
 
     private final DelayQueue<GameTurn> queue = new DelayQueue<>();
 
     private final GameNotifier gameNotifier;
 
-    private final Logger logger = LoggerFactory.getLogger(DelayQueueTurnTimeoutManager.class);
+    private final AuditService auditService;
 
-    public DelayQueueTurnTimeoutManager(ExpireTurnService expireTurnService, GameNotifier gameNotifier) {
-        this.expireTurnService = expireTurnService;
-        this.gameNotifier = gameNotifier;
-        startScheduler();
-    }
+    private final Logger logger = LoggerFactory.getLogger(DelayQueueTurnTimeoutManager.class);
 
     @Override
     public void start(Game game) {
         queue.put(new GameTurn(
                 game.getId(),
+                game.getGameState().getMatchId(),
+                getCurrentPlayer(game.getGameState()),
                 game.getGameState().getCurrentTurnEnds(),
                 game.getGameState().getVersion()
         ));
     }
 
-    private void startScheduler() {
-        Thread thread = new Thread(this::processLoop);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
+    @Scheduled(fixedDelay = 10)
     private void processLoop() {
-        while (true) {
-            try {
-                GameTurn next = queue.take();
-                handleTurnTimeout(next);
+        GameTurn next;
 
+        while ((next = queue.poll()) != null) {
+            try {
+                handleTurnTimeout(next);
             } catch (Exception e) {
-                logger.warn("Error on process end of turn {}-{}", e.getMessage(), e.getStackTrace());
+                if (!(e instanceof GameNotFoundException)) {
+                    logger.error("Error on process end of turn: {}", e.getMessage(), e);
+                }
             }
         }
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
-        ExpireTurnInput command = new ExpireTurnInput(gameTurn.gameId(), gameTurn.version());
+        Optional<ExpireTurnTimeoutResult> optResult =
+                transactionExecutor.execute(() ->
+                        expireTurnService.expire(
+                                gameTurn.gameId(),
+                                gameTurn.version()
+                        )
+                );
 
-        Optional<ExpireTurnOutput> output = expireTurnService.execute(command);
+        if (optResult.isEmpty()) return;
 
-        if (output.isEmpty()) return;
+        auditService.game(
+                gameTurn.gameId().toString(),
+                gameTurn.matchId().toString(),
+                Level.INFO,
+                "Jogador %s (%s) passou a vez (%s/3) para ser removido".formatted(
+                        gameTurn.player().getNickname(),
+                        gameTurn.player().getUserId(),
+                        gameTurn.player().getPassedTurn()
+                )
+        );
 
-        ExpireTurnOutput result = output.get();
+        if (gameTurn.player().getPassedTurn() == 3) {
+            auditService.game(
+                    gameTurn.gameId().toString(),
+                    gameTurn.matchId().toString(),
+                    Level.INFO,
+                    "Jogador %s (%s) foi removido da sala por inatividade".formatted(
+                            gameTurn.player().getNickname(),
+                            gameTurn.player().getUserId()
+                    )
+            );
+        }
+
+        ExpireTurnTimeoutResult result = optResult.get();
 
         TurnExpired data = new TurnExpired(
                 result.event(),
-                new TurnExpired.ExpiredData(result.user().toString(), result.currentPlayerTurnId().toString())
+                new TurnExpired.ExpiredData(result.user(), result.currentPlayerTurnId())
         );
 
         gameNotifier.notifierAll(result.game(), data);
 
-        if (result.removedBecauseAfk()) {
+        result.gameOver().ifPresent(over -> {
             gameNotifier.notifierOne(
                     result.user(),
                     new RemovedBecauseInactivity("REMOVED_BECAUSE_INACTIVITY")
             );
-        }
 
-        if (result.gameOverResult().finished()) {
-            gameNotifier.notifierGameOver(result.game(), result.gameOverResult());
-        }
+            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), over);
+
+            Game game = result.game();
+
+            auditService.game(
+                    game.getId().toString(),
+                    game.getGameState().getMatchId().toString(),
+                    Level.INFO,
+                    "A partida acabou | Vencedor: {} ({}) - Pontuação: {} | Perdedor: {} ({}) - Pontuação: {}",
+                    over.winner().getNickname(),
+                    over.winner().getUserId().toString(),
+                    over.winner().getScore(),
+                    over.loser().getNickname(),
+                    over.loser().getUserId().toString(),
+                    over.loser().getScore()
+            );
+
+            gameNotifier.notifierGameOver(result.game(), dto);
+
+            roomTimeoutManager.start(game);
+        });
 
         if (result.game().getGameStatus().equals(GameStatus.RUNNING)) {
             start(result.game());
         }
+    }
+
+    private Player getCurrentPlayer(GameState state) {
+        return state.getPlayerOrThrow(state.currentPlayerTurn());
     }
 }

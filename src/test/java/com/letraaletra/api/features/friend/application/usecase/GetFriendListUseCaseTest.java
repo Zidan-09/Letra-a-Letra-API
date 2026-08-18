@@ -26,19 +26,19 @@ class GetFriendListUseCaseTest {
     @InjectMocks
     private GetFriendListUseCase useCase;
 
-    private String userId;
+    private UUID userId;
     private GetFriendListInput input;
 
     @BeforeEach
     void setup() {
-        userId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID();
         input = GetFriendListMapper.toInput(userId);
     }
 
     @Test
     @DisplayName("should get friends list correctly")
     void getFriends() {
-        when(repository.getFriends(UUID.fromString(userId)))
+        when(repository.getFriends(userId))
                 .thenReturn(List.of());
 
         GetFriendListOutput output = useCase.execute(input);

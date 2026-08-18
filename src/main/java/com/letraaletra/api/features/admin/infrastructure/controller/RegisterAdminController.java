@@ -1,0 +1,44 @@
+package com.letraaletra.api.features.admin.infrastructure.controller;
+
+import com.letraaletra.api.features.admin.application.input.RegisterAdminInput;
+import com.letraaletra.api.features.admin.application.output.RegisterAdminOutput;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.request.RegisterAdminRequest;
+import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.RegisterAdminResponse;
+import com.letraaletra.api.features.admin.infrastructure.presentation.mapper.RegisterAdminMapper;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/admin")
+@Tag(name = "Admin", description = "Rotas relacionadas a parte de administração")
+public class RegisterAdminController {
+    private final UseCase<RegisterAdminInput, RegisterAdminOutput> useCase;
+
+    @Transactional
+    @PostMapping()
+    public synchronized ResponseEntity<SuccessResponse<RegisterAdminResponse>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @Valid @RequestBody RegisterAdminRequest request
+    ) {
+        RegisterAdminInput input = RegisterAdminMapper.toInput(principal, request);
+
+        RegisterAdminOutput output = useCase.execute(input);
+
+        RegisterAdminResponse dto = RegisterAdminMapper.toResponse(output);
+
+        return ApiResponseHandler.success(dto);
+    }
+}

@@ -1,0 +1,44 @@
+package com.letraaletra.api.features.cosmetic.infrastructure.controller;
+
+import com.letraaletra.api.features.cosmetic.application.input.DeleteCosmeticInput;
+import com.letraaletra.api.features.cosmetic.application.output.DeleteCosmeticOutput;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.dto.response.DeleteCosmeticResponse;
+import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.DeleteCosmeticMapper;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/cosmetic")
+@Tag(name = "Cosmetics", description = "Rotas relacionadas ao gerenciamento de cosméticos")
+public class DeleteCosmeticController {
+    private final UseCase<DeleteCosmeticInput, DeleteCosmeticOutput> useCase;
+
+    @Transactional
+    @DeleteMapping(path = "/{cosmeticId}")
+    public ResponseEntity<SuccessResponse<DeleteCosmeticResponse>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @PathVariable UUID cosmeticId
+    ) {
+        DeleteCosmeticInput input = DeleteCosmeticMapper.toInput(principal, cosmeticId);
+
+        DeleteCosmeticOutput output = useCase.execute(input);
+
+        DeleteCosmeticResponse dto = DeleteCosmeticMapper.toResponse(output);
+
+        return ApiResponseHandler.success(dto);
+    }
+}

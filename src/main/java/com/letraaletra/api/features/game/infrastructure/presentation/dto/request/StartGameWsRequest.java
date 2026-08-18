@@ -13,6 +13,10 @@ public record StartGameWsRequest(
 
         @NotNull
         @Valid
-        GameSettingsDTO settings
+        GameSettingsRequest settings
 ) implements WsRequest {
+        @Override
+        public String getAudit() {
+                return "started game";
+        }
 }

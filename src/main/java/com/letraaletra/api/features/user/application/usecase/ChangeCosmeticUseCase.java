@@ -5,7 +5,7 @@ import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exceptions.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 
 public class ChangeCosmeticUseCase implements UseCase<ChangeCosmeticInput, ChangeCosmeticOutput> {
     private final UserRepository userRepository;
@@ -19,10 +19,16 @@ public class ChangeCosmeticUseCase implements UseCase<ChangeCosmeticInput, Chang
         User user = userRepository.find(input.userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        user.equipCosmetic(input.cosmeticId());
+        user.getInventory().equipCosmetic(input.cosmeticId());
 
         userRepository.save(user);
 
-        return new ChangeCosmeticOutput(user.getInventory());
+        return buildOutput(user);
+    }
+
+    private ChangeCosmeticOutput buildOutput(User user) {
+        return new ChangeCosmeticOutput(
+            user
+        );
     }
 }

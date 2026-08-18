@@ -1,12 +1,7 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.exception.UserBannedException;
-import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.participant.domain.factory.ParticipantFactory;
 import com.letraaletra.api.features.user.domain.User;
-
-import java.util.UUID;
 
 public class JoinGameActorCommand implements ActorCommand<Game> {
     private final User user;
@@ -19,19 +14,10 @@ public class JoinGameActorCommand implements ActorCommand<Game> {
 
     @Override
     public Game execute(Game game) {
-        checkIfBlackListed(game, user.getId());
 
-        Participant participant = ParticipantFactory.fromUser(user, session);
-
-        game.join(participant);
+        game.join(user, session);
         user.enterGame(game.getId());
 
         return game;
-    }
-
-    private void checkIfBlackListed(Game game, UUID userId) {
-        if (game.isBlackListed(userId)) {
-            throw new UserBannedException();
-        }
     }
 }

@@ -1,10 +1,14 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
-import com.letraaletra.api.features.user.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryJpaMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,12 +24,26 @@ public class JpaUserInventoryRepository implements InventoryRepository {
 
     @Override
     public List<InventoryItem> getCosmetics(UUID userId) {
-        return repository.findInventoryItemsByUserId(userId);
+        return repository.findInventory(userId).stream()
+                .map(UserInventoryJpaMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Page<InventoryItem> getUsersCosmeticsPage(UUID userId, UsersPage page) {
+        Pageable pageable = PageRequest.of(
+                page.page(),
+                page.size(),
+                page.sort()
+        );
+
+        return repository.findInventoryPage(userId, pageable)
+                .map(UserInventoryJpaMapper::toDomain);
     }
 
     @Override
     public void save(InventoryItem inventory, UUID userId) {
-        UserInventoryJpaEntity entity = UserInventoryMapper.toEntity(userId, inventory);
+        UserInventoryJpaEntity entity = UserInventoryJpaMapper.toEntity(userId, inventory);
         repository.save(entity);
     }
 }

@@ -22,5 +22,5 @@ public class UserWalletJpaEntity {
     private long softCoins;
 
     @Column(name = "hard_gems", nullable = false)
-    private long hard_gems;
+    private long hardGems;
 }

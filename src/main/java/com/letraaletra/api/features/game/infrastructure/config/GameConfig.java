@@ -1,64 +1,40 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.service.CloseRoomDueToTimeoutService;
-import com.letraaletra.api.features.game.application.service.ExpireTurnService;
-import com.letraaletra.api.features.game.domain.board.cell.service.CellFactory;
+import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.RoomCodeService;
+import com.letraaletra.api.features.game.application.port.SelectThemeService;
+import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
+import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
-import com.letraaletra.api.features.game.application.port.GameTimeoutManager;
-import com.letraaletra.api.features.game.application.port.TurnTimeoutManager;
-import com.letraaletra.api.features.game.application.service.GameOverHandler;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.application.usecase.*;
-import com.letraaletra.api.features.user.application.service.UpdateStatsService;
-import com.letraaletra.api.features.game.application.service.PickRandomThemeWordsService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.board.service.BoardGenerator;
-import com.letraaletra.api.features.game.domain.factory.DefaultGameFactory;
-import com.letraaletra.api.features.game.domain.factory.DefaultGameStateFactory;
-import com.letraaletra.api.features.game.domain.factory.GameStateFactory;
-import com.letraaletra.api.features.game.domain.service.GenerateRoomCode;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
-import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
-import com.letraaletra.api.features.matchmaking.application.usecase.JoinMatchmakingQueueUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
+import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Random;
-
 @Configuration
 public class GameConfig {
-    @Bean
-    public CloseRoomDueToTimeoutService closeRoomDueToTimeoutUseCase(
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameRepository gameRepository
-    ) {
-        return new CloseRoomDueToTimeoutService(
-                userRepository,
-                actorManager,
-                gameRepository
-        );
-    }
-
     @Bean
     public CreateGameUseCase createGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
             ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
-            GameQueryService gameQueryService,
-            GenerateRoomCode generateRoomCode
+            RoomTimeoutManager roomTimeoutManager,
+            RoomCodeService roomCodeService
     ) {
         return new CreateGameUseCase(
                 userRepository,
                 gameRepository,
                 actorManager,
-                gameTimeoutManager,
-                gameQueryService,
-                generateRoomCode
+                roomTimeoutManager,
+                roomCodeService
         );
     }
 
@@ -81,126 +57,68 @@ public class GameConfig {
     public LeftGameUseCase leftGameUseCase(
             GameActorManager gameActorManager,
             UserRepository userRepository,
-            GameRepository gameRepository
+            GameRepository gameRepository,
+            RoomTimeoutManager roomTimeoutManager,
+            GameOverService gameOverService
     ) {
         return new LeftGameUseCase(
                 gameActorManager,
                 userRepository,
-                gameRepository
+                gameRepository,
+                roomTimeoutManager,
+                gameOverService
         );
     }
 
     @Bean
     public StartGameUseCase startGameUseCase(
-             GameStateFactory gameStateFactory,
-             ThemeRepository themeRepository,
-             GameTimeoutManager gameTimeoutManager,
-             PickRandomThemeWordsService pickRandomThemeWordsService,
-             BoardGenerator boardGenerator,
+            GameRepository gameRepository,
+             RoomTimeoutManager roomTimeoutManager,
+             SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
              GameActorManager gameActorManager
     ) {
         return new StartGameUseCase(
-                gameStateFactory,
-                themeRepository,
-                gameTimeoutManager,
-                pickRandomThemeWordsService,
-                boardGenerator,
+                gameRepository,
+                roomTimeoutManager,
+                themeService,
                 turnTimeoutManager,
                 gameActorManager
         );
     }
 
     @Bean
-    public ExpireTurnService expireTurnUseCase(
-            GameActorManager gameActorManager,
-            GameOverHandler gameOverHandler,
-            UserRepository userRepository
-    ) {
-        return new ExpireTurnService(gameActorManager, gameOverHandler, userRepository);
-    }
-
-    @Bean
-    public PickRandomThemeWordsService pickRandomThemeWordsUseCase(ThemeRepository themeRepository) {
-        return new PickRandomThemeWordsService(themeRepository, new Random());
-    }
-
-    @Bean
-    public JoinMatchmakingQueueUseCase joinMatchmakingQueueUseCase(
-            MatchmakingRepository matchmakingRepository,
+    public GameResponseAssemblerService gameResponseAssemblerService(
             UserRepository userRepository,
+            SessionRepository sessionRepository,
+            RankingPointsService rankingPointsService
+    ) {
+        return new GameResponseAssemblerService(
+                userRepository,
+                sessionRepository,
+                rankingPointsService
+        );
+    }
+
+    @Bean
+    public GetGamesUseCase getGamesUseCase(
             GameRepository gameRepository,
+            AdminChecker adminChecker
+    ) {
+        return new GetGamesUseCase(
+                gameRepository,
+                adminChecker
+        );
+    }
+
+    @Bean
+    public GetActiveGamesUseCase getActiveGamesUseCase(
             GameQueryService gameQueryService,
-            DefaultGameStateFactory defaultGameStateFactory,
-            DefaultGameFactory defaultGameFactory,
-            PickRandomThemeWordsService pickRandomThemeWordsService,
-            GenerateRoomCode generateRoomCode,
-            TurnTimeoutManager turnTimeoutManager,
-            ActorManager<Game> actorManager
+            AdminChecker adminChecker
     ) {
-        return new JoinMatchmakingQueueUseCase(
-                matchmakingRepository,
-                userRepository,
-                gameRepository,
+        return new GetActiveGamesUseCase(
                 gameQueryService,
-                defaultGameStateFactory,
-                defaultGameFactory,
-                pickRandomThemeWordsService,
-                generateRoomCode,
-                turnTimeoutManager,
-                actorManager
+                adminChecker
         );
-    }
-
-    @Bean
-    public GameOverHandler gameOverHandler(
-            GameRepository gameRepository,
-            UserRepository userRepository,
-            ActorManager<Game> actorManager,
-            GameTimeoutManager gameTimeoutManager,
-            UpdateStatsService updateStatsService
-    ) {
-        return new GameOverHandler(
-                gameRepository,
-                userRepository,
-                actorManager,
-                gameTimeoutManager,
-                updateStatsService
-        );
-    }
-
-    @Bean
-    public UpdateStatsService updateStatsService(UserRepository userRepository) {
-        return new UpdateStatsService(userRepository);
-    }
-
-    @Bean
-    public BoardGenerator boardGenerator(CellFactory cellFactory) {
-        return new BoardGenerator(cellFactory);
-    }
-
-    @Bean
-    public CellFactory cellFactory() {
-        return new CellFactory(new Random());
-    }
-
-    @Bean
-    public GameStateFactory gameStateGenerator() {
-        return new GameStateFactory();
-    }
-
-    @Bean
-    public GenerateRoomCode generateRoomCode() {
-        return new GenerateRoomCode();
-    }
-
-    @Bean
-    public DefaultGameStateFactory defaultGameStateGenerator(GameStateFactory gameStateFactory, BoardGenerator boardGenerator) {
-        return new DefaultGameStateFactory(gameStateFactory, boardGenerator);
-    }
-
-    @Bean
-    public DefaultGameFactory defaultGameGenerator() {
-        return new DefaultGameFactory();
     }
 }
