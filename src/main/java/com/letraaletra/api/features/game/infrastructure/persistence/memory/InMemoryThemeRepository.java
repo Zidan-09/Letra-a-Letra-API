@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.persistence.memory;
 
-import com.letraaletra.api.features.game.domain.repository.ThemeRepository;
+import com.letraaletra.api.features.game.domain.board.theme.repository.ThemeRepository;
 import com.letraaletra.api.features.game.domain.board.theme.Theme;
 import com.letraaletra.api.features.game.infrastructure.loader.ThemeLoader;
 import org.springframework.stereotype.Repository;

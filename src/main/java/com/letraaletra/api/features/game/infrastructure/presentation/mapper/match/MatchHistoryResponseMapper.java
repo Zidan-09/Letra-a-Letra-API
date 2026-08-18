@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.presentation.mapper.match;
 
-import com.letraaletra.api.features.game.domain.state.MatchHistory;
+import com.letraaletra.api.features.game.domain.history.MatchHistory;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.match.MatchHistoryResponse;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.match.PlayerHistoryResponse;
 import com.letraaletra.api.features.player.domain.PlayerHistory;

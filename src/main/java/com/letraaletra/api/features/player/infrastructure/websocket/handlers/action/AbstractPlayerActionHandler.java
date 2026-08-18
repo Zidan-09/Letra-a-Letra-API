@@ -6,7 +6,7 @@ import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.HandlerResult;
 import com.letraaletra.api.features.player.domain.Player;
-import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionRequest;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.response.PlayerActionResponse;
 import com.letraaletra.api.features.player.infrastructure.presentation.mapper.PlayerActionMapper;

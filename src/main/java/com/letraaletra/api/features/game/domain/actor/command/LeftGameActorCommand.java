@@ -5,7 +5,7 @@ import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;

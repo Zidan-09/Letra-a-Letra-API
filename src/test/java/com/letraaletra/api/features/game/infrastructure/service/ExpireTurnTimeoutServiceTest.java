@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
 import com.letraaletra.api.features.game.application.port.GameOverService;
-import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;

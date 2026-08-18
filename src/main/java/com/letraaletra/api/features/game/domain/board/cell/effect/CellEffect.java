@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.domain.board.cell.effect;
 
 import com.letraaletra.api.features.game.domain.board.cell.Cell;
-import com.letraaletra.api.features.game.domain.board.power.actions.GameAction;
+import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 
 import java.util.UUID;
 

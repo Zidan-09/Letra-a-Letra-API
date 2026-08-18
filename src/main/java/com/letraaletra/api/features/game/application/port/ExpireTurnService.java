@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.application.port;
 
-import com.letraaletra.api.features.game.domain.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
 
 import java.util.Optional;
 import java.util.UUID;

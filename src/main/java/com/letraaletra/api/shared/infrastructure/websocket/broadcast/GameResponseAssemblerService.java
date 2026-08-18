@@ -11,7 +11,7 @@ import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.R
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.service.GameOver;
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;

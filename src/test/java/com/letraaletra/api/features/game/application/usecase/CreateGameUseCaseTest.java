@@ -4,9 +4,9 @@ import com.letraaletra.api.features.game.application.input.CreateGameInput;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.RoomSettings;
+import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.service.GameTimeoutManager;
+import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
@@ -40,7 +40,7 @@ class CreateGameUseCaseTest {
     private ActorManager<Game> actorManager;
 
     @Mock
-    private GameTimeoutManager gameTimeoutManager;
+    private RoomTimeoutManager roomTimeoutManager;
 
     @Mock
     private RoomCodeService roomCodeService;
@@ -93,7 +93,7 @@ class CreateGameUseCaseTest {
         verify(gameRepository).save(game);
 
         verify(actorManager).create(game.getId(), game);
-        verify(gameTimeoutManager).start(game);
+        verify(roomTimeoutManager).start(game);
     }
 
     @Test
@@ -110,6 +110,6 @@ class CreateGameUseCaseTest {
         verify(userRepository, never()).save(any());
         verify(gameRepository, never()).save(any());
         verify(actorManager, never()).create(any(), any());
-        verify(gameTimeoutManager, never()).start(any());
+        verify(roomTimeoutManager, never()).start(any());
     }
 }
