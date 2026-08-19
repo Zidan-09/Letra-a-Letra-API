@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.offers.domain;
+package com.letraaletra.api.features.reward.domain;
 
 public enum RewardType {
     COIN,

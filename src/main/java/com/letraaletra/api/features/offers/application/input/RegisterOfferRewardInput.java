@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.offers.application.input;
 
-import com.letraaletra.api.features.offers.domain.RewardType;
+import com.letraaletra.api.features.reward.domain.RewardType;
 
 import java.util.UUID;
 

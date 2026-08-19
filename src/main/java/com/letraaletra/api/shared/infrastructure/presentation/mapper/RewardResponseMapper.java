@@ -1,11 +1,11 @@
 package com.letraaletra.api.shared.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.cosmetic.infrastructure.presentation.mapper.CosmeticResponseMapper;
-import com.letraaletra.api.features.offers.domain.RewardType;
-import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
-import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
-import com.letraaletra.api.shared.domain.rewards.Reward;
-import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.features.reward.domain.RewardType;
+import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.Reward;
+import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.reward.RewardResponse;
 
 public class RewardResponseMapper {

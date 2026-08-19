@@ -13,10 +13,10 @@ import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.j
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.jpa.SpringDataLevelRewardRepository;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelMapper;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelRewardMapper;
-import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
-import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
-import com.letraaletra.api.shared.domain.rewards.Reward;
-import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.Reward;
+import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.domain.rewards;
+package com.letraaletra.api.features.reward.domain;
 
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.user.domain.User;

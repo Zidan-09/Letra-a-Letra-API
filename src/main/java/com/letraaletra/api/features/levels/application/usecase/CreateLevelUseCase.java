@@ -10,7 +10,7 @@ import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.RewardFactory;
+import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.List;

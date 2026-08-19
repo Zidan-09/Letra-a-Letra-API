@@ -3,7 +3,7 @@ package com.letraaletra.api.features.offers.infrastructure.config;
 import com.letraaletra.api.features.offers.application.usecase.*;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.RewardFactory;
+import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

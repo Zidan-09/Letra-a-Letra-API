@@ -2,11 +2,11 @@ package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.
 
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
-import com.letraaletra.api.features.offers.domain.RewardType;
-import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
-import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
-import com.letraaletra.api.shared.domain.rewards.Reward;
-import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.features.reward.domain.RewardType;
+import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.Reward;
+import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 
 import java.util.UUID;
 

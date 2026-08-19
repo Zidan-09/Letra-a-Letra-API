@@ -12,7 +12,7 @@ import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsException;
 import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
-import com.letraaletra.api.features.offers.domain.RewardType;
+import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
