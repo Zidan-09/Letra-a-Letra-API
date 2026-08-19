@@ -1,1 +1,0 @@
-start "API" cmd /k "mvnw spring-boot:run -Dspring-boot.run.profiles=test"
