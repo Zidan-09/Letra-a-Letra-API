@@ -4,7 +4,7 @@ import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepositor
 import com.letraaletra.api.features.levels.application.usecase.*;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.RewardFactory;
+import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

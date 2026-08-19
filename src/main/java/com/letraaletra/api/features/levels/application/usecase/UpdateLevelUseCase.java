@@ -15,9 +15,9 @@ import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundExcepti
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.rewards.CosmeticReward;
-import com.letraaletra.api.shared.domain.rewards.HardGemsReward;
-import com.letraaletra.api.shared.domain.rewards.SoftCoinsReward;
+import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 
 import java.util.List;
 import java.util.UUID;

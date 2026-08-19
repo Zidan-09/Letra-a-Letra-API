@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.domain.rewards;
+package com.letraaletra.api.features.reward.domain;
 
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;

@@ -11,9 +11,9 @@ import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.RewardFactory;
+import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.rewards.Reward;
+import com.letraaletra.api.features.reward.domain.Reward;
 
 import java.util.UUID;
 
