@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.ranking.application.usecase;
 
+import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
-import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.QueueChecker;
-import com.letraaletra.api.shared.domain.OnlineUser;
-import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.exception.UserAlreadyOnQueueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,13 +27,10 @@ import static org.mockito.Mockito.*;
 class JoinRankingUseCaseTest {
 
     @Mock
-    private RankingRepository rankingRepository;
+    private QueueRepository queueRepository;
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private QueueChecker queueChecker;
 
     @InjectMocks
     private JoinRankingUseCase useCase;
@@ -58,11 +55,11 @@ class JoinRankingUseCaseTest {
     void shouldAddUserToRankingQueueSuccessfully() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
-        when(queueChecker.checkQueues(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
 
         useCase.execute(input);
 
-        verify(rankingRepository, times(1)).add(onlineUser);
+        verify(queueRepository, times(1)).add(QueueType.RANKING, onlineUser);
     }
 
     @Test
@@ -72,8 +69,7 @@ class JoinRankingUseCaseTest {
 
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(queueChecker);
-        verifyNoInteractions(rankingRepository);
+        verifyNoInteractions(queueRepository);
     }
 
     @Test
@@ -84,8 +80,7 @@ class JoinRankingUseCaseTest {
 
         assertThrows(UserAlreadyInGameException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(queueChecker);
-        verify(rankingRepository, never()).add(any());
+        verify(queueRepository, never()).add(any(), any());
     }
 
     @Test
@@ -93,10 +88,10 @@ class JoinRankingUseCaseTest {
     void shouldThrowExceptionWhenUserIsAlreadyInAQueue() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
-        when(queueChecker.checkQueues(userId)).thenReturn(true);
+        when(queueRepository.onQueue(userId)).thenReturn(true);
 
         assertThrows(UserAlreadyOnQueueException.class, () -> useCase.execute(input));
 
-        verify(rankingRepository, never()).add(any());
+        verify(queueRepository, never()).add(any(), any());
     }
 }

@@ -18,7 +18,7 @@ import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import com.letraaletra.api.shared.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.QueueType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,6 @@ public class MatchmakingAssembler implements GameAssemblerService {
 
     public Game create(
             MatchmakingPair users,
-            GameMode gameMode,
             QueueType queueType
     ) {
         List<User> userList = userRepository.findUsersById(
@@ -78,7 +77,11 @@ public class MatchmakingAssembler implements GameAssemblerService {
 
         List<String> words = themeService.select();
 
-        Board board = BoardGenerator.generate(words, gameMode);
+        GameMode mode = queueType.equals(QueueType.CASUAL) ?
+                GameMode.NORMAL :
+                GameMode.HARD;
+
+        Board board = BoardGenerator.generate(words, mode);
 
         future = actor.enqueueCommand(new StartMatchGameActorCommand(
                 board,

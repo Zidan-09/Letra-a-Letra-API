@@ -2,14 +2,14 @@ package com.letraaletra.api.features.matchmaking.application.usecase;
 
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
+import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.QueueChecker;
-import com.letraaletra.api.shared.domain.OnlineUser;
-import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.exception.UserAlreadyOnQueueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,13 +28,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @ExtendWith(MockitoExtension.class)
 class JoinMatchmakingQueueUseCaseTest {
     @Mock
-    private MatchmakingRepository matchmakingRepository;
+    private QueueRepository queueRepository;
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private QueueChecker queueChecker;
 
     @InjectMocks
     private JoinMatchmakingQueueUseCase useCase;
@@ -59,11 +56,11 @@ class JoinMatchmakingQueueUseCaseTest {
     void shouldAddUserToRankingQueueSuccessfully() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
-        when(queueChecker.checkQueues(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
 
         useCase.execute(input);
 
-        verify(matchmakingRepository, times(1)).add(onlineUser, GameMode.NORMAL);
+        verify(queueRepository, times(1)).add(QueueType.CASUAL, onlineUser);
     }
 
     @Test
@@ -73,8 +70,7 @@ class JoinMatchmakingQueueUseCaseTest {
 
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(queueChecker);
-        verifyNoInteractions(matchmakingRepository);
+        verifyNoInteractions(queueRepository);
     }
 
     @Test
@@ -85,8 +81,7 @@ class JoinMatchmakingQueueUseCaseTest {
 
         assertThrows(UserAlreadyInGameException.class, () -> useCase.execute(input));
 
-        verifyNoInteractions(queueChecker);
-        verify(matchmakingRepository, never()).add(any(), any());
+        verify(queueRepository, never()).add(eq(QueueType.CASUAL), any());
     }
 
     @Test
@@ -94,10 +89,10 @@ class JoinMatchmakingQueueUseCaseTest {
     void shouldThrowExceptionWhenUserIsAlreadyInAQueue() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
-        when(queueChecker.checkQueues(userId)).thenReturn(true);
+        when(queueRepository.onQueue(userId)).thenReturn(true);
 
         assertThrows(UserAlreadyOnQueueException.class, () -> useCase.execute(input));
 
-        verify(matchmakingRepository, never()).add(any(), any());
+        verify(queueRepository, never()).add(eq(QueueType.CASUAL), any());
     }
 }

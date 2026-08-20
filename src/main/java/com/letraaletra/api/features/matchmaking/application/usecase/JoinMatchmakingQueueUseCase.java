@@ -1,29 +1,26 @@
 package com.letraaletra.api.features.matchmaking.application.usecase;
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
+import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
-import com.letraaletra.api.shared.application.port.QueueChecker;
-import com.letraaletra.api.shared.domain.OnlineUser;
-import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.exception.UserAlreadyOnQueueException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput, Void> {
-    private final MatchmakingRepository matchmakingRepository;
+    private final QueueRepository queueRepository;
     private final UserRepository userRepository;
-    private final QueueChecker queueChecker;
 
     public JoinMatchmakingQueueUseCase(
-            MatchmakingRepository matchmakingRepository,
-            UserRepository userRepository,
-            QueueChecker queueChecker
+            QueueRepository queueRepository,
+            UserRepository userRepository
     ) {
-        this.matchmakingRepository = matchmakingRepository;
+        this.queueRepository = queueRepository;
         this.userRepository = userRepository;
-        this.queueChecker = queueChecker;
     }
 
     @Override
@@ -35,11 +32,11 @@ public class JoinMatchmakingQueueUseCase implements UseCase<JoinMatchmakingInput
 
         if (!user.isNotInGame()) throw new UserAlreadyInGameException();
 
-        boolean alreadyOnQueue = queueChecker.checkQueues(onlineUser.userId());
+        boolean alreadyOnQueue = queueRepository.onQueue(onlineUser.userId());
 
         if (alreadyOnQueue) throw new UserAlreadyOnQueueException();
 
-        matchmakingRepository.add(onlineUser, input.gameMode());
+        queueRepository.add(QueueType.CASUAL, onlineUser);
 
         return null;
     }

@@ -7,7 +7,7 @@ import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.mapper.MatchSuccessMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankSuccessResponse;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingSuccessMapper;
-import com.letraaletra.api.shared.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.QueueType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

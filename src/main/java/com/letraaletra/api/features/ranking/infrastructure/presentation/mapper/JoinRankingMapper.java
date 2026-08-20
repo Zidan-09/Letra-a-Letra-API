@@ -3,7 +3,7 @@ package com.letraaletra.api.features.ranking.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingStatus;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.JoinRankingResponse;
-import com.letraaletra.api.shared.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
 
 import java.util.UUID;
 

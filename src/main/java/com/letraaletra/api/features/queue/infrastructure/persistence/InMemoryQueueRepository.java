@@ -1,28 +1,32 @@
-package com.letraaletra.api.features.ranking.infrastructure.persistence.memory;
+package com.letraaletra.api.features.queue.infrastructure.persistence;
 
-import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
-import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
-import com.letraaletra.api.shared.domain.OnlineUser;
-import com.letraaletra.api.shared.domain.QueueMatch;
-import com.letraaletra.api.shared.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.QueueMatch;
+import com.letraaletra.api.features.queue.domain.QueueType;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Repository
-public class InMemoryRankingRepository implements RankingRepository {
+public class InMemoryQueueRepository implements QueueRepository {
     private final Map<UUID, OnlineUser> users = new ConcurrentHashMap<>();
-    private final Queue<OnlineUser> queue = new ConcurrentLinkedDeque<>();
+    private final Map<QueueType, Queue<OnlineUser>> queues = new EnumMap<>(QueueType.class);
+
+    public InMemoryQueueRepository() {
+        for (QueueType type : QueueType.values()) {
+            queues.put(type, new ConcurrentLinkedDeque<>());
+        }
+    }
 
     @Override
-    public void add(OnlineUser onlineUser) {
+    public void add(QueueType type, OnlineUser onlineUser) {
        if (users.putIfAbsent(onlineUser.userId(), onlineUser) == null) {
+           Queue<OnlineUser> queue = queues.get(type);
+
            queue.add(onlineUser);
        }
     }
@@ -30,10 +34,10 @@ public class InMemoryRankingRepository implements RankingRepository {
     @Override
     public void remove(UUID id) {
         OnlineUser onlineUser = users.remove(id);
-
+        
         if (onlineUser == null) return;
-
-        queue.remove(onlineUser);
+        
+        queues.values().forEach(q -> q.remove(onlineUser));
     }
 
     @Override
@@ -42,7 +46,9 @@ public class InMemoryRankingRepository implements RankingRepository {
     }
 
     @Override
-    public Optional<QueueMatch> pollPair() {
+    public Optional<QueueMatch> pollPair(QueueType type) {
+        Queue<OnlineUser> queue = queues.get(type);
+
         synchronized (queue) {
             if (queue.size() < 2) {
                 return Optional.empty();
@@ -51,7 +57,9 @@ public class InMemoryRankingRepository implements RankingRepository {
             OnlineUser first = queue.poll();
             OnlineUser second = queue.poll();
 
-            if (first == null || second == null) return Optional.empty();
+            if (first == null || second == null) {
+                return Optional.empty();
+            }
 
             users.remove(first.userId());
             users.remove(second.userId());
@@ -59,8 +67,7 @@ public class InMemoryRankingRepository implements RankingRepository {
             return Optional.of(
                     new QueueMatch(
                             new MatchmakingPair(first, second),
-                            GameMode.HARD,
-                            QueueType.RANKING
+                            type
                     )
             );
         }

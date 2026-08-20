@@ -3,11 +3,11 @@ package com.letraaletra.api.features.participant.infrastructure.config;
 import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.features.participant.application.usecase.*;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import org.springframework.context.annotation.Bean;
@@ -32,13 +32,13 @@ public class ParticipantConfig {
     public DisconnectUseCase disconnectUseCase(
             GameActorManager gameActorManager,
             DisconnectScheduler disconnectScheduler,
-            MatchmakingRepository matchmakingRepository,
+            QueueRepository queueRepository,
             UserRepository userRepository
     ) {
         return new DisconnectUseCase(
                 gameActorManager,
                 disconnectScheduler,
-                matchmakingRepository,
+                queueRepository,
                 userRepository
         );
     }

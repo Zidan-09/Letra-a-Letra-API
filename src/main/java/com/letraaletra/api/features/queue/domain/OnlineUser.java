@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.domain;
+package com.letraaletra.api.features.queue.domain;
 
 import java.util.UUID;
 
