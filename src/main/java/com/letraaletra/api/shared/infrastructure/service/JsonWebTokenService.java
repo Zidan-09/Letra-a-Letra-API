@@ -23,12 +23,12 @@ public class JsonWebTokenService implements TokenService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateUserToken(UUID id, int tokenVersion) {
+    public String generateUserToken(UUID id, UUID tokenVersion) {
         return Jwts.builder()
                 .subject(id.toString())
                 .claims(Map.of(
                         "role", Roles.USER.name(),
-                        "tokenVersion", tokenVersion)
+                        "tokenVersion", tokenVersion.toString())
                 )
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
@@ -37,12 +37,12 @@ public class JsonWebTokenService implements TokenService {
     }
 
     @Override
-    public String generateAdminToken(UUID id, int tokenVersion) {
+    public String generateAdminToken(UUID id, UUID tokenVersion) {
         return Jwts.builder()
                 .subject(id.toString())
                 .claims(Map.of(
                         "role", Roles.ADMIN.name(),
-                        "tokenVersion", tokenVersion)
+                        "tokenVersion", tokenVersion.toString())
                 )
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
@@ -61,9 +61,9 @@ public class JsonWebTokenService implements TokenService {
 
             UUID id = UUID.fromString(claims.getSubject());
             Roles role = Roles.valueOf(claims.get("role", String.class));
-            int tokenVersion = claims.get("tokenVersion", Integer.class);
+            String tokenVersion = claims.get("tokenVersion", String.class);
 
-            return new TokenContent(id, role, tokenVersion);
+            return new TokenContent(id, role, UUID.fromString(tokenVersion));
 
         } catch (Exception ex) {
             throw new InvalidTokenException();

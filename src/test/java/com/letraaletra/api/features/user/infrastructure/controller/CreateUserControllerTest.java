@@ -47,7 +47,7 @@ class CreateUserControllerTest {
                 "email",
                 "email@email.com",
                 "hash-password",
-                1,
+                UUID.randomUUID(),
                 null,
                 UUID.randomUUID(),
                 false,

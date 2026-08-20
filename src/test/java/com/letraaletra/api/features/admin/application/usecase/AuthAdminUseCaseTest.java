@@ -41,7 +41,7 @@ class AuthAdminUseCaseTest {
     private AuthAdminUseCase authAdminUseCase;
 
     private UUID adminId;
-    private int tokenVersion;
+    private UUID tokenVersion;
     private String email;
     private String password;
     private String hashPassword;
@@ -51,7 +51,7 @@ class AuthAdminUseCaseTest {
     @BeforeEach
     void setUp() {
         adminId = UUID.randomUUID();
-        tokenVersion = 1;
+        tokenVersion = UUID.randomUUID();
         email = "admin@letraaletra.com";
         password = "SecurePassword123!";
         hashPassword = "$2a$12$hashedPasswordExample";
