@@ -108,12 +108,12 @@ public class GameState {
     public Optional<GameOver> gameOverBecauseScore() {
         List<Player> playersList = players.values().stream().toList();
 
+        if (playersList.size() < 2) {
+            return Optional.empty();
+        }
+
         Player p1 = playersList.getFirst();
         Player p2 = playersList.get(1);
-
-        if (p1 == null || p2 == null) {
-            throw new UserNotInGameException();
-        }
 
         if (p1.getScore() >= 3) {
             return Optional.of(new GameOver(
@@ -137,12 +137,12 @@ public class GameState {
     public Optional<GameOver> gameOverBecauseAfk() {
         List<Player> playersList = players.values().stream().toList();
 
+        if (playersList.size() < 2) {
+            return Optional.empty();
+        }
+
         Player p1 = playersList.getFirst();
         Player p2 = playersList.getLast();
-
-        if (p1 == null || p2 == null) {
-            throw new UserNotInGameException();
-        }
 
         if (p1.getPassedTurn() >= 3) {
             return Optional.of(new GameOver(

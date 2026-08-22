@@ -95,13 +95,17 @@ public class UserStats {
     }
 
     public int incrementPoints(int userPoints, int opponentPoints) {
-        int pointsToIncrement = userPoints == 3 ?
-                40 - opponentPoints * 10 :
-                -30 + (userPoints * 10) + (userPoints > 0 ? 5 : 0);
+        int pointsToIncrement = calculatePointsDelta(userPoints, opponentPoints);
 
         rankingPoints = Math.max(0, rankingPoints + pointsToIncrement);
 
         return pointsToIncrement;
+    }
+
+    public static int calculatePointsDelta(int userPoints, int opponentPoints) {
+        return userPoints == 3 ?
+                40 - opponentPoints * 10 :
+                -30 + (userPoints * 10) + (userPoints > 0 ? 5 : 0);
     }
 
     private void advanceLevel(int maxLevel) {

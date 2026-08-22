@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.domain.turn;
+package com.letraaletra.api.features.game.application.output;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOver;
@@ -11,6 +11,7 @@ public record ExpireTurnTimeoutResult(
         UUID user,
         UUID currentPlayerTurnId,
         Game game,
-        Optional<GameOver> gameOver
+        Optional<GameOver> gameOver,
+        HandledGameOver handledGameOver
 ) {
 }

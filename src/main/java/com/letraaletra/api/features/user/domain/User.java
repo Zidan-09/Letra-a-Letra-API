@@ -49,7 +49,7 @@ public class User {
         this.tokenVersion = tokenVersion;
         this.googleId = googleId;
         this.currentGameId = currentGameId;
-        this.banInfo = banInfo;
+        this.banInfo = banInfo == null ? BanInfo.create() : banInfo;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.inventory = inventory;
@@ -222,10 +222,10 @@ public class User {
     }
 
     public void unban() {
-        if (banInfo.type() == null) {
+        if (!isBanned()) {
             throw new UserDoesNotHaveBanException();
         }
 
-        banInfo = null;
+        banInfo = BanInfo.create();
     }
 }

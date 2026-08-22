@@ -55,6 +55,9 @@ class PlayerActionUseCaseTest {
     @Mock
     private Player mockPlayer;
 
+    @Mock
+    private com.letraaletra.api.features.user.domain.repository.UserRepository userRepository;
+
     @InjectMocks
     private PlayerActionUseCase playerActionUseCase;
 
@@ -115,9 +118,11 @@ class PlayerActionUseCaseTest {
         );
 
         when(mockGame.getGameStatus()).thenReturn(GameStatus.CLOSED); // Ou o status retornado após o término
+        when(mockGame.getParticipants()).thenReturn(mock(com.letraaletra.api.features.game.domain.participant.Participants.class));
         when(actorManager.get(gameId)).thenReturn(actor);
         when(actor.enqueueCommand(any(PlayerActionActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(actionResult));
+        when(userRepository.findUsersById(any(List.class))).thenReturn(List.of());
 
         PlayerActionOutput output = playerActionUseCase.execute(input);
 

@@ -1,11 +1,13 @@
 package com.letraaletra.api.features.player.application.usecase;
 
 import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.game.domain.actor.result.PlayerActionResult;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -14,6 +16,7 @@ import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,7 +48,7 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
         Actor actor = gameActorManager.get(gameId);
 
         CompletableFuture<PlayerActionResult> future = actor.enqueueCommand(new PlayerActionActorCommand(
-                input.user(), input.action(), turnTimeoutManager, userRepository
+                input.user(), input.action(), turnTimeoutManager
         ));
 
         PlayerActionResult result = future.join();
@@ -54,19 +57,31 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
             roomTimeoutManager.start(result.game());
 
         } else if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
+            releaseParticipants(result.game());
             gameActorManager.remove(result.game().getId());
         }
 
-        result.gameOver().ifPresent(over -> gameOverService.handle(result.game(), over));
+        HandledGameOver handledGameOver = result.gameOver()
+                .map(over -> gameOverService.handle(result.game(), over))
+                .orElseGet(HandledGameOver::withoutRanking);
 
-        return buildOutput(result);
+        return buildOutput(result, handledGameOver);
     }
 
-    private PlayerActionOutput buildOutput(PlayerActionResult result) {
+    private void releaseParticipants(Game game) {
+        List<User> userList = userRepository.findUsersById(game.getParticipants().getIds());
+
+        userList.forEach(User::leaveGame);
+
+        userRepository.saveAll(userList);
+    }
+
+    private PlayerActionOutput buildOutput(PlayerActionResult result, HandledGameOver handledGameOver) {
         return new PlayerActionOutput(
                 result.game(),
                 result.events(),
-                result.gameOver()
+                result.gameOver(),
+                handledGameOver
         );
     }
 }

@@ -16,8 +16,6 @@ import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.state.GameState;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,18 +27,15 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
     private final UUID userId;
     private final GameAction action;
     private final TurnTimeoutManager turnTimeoutManager;
-    private final UserRepository userRepository;
 
     public PlayerActionActorCommand(
             UUID userId,
             GameAction action,
-            TurnTimeoutManager turnTimeoutManager,
-            UserRepository userRepository
+            TurnTimeoutManager turnTimeoutManager
     ) {
         this.userId = userId;
         this.action = action;
         this.turnTimeoutManager = turnTimeoutManager;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -64,18 +59,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         if (gameOver.isPresent()) {
             if (game.getGameType().equals(GameType.CUSTOM)) {
                 game.setGameStatus(GameStatus.WAITING);
-
             } else {
-                List<UUID> userIds = game.getParticipants().getIds();
-
-                List<User> userList = userRepository.findUsersById(userIds);
-
-                for (User user : userList) {
-                    user.leaveGame();
-                }
-
-                userRepository.saveAll(userList);
-
                 game.setGameStatus(GameStatus.CLOSED);
             }
 

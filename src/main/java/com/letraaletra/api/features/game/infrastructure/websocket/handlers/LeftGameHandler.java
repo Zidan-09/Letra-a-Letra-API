@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
@@ -25,7 +27,9 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     @Transactional
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
-        LeftGameInput input = LeftGameMapper.toInput(request, session.getId());
+        UUID userId = resolveUserId(session);
+
+        LeftGameInput input = LeftGameMapper.toInput(request, session.getId(), userId);
 
         LeftGameOutput output = useCase.execute(input);
 
@@ -34,10 +38,24 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
         gameNotifier.notifierAll(output.game(), dto);
 
         output.gameOver().ifPresent(gameOver -> {
-            WsResponse gameOverDto = gameResponseAssembler.assembleGameOver(output.game(), gameOver);
+            WsResponse gameOverDto = gameResponseAssembler.assembleGameOver(
+                    output.game(),
+                    gameOver,
+                    output.handledGameOver()
+            );
 
             gameNotifier.notifierGameOver(output.game(), gameOverDto);
         });
+    }
+
+    private UUID resolveUserId(WebSocketSession session) {
+        Object userId = session.getAttributes().get("userId");
+
+        if (userId == null) {
+            throw new IllegalStateException("User is not authenticated");
+        }
+
+        return UUID.fromString(userId.toString());
     }
 
     @Override

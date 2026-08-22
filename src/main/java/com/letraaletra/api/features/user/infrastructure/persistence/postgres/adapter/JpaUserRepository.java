@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class JpaUserRepository implements UserRepository {
     private final SpringDataUserStatsRepository statsRepository;
 
     @Override
+    @Transactional
     public void save(User user) {
         repository.save(UserJpaMapper.toEntity(user));
 
@@ -50,12 +52,9 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    @Transactional
     public void saveAll(List<User> users) {
-        repository.saveAll(
-                users.stream()
-                        .map(UserJpaMapper::toEntity)
-                        .toList()
-        );
+        users.forEach(this::save);
     }
 
     @Override
