@@ -3,6 +3,10 @@ package com.letraaletra.api.features.user.domain;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
+import com.letraaletra.api.features.user.domain.ban.BanInfo;
+import com.letraaletra.api.features.user.domain.ban.BanType;
+import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
+import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
 import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserCosmeticSelectedException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.inventory.Inventory;
@@ -12,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +74,106 @@ class UserTest {
 
             assertTrue(user.isNotInGame());
             assertNull(user.getCurrentGameId());
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes de Banimento")
+    class BanTests {
+
+        @Test
+        @DisplayName("Usuário recém-criado não está banido e banInfo nunca é nulo")
+        void newUserShouldNotBeBannedAndBanInfoShouldNeverBeNull() {
+            assertFalse(user.isBanned());
+            assertNotNull(user.getBanInfo());
+            assertNull(user.getBanInfo().type());
+        }
+
+        @Test
+        @DisplayName("Deve banir usuário permanentemente quando não há expiração")
+        void shouldBanPermanentlyWhenNoExpiration() {
+            user.ban(null, "comportamento tóxico");
+
+            assertTrue(user.isBanned());
+            assertEquals(BanType.PERMANENT, user.getBanInfo().type());
+            assertEquals("comportamento tóxico", user.getBanInfo().reason());
+        }
+
+        @Test
+        @DisplayName("Deve banir usuário temporariamente quando há expiração")
+        void shouldBanTemporarilyWithExpiration() {
+            LocalDateTime expiresAt = LocalDateTime.now().plusDays(3);
+
+            user.ban(expiresAt, "suspeita");
+
+            assertTrue(user.isBanned());
+            assertEquals(BanType.TEMPORARY, user.getBanInfo().type());
+            assertEquals(expiresAt, user.getBanInfo().expiresAt());
+        }
+
+        @Test
+        @DisplayName("Deve lançar UserAlreadyWasBannedException ao banir usuário já banido")
+        void shouldThrowWhenBanningAlreadyBannedUser() {
+            user.ban(null, "primeiro ban");
+
+            assertThrows(UserAlreadyWasBannedException.class, () -> user.ban(null, "segundo ban"));
+        }
+
+        @Test
+        @DisplayName("Deve remover o ban mantendo a invariante de banInfo nunca nulo")
+        void unbanShouldKeepBanInfoNonNull() {
+            user.ban(LocalDateTime.now().plusDays(1), "motivo");
+
+            user.unban();
+
+            assertFalse(user.isBanned());
+            assertNotNull(user.getBanInfo(), "banInfo deve permanecer não nulo após unban");
+            assertNull(user.getBanInfo().type());
+
+            assertDoesNotThrow(() -> user.isBanned());
+        }
+
+        @Test
+        @DisplayName("Deve lançar UserDoesNotHaveBanException ao desbanir usuário sem ban")
+        void shouldThrowWhenUnbanningUserWithoutBan() {
+            assertThrows(UserDoesNotHaveBanException.class, () -> user.unban());
+        }
+
+        @Test
+        @DisplayName("Deve permitir banir novamente após unban (ciclo completo)")
+        void shouldAllowRebanAfterUnban() {
+            user.ban(null, "primeiro ban");
+            user.unban();
+
+            LocalDateTime expiresAt = LocalDateTime.now().plusDays(7);
+            assertDoesNotThrow(() -> user.ban(expiresAt, "segundo ban"));
+
+            assertTrue(user.isBanned());
+            assertEquals(BanType.TEMPORARY, user.getBanInfo().type());
+        }
+
+        @Test
+        @DisplayName("restore deve normalizar banInfo nulo para estado de não banido")
+        void restoreShouldNormalizeNullBanInfo() {
+            User restored = User.restore(
+                    UUID.randomUUID(),
+                    "restored",
+                    "restored@test.com",
+                    "hash",
+                    UUID.randomUUID(),
+                    null,
+                    null,
+                    true,
+                    null,
+                    user.getStats(),
+                    user.getInventory(),
+                    user.getWallet(),
+                    LocalDateTime.now()
+            );
+
+            assertFalse(restored.isBanned());
+            assertNotNull(restored.getBanInfo());
+            assertDoesNotThrow(restored::isBanned);
         }
     }
 

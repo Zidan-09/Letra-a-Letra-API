@@ -8,9 +8,10 @@ import com.letraaletra.api.features.game.infrastructure.presentation.dto.respons
 import java.util.UUID;
 
 public class LeftGameMapper {
-    public static LeftGameInput toInput(LeftGameWsRequest request, String session) {
+    public static LeftGameInput toInput(LeftGameWsRequest request, String session, UUID userId) {
         return new LeftGameInput(
                 UUID.fromString(request.gameId()),
+                userId,
                 session
         );
     }

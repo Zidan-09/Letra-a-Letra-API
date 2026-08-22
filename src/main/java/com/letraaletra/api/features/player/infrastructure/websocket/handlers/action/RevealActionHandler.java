@@ -34,7 +34,11 @@ public class RevealActionHandler extends AbstractPlayerActionHandler<RevealActio
     @Override
     protected void afterHandle(PlayerActionOutput output) {
         output.gameOver().ifPresent(gameOver -> {
-            WsResponse dto = gameResponseAssembler.assembleGameOver(output.game(), gameOver);
+            WsResponse dto = gameResponseAssembler.assembleGameOver(
+                    output.game(),
+                    gameOver,
+                    output.handledGameOver()
+            );
 
             notifier.notifierGameOver(output.game(), dto);
         });

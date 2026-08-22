@@ -3,9 +3,9 @@ package com.letraaletra.api.features.participant.application.usecase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticipantActorCommand;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -37,7 +37,7 @@ class DisconnectUseCaseTest {
     private DisconnectScheduler disconnectScheduler;
 
     @Mock
-    private MatchmakingRepository matchmakingRepository;
+    private QueueRepository queueRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -76,14 +76,14 @@ class DisconnectUseCaseTest {
 
         // Assert
         assertTrue(result.isEmpty());
-        verifyNoInteractions(matchmakingRepository, userRepository, gameActorManager, disconnectScheduler);
+        verifyNoInteractions(queueRepository, userRepository, gameActorManager, disconnectScheduler);
     }
 
     @Test
     @DisplayName("Should remove user from matchmaking queue if they are currently waiting in line")
     void shouldRemoveUserFromQueueWhenUserIsOnMatchmaking() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(true);
+        when(queueRepository.onQueue(userId)).thenReturn(true);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
 
@@ -92,8 +92,8 @@ class DisconnectUseCaseTest {
 
         // Assert
         assertTrue(result.isEmpty());
-        verify(matchmakingRepository).onQueue(userId);
-        verify(matchmakingRepository).remove(userId);
+        verify(queueRepository).onQueue(userId);
+        verify(queueRepository).remove(userId);
         verify(userRepository).find(userId);
         verifyNoInteractions(gameActorManager, disconnectScheduler);
     }
@@ -102,7 +102,7 @@ class DisconnectUseCaseTest {
     @DisplayName("Should throw UserNotFoundException when target user does not exist in repository")
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -116,7 +116,7 @@ class DisconnectUseCaseTest {
     @DisplayName("Should return empty Optional when user context exists but user profile state is not in a live game")
     void shouldReturnEmptyWhenUserIsNotInAGame() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(true);
 
@@ -125,7 +125,7 @@ class DisconnectUseCaseTest {
 
         // Assert
         assertTrue(result.isEmpty());
-        verify(matchmakingRepository, never()).remove(any());
+        verify(queueRepository, never()).remove(any());
         verifyNoInteractions(gameActorManager, disconnectScheduler);
     }
 
@@ -133,7 +133,7 @@ class DisconnectUseCaseTest {
     @DisplayName("Should successfully handle active game participant disconnect, scheduling disconnect timer")
     void shouldDisconnectActiveParticipantSuccessfully() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
@@ -159,7 +159,7 @@ class DisconnectUseCaseTest {
     @DisplayName("Should force user state cleanup and save changes locally if actor mailbox signals game state is dead")
     void shouldCleanUpUserStateWhenActorReturnsEmptyGameState() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
@@ -182,7 +182,7 @@ class DisconnectUseCaseTest {
     @DisplayName("Should propagate CompletionException directly when actor asynchronous queue command processing execution crashes")
     void shouldPropagateExceptionWhenActorCommandPipelineFails() {
         // Arrange
-        when(matchmakingRepository.onQueue(userId)).thenReturn(false);
+        when(queueRepository.onQueue(userId)).thenReturn(false);
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);

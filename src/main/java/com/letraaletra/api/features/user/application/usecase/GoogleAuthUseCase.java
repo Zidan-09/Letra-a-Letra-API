@@ -11,6 +11,8 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 
+import java.util.UUID;
+
 public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
     private final NicknameService nicknameService;
@@ -43,7 +45,7 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
                     );
                 });
 
-        user.incrementTokenVersion();
+        user.setTokenVersion(UUID.randomUUID());
         String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
 
         userRepository.save(user);

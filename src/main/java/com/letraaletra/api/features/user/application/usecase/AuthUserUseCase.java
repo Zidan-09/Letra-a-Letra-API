@@ -11,6 +11,8 @@ import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordExce
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
+import java.util.UUID;
+
 public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
@@ -33,7 +35,7 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
 
         checkMatch(input.password(), user.getPasswordHash());
 
-        user.incrementTokenVersion();
+        user.setTokenVersion(UUID.randomUUID());
         String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
 
         userRepository.save(user);

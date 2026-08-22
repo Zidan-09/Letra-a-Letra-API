@@ -9,7 +9,7 @@ import com.letraaletra.api.features.game.domain.room.RemovedBecauseInactivity;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameState;
-import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.application.output.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.turn.GameTurn;
 import com.letraaletra.api.features.game.domain.turn.TurnExpired;
 import com.letraaletra.api.features.player.domain.Player;
@@ -117,7 +117,7 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
                     new RemovedBecauseInactivity("REMOVED_BECAUSE_INACTIVITY")
             );
 
-            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), over);
+            WsResponse dto = gameResponseAssembler.assembleGameOver(result.game(), over, result.handledGameOver());
 
             Game game = result.game();
 

@@ -3,7 +3,7 @@ CREATE TABLE "user" (
                         "username" varchar(15) UNIQUE NOT NULL,
                         "email" varchar(50) UNIQUE NOT NULL,
                         "password_hash" varchar(100),
-                        "token_version" integer NOT NULL DEFAULT 1,
+                        "token_version" uuid NOT NULL,
                         "google_id" varchar(100) UNIQUE,
                         "can_change_nickname" boolean DEFAULT TRUE,
                         "current_game_id" uuid,
@@ -139,7 +139,7 @@ CREATE TABLE "admin" (
                     "name" varchar(50) NOT NULL,
                     "email" varchar(50) UNIQUE NOT NULL,
                     "password_hash" varchar(100),
-                    "token_version" integer NOT NULL DEFAULT 1,
+                    "token_version" uuid NOT NULL,
                     "is_super" boolean NOT NULL DEFAULT false,
                     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP
 );

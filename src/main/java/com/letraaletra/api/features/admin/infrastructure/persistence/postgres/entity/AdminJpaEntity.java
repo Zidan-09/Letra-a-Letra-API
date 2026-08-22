@@ -32,7 +32,7 @@ public class AdminJpaEntity {
     private String hashPassword;
 
     @Column(name = "token_version")
-    private int tokenVersion;
+    private UUID tokenVersion;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

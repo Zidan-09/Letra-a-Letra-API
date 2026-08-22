@@ -4,13 +4,13 @@ import com.letraaletra.api.features.game.domain.actor.command.DisconnectParticip
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.matchmaking.domain.repository.MatchmakingRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 
@@ -21,18 +21,18 @@ import java.util.concurrent.CompletableFuture;
 public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Optional<DisconnectParticipantOutput>> {
     private final ActorManager<Game> gameActorManager;
     private final DisconnectScheduler disconnectScheduler;
-    private final MatchmakingRepository matchmakingRepository;
+    private final QueueRepository queueRepository;
     private final UserRepository userRepository;
 
     public DisconnectUseCase(
             ActorManager<Game> gameActorManager,
             DisconnectScheduler disconnectScheduler,
-            MatchmakingRepository matchmakingRepository,
+            QueueRepository queueRepository,
             UserRepository userRepository
     ) {
         this.gameActorManager = gameActorManager;
         this.disconnectScheduler = disconnectScheduler;
-        this.matchmakingRepository = matchmakingRepository;
+        this.queueRepository = queueRepository;
         this.userRepository = userRepository;
     }
 
@@ -41,8 +41,8 @@ public class DisconnectUseCase implements UseCase<DisconnectParticipantInput, Op
         UUID userId = input.user();
         if (userId == null) return Optional.empty();
 
-        if (matchmakingRepository.onQueue(userId)) {
-            matchmakingRepository.remove(userId);
+        if (queueRepository.onQueue(userId)) {
+            queueRepository.remove(userId);
         }
 
         User user = userRepository.find(userId)

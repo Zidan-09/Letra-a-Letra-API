@@ -41,12 +41,12 @@ class AuthUserUseCaseTest {
     private SignInInput input;
     private User user;
     private UUID userId;
-    private int tokenVersion;
+    private UUID tokenVersion;
 
     @BeforeEach
     void setup() {
         input = new SignInInput("john@email.com", "123456");
-        tokenVersion = 1;
+        tokenVersion = UUID.randomUUID();
         user = mock(User.class);
         userId = UUID.randomUUID();
     }
@@ -70,7 +70,7 @@ class AuthUserUseCaseTest {
 
         verify(userRepository).findByEmail(input.email());
         verify(passwordService).matches("123456", "hashed-password");
-        verify(user).incrementTokenVersion();
+        verify(user).setTokenVersion(any());
         verify(tokenService).generateUserToken(userId, tokenVersion);
         verify(userRepository).save(user);
     }
@@ -95,7 +95,7 @@ class AuthUserUseCaseTest {
 
         assertThrows(InvalidPasswordException.class, () -> authUserUseCase.execute(input));
 
-        verify(tokenService, never()).generateUserToken(any(), anyInt());
+        verify(tokenService, never()).generateUserToken(any(), any());
         verify(userRepository, never()).save(any());
     }
 
@@ -114,7 +114,7 @@ class AuthUserUseCaseTest {
         );
 
         assertSame(exception, thrown);
-        verify(tokenService, never()).generateUserToken(any(), anyInt());
+        verify(tokenService, never()).generateUserToken(any(), any());
     }
 
     @Test
@@ -145,14 +145,14 @@ class AuthUserUseCaseTest {
         when(user.getUserId()).thenReturn(userId);
         when(user.getTokenVersion()).thenReturn(tokenVersion);
         when(passwordService.matches(anyString(), anyString())).thenReturn(true);
-        when(tokenService.generateUserToken(any(), anyInt())).thenReturn("token");
+        when(tokenService.generateUserToken(any(), any())).thenReturn("token");
 
         authUserUseCase.execute(input);
 
         InOrder inOrder = inOrder(userRepository, passwordService, user, tokenService);
         inOrder.verify(userRepository).findByEmail(input.email());
         inOrder.verify(passwordService).matches("123456", "hash");
-        inOrder.verify(user).incrementTokenVersion();
+        inOrder.verify(user).setTokenVersion(any());
         inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
         inOrder.verify(userRepository).save(user);
     }

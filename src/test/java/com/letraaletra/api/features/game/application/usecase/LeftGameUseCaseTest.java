@@ -10,6 +10,8 @@ import com.letraaletra.api.features.game.domain.actor.result.LeftGameResult;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
@@ -55,13 +57,19 @@ class LeftGameUseCaseTest {
     private LeftGameUseCase useCase;
 
     private UUID gameId;
+    private UUID userId;
+    private User user;
     private LeftGameInput input;
 
     @BeforeEach
     void setup() {
         gameId = UUID.randomUUID();
+        user = UserFactory.createLocal("leaver", "leaver@test.com", "hash");
+        userId = user.getUserId();
         String session = "session-123";
-        input = new LeftGameInput(gameId, session);
+        input = new LeftGameInput(gameId, userId, session);
+
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
     }
 
     @Test

@@ -1,29 +1,26 @@
 package com.letraaletra.api.features.ranking.application.usecase;
 
+import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
-import com.letraaletra.api.shared.application.port.QueueChecker;
-import com.letraaletra.api.shared.domain.exception.UserAlreadyOnQueueException;
+import com.letraaletra.api.features.queue.domain.exception.UserAlreadyOnQueueException;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
-import com.letraaletra.api.features.ranking.domain.repository.RankingRepository;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
 
 public class JoinRankingUseCase implements UseCase<JoinRankingInput, Void> {
-    private final RankingRepository rankingRepository;
+    private final QueueRepository queueRepository;
     private final UserRepository userRepository;
-    private final QueueChecker queueChecker;
 
     public JoinRankingUseCase(
-            RankingRepository rankingRepository,
-            UserRepository userRepository,
-            QueueChecker queueChecker
+            QueueRepository queueRepository,
+            UserRepository userRepository
     ) {
-        this.rankingRepository = rankingRepository;
+        this.queueRepository = queueRepository;
         this.userRepository = userRepository;
-        this.queueChecker = queueChecker;
     }
 
     @Override
@@ -35,11 +32,11 @@ public class JoinRankingUseCase implements UseCase<JoinRankingInput, Void> {
 
         if (!user.isNotInGame()) throw new UserAlreadyInGameException();
 
-        boolean alreadyOnQueue = queueChecker.checkQueues(onlineUser.userId());
+        boolean alreadyOnQueue = queueRepository.onQueue(onlineUser.userId());
 
         if (alreadyOnQueue) throw new UserAlreadyOnQueueException();
 
-        rankingRepository.add(onlineUser);
+        queueRepository.add(QueueType.RANKING, onlineUser);
 
         return null;
     }

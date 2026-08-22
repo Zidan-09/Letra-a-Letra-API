@@ -3,7 +3,6 @@ package com.letraaletra.api.features.game.infrastructure.config;
 import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
-import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
 import com.letraaletra.api.features.user.application.port.SessionRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
@@ -90,13 +89,11 @@ public class GameConfig {
     @Bean
     public GameResponseAssemblerService gameResponseAssemblerService(
             UserRepository userRepository,
-            SessionRepository sessionRepository,
-            RankingPointsService rankingPointsService
+            SessionRepository sessionRepository
     ) {
         return new GameResponseAssemblerService(
                 userRepository,
-                sessionRepository,
-                rankingPointsService
+                sessionRepository
         );
     }
 

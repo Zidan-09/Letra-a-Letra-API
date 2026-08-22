@@ -7,21 +7,19 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
-    private final UserRepository userRepository;
+    private final User user;
     private final String session;
 
     public LeftGameActorCommand(
-            UserRepository userRepository,
+            User user,
             String session
     ) {
-        this.userRepository = userRepository;
+        this.user = user;
         this.session = session;
     }
 
@@ -29,9 +27,7 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
     public LeftGameResult execute(Game game) {
         Participant participant = game.getParticipants().findBySession(session);
 
-        UUID participantId = participant.getUserId();
-        User user = userRepository.find(participantId)
-                .orElseThrow(UserNotFoundException::new);
+        UUID participantId = user.getUserId();
 
         if (game.getGameStatus() == GameStatus.WAITING) {
             game.remove(participantId);
@@ -40,8 +36,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
             if (game.getParticipants().isEmpty()) {
                 game.setGameStatus(GameStatus.CLOSED);
             }
-
-            userRepository.save(user);
 
             return new LeftGameResult(
                     game,
@@ -52,8 +46,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
         if (participant.isSpectator()) {
             game.remove(participantId);
             user.leaveGame();
-
-            userRepository.save(user);
 
             return new LeftGameResult(
                     game,
@@ -75,8 +67,6 @@ public class LeftGameActorCommand implements ActorCommand<LeftGameResult> {
                 game.setGameStatus(GameStatus.CLOSED);
             }
         }
-
-        userRepository.save(user);
 
         return new LeftGameResult(
                 game,

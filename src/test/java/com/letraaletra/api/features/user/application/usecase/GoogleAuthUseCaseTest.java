@@ -53,7 +53,7 @@ class GoogleAuthUseCaseTest {
     private String googleId;
     private String email;
     private UUID userId;
-    private int tokenVersion;
+    private UUID tokenVersion;
     private String jwtToken;
     private GoogleAuthData googleAuthData;
     private User mockUser;
@@ -65,7 +65,7 @@ class GoogleAuthUseCaseTest {
         email = "usuario.google@teste.com";
         userId = UUID.randomUUID();
         jwtToken = "generated.app.jwt_token";
-        tokenVersion = 1;
+        tokenVersion = UUID.randomUUID();
 
         googleAuthData = new GoogleAuthData(email, googleId);
         mockUser = mock(User.class);
@@ -95,7 +95,7 @@ class GoogleAuthUseCaseTest {
             InOrder inOrder = inOrder(googleTokenService, userRepository, mockUser, tokenService);
             inOrder.verify(googleTokenService).verify(validGoogleToken);
             inOrder.verify(userRepository).findByGoogleId(googleId);
-            inOrder.verify(mockUser).incrementTokenVersion();
+            inOrder.verify(mockUser).setTokenVersion(any());
             inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
             inOrder.verify(userRepository).save(mockUser);
 
@@ -130,7 +130,7 @@ class GoogleAuthUseCaseTest {
                 inOrder.verify(googleTokenService).verify(validGoogleToken);
                 inOrder.verify(userRepository).findByGoogleId(googleId);
                 inOrder.verify(nicknameService).get();
-                inOrder.verify(createdUser).incrementTokenVersion();
+                inOrder.verify(createdUser).setTokenVersion(any());
                 inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
                 inOrder.verify(userRepository).save(createdUser);
 

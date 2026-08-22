@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             throw new UserBannedFromGameException();
                         }
 
-                        if (user.getTokenVersion() != content.tokenVersion()) {
+                        if (!user.getTokenVersion().equals(content.tokenVersion())) {
                             throw new SessionExpiredException();
                         }
 
@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         Admin admin = adminRepository.find(content.id())
                                 .orElseThrow(AdminNotFoundException::new);
 
-                        if (admin.getTokenVersion() != content.tokenVersion()) {
+                        if (!admin.getTokenVersion().equals(content.tokenVersion())) {
                             throw new SessionExpiredException();
                         }
 

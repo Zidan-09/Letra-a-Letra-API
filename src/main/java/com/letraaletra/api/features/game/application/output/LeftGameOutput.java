@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public record LeftGameOutput(
         Game game,
-        Optional<GameOver> gameOver
+        Optional<GameOver> gameOver,
+        HandledGameOver handledGameOver
 ) {
 }

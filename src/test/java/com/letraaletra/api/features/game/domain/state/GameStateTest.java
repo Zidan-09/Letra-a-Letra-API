@@ -247,5 +247,61 @@ class GameStateTest {
             assertEquals(mockPlayer1, gameOver.winner());
             assertEquals(mockPlayer2, gameOver.loser());
         }
+
+        @Test
+        @DisplayName("Não deve encerrar por pontuação quando não há jogadores")
+        void shouldNotFinishByScoreWhenThereAreNoPlayers() {
+            GameState emptyState = new GameState(
+                    UUID.randomUUID(),
+                    new LinkedHashMap<>(),
+                    mockBoard,
+                    initialTurnEnds
+            );
+
+            assertDoesNotThrow(emptyState::gameOverBecauseScore);
+            assertTrue(emptyState.gameOverBecauseScore().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Não deve encerrar por pontuação quando há apenas um jogador")
+        void shouldNotFinishByScoreWithSinglePlayer() {
+            GameState singlePlayerState = new GameState(
+                    UUID.randomUUID(),
+                    new LinkedHashMap<>(Map.of(userId1, mockPlayer1)),
+                    mockBoard,
+                    initialTurnEnds
+            );
+
+            assertDoesNotThrow(singlePlayerState::gameOverBecauseScore);
+            assertTrue(singlePlayerState.gameOverBecauseScore().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Não deve encerrar por AFK quando não há jogadores")
+        void shouldNotFinishByAfkWhenThereAreNoPlayers() {
+            GameState emptyState = new GameState(
+                    UUID.randomUUID(),
+                    new LinkedHashMap<>(),
+                    mockBoard,
+                    initialTurnEnds
+            );
+
+            assertDoesNotThrow(emptyState::gameOverBecauseAfk);
+            assertTrue(emptyState.gameOverBecauseAfk().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Não deve encerrar por AFK quando há apenas um jogador")
+        void shouldNotFinishByAfkWithSinglePlayer() {
+            GameState singlePlayerState = new GameState(
+                    UUID.randomUUID(),
+                    new LinkedHashMap<>(Map.of(userId1, mockPlayer1)),
+                    mockBoard,
+                    initialTurnEnds
+            );
+
+            assertDoesNotThrow(singlePlayerState::gameOverBecauseAfk);
+            assertTrue(singlePlayerState.gameOverBecauseAfk().isEmpty());
+        }
     }
 }

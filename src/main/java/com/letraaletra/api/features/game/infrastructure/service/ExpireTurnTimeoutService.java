@@ -1,9 +1,10 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
+import com.letraaletra.api.features.game.application.output.ExpireTurnTimeoutResult;
+import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
 import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
-import com.letraaletra.api.features.game.domain.turn.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -11,6 +12,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameOver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,30 +37,38 @@ public class ExpireTurnTimeoutService implements ExpireTurnService {
 
         Optional<ExpireTurnResult> result = future.join();
 
-        result.ifPresent(r -> r.gameOver().ifPresent(gameOver -> {
-                    User user = userRepository.find(r.whoPassed())
-                            .orElseThrow(UserNotFoundException::new);
+        if (result.isEmpty()) {
+            return Optional.empty();
+        }
 
-                    user.leaveGame();
+        ExpireTurnResult turnResult = result.get();
 
-                    userRepository.save(user);
+        HandledGameOver handled = HandledGameOver.withoutRanking();
 
-                    gameOverService.handle(r.game(), gameOver);
-                }
-        ));
+        Optional<GameOver> gameOver = turnResult.gameOver();
 
-        return result.flatMap(this::buildOutput);
+        if (gameOver.isPresent()) {
+            User user = userRepository.find(turnResult.whoPassed())
+                    .orElseThrow(UserNotFoundException::new);
+
+            user.leaveGame();
+
+            userRepository.save(user);
+
+            handled = gameOverService.handle(turnResult.game(), gameOver.get());
+        }
+
+        return Optional.of(buildOutput(turnResult, handled));
     }
 
-    private Optional<ExpireTurnTimeoutResult> buildOutput(com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult result) {
-        return Optional.of(
-                new ExpireTurnTimeoutResult(
-                        "TURN_EXPIRED",
-                        result.whoPassed(),
-                        result.game().getGameState().currentPlayerTurn(),
-                        result.game(),
-                        result.gameOver()
-                )
+    private ExpireTurnTimeoutResult buildOutput(ExpireTurnResult result, HandledGameOver handled) {
+        return new ExpireTurnTimeoutResult(
+                "TURN_EXPIRED",
+                result.whoPassed(),
+                result.game().getGameState().currentPlayerTurn(),
+                result.game(),
+                result.gameOver(),
+                handled
         );
     }
 }

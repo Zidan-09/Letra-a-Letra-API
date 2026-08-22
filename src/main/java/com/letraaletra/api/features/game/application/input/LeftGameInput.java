@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record LeftGameInput(
         UUID gameId,
+        UUID userId,
         String session
 ) {
 }

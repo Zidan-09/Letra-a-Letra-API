@@ -5,6 +5,6 @@ import java.util.UUID;
 public record TokenContent(
         UUID id,
         Roles role,
-        int tokenVersion
+        UUID tokenVersion
 ) {
 }

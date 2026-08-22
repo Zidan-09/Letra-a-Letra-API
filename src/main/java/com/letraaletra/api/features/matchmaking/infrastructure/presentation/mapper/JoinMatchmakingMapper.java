@@ -2,7 +2,7 @@ package com.letraaletra.api.features.matchmaking.infrastructure.presentation.map
 
 import com.letraaletra.api.features.matchmaking.application.input.JoinMatchmakingInput;
 import com.letraaletra.api.features.game.domain.state.GameMode;
-import com.letraaletra.api.shared.domain.OnlineUser;
+import com.letraaletra.api.features.queue.domain.OnlineUser;
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingStatus;
 import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.response.JoinMatchmakingResponse;
 
