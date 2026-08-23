@@ -23,7 +23,7 @@ echo "[2] Iniciando container..."
 docker run -d \
     --name letra-a-letra-api \
     --restart unless-stopped \
-    --env-file .env.prod \
+    --env-file .env \
     -p 8080:8080 \
     letra-a-letra-api
 
