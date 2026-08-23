@@ -1,0 +1,21 @@
+package com.letraaletra.api.features.audit.domain;
+
+public enum AuditEventType {
+    WALLET_CREDITED,
+    WALLET_DEBITED,
+
+    COSMETIC_ACQUIRED,
+    COSMETIC_REVOKED,
+    COSMETIC_EQUIPPED,
+    COSMETIC_UNEQUIPPED,
+
+    MATCH_STARTED,
+    MATCH_ENDED,
+    ROOM_CLOSED_INACTIVITY,
+    PLAYER_REMOVED_INACTIVITY,
+    MATCHMAKING_PAIRED,
+
+    CATALOG_CHANGED,
+
+    COMMAND_FAILED
+}

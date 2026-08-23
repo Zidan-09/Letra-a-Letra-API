@@ -50,6 +50,9 @@ class StartGameUseCaseTest {
     @Mock
     private Actor actor;
 
+    @Mock
+    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+
     @InjectMocks
     private StartGameUseCase useCase;
 

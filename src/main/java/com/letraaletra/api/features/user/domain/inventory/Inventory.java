@@ -32,7 +32,7 @@ public class Inventory {
         return List.copyOf(inventory);
     }
 
-    public void unlock(Cosmetic cosmetic) {
+    public List<InventoryMovement> unlock(Cosmetic cosmetic) {
         InventoryItem item = InventoryItem.create(
                 cosmetic.getId(),
                 cosmetic.getName(),
@@ -40,6 +40,13 @@ public class Inventory {
         );
 
         addToInventory(item);
+
+        return List.of(new InventoryMovement(
+                item.cosmeticId(),
+                InventoryChangeKind.ACQUIRED,
+                null,
+                false
+        ));
     }
 
     private void addToInventory(InventoryItem item) {
@@ -54,7 +61,7 @@ public class Inventory {
         inventory.add(item);
     }
 
-    public void removeFromInventory(UUID cosmeticId) {
+    public List<InventoryMovement> removeFromInventory(UUID cosmeticId) {
         InventoryItem itemToBeRemoved = inventory.stream()
                 .filter(cosmetic -> cosmetic.cosmeticId().equals(cosmeticId))
                 .findFirst()
@@ -62,35 +69,62 @@ public class Inventory {
 
         inventory.remove(itemToBeRemoved);
 
+        List<InventoryMovement> movements = new ArrayList<>();
+
+        movements.add(new InventoryMovement(
+                itemToBeRemoved.cosmeticId(),
+                InventoryChangeKind.REMOVED,
+                itemToBeRemoved.equipped(),
+                false
+        ));
+
         if (itemToBeRemoved.equipped()) {
             inventory.stream()
                     .filter(cosmetic -> cosmetic.type() == itemToBeRemoved.type())
                     .findFirst()
-                    .ifPresent(cosmetic -> equipCosmetic(cosmetic.cosmeticId()));
+                    .ifPresent(fallback -> movements.addAll(equipCosmetic(fallback.cosmeticId())));
         }
+
+        return movements;
     }
 
-    public void equipCosmetic(UUID cosmeticId) {
+    public List<InventoryMovement> equipCosmetic(UUID cosmeticId) {
         InventoryItem targetItem = this.inventory.stream()
                 .filter(item -> cosmeticId.equals(item.cosmeticId()))
                 .findFirst()
                 .orElseThrow(InvalidUserCosmeticSelectedException::new);
 
-        this.inventory = this.inventory.stream()
-                .map(item -> {
-                    if (item.type() == targetItem.type()) {
-                        boolean isTarget = cosmeticId.equals(item.cosmeticId());
-                        return new InventoryItem(
-                                item.cosmeticId(),
-                                item.name(),
-                                item.type(),
-                                isTarget,
-                                item.unlockedAt()
-                        );
-                    }
+        List<InventoryMovement> movements = new ArrayList<>();
+        List<InventoryItem> updatedInventory = new ArrayList<>();
 
-                    return item;
-                })
-                .toList();
+        for (InventoryItem item : this.inventory) {
+            if (item.type() == targetItem.type()) {
+                boolean isTarget = cosmeticId.equals(item.cosmeticId());
+                boolean equippedAfter = isTarget;
+
+                if (item.equipped() != equippedAfter) {
+                    movements.add(new InventoryMovement(
+                            item.cosmeticId(),
+                            isTarget ? InventoryChangeKind.EQUIPPED : InventoryChangeKind.UNEQUIPPED,
+                            item.equipped(),
+                            equippedAfter
+                    ));
+                }
+
+                updatedInventory.add(new InventoryItem(
+                        item.cosmeticId(),
+                        item.name(),
+                        item.type(),
+                        isTarget,
+                        item.unlockedAt()
+                ));
+            } else {
+                updatedInventory.add(item);
+            }
+        }
+
+        this.inventory = updatedInventory;
+
+        return movements;
     }
 }

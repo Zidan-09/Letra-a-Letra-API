@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -66,6 +67,9 @@ class GrantUserRewardUseCaseTest {
 
     @Mock
     private RewardFactory rewardFactory;
+
+    @Mock
+    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private GrantUserRewardUseCase useCase;
@@ -93,6 +97,9 @@ class GrantUserRewardUseCaseTest {
         cosmeticId = UUID.randomUUID();
 
         mockUser = mock(User.class);
+
+        lenient().when(transactionRepository.save(any(Transaction.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Nested

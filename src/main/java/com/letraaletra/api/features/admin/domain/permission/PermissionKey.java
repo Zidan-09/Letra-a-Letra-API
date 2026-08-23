@@ -8,5 +8,6 @@ public enum PermissionKey {
     GAME,
     LEVELS,
     OFFERS,
-    TRANSACTIONS
+    TRANSACTIONS,
+    AUDIT
 }

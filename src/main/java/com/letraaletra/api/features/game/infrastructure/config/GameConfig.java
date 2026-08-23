@@ -14,6 +14,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -75,14 +76,16 @@ public class GameConfig {
              RoomTimeoutManager roomTimeoutManager,
              SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
-             GameActorManager gameActorManager
+             GameActorManager gameActorManager,
+             BusinessAuditRecorder auditRecorder
     ) {
         return new StartGameUseCase(
                 gameRepository,
                 roomTimeoutManager,
                 themeService,
                 turnTimeoutManager,
-                gameActorManager
+                gameActorManager,
+                auditRecorder
         );
     }
 

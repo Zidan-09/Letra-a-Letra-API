@@ -49,6 +49,7 @@ class GameOverHandlerTest {
     @Mock private UserStatsService userStatsService;
     @Mock private RankingPointsService rankingPointsService;
     @Mock private Game game;
+    @Mock private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private GameOverHandler handler;

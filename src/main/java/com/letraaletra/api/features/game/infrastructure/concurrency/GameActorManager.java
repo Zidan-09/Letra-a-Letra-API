@@ -3,6 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.concurrency;
 import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
 import com.letraaletra.api.shared.application.port.Actor;
 import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.shared.application.port.OperationContext;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,16 @@ public class GameActorManager implements ActorManager<Game> {
     private final Map<UUID, Actor> actors = new ConcurrentHashMap<>();
     private final ExecutorService executor;
     private final TransactionalExecutorService transactionExecutor;
+    private final OperationContext operationContext;
 
-    public GameActorManager(ExecutorService executor, TransactionalExecutorService transactionExecutor) {
+    public GameActorManager(
+            ExecutorService executor,
+            TransactionalExecutorService transactionExecutor,
+            OperationContext operationContext
+    ) {
         this.executor = executor;
         this.transactionExecutor = transactionExecutor;
+        this.operationContext = operationContext;
     }
 
     @Override
@@ -30,7 +37,7 @@ public class GameActorManager implements ActorManager<Game> {
             throw new GameNotFoundException();
         }
 
-        Actor newActor = new GameActor(executor, transactionExecutor, actor);
+        Actor newActor = new GameActor(executor, transactionExecutor, operationContext, actor);
         actors.putIfAbsent(id, newActor);
     }
 

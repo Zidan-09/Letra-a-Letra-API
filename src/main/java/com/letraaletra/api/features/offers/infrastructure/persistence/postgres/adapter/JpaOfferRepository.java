@@ -133,4 +133,10 @@ public class JpaOfferRepository implements OfferRepository {
 
         repository.expireOffers(now);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UUID> findActiveExpiredIds() {
+        return repository.findActiveExpiredIds(LocalDateTime.now());
+    }
 }

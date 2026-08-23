@@ -52,6 +52,9 @@ class BuyOfferUseCaseTest {
     @Mock
     private RewardFactory rewardFactory;
 
+    @Mock
+    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+
     @InjectMocks
     private BuyOfferUseCase useCase;
 
@@ -112,6 +115,21 @@ class BuyOfferUseCaseTest {
         lenient().when(mockWallet.remove(any(), anyInt())).thenReturn(walletMovement);
 
         lenient().when(transactionRepository.existsOfferPurchase(any(), any())).thenReturn(false);
+
+        lenient().when(transactionRepository.save(any())).thenReturn(sampleSavedTransaction());
+    }
+
+    private com.letraaletra.api.features.transaction.domain.Transaction sampleSavedTransaction() {
+        return com.letraaletra.api.features.transaction.domain.Transaction.create(
+                userId,
+                CoinType.SOFT,
+                100,
+                1000,
+                900,
+                OperationType.DEBIT,
+                com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE,
+                UUID.randomUUID()
+        );
     }
 
     @Test
@@ -130,6 +148,40 @@ class BuyOfferUseCaseTest {
         verify(mockWallet).remove(CoinType.SOFT, 100);
         verify(userRepository).save(mockUser);
         verify(transactionRepository, atLeastOnce()).save(any());
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("débito e créditos da mesma compra devem compartilhar operationId e vincular transactionId")
+    void purchaseEventsShouldShareOperationIdAndReferenceTransactions() {
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+        when(mockOffer.isActive()).thenReturn(true);
+        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
+
+        useCase.execute(input);
+
+        org.mockito.ArgumentCaptor<com.letraaletra.api.features.audit.domain.AuditEvent> eventCaptor =
+                org.mockito.ArgumentCaptor.forClass(com.letraaletra.api.features.audit.domain.AuditEvent.class);
+
+        verify(auditRecorder, atLeastOnce()).record(eventCaptor.capture());
+
+        List<com.letraaletra.api.features.audit.domain.AuditEvent> events = eventCaptor.getAllValues();
+
+        assertFalse(events.isEmpty());
+        assertTrue(events.stream().allMatch(e -> e.operationId() != null));
+
+        UUID sharedOperationId = events.get(0).operationId();
+        assertTrue(events.stream().allMatch(e -> e.operationId().equals(sharedOperationId)));
+
+        assertTrue(events.stream().anyMatch(e ->
+                e.eventType() == com.letraaletra.api.features.audit.domain.AuditEventType.WALLET_DEBITED));
+        assertTrue(events.stream().anyMatch(e ->
+                e.eventType() == com.letraaletra.api.features.audit.domain.AuditEventType.WALLET_CREDITED));
+        assertTrue(events.stream().allMatch(e -> e.transactionId() != null));
+        assertEquals(
+                com.letraaletra.api.features.audit.domain.AuditCategory.ECONOMY,
+                events.get(0).category()
+        );
     }
 
     @Test

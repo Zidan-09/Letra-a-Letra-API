@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -61,6 +62,9 @@ class RevokeUserWalletUseCaseTest {
 
     @Mock
     private AdminChecker adminChecker;
+
+    @Mock
+    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private RevokeUserWalletUseCase useCase;
@@ -82,6 +86,9 @@ class RevokeUserWalletUseCaseTest {
 
         mockUser = mock(User.class);
         mockWallet = mock(Wallet.class);
+
+        lenient().when(transactionRepository.save(any(Transaction.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Nested

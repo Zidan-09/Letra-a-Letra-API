@@ -22,4 +22,13 @@ public interface SpringDataOfferRepository extends JpaRepository<OfferJpaEntity,
           AND o.expiresAt <= :now
    """)
     void expireOffers(@Param("now") LocalDateTime now);
+
+    @Query("""
+        SELECT o.id
+        FROM OfferJpaEntity o
+        WHERE o.active = true
+          AND o.hasExpiration = true
+          AND o.expiresAt <= :now
+   """)
+    List<UUID> findActiveExpiredIds(@Param("now") LocalDateTime now);
 }

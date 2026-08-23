@@ -4,7 +4,7 @@
     <property name="LOG_PATH" value="logs"/>
 
     <property name="AUDIT_PATTERN"
-              value="[%d{HH:mm:ss}] [%level]: %msg%n"/>
+              value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%level]: %msg%n"/>
 
     <appender name="WEBSOCKET"
               class="com.letraaletra.api.shared.infrastructure.audit.WebSocketAppender"/>

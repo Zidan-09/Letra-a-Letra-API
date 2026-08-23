@@ -12,6 +12,7 @@ import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRe
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
@@ -204,13 +205,15 @@ public class UserConfig {
             UserRepository userRepository,
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
-            RewardFactory rewardFactory
+            RewardFactory rewardFactory,
+            BusinessAuditRecorder auditRecorder
     ) {
         return new GrantUserRewardUseCase(
                 userRepository,
                 transactionRepository,
                 adminChecker,
-                rewardFactory
+                rewardFactory,
+                auditRecorder
         );
     }
 
@@ -228,11 +231,13 @@ public class UserConfig {
     @Bean
     public RevokeUserCosmeticUseCase revokeUserCosmeticUseCase(
             UserRepository userRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            BusinessAuditRecorder auditRecorder
     ) {
         return new RevokeUserCosmeticUseCase(
                 userRepository,
-                adminChecker
+                adminChecker,
+                auditRecorder
         );
     }
 
@@ -240,12 +245,14 @@ public class UserConfig {
     public RevokeUserWalletUseCase revokeUserWalletUseCase(
             UserRepository userRepository,
             TransactionRepository transactionRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            BusinessAuditRecorder auditRecorder
     ) {
         return new RevokeUserWalletUseCase(
                 userRepository,
                 transactionRepository,
-                adminChecker
+                adminChecker,
+                auditRecorder
         );
     }
 }

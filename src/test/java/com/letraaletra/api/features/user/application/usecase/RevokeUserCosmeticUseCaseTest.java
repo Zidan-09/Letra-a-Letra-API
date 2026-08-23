@@ -48,6 +48,9 @@ class RevokeUserCosmeticUseCaseTest {
     @Mock
     private AdminChecker adminChecker;
 
+    @Mock
+    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+
     @InjectMocks
     private RevokeUserCosmeticUseCase useCase;
 
