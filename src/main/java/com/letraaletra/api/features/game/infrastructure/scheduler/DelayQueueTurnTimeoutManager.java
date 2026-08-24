@@ -20,7 +20,7 @@ import com.letraaletra.api.features.audit.domain.AuditResourceType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;

@@ -7,7 +7,7 @@ import com.letraaletra.api.features.ticket.application.input.CreateTicketInput;
 import com.letraaletra.api.features.ticket.application.output.CreateTicketOutput;
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 

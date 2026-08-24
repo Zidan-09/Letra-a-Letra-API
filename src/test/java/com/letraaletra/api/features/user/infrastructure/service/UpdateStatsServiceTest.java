@@ -55,7 +55,7 @@ class UpdateStatsServiceTest {
     private TransactionRepository walletTransactionRepository;
 
     @Mock
-    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
 
     @Mock
     private com.letraaletra.api.shared.application.port.OperationContext operationContext;

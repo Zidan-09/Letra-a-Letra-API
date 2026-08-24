@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.transaction.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.transaction.application.input.FindTransactionsByUserInput;
 import com.letraaletra.api.features.transaction.application.output.FindTransactionsByUserOutput;
 import com.letraaletra.api.features.transaction.domain.TransactionDetails;

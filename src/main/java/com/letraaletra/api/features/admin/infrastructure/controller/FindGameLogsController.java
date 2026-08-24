@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.admin.infrastructure.controller;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.tags.Tag;

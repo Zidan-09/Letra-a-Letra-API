@@ -1,9 +1,9 @@
-package com.letraaletra.api.shared.infrastructure.bootstrap;
+package com.letraaletra.api.features.admin.infrastructure.bootstrap;
 
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.permission.Permission;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.AdminsPage;
 import com.letraaletra.api.shared.domain.security.PasswordService;

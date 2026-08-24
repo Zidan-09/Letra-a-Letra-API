@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
 import com.letraaletra.api.features.game.domain.history.GameHistory;

@@ -9,7 +9,7 @@ import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

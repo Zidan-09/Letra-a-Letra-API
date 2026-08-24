@@ -1,15 +1,15 @@
-package com.letraaletra.api.shared.application.service;
+package com.letraaletra.api.features.admin.infrastructure.service;
 
 import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.admin.domain.permission.Permissions;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
-import com.letraaletra.api.shared.infrastructure.service.CheckIfIsAdminService;
+import com.letraaletra.api.features.admin.infrastructure.service.CheckIfIsAdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

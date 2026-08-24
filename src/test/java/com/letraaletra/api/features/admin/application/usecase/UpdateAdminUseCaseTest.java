@@ -8,8 +8,8 @@ import com.letraaletra.api.features.admin.domain.exception.EmailAlreadyInUseExce
 import com.letraaletra.api.features.admin.domain.exception.InvalidAdminOperationException;
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
 import com.letraaletra.api.features.admin.domain.permission.Permission;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.admin.domain.permission.Permissions;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;

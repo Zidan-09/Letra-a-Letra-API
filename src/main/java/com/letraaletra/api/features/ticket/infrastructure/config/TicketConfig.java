@@ -8,7 +8,7 @@ import com.letraaletra.api.features.ticket.application.usecase.ResolveTicketUseC
 import com.letraaletra.api.features.ticket.domain.repository.FindTicket;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

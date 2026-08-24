@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.audit.domain.AuditEvent;
 import com.letraaletra.api.features.audit.domain.AuditEventType;
 import com.letraaletra.api.features.audit.domain.AuditResourceType;
@@ -14,7 +14,7 @@ import com.letraaletra.api.features.ticket.domain.exception.InvalidTicketStatusE
 import com.letraaletra.api.features.ticket.domain.exception.TicketNotFoundException;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;

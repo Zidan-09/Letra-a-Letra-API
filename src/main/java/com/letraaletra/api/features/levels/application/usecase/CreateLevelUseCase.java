@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.levels.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
 import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;

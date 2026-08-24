@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.ticket.application.input.GetTicketByIdInput;
 import com.letraaletra.api.features.ticket.application.output.GetTicketByIdOutput;
 import com.letraaletra.api.features.ticket.domain.Ticket;

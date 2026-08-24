@@ -3,7 +3,7 @@ package com.letraaletra.api.features.audit.infrastructure.service;
 import com.letraaletra.api.features.audit.domain.AuditEvent;
 import com.letraaletra.api.features.audit.domain.AuditOutcome;
 import com.letraaletra.api.features.audit.domain.repository.SaveAuditEvent;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import com.letraaletra.api.shared.infrastructure.audit.MdcOperationContext;
 import org.slf4j.Logger;

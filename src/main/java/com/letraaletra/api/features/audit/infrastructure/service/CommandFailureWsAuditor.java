@@ -7,7 +7,7 @@ import com.letraaletra.api.features.audit.domain.AuditEvent;
 import com.letraaletra.api.features.audit.domain.AuditEventType;
 import com.letraaletra.api.features.audit.domain.AuditResourceType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.infrastructure.websocket.WsCommandFailureAuditor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

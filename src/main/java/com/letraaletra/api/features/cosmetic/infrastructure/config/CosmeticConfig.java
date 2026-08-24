@@ -7,7 +7,7 @@ import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepositor
 import com.letraaletra.api.features.user.application.usecase.ChangeCosmeticUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

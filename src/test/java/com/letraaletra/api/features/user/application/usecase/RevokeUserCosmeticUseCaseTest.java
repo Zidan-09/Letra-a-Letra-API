@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.user.application.input.RevokeUserCosmeticInput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserCosmeticSelectedException;
@@ -49,7 +49,7 @@ class RevokeUserCosmeticUseCaseTest {
     private AdminChecker adminChecker;
 
     @Mock
-    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private RevokeUserCosmeticUseCase useCase;

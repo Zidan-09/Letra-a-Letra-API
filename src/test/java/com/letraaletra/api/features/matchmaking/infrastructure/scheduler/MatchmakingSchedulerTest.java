@@ -31,7 +31,7 @@ import com.letraaletra.api.features.queue.application.port.QueuePairProvider;
 import com.letraaletra.api.features.queue.domain.OnlineUser;
 import com.letraaletra.api.features.queue.domain.QueueMatch;
 import com.letraaletra.api.features.queue.domain.QueueType;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 
 @ExtendWith(MockitoExtension.class)

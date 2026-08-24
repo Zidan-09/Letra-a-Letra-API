@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.audit.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.audit.application.input.GetUserAuditHistoryInput;
 import com.letraaletra.api.features.audit.application.output.GetAuditEventsOutput;
 import com.letraaletra.api.features.audit.domain.AuditEventFilter;

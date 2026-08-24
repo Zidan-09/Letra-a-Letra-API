@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
 import com.letraaletra.api.features.transaction.domain.OperationType;
@@ -64,7 +64,7 @@ class RevokeUserWalletUseCaseTest {
     private AdminChecker adminChecker;
 
     @Mock
-    private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private RevokeUserWalletUseCase useCase;

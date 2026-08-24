@@ -1,10 +1,10 @@
 package com.letraaletra.api.shared.domain.exception;
 
 import com.letraaletra.api.shared.domain.DomainException;
-import com.letraaletra.api.shared.infrastructure.presentation.dto.response.ServerMessages;
+import com.letraaletra.api.shared.domain.SecurityMessages;
 
 public class SessionExpiredException extends DomainException {
     public SessionExpiredException() {
-        super(ServerMessages.SESSION_EXPIRED);
+        super(SecurityMessages.SESSION_EXPIRED);
     }
 }

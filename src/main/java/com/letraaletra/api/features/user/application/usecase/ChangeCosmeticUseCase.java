@@ -6,7 +6,7 @@ import com.letraaletra.api.features.audit.domain.AuditActorType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.user.application.input.ChangeCosmeticInput;
 import com.letraaletra.api.features.user.application.output.ChangeCosmeticOutput;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;

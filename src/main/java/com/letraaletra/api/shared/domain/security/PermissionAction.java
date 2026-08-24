@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.admin.domain.permission;
+package com.letraaletra.api.shared.domain.security;
 
 public enum PermissionAction {
     VIEW,

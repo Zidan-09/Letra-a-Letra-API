@@ -12,7 +12,7 @@ import com.letraaletra.api.features.matchmaking.application.port.MatchmakingSend
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
 import com.letraaletra.api.features.queue.application.port.QueuePairProvider;
 import com.letraaletra.api.features.queue.domain.QueueType;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

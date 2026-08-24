@@ -22,7 +22,7 @@ import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.reward.domain.Reward;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.List;

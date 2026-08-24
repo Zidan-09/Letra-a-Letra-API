@@ -3,7 +3,7 @@ package com.letraaletra.api.features.admin.infrastructure.websocket.broadcast;
 import com.letraaletra.api.features.admin.application.port.AdminNotifier;
 import com.letraaletra.api.features.admin.application.port.AdminSessionRepository;
 import com.letraaletra.api.features.admin.infrastructure.presentation.dto.response.WsAdminResponse;
-import com.letraaletra.api.shared.domain.exception.InvalidWebsocketResponseException;
+import com.letraaletra.api.features.admin.infrastructure.websocket.InvalidWebsocketResponseException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.ticket.application.input.GetTicketsInput;
 import com.letraaletra.api.features.ticket.domain.TicketFilter;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;

@@ -1,14 +1,8 @@
 package com.letraaletra.api.shared.infrastructure.config;
 
-import com.letraaletra.api.features.admin.domain.Admin;
-import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundException;
-import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.ban.exception.UserBannedFromGameException;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.shared.domain.exception.SessionExpiredException;
+import com.letraaletra.api.shared.domain.security.RolePrincipalResolver;
+import com.letraaletra.api.shared.domain.security.Roles;
 import com.letraaletra.api.shared.domain.security.TokenContent;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
@@ -16,7 +10,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,14 +20,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UserRepository userRepository;
-    private final AdminRepository adminRepository;
+    private final Map<Roles, RolePrincipalResolver> resolversByRole;
+
+    public JwtAuthenticationFilter(
+            TokenService tokenService,
+            List<RolePrincipalResolver> resolverList
+    ) {
+        this.tokenService = tokenService;
+        this.resolversByRole = resolverList.stream()
+                .collect(Collectors.toMap(RolePrincipalResolver::role, Function.identity()));
+    }
 
     @Override
     protected void doFilterInternal(
@@ -52,44 +56,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 TokenContent content = tokenService.getTokenContent(token);
 
-                Authentication authentication;
+                RolePrincipalResolver resolver = resolversByRole.get(content.role());
 
-                switch (content.role()) {
-                    case USER -> {
-                        User user = userRepository.find(content.id())
-                                .orElseThrow(UserNotFoundException::new);
-
-                        if (user.isBanned()) {
-                            throw new UserBannedFromGameException();
-                        }
-
-                        if (!user.getTokenVersion().equals(content.tokenVersion())) {
-                            throw new SessionExpiredException();
-                        }
-
-                        authentication = new UsernamePasswordAuthenticationToken(
-                            new AuthenticatedUser(user.getUserId(), user.getUsername(), false, false),
-                            null,
-                            Collections.emptyList()
-                        );
-                    }
-                    case ADMIN -> {
-                        Admin admin = adminRepository.find(content.id())
-                                .orElseThrow(AdminNotFoundException::new);
-
-                        if (!admin.getTokenVersion().equals(content.tokenVersion())) {
-                            throw new SessionExpiredException();
-                        }
-
-                        authentication = new UsernamePasswordAuthenticationToken(
-                            new AuthenticatedUser(admin.getId(), admin.getName(), true, admin.isSuper()),
-                            null,
-                            Collections.emptyList()
-                        );
-                    }
-
-                    case null, default -> throw new InvalidTokenException();
+                if (resolver == null) {
+                    throw new InvalidTokenException();
                 }
+
+                AuthenticatedUser principal = resolver.resolve(content);
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        principal,
+                        null,
+                        Collections.emptyList()
+                );
 
                 SecurityContextHolder
                         .getContext()

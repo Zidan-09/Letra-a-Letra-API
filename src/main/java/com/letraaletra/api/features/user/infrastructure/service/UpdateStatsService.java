@@ -13,7 +13,7 @@ import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

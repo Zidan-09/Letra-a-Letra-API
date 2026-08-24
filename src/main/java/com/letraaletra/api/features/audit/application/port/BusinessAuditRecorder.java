@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.application.port;
+package com.letraaletra.api.features.audit.application.port;
 
 import com.letraaletra.api.features.audit.domain.AuditEvent;
 

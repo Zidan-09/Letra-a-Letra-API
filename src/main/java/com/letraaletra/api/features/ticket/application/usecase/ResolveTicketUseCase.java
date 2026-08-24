@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
 import com.letraaletra.api.features.audit.domain.AuditActor;
 import com.letraaletra.api.features.audit.domain.AuditActorType;
@@ -12,7 +12,7 @@ import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.domain.exception.TicketNotFoundException;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 

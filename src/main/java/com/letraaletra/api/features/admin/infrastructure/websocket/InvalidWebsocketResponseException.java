@@ -1,4 +1,4 @@
-package com.letraaletra.api.shared.domain.exception;
+package com.letraaletra.api.features.admin.infrastructure.websocket;
 
 import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.domain.SharedMessages;
