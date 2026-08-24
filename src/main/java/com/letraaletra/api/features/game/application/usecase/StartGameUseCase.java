@@ -12,8 +12,8 @@ import com.letraaletra.api.features.game.domain.actor.command.StartCustomGameAct
 import com.letraaletra.api.features.game.application.input.StartGameInput;
 import com.letraaletra.api.features.game.domain.board.generator.BoardGenerator;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.game.application.output.StartGameOutput;

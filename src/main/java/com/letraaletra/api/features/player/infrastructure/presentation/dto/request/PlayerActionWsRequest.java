@@ -19,4 +19,9 @@ public record PlayerActionWsRequest(
         public String getAudit() {
                 return "execute a " + action.getClass().getSimpleName();
         }
+
+        @Override
+        public boolean suppressCommandAudit() {
+                return true;
+        }
 }

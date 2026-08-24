@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
 import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;

@@ -1,7 +1,7 @@
 package com.letraaletra.api.shared.infrastructure.config;
 
 import com.letraaletra.api.shared.infrastructure.websocket.AuthHandshakeInterceptor;
-import com.letraaletra.api.shared.infrastructure.websocket.GlobalWebSocketHandler;
+import com.letraaletra.api.shared.infrastructure.websocket.MainWebSocketEndpoint;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -9,11 +9,11 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 public class GameWebSocketConfig implements WebSocketConfigurer {
 
-    private final GlobalWebSocketHandler handler;
+    private final MainWebSocketEndpoint handler;
     private final AuthHandshakeInterceptor interceptor;
 
     public GameWebSocketConfig(
-            GlobalWebSocketHandler handler,
+            MainWebSocketEndpoint handler,
             AuthHandshakeInterceptor interceptor
     ) {
         this.handler = handler;

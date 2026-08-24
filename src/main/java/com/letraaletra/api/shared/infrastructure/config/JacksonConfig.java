@@ -1,46 +1,35 @@
 package com.letraaletra.api.shared.infrastructure.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.CreateGameWsRequest;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.JoinGameWsRequest;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.LeftGameWsRequest;
-import com.letraaletra.api.features.game.infrastructure.presentation.dto.request.StartGameWsRequest;
-import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.ExitMatchmakingGameWsRequest;
-import com.letraaletra.api.features.matchmaking.infrastructure.presentation.dto.request.JoinMatchmakingGameWsRequest;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
-import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.UnbanParticipantWsRequest;
-import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
-import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.PlayerActionWsRequest;
-import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.ExitRankingGameWsRequest;
-import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.JoinRankingGameWsRequest;
+import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class JacksonConfig {
 
     @Bean
-    JsonMapper jsonMapper() {
+    JsonMapper jsonMapper(List<RoomRequestHandler<?>> handlerList) {
+        NamedType[] subtypes = handlerList.stream()
+                .map(RoomRequestHandler::getType)
+                .map(type -> {
+                    JsonTypeName typeName = type.getAnnotation(JsonTypeName.class);
+
+                    if (typeName == null) {
+                        throw new IllegalStateException(
+                                "WsRequest sem @JsonTypeName: " + type.getName());
+                    }
+
+                    return new NamedType(type, typeName.value());
+                })
+                .toArray(NamedType[]::new);
+
         return JsonMapper.builder()
-                .registerSubtypes(
-                        new NamedType(BanParticipantWsRequest.class, "BAN_PARTICIPANT"),
-                        new NamedType(KickParticipantWsRequest.class, "KICK_PARTICIPANT"),
-                        new NamedType(SwapPositionWsRequest.class, "SWAP_POSITION"),
-                        new NamedType(UnbanParticipantWsRequest.class, "UNBAN_PARTICIPANT"),
-                        new NamedType(CreateGameWsRequest.class, "CREATE_GAME"),
-                        new NamedType(DiscardPowerWsRequest.class, "DISCARD_POWER"),
-                        new NamedType(JoinGameWsRequest.class, "JOIN_GAME"),
-                        new NamedType(JoinRankingGameWsRequest.class, "RANKING_GAME"),
-                        new NamedType(JoinMatchmakingGameWsRequest.class, "MATCHMAKING_GAME"),
-                        new NamedType(ExitRankingGameWsRequest.class, "EXIT_RANKING"),
-                        new NamedType(ExitMatchmakingGameWsRequest.class, "EXIT_MATCHMAKING"),
-                        new NamedType(LeftGameWsRequest.class, "LEFT_GAME"),
-                        new NamedType(PlayerActionWsRequest.class, "PLAYER_ACTION"),
-                        new NamedType(StartGameWsRequest.class, "START_GAME")
-                )
+                .registerSubtypes(subtypes)
                 .build();
     }
 }

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ro
 
 import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.DiscardPowerWsRequest;
@@ -19,16 +19,16 @@ import java.util.List;
 public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsRequest> {
     private final DiscardPowerUseCase discardPowerUseCase;
     private final DiscardPowerResponseMapper discardPowerResponseMapper;
-    private final GameNotifier gameNotifier;
+    private final PlayerNotifier playerNotifier;
 
     public DiscardPowerHandler(
             DiscardPowerUseCase discardPowerUseCase,
             DiscardPowerResponseMapper discardPowerResponseMapper,
-            GameNotifier gameNotifier
+            PlayerNotifier playerNotifier
     ) {
         this.discardPowerUseCase = discardPowerUseCase;
         this.discardPowerResponseMapper = discardPowerResponseMapper;
-        this.gameNotifier = gameNotifier;
+        this.playerNotifier = playerNotifier;
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsReq
         for (Player player : players) {
             DiscardPowerResponse dto = discardPowerResponseMapper.toResponse(output, player.getUserId());
 
-            gameNotifier.notifierOne(player.getUserId(), dto);
+            playerNotifier.notifyUser(player.getUserId(), dto);
         }
     }
 

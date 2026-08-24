@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.DetectTrapsAction;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DetectTrapsActionHandler extends AbstractPlayerActionHandler<DetectTrapsActionRequest> {
 
-    public DetectTrapsActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public DetectTrapsActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

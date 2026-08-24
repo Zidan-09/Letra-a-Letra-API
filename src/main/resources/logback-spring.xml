@@ -7,7 +7,7 @@
               value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%level]: %msg%n"/>
 
     <appender name="WEBSOCKET"
-              class="com.letraaletra.api.shared.infrastructure.audit.WebSocketAppender"/>
+              class="com.letraaletra.api.features.admin.infrastructure.logging.WebSocketAppender"/>
 
     <appender name="CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">

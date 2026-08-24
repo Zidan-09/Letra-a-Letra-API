@@ -2,7 +2,7 @@ package com.letraaletra.api.features.player.infrastructure.websocket.handlers.ac
 
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
 import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.HandlerResult;
 import com.letraaletra.api.features.player.domain.Player;
@@ -20,11 +20,11 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         implements InGameActionHandler<T> {
 
     protected final UseCase<PlayerActionInput, PlayerActionOutput> useCase;
-    protected final GameNotifier notifier;
+    protected final PlayerNotifier notifier;
 
     public AbstractPlayerActionHandler(
             UseCase<PlayerActionInput, PlayerActionOutput> useCase,
-            GameNotifier notifier
+            PlayerNotifier notifier
     ) {
         this.useCase = useCase;
         this.notifier = notifier;
@@ -65,13 +65,13 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
         for (Player player : players) {
             PlayerActionResponse dto = PlayerActionMapper.toResponse(output, player.getUserId());
 
-            notifier.notifierOne(player.getUserId(), dto);
+            notifier.notifyUser(player.getUserId(), dto);
         }
 
         for (Participant spectator : spectators) {
             PlayerActionResponse dto = PlayerActionMapper.toGlobalResponse(output);
 
-            notifier.notifierOne(spectator.getUserId(), dto);
+            notifier.notifyUser(spectator.getUserId(), dto);
         }
     }
 }

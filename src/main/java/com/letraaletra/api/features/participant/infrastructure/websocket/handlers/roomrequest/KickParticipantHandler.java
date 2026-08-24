@@ -2,7 +2,8 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.participant.application.input.KickParticipantInput;
 import com.letraaletra.api.features.participant.application.output.KickParticipantOutput;
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.participant.application.port.ParticipantNotifier;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.KickParticipantWsRequest;
@@ -13,19 +14,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
 public class KickParticipantHandler implements RoomRequestHandler<KickParticipantWsRequest> {
     private final UseCase<KickParticipantInput, KickParticipantOutput> useCase;
-    private final GameNotifier gameNotifier;
+    private final ParticipantNotifier participantNotifier;
 
     public KickParticipantHandler(
             UseCase<KickParticipantInput, KickParticipantOutput> useCase,
-            GameNotifier gameNotifier
+            ParticipantNotifier participantNotifier
     ) {
         this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
+        this.participantNotifier = participantNotifier;
     }
 
     @Transactional
@@ -39,11 +41,15 @@ public class KickParticipantHandler implements RoomRequestHandler<KickParticipan
 
         KickParticipantResponse dto = KickParticipantMapper.toResponse(output);
 
-        gameNotifier.notifierAll(output.game(), dto);
+        List<String> socketIds = output.game().getParticipants().getParticipants().stream()
+                .map(Participant::getSocketId)
+                .toList();
+
+        participantNotifier.notifyAll(socketIds, dto);
 
         ModerationResponse dtoForKicked = new ModerationResponse("Kicked from game");
 
-        gameNotifier.notifierOne(UUID.fromString(request.participantId()), dtoForKicked);
+        participantNotifier.notifyUser(UUID.fromString(request.participantId()), dtoForKicked);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.game.domain.board.power.action.LanternAction;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LanternActionHandler extends AbstractPlayerActionHandler<LanternActionRequest> {
-    public LanternActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public LanternActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

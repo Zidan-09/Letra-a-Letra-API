@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.BlindPlayerAction;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Component
 public class BlindActionHandler extends AbstractPlayerActionHandler<BlindActionRequest> {
 
-    public BlindActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public BlindActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

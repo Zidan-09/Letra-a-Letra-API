@@ -3,9 +3,9 @@ package com.letraaletra.api.features.admin.application.usecase;
 import com.letraaletra.api.features.admin.application.output.GetApplicationStatusOutput;
 import com.letraaletra.api.features.admin.infrastructure.service.GetApplicationStatusService;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class GetApplicationStatusServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private SessionRepository sessionRepository;
+    private WsConnectionRegistry connectionRegistry;
 
     @Mock
     private ActorManager<Game> actorManager;
@@ -34,7 +34,7 @@ class GetApplicationStatusServiceTest {
     void setUp() {
         service = new GetApplicationStatusService(
                 userRepository,
-                sessionRepository,
+                connectionRegistry,
                 actorManager
         );
     }
@@ -47,7 +47,7 @@ class GetApplicationStatusServiceTest {
         long expectedGames = 12L;
 
         when(userRepository.countUsers()).thenReturn(expectedPlayers);
-        when(sessionRepository.playersOnline()).thenReturn(expectedOnline);
+        when(connectionRegistry.playersOnline()).thenReturn(expectedOnline);
         when(actorManager.count()).thenReturn(expectedGames);
 
         GetApplicationStatusOutput output = service.handle();
@@ -58,7 +58,7 @@ class GetApplicationStatusServiceTest {
         assertEquals(expectedGames, output.games(), "Active games count mismatch");
 
         verify(userRepository, times(1)).countUsers();
-        verify(sessionRepository, times(1)).playersOnline();
+        verify(connectionRegistry, times(1)).playersOnline();
         verify(actorManager, times(1)).count();
     }
 
@@ -66,7 +66,7 @@ class GetApplicationStatusServiceTest {
     @DisplayName("Should return zero counts when database and cache are completely empty")
     void shouldReturnZeroCountsWhenSystemIsEmpty() {
         when(userRepository.countUsers()).thenReturn(0L);
-        when(sessionRepository.playersOnline()).thenReturn(0L);
+        when(connectionRegistry.playersOnline()).thenReturn(0L);
         when(actorManager.count()).thenReturn(0L);
 
         GetApplicationStatusOutput output = service.handle();
@@ -85,7 +85,7 @@ class GetApplicationStatusServiceTest {
         long maxGames = 250000L;
 
         when(userRepository.countUsers()).thenReturn(maxPlayers);
-        when(sessionRepository.playersOnline()).thenReturn(maxOnline);
+        when(connectionRegistry.playersOnline()).thenReturn(maxOnline);
         when(actorManager.count()).thenReturn(maxGames);
 
         GetApplicationStatusOutput output = service.handle();
@@ -104,15 +104,15 @@ class GetApplicationStatusServiceTest {
 
         assertThrows(RuntimeException.class, () -> service.handle());
 
-        verify(sessionRepository, never()).playersOnline();
+        verify(connectionRegistry, never()).playersOnline();
         verify(actorManager, never()).count();
     }
 
     @Test
-    @DisplayName("Should throw RuntimeException when SessionRepository fails unexpectedly")
-    void shouldThrowExceptionWhenSessionRepositoryFails() {
+    @DisplayName("Should throw RuntimeException when WsConnectionRegistry fails unexpectedly")
+    void shouldThrowExceptionWhenConnectionRegistryFails() {
         when(userRepository.countUsers()).thenReturn(100L);
-        when(sessionRepository.playersOnline()).thenThrow(new RuntimeException("Redis cluster unreachable"));
+        when(connectionRegistry.playersOnline()).thenThrow(new RuntimeException("Redis cluster unreachable"));
 
         assertThrows(RuntimeException.class, () -> service.handle());
 
@@ -123,7 +123,7 @@ class GetApplicationStatusServiceTest {
     @DisplayName("Should throw RuntimeException when ActorManager fails unexpectedly")
     void shouldThrowExceptionWhenActorManagerFails() {
         when(userRepository.countUsers()).thenReturn(100L);
-        when(sessionRepository.playersOnline()).thenReturn(10L);
+        when(connectionRegistry.playersOnline()).thenReturn(10L);
         when(actorManager.count()).thenThrow(new RuntimeException("Actor system failure"));
 
         assertThrows(RuntimeException.class, () -> service.handle());

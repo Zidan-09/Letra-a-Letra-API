@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UnblockActionHandler extends AbstractPlayerActionHandler<UnblockActionRequest> {
-    public UnblockActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public UnblockActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

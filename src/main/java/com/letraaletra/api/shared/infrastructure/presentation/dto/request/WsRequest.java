@@ -8,4 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 )
 public interface WsRequest {
     String getAudit();
+
+    default boolean suppressCommandAudit() {
+        return false;
+    }
 }

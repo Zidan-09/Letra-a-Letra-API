@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.game.domain.board.power.action.UnfreezeAction;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UnfreezeActionHandler extends AbstractPlayerActionHandler<UnfreezeActionRequest> {
-    public UnfreezeActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public UnfreezeActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 
