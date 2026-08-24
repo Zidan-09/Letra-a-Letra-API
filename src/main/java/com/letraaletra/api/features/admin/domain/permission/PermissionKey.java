@@ -9,5 +9,6 @@ public enum PermissionKey {
     LEVELS,
     OFFERS,
     TRANSACTIONS,
-    AUDIT
+    AUDIT,
+    TICKET
 }

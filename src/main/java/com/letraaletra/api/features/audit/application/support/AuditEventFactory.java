@@ -6,10 +6,13 @@ import com.letraaletra.api.features.audit.domain.AuditEvent;
 import com.letraaletra.api.features.audit.domain.AuditEventType;
 import com.letraaletra.api.features.audit.domain.AuditResourceType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
+import com.letraaletra.api.features.ticket.domain.Ticket;
+import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.transaction.domain.OperationType;
 import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -97,6 +100,42 @@ public final class AuditEventFactory {
         builder.afterState(Map.of("equipped", movement.equippedAfter()));
 
         return builder.build();
+    }
+
+    public static AuditEvent ticketCreated(Ticket ticket, AuditActor actor, UUID operationId) {
+        return base(actor, ticket.getUserId(), null, AuditSourceType.HTTP, null, operationId)
+                .category(AuditCategory.ACCOUNT)
+                .eventType(AuditEventType.TICKET_CREATED)
+                .resourceType(AuditResourceType.TICKET)
+                .resourceId(ticket.getTicketId().toString())
+                .afterState(Map.of(
+                        "category", ticket.getCategory().name(),
+                        "status", ticket.getStatus().name()
+                ))
+                .build();
+    }
+
+    public static AuditEvent ticketResolved(TicketStatus previousStatus, Ticket resolved, AuditActor actor, UUID operationId) {
+        var builder = base(actor, resolved.getUserId(), null, AuditSourceType.HTTP, null, operationId)
+                .category(AuditCategory.ADMINISTRATION)
+                .eventType(AuditEventType.TICKET_RESOLVED)
+                .resourceType(AuditResourceType.TICKET)
+                .resourceId(resolved.getTicketId().toString())
+                .beforeState(Map.of("status", previousStatus.name()))
+                .afterState(resolvedAfterState(resolved));
+
+        if (resolved.getResolutionNote() != null) {
+            builder.metadata(Map.of("resolutionNote", resolved.getResolutionNote()));
+        }
+
+        return builder.build();
+    }
+
+    private static Map<String, Object> resolvedAfterState(Ticket resolved) {
+        Map<String, Object> state = new HashMap<>();
+        state.put("status", resolved.getStatus().name());
+        state.put("resolvedByAdminId", resolved.getResolvedByAdminId().toString());
+        return state;
     }
 
     private static AuditEvent.Builder base(

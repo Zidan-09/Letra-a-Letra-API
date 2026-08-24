@@ -230,3 +230,19 @@ CREATE INDEX idx_audit_type_time   ON "audit_event" (event_type, occurred_at DES
 CREATE INDEX idx_audit_operation   ON "audit_event" (operation_id) WHERE operation_id IS NOT NULL;
 CREATE INDEX idx_audit_request     ON "audit_event" (request_id) WHERE request_id IS NOT NULL;
 CREATE INDEX idx_audit_transaction ON "audit_event" (transaction_id) WHERE transaction_id IS NOT NULL;
+
+CREATE TABLE "ticket" (
+    "ticket_id"            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "user_id"              uuid NOT NULL REFERENCES "user" ("user_id"),
+    "category"             varchar(30) NOT NULL,
+    "status"               varchar(20) NOT NULL,
+    "subject"              varchar(100) NOT NULL,
+    "description"          varchar(4000) NOT NULL,
+    "resolution_note"      varchar(1000),
+    "resolved_by_admin_id" uuid REFERENCES "admin" ("admin_id") ON DELETE SET NULL,
+    "resolved_at"          timestamptz,
+    "created_at"           timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_ticket_user_created   ON "ticket" ("user_id", "created_at" DESC);
+CREATE INDEX idx_ticket_status_created ON "ticket" ("status", "created_at" DESC);

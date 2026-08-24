@@ -17,5 +17,8 @@ public enum AuditEventType {
 
     CATALOG_CHANGED,
 
+    TICKET_CREATED,
+    TICKET_RESOLVED,
+
     COMMAND_FAILED
 }

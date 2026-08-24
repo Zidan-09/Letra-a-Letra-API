@@ -8,5 +8,6 @@ public enum AuditResourceType {
     LEVEL,
     USER,
     MATCH,
-    ROOM
+    ROOM,
+    TICKET
 }
