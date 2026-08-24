@@ -5,8 +5,8 @@ import com.letraaletra.api.features.game.domain.actor.command.SwapPositionActorC
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.participant.application.input.SwapPositionInput;
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

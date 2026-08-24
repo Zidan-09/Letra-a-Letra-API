@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.BlockCellAction;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BlockActionHandler extends AbstractPlayerActionHandler<BlockActionRequest> {
 
-    public BlockActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public BlockActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

@@ -12,9 +12,17 @@ import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.application.output.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.domain.turn.GameTurn;
 import com.letraaletra.api.features.game.domain.turn.TurnExpired;
+import com.letraaletra.api.features.audit.domain.AuditActor;
+import com.letraaletra.api.features.audit.domain.AuditCategory;
+import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventType;
+import com.letraaletra.api.features.audit.domain.AuditResourceType;
+import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.shared.application.port.AuditService;
-import com.letraaletra.api.shared.infrastructure.presentation.dto.assembler.GameResponseAssembler;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.shared.application.port.OperationContext;
+import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssembler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +31,9 @@ import org.slf4j.event.Level;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.DelayQueue;
 
 @Service
@@ -39,6 +49,8 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     private final GameNotifier gameNotifier;
 
     private final AuditService auditService;
+    private final BusinessAuditRecorder auditRecorder;
+    private final OperationContext operationContext;
 
     private final Logger logger = LoggerFactory.getLogger(DelayQueueTurnTimeoutManager.class);
 
@@ -69,6 +81,14 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
     }
 
     private void handleTurnTimeout(GameTurn gameTurn) {
+        operationContext.runAsOperation(
+                UUID.randomUUID(),
+                gameTurn.gameId().toString(),
+                () -> processTurnTimeout(gameTurn)
+        );
+    }
+
+    private void processTurnTimeout(GameTurn gameTurn) {
         Optional<ExpireTurnTimeoutResult> optResult =
                 transactionExecutor.execute(() ->
                         expireTurnService.expire(
@@ -100,6 +120,19 @@ public class DelayQueueTurnTimeoutManager implements TurnTimeoutManager {
                             gameTurn.player().getUserId()
                     )
             );
+
+            auditRecorder.record(AuditEvent.builder()
+                    .category(AuditCategory.GAME)
+                    .eventType(AuditEventType.PLAYER_REMOVED_INACTIVITY)
+                    .actor(AuditActor.system())
+                    .targetUserId(gameTurn.player().getUserId())
+                    .resourceType(AuditResourceType.USER)
+                    .resourceId(gameTurn.player().getUserId().toString())
+                    .correlationId(gameTurn.gameId().toString())
+                    .sourceType(AuditSourceType.SCHEDULER)
+                    .sourceDetail("TURN_TIMEOUT_SCHEDULER")
+                    .metadata(Map.of("matchId", gameTurn.matchId().toString()))
+                    .build());
         }
 
         ExpireTurnTimeoutResult result = optResult.get();

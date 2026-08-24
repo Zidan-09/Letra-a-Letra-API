@@ -2,7 +2,7 @@ package com.letraaletra.api.features.friend.infrastructure.websocket.broadcast;
 
 import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.FriendRequestEvent;
-import com.letraaletra.api.features.user.application.port.SessionRepository;
+import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class FriendBroadcastService implements FriendNotifier {
-    private final SessionRepository sessionRepository;
+    private final WsConnectionRegistry connectionRegistry;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -25,7 +25,7 @@ public class FriendBroadcastService implements FriendNotifier {
 
     @Override
     public void notifierUser(UUID userId) {
-        WebSocketSession session = sessionRepository.findByUserId(userId);
+        WebSocketSession session = connectionRegistry.findByUserId(userId);
 
         FriendRequestEvent event = new FriendRequestEvent("RECEIVE_FRIEND_REQUEST");
 

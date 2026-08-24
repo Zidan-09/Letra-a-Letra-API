@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.ranking.infrastructure.websocket.handlers;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
-import com.letraaletra.api.features.matchmaking.domain.MatchmakingMessages;
 import com.letraaletra.api.features.ranking.application.input.ExitRankingQueueInput;
+import com.letraaletra.api.features.ranking.domain.RankingMessages;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.ExitRankingGameWsRequest;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.ExitRankingResponse;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.ExitRankingMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.websocket.WsMessageSender;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ExitRankingHandler implements RoomRequestHandler<ExitRankingGameWsRequest> {
     private final UseCase<ExitRankingQueueInput, Void> useCase;
-    private final GameNotifier gameNotifier;
+    private final WsMessageSender messageSender;
 
     @Override
     public void handle(ExitRankingGameWsRequest request, WebSocketSession session) {
@@ -28,15 +28,11 @@ public class ExitRankingHandler implements RoomRequestHandler<ExitRankingGameWsR
 
         useCase.execute(input);
 
-        notifier(userId, new ExitRankingResponse(MatchmakingMessages.USER_LEFT_QUEUE));
+        messageSender.sendToUser(userId, new ExitRankingResponse(RankingMessages.USER_LEFT_QUEUE));
     }
 
     @Override
     public Class<ExitRankingGameWsRequest> getType() {
         return ExitRankingGameWsRequest.class;
-    }
-
-    private void notifier(UUID userId, ExitRankingResponse dto) {
-        gameNotifier.notifierOne(userId, dto);
     }
 }

@@ -3,8 +3,8 @@ package com.letraaletra.api.features.game.infrastructure.config;
 import com.letraaletra.api.features.game.application.port.GameOverService;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
-import com.letraaletra.api.features.user.application.port.SessionRepository;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
@@ -14,7 +14,8 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
-import com.letraaletra.api.shared.infrastructure.websocket.broadcast.GameResponseAssemblerService;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -75,25 +76,27 @@ public class GameConfig {
              RoomTimeoutManager roomTimeoutManager,
              SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
-             GameActorManager gameActorManager
+             GameActorManager gameActorManager,
+             BusinessAuditRecorder auditRecorder
     ) {
         return new StartGameUseCase(
                 gameRepository,
                 roomTimeoutManager,
                 themeService,
                 turnTimeoutManager,
-                gameActorManager
+                gameActorManager,
+                auditRecorder
         );
     }
 
     @Bean
     public GameResponseAssemblerService gameResponseAssemblerService(
             UserRepository userRepository,
-            SessionRepository sessionRepository
+            WsConnectionRegistry connectionRegistry
     ) {
         return new GameResponseAssemblerService(
                 userRepository,
-                sessionRepository
+                connectionRegistry
         );
     }
 

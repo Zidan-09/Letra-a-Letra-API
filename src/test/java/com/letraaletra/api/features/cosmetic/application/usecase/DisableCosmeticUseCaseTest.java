@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.cosmetic.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.cosmetic.application.input.DisableCosmeticInput;
 import com.letraaletra.api.features.cosmetic.application.output.DisableCosmeticOutput;
 import com.letraaletra.api.features.cosmetic.domain.Cosmetic;

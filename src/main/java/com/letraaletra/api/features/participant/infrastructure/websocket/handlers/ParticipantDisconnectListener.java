@@ -1,0 +1,49 @@
+package com.letraaletra.api.features.participant.infrastructure.websocket.handlers;
+
+import com.letraaletra.api.features.participant.application.port.ParticipantNotifier;
+import com.letraaletra.api.features.participant.domain.Participant;
+import com.letraaletra.api.features.participant.application.input.DisconnectParticipantInput;
+import com.letraaletra.api.features.participant.application.output.DisconnectParticipantOutput;
+import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.DisconnectParticipantResponse;
+import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.DisconnectParticipantMapper;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.websocket.WsLifecycleListener;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
+
+import java.util.List;
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class ParticipantDisconnectListener implements WsLifecycleListener {
+    private final UseCase<DisconnectParticipantInput, Optional<DisconnectParticipantOutput>> useCase;
+    private final ParticipantNotifier participantNotifier;
+
+    @Transactional
+    @Override
+    public void onConnected(WebSocketSession session) {
+    }
+
+    @Transactional
+    @Override
+    public void onDisconnected(WebSocketSession session) {
+        String userId = (String) session.getAttributes().get("userId");
+
+        DisconnectParticipantInput input = DisconnectParticipantMapper.toInput(userId, session.getId());
+
+        Optional<DisconnectParticipantOutput> output = useCase.execute(input);
+
+        output.ifPresent(out -> {
+            DisconnectParticipantResponse dto = DisconnectParticipantMapper.toResponse(out);
+
+            List<String> socketIds = out.game().getParticipants().getParticipants().stream()
+                    .map(Participant::getSocketId)
+                    .toList();
+
+            participantNotifier.notifyAll(socketIds, dto);
+        });
+    }
+}

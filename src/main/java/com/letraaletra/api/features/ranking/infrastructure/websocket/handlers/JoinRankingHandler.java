@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.ranking.infrastructure.websocket.handlers;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.ranking.application.input.JoinRankingInput;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.request.JoinRankingGameWsRequest;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.JoinRankingResponse;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.JoinRankingMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.infrastructure.websocket.WsMessageSender;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JoinRankingHandler implements RoomRequestHandler<JoinRankingGameWsRequest> {
     private final UseCase<JoinRankingInput, Void> useCase;
-    private final GameNotifier gameNotifier;
+    private final WsMessageSender messageSender;
 
     @Override
     public void handle(JoinRankingGameWsRequest request, WebSocketSession session) {
@@ -29,15 +29,11 @@ public class JoinRankingHandler implements RoomRequestHandler<JoinRankingGameWsR
 
         JoinRankingResponse dto = JoinRankingMapper.toResponse();
 
-        notifier(userId, dto);
+        messageSender.sendToUser(userId, dto);
     }
 
     @Override
     public Class<JoinRankingGameWsRequest> getType() {
         return JoinRankingGameWsRequest.class;
-    }
-
-    private void notifier(UUID userId, JoinRankingResponse dto) {
-        gameNotifier.notifierOne(userId, dto);
     }
 }

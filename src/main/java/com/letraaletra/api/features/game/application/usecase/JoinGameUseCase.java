@@ -4,8 +4,8 @@ import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorComma
 import com.letraaletra.api.features.game.application.input.JoinGameInput;
 import com.letraaletra.api.features.game.application.output.JoinGameOutput;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;

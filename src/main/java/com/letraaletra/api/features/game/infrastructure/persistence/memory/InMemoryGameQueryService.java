@@ -2,8 +2,8 @@ package com.letraaletra.api.features.game.infrastructure.persistence.memory;
 
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.input.GetPublicGamesInput;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.application.port.GameQueryService;
 import com.letraaletra.api.features.game.domain.Game;
 import org.springframework.data.domain.Page;

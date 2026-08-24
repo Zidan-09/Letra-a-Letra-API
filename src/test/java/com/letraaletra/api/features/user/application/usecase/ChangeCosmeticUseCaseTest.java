@@ -40,6 +40,9 @@ class ChangeCosmeticUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
+
     @InjectMocks
     private ChangeCosmeticUseCase useCase;
 

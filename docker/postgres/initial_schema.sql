@@ -197,3 +197,52 @@ CREATE TABLE "level_reward" (
 CREATE INDEX idx_game_room_code_active ON "game" ("room_code") WHERE status = 'WAITING';
 CREATE INDEX idx_user_stats_wins ON "user_stats" ("total_wins" DESC);
 CREATE INDEX idx_match_players_user ON "match_players" ("user_id");
+
+CREATE TABLE "audit_event" (
+    event_id        uuid PRIMARY KEY,
+    occurred_at     timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    category        varchar(30) NOT NULL,
+    event_type      varchar(50) NOT NULL,
+    outcome         varchar(10) NOT NULL,
+    failure_reason  text NULL,
+    actor_type      varchar(10) NOT NULL,
+    actor_id        uuid NULL,
+    actor_name      varchar(60) NULL,
+    target_user_id  uuid NULL REFERENCES "user"("user_id") ON DELETE SET NULL,
+    resource_type   varchar(30) NOT NULL,
+    resource_id     varchar(64) NOT NULL,
+    before_state    jsonb NULL,
+    after_state     jsonb NULL,
+    delta           jsonb NULL,
+    reason_code     varchar(50) NULL,
+    request_id      varchar(64) NULL,
+    operation_id    uuid NULL,
+    correlation_id  varchar(64) NULL,
+    source_type     varchar(20) NOT NULL,
+    source_detail   varchar(200) NULL,
+    transaction_id  uuid NULL,
+    metadata        jsonb NULL
+);
+
+CREATE INDEX idx_audit_user_time   ON "audit_event" (target_user_id, occurred_at DESC);
+CREATE INDEX idx_audit_resource    ON "audit_event" (resource_type, resource_id, occurred_at DESC);
+CREATE INDEX idx_audit_type_time   ON "audit_event" (event_type, occurred_at DESC);
+CREATE INDEX idx_audit_operation   ON "audit_event" (operation_id) WHERE operation_id IS NOT NULL;
+CREATE INDEX idx_audit_request     ON "audit_event" (request_id) WHERE request_id IS NOT NULL;
+CREATE INDEX idx_audit_transaction ON "audit_event" (transaction_id) WHERE transaction_id IS NOT NULL;
+
+CREATE TABLE "ticket" (
+    "ticket_id"            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "user_id"              uuid NOT NULL REFERENCES "user" ("user_id"),
+    "category"             varchar(30) NOT NULL,
+    "status"               varchar(20) NOT NULL,
+    "subject"              varchar(100) NOT NULL,
+    "description"          varchar(4000) NOT NULL,
+    "resolution_note"      varchar(1000),
+    "resolved_by_admin_id" uuid REFERENCES "admin" ("admin_id") ON DELETE SET NULL,
+    "resolved_at"          timestamptz,
+    "created_at"           timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_ticket_user_created   ON "ticket" ("user_id", "created_at" DESC);
+CREATE INDEX idx_ticket_status_created ON "ticket" ("status", "created_at" DESC);

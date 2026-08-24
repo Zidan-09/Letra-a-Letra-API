@@ -10,8 +10,8 @@ import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.domain.state.GameSettings;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +49,9 @@ class StartGameUseCaseTest {
 
     @Mock
     private Actor actor;
+
+    @Mock
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private StartGameUseCase useCase;

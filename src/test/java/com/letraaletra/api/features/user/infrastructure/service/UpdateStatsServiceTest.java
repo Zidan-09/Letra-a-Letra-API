@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -53,6 +54,12 @@ class UpdateStatsServiceTest {
     @Mock
     private TransactionRepository walletTransactionRepository;
 
+    @Mock
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
+
+    @Mock
+    private com.letraaletra.api.shared.application.port.OperationContext operationContext;
+
     @InjectMocks
     private UpdateStatsService service;
 
@@ -68,6 +75,10 @@ class UpdateStatsServiceTest {
         userId = UUID.randomUUID();
         mockUser = mock(User.class);
         mockUserStats = mock(UserStats.class);
+
+        lenient().when(operationContext.currentOperationId()).thenReturn(Optional.empty());
+        lenient().when(walletTransactionRepository.save(any(Transaction.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Nested

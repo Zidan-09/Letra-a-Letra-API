@@ -2,26 +2,28 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.participant.application.input.SwapPositionInput;
 import com.letraaletra.api.features.participant.application.output.SwapPositionOutput;
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.participant.application.port.ParticipantNotifier;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.SwapPositionWsRequest;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.SwapPositionResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.SwapPositionMapper;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRequest> {
     private final UseCase<SwapPositionInput, SwapPositionOutput> useCase;
-    private final GameNotifier gameNotifier;
+    private final ParticipantNotifier participantNotifier;
 
     private SwapRoomPlaceHandler(
             UseCase<SwapPositionInput, SwapPositionOutput> useCase,
-            GameNotifier gameNotifier
+            ParticipantNotifier participantNotifier
     ) {
         this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
+        this.participantNotifier = participantNotifier;
     }
 
     @Override
@@ -34,7 +36,11 @@ public class SwapRoomPlaceHandler implements RoomRequestHandler<SwapPositionWsRe
 
         SwapPositionResponse dto = SwapPositionMapper.toResponse(output);
 
-        gameNotifier.notifierAll(output.game(), dto);
+        List<String> socketIds = output.game().getParticipants().getParticipants().stream()
+                .map(Participant::getSocketId)
+                .toList();
+
+        participantNotifier.notifyAll(socketIds, dto);
     }
 
     @Override

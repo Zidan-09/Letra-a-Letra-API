@@ -56,8 +56,10 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public void save(Transaction transaction) {
-        repository.save(TransactionMapper.toEntity(transaction));
+    public Transaction save(Transaction transaction) {
+        return TransactionMapper.toDomain(
+                repository.save(TransactionMapper.toEntity(transaction))
+        );
     }
 
     @Override

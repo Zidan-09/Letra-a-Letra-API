@@ -7,14 +7,15 @@ import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepositor
 import com.letraaletra.api.features.user.application.usecase.ChangeCosmeticUseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CosmeticConfig {
     @Bean
-    public ChangeCosmeticUseCase setAvatarUseCase(UserRepository userRepository) {
-        return new ChangeCosmeticUseCase(userRepository);
+    public ChangeCosmeticUseCase setAvatarUseCase(UserRepository userRepository, BusinessAuditRecorder auditRecorder) {
+        return new ChangeCosmeticUseCase(userRepository, auditRecorder);
     }
 
     @Bean

@@ -3,8 +3,8 @@ package com.letraaletra.api.features.player.application.usecase;
 import com.letraaletra.api.features.game.domain.actor.command.DiscardPowerActorCommand;
 import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
-import com.letraaletra.api.shared.application.port.Actor;
-import com.letraaletra.api.shared.application.port.ActorManager;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
 

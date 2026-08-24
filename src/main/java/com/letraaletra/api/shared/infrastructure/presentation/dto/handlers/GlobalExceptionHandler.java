@@ -24,6 +24,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private final HttpCommandFailureAuditor failureAuditor;
+
+    public GlobalExceptionHandler(HttpCommandFailureAuditor failureAuditor) {
+        this.failureAuditor = failureAuditor;
+    }
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleHttpException(
@@ -31,6 +36,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        recordHttpFailure(ex, request, HttpStatus.BAD_REQUEST.value());
 
         MessageCode code = ex.getMessageCode();
 
@@ -182,6 +189,8 @@ public class GlobalExceptionHandler {
 
         request.setAttribute("AUDIT_EXCEPTION", ex);
 
+        recordHttpFailure(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(
@@ -189,5 +198,9 @@ public class GlobalExceptionHandler {
                         ServerMessages.INTERNAL_ERROR.getCode(),
                         ServerMessages.INTERNAL_ERROR.getMessage()
                 ));
+    }
+
+    private void recordHttpFailure(Exception ex, HttpServletRequest request, int status) {
+        failureAuditor.recordFailure(request, ex, status);
     }
 }

@@ -2,7 +2,8 @@ package com.letraaletra.api.features.participant.infrastructure.websocket.handle
 
 import com.letraaletra.api.features.participant.application.input.BanParticipantInput;
 import com.letraaletra.api.features.participant.application.output.BanParticipantOutput;
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.participant.application.port.ParticipantNotifier;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.request.BanParticipantWsRequest;
@@ -13,19 +14,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
 public class BanParticipantHandler implements RoomRequestHandler<BanParticipantWsRequest> {
     private final UseCase<BanParticipantInput, BanParticipantOutput> useCase;
-    private final GameNotifier gameNotifier;
+    private final ParticipantNotifier participantNotifier;
 
     public BanParticipantHandler(
             UseCase<BanParticipantInput, BanParticipantOutput> useCase,
-            GameNotifier gameNotifier
+            ParticipantNotifier participantNotifier
     ) {
         this.useCase = useCase;
-        this.gameNotifier = gameNotifier;
+        this.participantNotifier = participantNotifier;
     }
 
     @Transactional
@@ -39,11 +41,15 @@ public class BanParticipantHandler implements RoomRequestHandler<BanParticipantW
 
         BanParticipantResponse dto = BanParticipantMapper.toResponse(output);
 
-        gameNotifier.notifierAll(output.game(), dto);
+        List<String> socketIds = output.game().getParticipants().getParticipants().stream()
+                .map(Participant::getSocketId)
+                .toList();
+
+        participantNotifier.notifyAll(socketIds, dto);
 
         ModerationResponse dtoForBanned = new ModerationResponse("Banned from game");
 
-        gameNotifier.notifierOne(UUID.fromString(request.participantId()), dtoForBanned);
+        participantNotifier.notifyUser(UUID.fromString(request.participantId()), dtoForBanned);
 
     }
 

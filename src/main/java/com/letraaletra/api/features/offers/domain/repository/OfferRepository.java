@@ -5,5 +5,6 @@ public interface OfferRepository extends
         GetOffers,
         FindOffer,
         DeleteOffer,
-        ExpireOffers
+        ExpireOffers,
+        FindActiveExpiredOfferIds
 {}

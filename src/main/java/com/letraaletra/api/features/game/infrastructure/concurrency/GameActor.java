@@ -2,10 +2,12 @@ package com.letraaletra.api.features.game.infrastructure.concurrency;
 
 import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
 import com.letraaletra.api.features.game.domain.actor.command.ActorCommand;
-import com.letraaletra.api.shared.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.shared.application.port.OperationContext;
 import com.letraaletra.api.features.game.domain.Game;
 
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +17,7 @@ public class GameActor implements Actor {
     private final Queue<CommandEnvelope<?>> mailbox = new ConcurrentLinkedQueue<>();
     private final ExecutorService executor;
     private final TransactionalExecutorService transactionExecutor;
+    private final OperationContext operationContext;
     private final Game game;
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
@@ -23,9 +26,15 @@ public class GameActor implements Actor {
             CompletableFuture<T> future
     ) {}
 
-    public GameActor(ExecutorService executor, TransactionalExecutorService transactionExecutor, Game game) {
+    public GameActor(
+            ExecutorService executor,
+            TransactionalExecutorService transactionExecutor,
+            OperationContext operationContext,
+            Game game
+    ) {
         this.game = game;
         this.transactionExecutor = transactionExecutor;
+        this.operationContext = operationContext;
         this.executor = executor;
     }
 
@@ -59,12 +68,16 @@ public class GameActor implements Actor {
     }
 
     private <T> void executeEnvelope(CommandEnvelope<T> envelope) {
-        try {
-            T result = transactionExecutor.execute(() ->
-                    envelope.command().execute(game)
-            );
+        UUID operationId = UUID.randomUUID();
 
-            envelope.future().complete(result);
+        try {
+            operationContext.runAsOperation(operationId, game.getId().toString(), () -> {
+                T result = transactionExecutor.execute(() ->
+                        envelope.command().execute(game)
+                );
+
+                envelope.future().complete(result);
+            });
 
         } catch (Throwable t) {
             envelope.future().completeExceptionally(t);

@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
-import com.letraaletra.api.features.game.application.port.GameNotifier;
+import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.FreezePlayerAction;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Component
 public class FreezeActionHandler extends AbstractPlayerActionHandler<FreezeActionRequest> {
-    public FreezeActionHandler(PlayerActionUseCase useCase, GameNotifier notifier) {
+    public FreezeActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

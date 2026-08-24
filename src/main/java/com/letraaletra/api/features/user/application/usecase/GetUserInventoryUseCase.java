@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.permission.PermissionAction;
-import com.letraaletra.api.features.admin.domain.permission.PermissionKey;
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.user.application.input.GetUserInventoryInput;
 import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
 import com.letraaletra.api.features.user.domain.UsersPage;

@@ -1,5 +1,8 @@
 package com.letraaletra.api.features.admin.domain.permission;
 
+import com.letraaletra.api.shared.domain.security.PermissionAction;
+import com.letraaletra.api.shared.domain.security.PermissionKey;
+
 import java.util.*;
 
 public class Permissions {
