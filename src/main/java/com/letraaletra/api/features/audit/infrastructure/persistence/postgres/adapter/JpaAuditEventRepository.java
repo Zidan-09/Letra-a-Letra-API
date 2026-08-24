@@ -1,13 +1,10 @@
 package com.letraaletra.api.features.audit.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.audit.domain.AuditEvent;
-import com.letraaletra.api.features.audit.domain.AuditEventFilter;
-import com.letraaletra.api.features.audit.domain.repository.FindAuditEvents;
-import com.letraaletra.api.features.audit.domain.repository.SaveAuditEvent;
-import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.entity.AuditEventJpaEntity;
-import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.jpa.SpringDataAuditEventRepository;
-import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.mapper.AuditEventJpaMapper;
-import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +12,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventFilter;
+import com.letraaletra.api.features.audit.domain.repository.FindAuditEvents;
+import com.letraaletra.api.features.audit.domain.repository.SaveAuditEvent;
+import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.entity.AuditEventJpaEntity;
+import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.jpa.SpringDataAuditEventRepository;
+import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.mapper.AuditEventJpaMapper;
 
 @Repository
 public class JpaAuditEventRepository implements SaveAuditEvent, FindAuditEvents {

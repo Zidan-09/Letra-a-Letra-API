@@ -1,5 +1,22 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.letraaletra.api.shared.application.port.BusinessAuditRecorder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOver;
@@ -15,29 +32,6 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.ActorManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.InOrder;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GameOverHandlerTest {
@@ -49,7 +43,10 @@ class GameOverHandlerTest {
     @Mock private UserStatsService userStatsService;
     @Mock private RankingPointsService rankingPointsService;
     @Mock private Game game;
-    @Mock private com.letraaletra.api.shared.application.port.BusinessAuditRecorder auditRecorder;
+    @Mock private BusinessAuditRecorder auditRecorder;
+
+    @Captor
+    private ArgumentCaptor<List<User>> usersCaptor;
 
     @InjectMocks
     private GameOverHandler handler;
@@ -75,6 +72,8 @@ class GameOverHandlerTest {
 
         when(userRepository.findUsersById(anyList()))
                 .thenReturn(List.of(winnerUser, loserUser));
+
+        lenient().doNothing().when(auditRecorder).record(any());
     }
 
     @Test
@@ -121,7 +120,7 @@ class GameOverHandlerTest {
         verify(userStatsService).update(winnerUser, true);
         verify(userStatsService).update(loserUser, false);
         verify(rankingPointsService, never())
-                .handle(org.mockito.ArgumentMatchers.any(User.class), anyInt(), anyInt());
+                .handle(any(User.class), anyInt(), anyInt());
         verify(roomTimeoutManager).start(game);
         verify(actorManager, never()).remove(game.getId());
 
@@ -135,12 +134,11 @@ class GameOverHandlerTest {
         when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
         when(winnerPlayer.getScore()).thenReturn(3);
         when(loserPlayer.getScore()).thenReturn(1);
-        when(rankingPointsService.handle(org.mockito.ArgumentMatchers.any(User.class), anyInt(), anyInt()))
+        when(rankingPointsService.handle(any(User.class), anyInt(), anyInt()))
                 .thenReturn(new UpdateRankingPoints(0, 0, 0));
 
         handler.handle(game, gameOver);
 
-        ArgumentCaptor<List<User>> usersCaptor = ArgumentCaptor.forClass(List.class);
         verify(userRepository).saveAll(usersCaptor.capture());
         verify(userRepository, never()).save(winnerUser);
         verify(userRepository, never()).save(loserUser);

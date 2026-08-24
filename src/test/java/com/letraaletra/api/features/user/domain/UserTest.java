@@ -1,26 +1,31 @@
 package com.letraaletra.api.features.user.domain;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
-import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
-import com.letraaletra.api.features.user.domain.ban.BanInfo;
-import com.letraaletra.api.features.user.domain.ban.BanType;
-import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
-import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
-import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserCosmeticSelectedException;
-import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
+import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
+import com.letraaletra.api.features.user.domain.ban.BanType;
+import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
+import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
+import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
+import com.letraaletra.api.features.user.domain.inventory.Inventory;
+import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserCosmeticSelectedException;
 
 class UserTest {
 

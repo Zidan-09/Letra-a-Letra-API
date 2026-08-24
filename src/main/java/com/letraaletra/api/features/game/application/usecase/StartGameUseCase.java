@@ -24,7 +24,6 @@ import com.letraaletra.api.features.game.domain.board.Board;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput> {

@@ -1,17 +1,9 @@
 package com.letraaletra.api.features.audit.infrastructure.persistence.postgres;
 
-import com.letraaletra.api.features.audit.domain.AuditActor;
-import com.letraaletra.api.features.audit.domain.AuditActorType;
-import com.letraaletra.api.features.audit.domain.AuditCategory;
-import com.letraaletra.api.features.audit.domain.AuditEvent;
-import com.letraaletra.api.features.audit.domain.AuditEventFilter;
-import com.letraaletra.api.features.audit.domain.AuditEventType;
-import com.letraaletra.api.features.audit.domain.AuditOutcome;
-import com.letraaletra.api.features.audit.domain.AuditResourceType;
-import com.letraaletra.api.features.audit.domain.AuditSourceType;
-import com.letraaletra.api.features.audit.domain.repository.FindAuditEvents;
-import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.adapter.JpaAuditEventRepository;
-import com.letraaletra.api.shared.infrastructure.audit.MdcOperationContext;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +13,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.letraaletra.api.features.audit.domain.AuditActor;
+import com.letraaletra.api.features.audit.domain.AuditActorType;
+import com.letraaletra.api.features.audit.domain.AuditCategory;
+import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventFilter;
+import com.letraaletra.api.features.audit.domain.AuditEventType;
+import com.letraaletra.api.features.audit.domain.AuditOutcome;
+import com.letraaletra.api.features.audit.domain.AuditResourceType;
+import com.letraaletra.api.features.audit.domain.AuditSourceType;
+import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.adapter.JpaAuditEventRepository;
+import com.letraaletra.api.shared.infrastructure.audit.MdcOperationContext;
 
 @DataJpaTest
 @Import({JpaAuditEventRepository.class, MdcOperationContext.class})
