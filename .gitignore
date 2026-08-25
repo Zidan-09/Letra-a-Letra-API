@@ -6,6 +6,7 @@ target/
 .env
 api-test.log
 docs/
+docker/postgres/
 
 ### STS ###
 .apt_generated
