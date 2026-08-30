@@ -18,14 +18,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -56,7 +55,7 @@ class GetTicketsUseCaseTest {
     void shouldRequirePermissionAndForwardFilters() {
         AuthenticatedUser admin = new AuthenticatedUser(UUID.randomUUID(), "Admin", true, false);
         UUID targetUserId = UUID.randomUUID();
-        when(ticketRepository.findTickets(any(), anyInt(), anyInt(), anyBoolean()))
+        when(ticketRepository.findTickets(any(), any()))
                 .thenReturn(Page.empty());
 
         useCase.execute(new GetTicketsInput(
@@ -64,13 +63,13 @@ class GetTicketsUseCaseTest {
                 TicketStatus.PENDING,
                 null,
                 targetUserId,
-                -1,
-                500,
-                true
+                0,
+                200,
+                Sort.unsorted()
         ));
 
         verify(adminChecker).check(admin, PermissionKey.TICKET, PermissionAction.VIEW);
-        verify(ticketRepository).findTickets(filterCaptor.capture(), eq(0), eq(200), eq(true));
+        verify(ticketRepository).findTickets(filterCaptor.capture(), any());
 
         TicketFilter filter = filterCaptor.getValue();
         assertEquals(TicketStatus.PENDING, filter.status());
@@ -86,7 +85,7 @@ class GetTicketsUseCaseTest {
                 .check(user, PermissionKey.TICKET, PermissionAction.VIEW);
 
         assertThrows(PermissionDeniedException.class, () -> useCase.execute(
-                new GetTicketsInput(user, null, null, null, 0, 20, false)
+                new GetTicketsInput(user, null, null, null, 0, 20, Sort.unsorted())
         ));
 
         verifyNoInteractions(ticketRepository);

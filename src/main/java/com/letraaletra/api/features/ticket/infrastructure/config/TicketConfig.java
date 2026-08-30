@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.ticket.infrastructure.config;
 
 import com.letraaletra.api.features.ticket.application.usecase.CreateTicketUseCase;
+import com.letraaletra.api.features.ticket.application.usecase.FindTicketsByUserUsernameUseCase;
 import com.letraaletra.api.features.ticket.application.usecase.GetMyTicketsUseCase;
 import com.letraaletra.api.features.ticket.application.usecase.GetTicketByIdUseCase;
 import com.letraaletra.api.features.ticket.application.usecase.GetTicketsUseCase;
@@ -36,6 +37,11 @@ public class TicketConfig {
     @Bean
     public GetTicketsUseCase getTicketsUseCase(TicketRepository ticketRepository, AdminChecker adminChecker) {
         return new GetTicketsUseCase(ticketRepository, adminChecker);
+    }
+
+    @Bean
+    public FindTicketsByUserUsernameUseCase findTicketsByUserUsernameUseCase(TicketRepository ticketRepository, AdminChecker adminChecker) {
+        return new FindTicketsByUserUsernameUseCase(ticketRepository, adminChecker);
     }
 
     @Bean

@@ -5,15 +5,22 @@ import com.letraaletra.api.features.ticket.application.output.GetMyTicketsOutput
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 public class GetMyTicketsMapper {
 
-    public static GetMyTicketsInput toInput(AuthenticatedUser principal, int page, int size, boolean ascending) {
+    public static GetMyTicketsInput toInput(AuthenticatedUser principal, Pageable pageable) {
+        Pageable pages = pageable == null ?
+                PageRequest.of(0, 20, Sort.Direction.ASC) :
+                pageable;
+
         return new GetMyTicketsInput(
                 principal.auth(),
-                page,
-                size,
-                ascending
+                pages.getPageNumber(),
+                pages.getPageSize(),
+                pages.getSort()
         );
     }
 

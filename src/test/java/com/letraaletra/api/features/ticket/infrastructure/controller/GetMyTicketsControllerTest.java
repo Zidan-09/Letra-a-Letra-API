@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -48,21 +50,22 @@ class GetMyTicketsControllerTest {
     @Test
     @DisplayName("Should resolve the user from the principal and return the paged response")
     void shouldReturnPagedOwnTickets() {
-        GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 0, 20, false);
+        Pageable pageable = PageRequest.of(0, 20);
+        GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 0, 20, pageable.getSort());
         PageResponse<TicketResponse> dto = new PageResponse<>(List.of(), 0, 20, 0, 0, true, true);
         ResponseEntity<SuccessResponse<PageResponse<TicketResponse>>> expected = ApiResponseHandler.success(dto);
 
         try (MockedStatic<GetMyTicketsMapper> mapperMock = mockStatic(GetMyTicketsMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, 0, 20, false)).thenReturn(input);
+            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, pageable)).thenReturn(input);
             when(useCase.execute(input)).thenReturn(new GetMyTicketsOutput(org.springframework.data.domain.Page.empty()));
             mapperMock.when(() -> GetMyTicketsMapper.toResponse(org.mockito.ArgumentMatchers.any(GetMyTicketsOutput.class)))
                     .thenReturn(dto);
             apiResponseMock.when(() -> ApiResponseHandler.success(dto)).thenReturn(expected);
 
             ResponseEntity<SuccessResponse<PageResponse<TicketResponse>>> response =
-                    controller.handle(principal, 0, 20, "DESC");
+                    controller.handle(principal, pageable);
 
             assertEquals(expected, response);
             verify(useCase, times(1)).execute(input);
@@ -72,17 +75,18 @@ class GetMyTicketsControllerTest {
     @Test
     @DisplayName("Should map ASC direction to ascending ordering")
     void shouldMapAscDirection() {
-        GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 1, 5, true);
+        Pageable pageable = PageRequest.of(1, 5, org.springframework.data.domain.Sort.by("createdAt").ascending());
+        GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 1, 5, pageable.getSort());
 
         try (MockedStatic<GetMyTicketsMapper> mapperMock = mockStatic(GetMyTicketsMapper.class);
              MockedStatic<ApiResponseHandler> ignored = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, 1, 5, true)).thenReturn(input);
+            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, pageable)).thenReturn(input);
             when(useCase.execute(input)).thenReturn(new GetMyTicketsOutput(org.springframework.data.domain.Page.empty()));
             mapperMock.when(() -> GetMyTicketsMapper.toResponse(org.mockito.ArgumentMatchers.any(GetMyTicketsOutput.class)))
                     .thenReturn(new PageResponse<>(List.of(), 1, 5, 0, 0, false, true));
 
-            controller.handle(principal, 1, 5, "ASC");
+            controller.handle(principal, pageable);
 
             verify(useCase, times(1)).execute(input);
         }
@@ -92,11 +96,12 @@ class GetMyTicketsControllerTest {
     @DisplayName("Should propagate use case exceptions")
     void shouldPropagateExceptions() {
         try (MockedStatic<GetMyTicketsMapper> mapperMock = mockStatic(GetMyTicketsMapper.class)) {
-            GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 0, 20, false);
-            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, 0, 20, false)).thenReturn(input);
+            Pageable pageable = PageRequest.of(0, 20);
+            GetMyTicketsInput input = new GetMyTicketsInput(principal.auth(), 0, 20, pageable.getSort());
+            mapperMock.when(() -> GetMyTicketsMapper.toInput(principal, pageable)).thenReturn(input);
             when(useCase.execute(input)).thenThrow(new IllegalArgumentException("boom"));
 
-            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, 0, 20, "DESC"));
+            assertThrows(IllegalArgumentException.class, () -> controller.handle(principal, pageable));
         }
     }
 }

@@ -3,6 +3,7 @@ package com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
 import com.letraaletra.api.features.ticket.domain.TicketFilter;
+import com.letraaletra.api.features.ticket.domain.TicketsPage;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.entity.TicketJpaEntity;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.jpa.SpringDataTicketRepository;
@@ -16,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -94,7 +94,8 @@ class JpaTicketRepositoryTest {
         when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        jpaTicketRepository.findUserTickets(UUID.randomUUID(), 2, 25, false);
+        TicketsPage ticketsPage = new TicketsPage(2, 25, Sort.by(Sort.Direction.DESC, "createdAt"));
+        jpaTicketRepository.findUserTickets(UUID.randomUUID(), ticketsPage);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(springDataTicketRepository).findAll(any(Specification.class), pageableCaptor.capture());
@@ -111,7 +112,8 @@ class JpaTicketRepositoryTest {
         when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        jpaTicketRepository.findTickets(new TicketFilter(TicketStatus.RESOLVED, null, null), 0, 10, true);
+        TicketsPage ticketsPage = new TicketsPage(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
+        jpaTicketRepository.findTickets(new TicketFilter(TicketStatus.RESOLVED, null, null), ticketsPage);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(springDataTicketRepository).findAll(any(Specification.class), pageableCaptor.capture());
@@ -128,11 +130,10 @@ class JpaTicketRepositoryTest {
         when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(entityPage);
 
+        TicketsPage ticketsPage = new TicketsPage(0, 20, null);
         Page<Ticket> result = jpaTicketRepository.findTickets(
                 new TicketFilter(null, TicketCategory.BUG, ticket.getUserId()),
-                0,
-                20,
-                false
+                ticketsPage
         );
 
         assertNotNull(result.getContent());

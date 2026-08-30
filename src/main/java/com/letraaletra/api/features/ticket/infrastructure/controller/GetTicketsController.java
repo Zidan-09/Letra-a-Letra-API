@@ -13,6 +13,7 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageR
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,18 +36,14 @@ public class GetTicketsController {
             @RequestParam(required = false) TicketStatus status,
             @RequestParam(required = false) TicketCategory category,
             @RequestParam(required = false) UUID userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "DESC") String direction
+            Pageable pageable
     ) {
         GetTicketsInput input = GetTicketsMapper.toInput(
                 principal,
                 status,
                 category,
                 userId,
-                page,
-                size,
-                "ASC".equalsIgnoreCase(direction)
+                pageable
         );
 
         GetTicketsOutput output = useCase.execute(input);
