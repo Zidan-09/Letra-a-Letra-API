@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.ticket.application.input.GetTicketByIdInput;
@@ -29,6 +30,9 @@ public class GetTicketByIdUseCase implements UseCase<GetTicketByIdInput, GetTick
             adminChecker.check(input.principal(), PermissionKey.TICKET, PermissionAction.VIEW);
         }
 
-        return new GetTicketByIdOutput(ticket);
+        TicketDetails ticketDetails = findTicket.findDetailsById(input.ticketId())
+                .orElseThrow(TicketNotFoundException::new);
+
+        return new GetTicketByIdOutput(ticketDetails);
     }
 }

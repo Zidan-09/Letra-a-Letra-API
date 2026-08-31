@@ -8,15 +8,15 @@ import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(JpaUserRepository.class)
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class JpaUserRepositoryPersistenceTest {
 
     @Autowired
@@ -36,12 +36,17 @@ class JpaUserRepositoryPersistenceTest {
     @Autowired
     private SpringDataCosmeticRepository cosmeticRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     private Cosmetic avatar;
 
     @BeforeEach
     void setUp() {
         avatar = Cosmetic.create("avatar-test", CosmeticTypes.AVATAR, "assets/avatar.png");
         cosmeticRepository.save(CosmeticMapper.toEntity(avatar));
+        entityManager.flush();
+        entityManager.clear();
     }
 
     private User createUserAfterMatch(String nickname, boolean winner) {
@@ -62,6 +67,9 @@ class JpaUserRepositoryPersistenceTest {
         User loser = createUserAfterMatch("loser", false);
 
         jpaUserRepository.saveAll(List.of(winner, loser));
+
+        entityManager.flush();
+        entityManager.clear();
 
         Optional<User> reloadedWinner = jpaUserRepository.find(winner.getUserId());
         Optional<User> reloadedLoser = jpaUserRepository.find(loser.getUserId());
@@ -95,6 +103,8 @@ class JpaUserRepositoryPersistenceTest {
         User user = createUserAfterMatch("player", false);
 
         jpaUserRepository.saveAll(List.of(user));
+        entityManager.flush();
+        entityManager.clear();
 
         Cosmetic banner = Cosmetic.create("banner-test", CosmeticTypes.BANNER, "assets/banner.png");
         cosmeticRepository.save(CosmeticMapper.toEntity(banner));
@@ -105,6 +115,8 @@ class JpaUserRepositoryPersistenceTest {
         user.leaveGame();
 
         jpaUserRepository.saveAll(List.of(user));
+        entityManager.flush();
+        entityManager.clear();
 
         Optional<User> reloaded = jpaUserRepository.find(user.getUserId());
 

@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.ticket.application.output;
 
-import com.letraaletra.api.features.ticket.domain.Ticket;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 
 public record CreateTicketOutput(
-        Ticket ticket
+        TicketDetails ticket
 ) {
 }

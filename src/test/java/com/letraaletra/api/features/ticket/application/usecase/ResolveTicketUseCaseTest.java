@@ -9,6 +9,7 @@ import com.letraaletra.api.features.audit.domain.AuditResourceType;
 import com.letraaletra.api.features.ticket.application.input.ResolveTicketInput;
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.domain.exception.InvalidTicketStatusException;
 import com.letraaletra.api.features.ticket.domain.exception.TicketNotFoundException;
@@ -26,6 +27,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,12 +76,31 @@ class ResolveTicketUseCaseTest {
         );
     }
 
+    private TicketDetails buildTicketDetails(Ticket ticket) {
+        return new TicketDetails(
+                ticket.getTicketId(),
+                ticket.getUserId(),
+                "player",
+                ticket.getCategory(),
+                TicketStatus.RESOLVED,
+                ticket.getSubject(),
+                ticket.getDescription(),
+                "Fixed in patch 1.2",
+                UUID.randomUUID(),
+                "Admin",
+                LocalDateTime.now(),
+                ticket.getCreatedAt()
+        );
+    }
+
     @Test
     @DisplayName("Admin with TICKET/EDIT should resolve a pending ticket and register authorship, date and note")
     void adminShouldResolvePendingTicket() {
         AuthenticatedUser admin = new AuthenticatedUser(UUID.randomUUID(), "Admin", true, false);
         Ticket ticket = pendingTicket(UUID.randomUUID());
+        TicketDetails ticketDetails = buildTicketDetails(ticket);
         when(ticketRepository.findById(ticket.getTicketId())).thenReturn(Optional.of(ticket));
+        when(ticketRepository.findDetailsById(ticket.getTicketId())).thenReturn(Optional.of(ticketDetails));
 
         var output = useCase.execute(new ResolveTicketInput(admin, ticket.getTicketId(), " Fixed in patch 1.2 "));
 
@@ -90,7 +111,7 @@ class ResolveTicketUseCaseTest {
         assertEquals(admin.auth(), saved.getResolvedByAdminId());
         assertNotNull(saved.getResolvedAt());
         assertEquals("Fixed in patch 1.2", saved.getResolutionNote());
-        assertEquals(output.ticket().getTicketId(), saved.getTicketId());
+        assertEquals(output.ticket().ticketId(), saved.getTicketId());
     }
 
     @Test
@@ -99,7 +120,9 @@ class ResolveTicketUseCaseTest {
         AuthenticatedUser admin = new AuthenticatedUser(UUID.randomUUID(), "Admin", true, false);
         UUID ownerId = UUID.randomUUID();
         Ticket ticket = pendingTicket(ownerId);
+        TicketDetails ticketDetails = buildTicketDetails(ticket);
         when(ticketRepository.findById(ticket.getTicketId())).thenReturn(Optional.of(ticket));
+        when(ticketRepository.findDetailsById(ticket.getTicketId())).thenReturn(Optional.of(ticketDetails));
 
         useCase.execute(new ResolveTicketInput(admin, ticket.getTicketId(), "Fixed"));
 

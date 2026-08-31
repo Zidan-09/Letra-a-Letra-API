@@ -1,21 +1,18 @@
 package com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.ticket.domain.Ticket;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.features.ticket.domain.TicketFilter;
 import com.letraaletra.api.features.ticket.domain.TicketsPage;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
-import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.entity.TicketJpaEntity;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.jpa.SpringDataTicketRepository;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.mapper.TicketMapper;
+import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.projection.TicketProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,61 +33,79 @@ public class JpaTicketRepository implements TicketRepository {
     }
 
     @Override
+    public Optional<TicketDetails> findDetailsById(UUID ticketId) {
+        return repository.findByIdDetails(ticketId)
+                .map(TicketMapper::toDetails);
+    }
+
+    @Override
     public Optional<Ticket> findById(UUID ticketId) {
         return repository.findById(ticketId)
                 .map(TicketMapper::toDomain);
     }
 
     @Override
-    public Page<Ticket> findUserTickets(UUID userId, TicketsPage page) {
-        return findTickets(new TicketFilter(null, null, userId), page);
-    }
-
-    @Override
-    public Page<Ticket> findTickets(TicketFilter filter, TicketsPage page) {
+    public Page<TicketDetails> findUserTickets(UUID userId, TicketsPage page) {
         Pageable pageable = toPageable(page);
 
-        return repository.findAll(toSpecification(filter), pageable)
-                .map(TicketMapper::toDomain);
+        return repository.findByUserId(userId, pageable)
+                .map(TicketMapper::toDetails);
     }
 
     @Override
-    public Page<Ticket> findByUsername(String username, TicketsPage page) {
+    public Page<TicketDetails> findTickets(TicketFilter filter, TicketsPage page) {
+        Pageable pageable = toPageable(page);
+
+        UUID userId = filter.userId();
+        String category = filter.category() != null ? filter.category().name() : null;
+        String status = filter.status() != null ? filter.status().name() : null;
+
+        Page<TicketProjection> projections = resolveProjections(userId, category, status, pageable);
+
+        return projections.map(TicketMapper::toDetails);
+    }
+
+    @Override
+    public Page<TicketDetails> findByUsername(String username, TicketsPage page) {
         Pageable pageable = toPageable(page);
 
         return repository.findByUsername(username, pageable)
-                .map(TicketMapper::toDomain);
+                .map(TicketMapper::toDetails);
+    }
+
+    private Page<TicketProjection> resolveProjections(
+            UUID userId, String category, String status, Pageable pageable
+    ) {
+        boolean hasCategory = category != null;
+        boolean hasStatus = status != null;
+        boolean hasUserId = userId != null;
+
+        if (hasCategory && hasStatus && hasUserId) {
+            return repository.findByCategoryStatusUserId(category, status, userId, pageable);
+        }
+        if (hasCategory && hasUserId) {
+            return repository.findByCategoryUserId(category, userId, pageable);
+        }
+        if (hasStatus && hasUserId) {
+            return repository.findByStatusUserId(status, userId, pageable);
+        }
+        if (hasUserId) {
+            return repository.findByUserId(userId, pageable);
+        }
+        if (hasCategory && hasStatus) {
+            return repository.findByCategoryStatus(category, status, pageable);
+        }
+        if (hasCategory) {
+            return repository.findByCategory(category, pageable);
+        }
+        if (hasStatus) {
+            return repository.findByStatus(status, pageable);
+        }
+        return repository.findAllDetails(pageable);
     }
 
     private Pageable toPageable(TicketsPage page) {
         Sort sort = page.sort() != null ? page.sort() : Sort.by(Sort.Direction.ASC, CREATED_AT_FIELD);
         return org.springframework.data.domain.PageRequest.of(page.page(), page.size(), sort);
-    }
-
-    static Specification<TicketJpaEntity> toSpecification(TicketFilter filter) {
-        List<Specification<TicketJpaEntity>> specs = new ArrayList<>();
-
-        if (filter.status() != null) {
-            specs.add(equal("status", filter.status()));
-        }
-
-        if (filter.category() != null) {
-            specs.add(equal("category", filter.category()));
-        }
-
-        if (filter.userId() != null) {
-            specs.add(equal("userId", filter.userId()));
-        }
-
-        if (specs.isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-
-        return Specification.allOf(specs);
-    }
-
-    private static <V> Specification<TicketJpaEntity> equal(String attribute, V value) {
-        Objects.requireNonNull(value);
-        return (root, query, cb) -> cb.equal(root.get(attribute), value);
     }
 }

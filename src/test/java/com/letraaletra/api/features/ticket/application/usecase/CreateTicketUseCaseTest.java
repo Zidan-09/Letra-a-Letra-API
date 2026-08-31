@@ -7,6 +7,7 @@ import com.letraaletra.api.features.ticket.application.input.CreateTicketInput;
 import com.letraaletra.api.features.ticket.application.output.CreateTicketOutput;
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
@@ -20,6 +21,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CreateTicketUseCaseTest {
@@ -50,20 +53,44 @@ class CreateTicketUseCaseTest {
         useCase = new CreateTicketUseCase(ticketRepository, auditRecorder);
     }
 
-    private AuthenticatedUser userPrincipal() {
-        return new AuthenticatedUser(UUID.randomUUID(), "player", false, false);
+    private AuthenticatedUser userPrincipal(UUID userId) {
+        return new AuthenticatedUser(userId, "player", false, false);
+    }
+
+    private TicketDetails buildTicketDetails(UUID ticketId, UUID userId) {
+        return new TicketDetails(
+                ticketId,
+                userId,
+                "player",
+                TicketCategory.BUG,
+                TicketStatus.PENDING,
+                "Cannot login",
+                "The game crashes when I try to login",
+                null,
+                null,
+                null,
+                null,
+                null
+        );
     }
 
     @Test
     @DisplayName("Should create a PENDING ticket owned by the authenticated user")
     void shouldCreatePendingTicketForAuthenticatedUser() {
-        AuthenticatedUser principal = userPrincipal();
+        UUID userId = UUID.randomUUID();
+        AuthenticatedUser principal = userPrincipal(userId);
         CreateTicketInput input = new CreateTicketInput(
                 principal,
                 TicketCategory.BUG,
                 "Cannot login",
                 "The game crashes when I try to login"
         );
+
+        when(ticketRepository.findDetailsById(any(UUID.class)))
+                .thenAnswer(invocation -> Optional.of(buildTicketDetails(
+                        invocation.getArgument(0),
+                        userId
+                )));
 
         CreateTicketOutput output = useCase.execute(input);
 
@@ -73,20 +100,27 @@ class CreateTicketUseCaseTest {
         assertEquals(principal.auth(), saved.getUserId());
         assertEquals(TicketStatus.PENDING, saved.getStatus());
         assertEquals(TicketCategory.BUG, saved.getCategory());
-        assertEquals(output.ticket().getTicketId(), saved.getTicketId());
+        assertEquals(output.ticket().ticketId(), saved.getTicketId());
         assertNotNull(saved.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should record TICKET_CREATED audit event targeting the owner")
     void shouldRecordTicketCreatedAuditEvent() {
-        AuthenticatedUser principal = userPrincipal();
+        UUID userId = UUID.randomUUID();
+        AuthenticatedUser principal = userPrincipal(userId);
         CreateTicketInput input = new CreateTicketInput(
                 principal,
                 TicketCategory.FEEDBACK,
                 "Great update",
                 "Loved the new ranking season rewards"
         );
+
+        when(ticketRepository.findDetailsById(any(UUID.class)))
+                .thenAnswer(invocation -> Optional.of(buildTicketDetails(
+                        invocation.getArgument(0),
+                        userId
+                )));
 
         useCase.execute(input);
 

@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
@@ -54,7 +55,10 @@ public class ResolveTicketUseCase implements UseCase<ResolveTicketInput, Resolve
                 UUID.randomUUID()
         ));
 
-        return new ResolveTicketOutput(ticket);
+        TicketDetails ticketDetails = ticketRepository.findDetailsById(ticket.getTicketId())
+                .orElseThrow(TicketNotFoundException::new);
+
+        return new ResolveTicketOutput(ticketDetails);
     }
 
     private AuditActor actor(AuthenticatedUser principal) {

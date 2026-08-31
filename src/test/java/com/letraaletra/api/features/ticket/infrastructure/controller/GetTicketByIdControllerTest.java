@@ -2,8 +2,9 @@ package com.letraaletra.api.features.ticket.infrastructure.controller;
 
 import com.letraaletra.api.features.ticket.application.input.GetTicketByIdInput;
 import com.letraaletra.api.features.ticket.application.output.GetTicketByIdOutput;
-import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
+import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.mapper.GetTicketByIdMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
@@ -20,6 +21,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,31 +42,46 @@ class GetTicketByIdControllerTest {
 
     private AuthenticatedUser principal;
     private UUID ticketId;
-    private Ticket ticket;
+    private TicketDetails ticketDetails;
 
     @BeforeEach
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "player", false, false);
         ticketId = UUID.randomUUID();
-        ticket = Ticket.create(principal.auth(), TicketCategory.OTHER, "General doubt", "How does the matchmaking rating work exactly?");
+        ticketDetails = new TicketDetails(
+                ticketId,
+                principal.auth(),
+                "player",
+                TicketCategory.OTHER,
+                TicketStatus.PENDING,
+                "General doubt",
+                "How does the matchmaking rating work exactly?",
+                null,
+                null,
+                null,
+                null,
+                LocalDateTime.now()
+        );
     }
 
     @Test
     @DisplayName("Should delegate to the use case and return the ticket response")
     void shouldReturnTicketById() {
         GetTicketByIdInput input = new GetTicketByIdInput(principal, ticketId);
-        GetTicketByIdOutput output = new GetTicketByIdOutput(ticket);
+        GetTicketByIdOutput output = new GetTicketByIdOutput(ticketDetails);
         TicketResponse responseDto = new TicketResponse(
-                ticket.getTicketId(),
-                ticket.getUserId(),
-                ticket.getCategory(),
-                ticket.getStatus(),
-                ticket.getSubject(),
-                ticket.getDescription(),
-                null,
-                null,
-                null,
-                ticket.getCreatedAt()
+                ticketDetails.ticketId(),
+                ticketDetails.userId(),
+                ticketDetails.username(),
+                ticketDetails.category(),
+                ticketDetails.status(),
+                ticketDetails.subject(),
+                ticketDetails.description(),
+                ticketDetails.resolutionNote(),
+                ticketDetails.resolvedByAdminId(),
+                ticketDetails.adminName(),
+                ticketDetails.resolvedAt(),
+                ticketDetails.createdAt()
         );
         ResponseEntity<SuccessResponse<TicketResponse>> expected = ApiResponseHandler.success(responseDto);
 

@@ -1,8 +1,9 @@
 package com.letraaletra.api.features.ticket.application.usecase;
 
 import com.letraaletra.api.features.ticket.application.input.GetMyTicketsInput;
-import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
+import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +38,23 @@ class GetMyTicketsUseCaseTest {
         useCase = new GetMyTicketsUseCase(ticketRepository);
     }
 
+    private TicketDetails buildTicketDetails(UUID ticketId, UUID userId) {
+        return new TicketDetails(
+                ticketId,
+                userId,
+                "player",
+                TicketCategory.OTHER,
+                TicketStatus.PENDING,
+                "General doubt",
+                "How does the matchmaking rating work exactly?",
+                null,
+                null,
+                null,
+                null,
+                LocalDateTime.now()
+        );
+    }
+
     @Test
     @DisplayName("Should query tickets strictly by the user id resolved from the principal")
     void shouldQueryByPrincipalUserId() {
@@ -52,19 +71,15 @@ class GetMyTicketsUseCaseTest {
     @DisplayName("Should return the page produced by the repository")
     void shouldReturnRepositoryPage() {
         UUID userId = UUID.randomUUID();
-        Ticket ticket = Ticket.create(
-                userId,
-                TicketCategory.OTHER,
-                "General doubt",
-                "How does the matchmaking rating work exactly?"
-        );
-        Page<Ticket> page = new PageImpl<>(List.of(ticket));
+        UUID ticketId = UUID.randomUUID();
+        TicketDetails ticketDetails = buildTicketDetails(ticketId, userId);
+        Page<TicketDetails> page = new PageImpl<>(List.of(ticketDetails));
         when(ticketRepository.findUserTickets(eq(userId), any()))
                 .thenReturn(page);
 
         var output = useCase.execute(new GetMyTicketsInput(userId, 0, 20, Sort.unsorted()));
 
         assertEquals(1, output.tickets().getContent().size());
-        assertEquals(ticket.getTicketId(), output.tickets().getContent().get(0).getTicketId());
+        assertEquals(ticketId, output.tickets().getContent().getFirst().ticketId());
     }
 }

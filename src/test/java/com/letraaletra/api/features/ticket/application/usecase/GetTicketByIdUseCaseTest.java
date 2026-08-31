@@ -5,6 +5,7 @@ import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.ticket.application.input.GetTicketByIdInput;
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.features.ticket.domain.exception.TicketNotFoundException;
 import com.letraaletra.api.features.ticket.domain.repository.FindTicket;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -55,16 +56,35 @@ class GetTicketByIdUseCaseTest {
         );
     }
 
+    private TicketDetails buildTicketDetails(Ticket ticket) {
+        return new TicketDetails(
+                ticket.getTicketId(),
+                ticket.getUserId(),
+                "player",
+                ticket.getCategory(),
+                ticket.getStatus(),
+                ticket.getSubject(),
+                ticket.getDescription(),
+                null,
+                null,
+                null,
+                null,
+                ticket.getCreatedAt()
+        );
+    }
+
     @Test
     @DisplayName("Owner should fetch own ticket without admin permission check")
     void ownerShouldFetchOwnTicket() {
         UUID ownerId = UUID.randomUUID();
         Ticket ticket = ticketOwnedBy(ownerId);
+        TicketDetails ticketDetails = buildTicketDetails(ticket);
         when(findTicket.findById(ticket.getTicketId())).thenReturn(Optional.of(ticket));
+        when(findTicket.findDetailsById(ticket.getTicketId())).thenReturn(Optional.of(ticketDetails));
 
         var output = useCase.execute(new GetTicketByIdInput(ownerPrincipal(ownerId), ticket.getTicketId()));
 
-        assertEquals(ticket.getTicketId(), output.ticket().getTicketId());
+        assertEquals(ticket.getTicketId(), output.ticket().ticketId());
         verifyNoInteractions(adminChecker);
     }
 
@@ -92,13 +112,15 @@ class GetTicketByIdUseCaseTest {
         UUID ownerId = UUID.randomUUID();
         UUID adminId = UUID.randomUUID();
         Ticket ticket = ticketOwnedBy(ownerId);
+        TicketDetails ticketDetails = buildTicketDetails(ticket);
         when(findTicket.findById(ticket.getTicketId())).thenReturn(Optional.of(ticket));
+        when(findTicket.findDetailsById(ticket.getTicketId())).thenReturn(Optional.of(ticketDetails));
         doNothing().when(adminChecker).check(any(), eq(PermissionKey.TICKET), eq(PermissionAction.VIEW));
 
         AuthenticatedUser adminPrincipal = new AuthenticatedUser(adminId, "Admin", true, false);
         var output = useCase.execute(new GetTicketByIdInput(adminPrincipal, ticket.getTicketId()));
 
-        assertEquals(ticket.getTicketId(), output.ticket().getTicketId());
+        assertEquals(ticket.getTicketId(), output.ticket().ticketId());
     }
 
     @Test

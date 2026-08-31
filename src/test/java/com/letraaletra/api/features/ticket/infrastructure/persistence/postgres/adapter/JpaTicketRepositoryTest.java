@@ -1,13 +1,10 @@
 package com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.ticket.domain.Ticket;
-import com.letraaletra.api.features.ticket.domain.TicketCategory;
-import com.letraaletra.api.features.ticket.domain.TicketFilter;
-import com.letraaletra.api.features.ticket.domain.TicketsPage;
-import com.letraaletra.api.features.ticket.domain.TicketStatus;
+import com.letraaletra.api.features.ticket.domain.*;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.entity.TicketJpaEntity;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.jpa.SpringDataTicketRepository;
 import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.mapper.TicketMapper;
+import com.letraaletra.api.features.ticket.infrastructure.persistence.postgres.projection.TicketProjection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,34 +86,53 @@ class JpaTicketRepositoryTest {
     }
 
     @Test
+    @DisplayName("findDetailsById should map the projection back to the domain details")
+    void findDetailsByIdShouldMapProjectionToDetails() {
+        Ticket ticket = buildTicket();
+        TicketProjection projection = TicketMapper.toProjection(ticket);
+        when(springDataTicketRepository.findByIdDetails(ticket.getTicketId()))
+                .thenReturn(Optional.of(projection));
+
+        Optional<TicketDetails> result = jpaTicketRepository.findDetailsById(ticket.getTicketId());
+
+        assertTrue(result.isPresent());
+        assertEquals(ticket.getTicketId(), result.get().ticketId());
+        assertEquals(ticket.getUserId(), result.get().userId());
+        assertEquals(ticket.getCategory(), result.get().category());
+        assertEquals(ticket.getStatus(), result.get().status());
+        assertEquals(ticket.getSubject(), result.get().subject());
+        assertEquals(ticket.getDescription(), result.get().description());
+        assertEquals(ticket.getCreatedAt(), result.get().createdAt());
+    }
+
+    @Test
     @DisplayName("findUserTickets should page by user with createdAt sorting")
     void findUserTicketsShouldPageByUser() {
-        when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
+        when(springDataTicketRepository.findByUserId(any(UUID.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        TicketsPage ticketsPage = new TicketsPage(2, 25, Sort.by(Sort.Direction.DESC, "createdAt"));
+        TicketsPage ticketsPage = new TicketsPage(2, 25, null);
         jpaTicketRepository.findUserTickets(UUID.randomUUID(), ticketsPage);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(springDataTicketRepository).findAll(any(Specification.class), pageableCaptor.capture());
+        verify(springDataTicketRepository).findByUserId(any(UUID.class), pageableCaptor.capture());
 
         Pageable pageable = pageableCaptor.getValue();
         assertEquals(2, pageable.getPageNumber());
         assertEquals(25, pageable.getPageSize());
-        assertEquals(Sort.by(Sort.Direction.DESC, "createdAt"), pageable.getSort());
     }
 
     @Test
     @DisplayName("findTickets should apply ascending ordering when requested")
     void findTicketsShouldApplyAscendingOrdering() {
-        when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
+        when(springDataTicketRepository.findByCategoryUserId(anyString(), any(UUID.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
         TicketsPage ticketsPage = new TicketsPage(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
-        jpaTicketRepository.findTickets(new TicketFilter(TicketStatus.RESOLVED, null, null), ticketsPage);
+        jpaTicketRepository.findTickets(new TicketFilter(null, TicketCategory.BUG, UUID.randomUUID()), ticketsPage);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(springDataTicketRepository).findAll(any(Specification.class), pageableCaptor.capture());
+        verify(springDataTicketRepository).findByCategoryUserId(anyString(), any(UUID.class), pageableCaptor.capture());
 
         assertEquals(Sort.by(Sort.Direction.ASC, "createdAt"), pageableCaptor.getValue().getSort());
     }
@@ -125,19 +141,45 @@ class JpaTicketRepositoryTest {
     @DisplayName("findTickets should map paged entities back to the domain")
     void findTicketsShouldMapPagedContent() {
         Ticket ticket = buildTicket();
-        TicketJpaEntity entity = TicketMapper.toEntity(ticket);
-        Page<TicketJpaEntity> entityPage = new PageImpl<>(List.of(entity));
-        when(springDataTicketRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(entityPage);
+        TicketProjection projection = TicketMapper.toProjection(ticket);
+        Page<TicketProjection> projectionPage = new PageImpl<>(List.of(projection));
+        when(springDataTicketRepository.findByCategoryUserId(anyString(), any(UUID.class), any(Pageable.class)))
+                .thenReturn(projectionPage);
 
         TicketsPage ticketsPage = new TicketsPage(0, 20, null);
-        Page<Ticket> result = jpaTicketRepository.findTickets(
+        Page<TicketDetails> result = jpaTicketRepository.findTickets(
                 new TicketFilter(null, TicketCategory.BUG, ticket.getUserId()),
                 ticketsPage
         );
 
         assertNotNull(result.getContent());
         assertEquals(1, result.getContent().size());
-        assertEquals(ticket.getTicketId(), result.getContent().get(0).getTicketId());
+        assertEquals(ticket.getTicketId(), result.getContent().getFirst().ticketId());
+        assertEquals(ticket.getUserId(), result.getContent().getFirst().userId());
+        assertEquals(ticket.getCategory(), result.getContent().getFirst().category());
+        assertEquals(ticket.getSubject(), result.getContent().getFirst().subject());
+        assertEquals(ticket.getDescription(), result.getContent().getFirst().description());
+    }
+
+    @Test
+    @DisplayName("findByUsername should map paged entities back to the domain")
+    void findByUsernameShouldMapPagedContent() {
+        Ticket ticket = buildTicket();
+        TicketProjection projection = TicketMapper.toProjection(ticket, "testuser", null);
+        Page<TicketProjection> projectionPage = new PageImpl<>(List.of(projection));
+        when(springDataTicketRepository.findByUsername(anyString(), any(Pageable.class)))
+                .thenReturn(projectionPage);
+
+        TicketsPage ticketsPage = new TicketsPage(0, 20, null);
+        Page<TicketDetails> result = jpaTicketRepository.findByUsername("testuser", ticketsPage);
+
+        assertNotNull(result.getContent());
+        assertEquals(1, result.getContent().size());
+        assertEquals(ticket.getTicketId(), result.getContent().getFirst().ticketId());
+        assertEquals(ticket.getUserId(), result.getContent().getFirst().userId());
+        assertEquals(ticket.getCategory(), result.getContent().getFirst().category());
+        assertEquals(ticket.getSubject(), result.getContent().getFirst().subject());
+        assertEquals(ticket.getDescription(), result.getContent().getFirst().description());
+        assertEquals("testuser", result.getContent().getFirst().username());
     }
 }

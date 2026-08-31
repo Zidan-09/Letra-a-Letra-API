@@ -2,8 +2,9 @@ package com.letraaletra.api.features.ticket.infrastructure.controller;
 
 import com.letraaletra.api.features.ticket.application.input.CreateTicketInput;
 import com.letraaletra.api.features.ticket.application.output.CreateTicketOutput;
-import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
+import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.request.CreateTicketRequest;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.CreateTicketResponse;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.mapper.CreateTicketMapper;
@@ -19,14 +20,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,32 +43,47 @@ class CreateTicketControllerTest {
 
     private AuthenticatedUser principal;
     private CreateTicketRequest request;
-    private Ticket ticket;
+    private TicketDetails ticketDetails;
 
     @BeforeEach
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "player", false, false);
         request = new CreateTicketRequest(TicketCategory.BUG, "Cannot login", "The game crashes when I try to login");
-        ticket = Ticket.create(principal.auth(), TicketCategory.BUG, "Cannot login", "The game crashes when I try to login");
+        ticketDetails = new TicketDetails(
+                UUID.randomUUID(),
+                principal.auth(),
+                "player",
+                TicketCategory.BUG,
+                TicketStatus.PENDING,
+                "Cannot login",
+                "The game crashes when I try to login",
+                null,
+                null,
+                null,
+                null,
+                LocalDateTime.now()
+        );
     }
 
     @Test
     @DisplayName("Should map request, execute use case and return wrapped success response")
     void shouldCreateTicketSuccessfully() {
         CreateTicketInput input = new CreateTicketInput(principal, TicketCategory.BUG, "Cannot login", "The game crashes when I try to login");
-        CreateTicketOutput output = new CreateTicketOutput(ticket);
+        CreateTicketOutput output = new CreateTicketOutput(ticketDetails);
         CreateTicketResponse responseDto = new CreateTicketResponse(
                 new com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse(
-                        ticket.getTicketId(),
-                        ticket.getUserId(),
-                        ticket.getCategory(),
-                        ticket.getStatus(),
-                        ticket.getSubject(),
-                        ticket.getDescription(),
-                        null,
-                        null,
-                        null,
-                        ticket.getCreatedAt()
+                        ticketDetails.ticketId(),
+                        ticketDetails.userId(),
+                        ticketDetails.username(),
+                        ticketDetails.category(),
+                        ticketDetails.status(),
+                        ticketDetails.subject(),
+                        ticketDetails.description(),
+                        ticketDetails.resolutionNote(),
+                        ticketDetails.resolvedByAdminId(),
+                        ticketDetails.adminName(),
+                        ticketDetails.resolvedAt(),
+                        ticketDetails.createdAt()
                 )
         );
         ResponseEntity<SuccessResponse<CreateTicketResponse>> expected =

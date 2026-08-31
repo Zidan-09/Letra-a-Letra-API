@@ -6,6 +6,8 @@ import com.letraaletra.api.features.audit.domain.AuditActorType;
 import com.letraaletra.api.features.ticket.application.input.CreateTicketInput;
 import com.letraaletra.api.features.ticket.application.output.CreateTicketOutput;
 import com.letraaletra.api.features.ticket.domain.Ticket;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
+import com.letraaletra.api.features.ticket.domain.exception.TicketNotFoundException;
 import com.letraaletra.api.features.ticket.domain.repository.TicketRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -40,7 +42,10 @@ public class CreateTicketUseCase implements UseCase<CreateTicketInput, CreateTic
                 UUID.randomUUID()
         ));
 
-        return new CreateTicketOutput(ticket);
+        TicketDetails ticketDetails = ticketRepository.findDetailsById(ticket.getTicketId())
+                .orElseThrow(TicketNotFoundException::new);
+
+        return new CreateTicketOutput(ticketDetails);
     }
 
     private AuditActor actor(AuthenticatedUser principal) {

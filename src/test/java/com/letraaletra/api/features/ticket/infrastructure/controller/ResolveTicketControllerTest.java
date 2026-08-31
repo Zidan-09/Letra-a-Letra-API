@@ -2,8 +2,9 @@ package com.letraaletra.api.features.ticket.infrastructure.controller;
 
 import com.letraaletra.api.features.ticket.application.input.ResolveTicketInput;
 import com.letraaletra.api.features.ticket.application.output.ResolveTicketOutput;
-import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketCategory;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
+import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.request.ResolveTicketRequest;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ResolveTicketResponse;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse;
@@ -22,6 +23,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,32 +44,53 @@ class ResolveTicketControllerTest {
 
     private AuthenticatedUser adminPrincipal;
     private UUID ticketId;
+    private UUID ownerId;
 
     @BeforeEach
     void setUp() {
         adminPrincipal = new AuthenticatedUser(UUID.randomUUID(), "Admin", true, false);
+        ownerId = UUID.randomUUID();
         ticketId = UUID.randomUUID();
+    }
+
+    private TicketDetails buildTicketDetails() {
+        return new TicketDetails(
+                ticketId,
+                ownerId,
+                "player",
+                TicketCategory.BUG,
+                TicketStatus.RESOLVED,
+                "Cannot login",
+                "The game crashes when I try to login",
+                "Fixed in patch 1.2",
+                adminPrincipal.auth(),
+                "Admin",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 
     @Test
     @DisplayName("Should delegate resolution with the request note and return the updated ticket")
     void shouldResolveTicket() {
         ResolveTicketRequest request = new ResolveTicketRequest("Fixed in patch 1.2");
-        Ticket resolved = Ticket.create(adminPrincipal.auth(), TicketCategory.BUG, "Cannot login", "The game crashes when I try to login");
+        TicketDetails resolved = buildTicketDetails();
         ResolveTicketInput input = new ResolveTicketInput(adminPrincipal, ticketId, "Fixed in patch 1.2");
         ResolveTicketOutput output = new ResolveTicketOutput(resolved);
         ResolveTicketResponse responseDto = new ResolveTicketResponse(
                 new TicketResponse(
-                        resolved.getTicketId(),
-                        resolved.getUserId(),
-                        resolved.getCategory(),
-                        resolved.getStatus(),
-                        resolved.getSubject(),
-                        resolved.getDescription(),
-                        null,
-                        null,
-                        null,
-                        resolved.getCreatedAt()
+                        resolved.ticketId(),
+                        resolved.userId(),
+                        resolved.username(),
+                        resolved.category(),
+                        resolved.status(),
+                        resolved.subject(),
+                        resolved.description(),
+                        resolved.resolutionNote(),
+                        resolved.resolvedByAdminId(),
+                        resolved.adminName(),
+                        resolved.resolvedAt(),
+                        resolved.createdAt()
                 )
         );
         ResponseEntity<SuccessResponse<ResolveTicketResponse>> expected = ApiResponseHandler.success(responseDto);
@@ -92,24 +115,25 @@ class ResolveTicketControllerTest {
     @DisplayName("Should accept a missing body mapping it to a null note")
     void shouldAcceptMissingBody() {
         ResolveTicketInput input = new ResolveTicketInput(adminPrincipal, ticketId, null);
-        Ticket resolved = Ticket.create(adminPrincipal.auth(), TicketCategory.BUG, "Cannot login", "The game crashes when I try to login");
+        TicketDetails resolved = buildTicketDetails();
         ResolveTicketResponse responseDto = new ResolveTicketResponse(
                 new TicketResponse(
-                        resolved.getTicketId(),
-                        resolved.getUserId(),
-                        resolved.getCategory(),
-                        resolved.getStatus(),
-                        resolved.getSubject(),
-                        resolved.getDescription(),
-                        null,
-                        null,
-                        null,
-                        resolved.getCreatedAt()
+                        resolved.ticketId(),
+                        resolved.userId(),
+                        resolved.username(),
+                        resolved.category(),
+                        resolved.status(),
+                        resolved.subject(),
+                        resolved.description(),
+                        resolved.resolutionNote(),
+                        resolved.resolvedByAdminId(),
+                        resolved.adminName(),
+                        resolved.resolvedAt(),
+                        resolved.createdAt()
                 )
         );
 
-        try (MockedStatic<ResolveTicketMapper> mapperMock = mockStatic(ResolveTicketMapper.class);
-             MockedStatic<ApiResponseHandler> ignored = mockStatic(ApiResponseHandler.class)) {
+        try (MockedStatic<ResolveTicketMapper> mapperMock = mockStatic(ResolveTicketMapper.class)) {
 
             mapperMock.when(() -> ResolveTicketMapper.toInput(adminPrincipal, ticketId, null)).thenReturn(input);
             when(useCase.execute(input)).thenReturn(new ResolveTicketOutput(resolved));

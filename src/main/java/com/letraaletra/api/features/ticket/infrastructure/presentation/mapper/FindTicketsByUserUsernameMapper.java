@@ -2,7 +2,7 @@ package com.letraaletra.api.features.ticket.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.ticket.application.input.FindTicketsByUserUsernameInput;
 import com.letraaletra.api.features.ticket.application.output.FindTicketsByUserUsernameOutput;
-import com.letraaletra.api.features.ticket.domain.Ticket;
+import com.letraaletra.api.features.ticket.domain.TicketDetails;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
@@ -27,7 +27,7 @@ public class FindTicketsByUserUsernameMapper {
     }
 
     public static PageResponse<TicketResponse> toResponse(FindTicketsByUserUsernameOutput output) {
-        Page<Ticket> page = output.tickets();
+        Page<TicketDetails> page = output.tickets();
 
         return new PageResponse<>(
                 page.getContent().stream()
