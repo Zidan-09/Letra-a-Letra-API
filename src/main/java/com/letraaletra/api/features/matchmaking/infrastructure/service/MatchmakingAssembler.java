@@ -77,9 +77,7 @@ public class MatchmakingAssembler implements GameAssemblerService {
 
         List<String> words = themeService.select();
 
-        GameMode mode = queueType.equals(QueueType.CASUAL) ?
-                GameMode.NORMAL :
-                GameMode.HARD;
+        GameMode mode = GameMode.CATACLYSM;
 
         Board board = BoardGenerator.generate(words, mode);
 
