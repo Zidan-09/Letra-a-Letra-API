@@ -8,7 +8,8 @@ public enum PlayerMessages implements MessageCode {
     PLAYER_NOT_IN_GAME("the player is not currently in a game"),
 
     INVALID_PLAYER_ACTION("the requested player action is invalid"),
-    PLAYER_DISCONNECTED("the player has disconnected");
+    PLAYER_DISCONNECTED("the player has disconnected"),
+    FROZEN_CANNOT_ACT("player is frozen and cannot perform this action");
 
     private final String message;
 

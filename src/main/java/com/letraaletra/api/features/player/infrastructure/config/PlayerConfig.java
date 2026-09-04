@@ -30,7 +30,7 @@ public class PlayerConfig {
     }
 
     @Bean
-    public DiscardPowerUseCase discardPowerUseCase(GameActorManager gameActorManager) {
-        return new DiscardPowerUseCase(gameActorManager);
+    public DiscardPowerUseCase discardPowerUseCase(GameActorManager gameActorManager, TurnTimeoutManager turnTimeoutManager) {
+        return new DiscardPowerUseCase(gameActorManager, turnTimeoutManager);
     }
 }

@@ -90,4 +90,68 @@ class PlayerTest {
         anotherPlayer.addToInventory(PowerType.IMMUNITY);
         assertFalse(anotherPlayer.canNotPlay(), "Deveria conseguir jogar pois possui IMMUNITY");
     }
+
+    @Test
+    @DisplayName("isFrozen: Deve retornar TRUE quando FreezeEffect aplicado")
+    void shouldBeFrozenWhenFreezeApplied() {
+        assertFalse(player.isFrozen());
+        player.applyEffect(new FreezeEffect());
+        assertTrue(player.isFrozen());
+    }
+
+    @Test
+    @DisplayName("isFrozen: Deve retornar FALSE após remover FreezeEffect")
+    void shouldNotBeFrozenAfterRemove() {
+        player.applyEffect(new FreezeEffect());
+        assertTrue(player.isFrozen());
+        player.removeEffect(FreezeEffect.class);
+        assertFalse(player.isFrozen());
+    }
+
+    @Test
+    @DisplayName("hasFreezeDefense: Deve retornar TRUE quando possui UNFREEZE")
+    void shouldHaveDefenseWhenUnfreeze() {
+        assertFalse(player.hasFreezeDefense());
+        player.addToInventory(PowerType.UNFREEZE);
+        assertTrue(player.hasFreezeDefense());
+    }
+
+    @Test
+    @DisplayName("hasFreezeDefense: Deve retornar TRUE quando possui IMMUNITY")
+    void shouldHaveDefenseWhenImmunity() {
+        player.addToInventory(PowerType.IMMUNITY);
+        assertTrue(player.hasFreezeDefense());
+    }
+
+    @Test
+    @DisplayName("hasFreezeDefense: Deve retornar FALSE quando inventário vazio ou sem defesa")
+    void shouldNotHaveDefenseWhenEmptyOrOther() {
+        assertFalse(player.hasFreezeDefense());
+        player.addToInventory(PowerType.BLOCK);
+        player.addToInventory(PowerType.FREEZE);
+        player.addToInventory(PowerType.BLIND);
+        assertFalse(player.hasFreezeDefense());
+    }
+
+    @Test
+    @DisplayName("hasFreezeDefense: Deve retornar FALSE após descartar defesa")
+    void shouldNotHaveDefenseAfterDiscard() {
+        player.addToInventory(PowerType.UNFREEZE);
+        assertTrue(player.hasFreezeDefense());
+        String id = player.getInventory().keySet().iterator().next();
+        player.removeFromInventoryOrThrow(id);
+        assertFalse(player.hasFreezeDefense());
+    }
+
+    @Test
+    @DisplayName("canNotPlay deve usar isFrozen e hasFreezeDefense")
+    void shouldCanNotPlayReflectIsFrozenAndHasDefense() {
+        assertFalse(player.canNotPlay());
+        player.applyEffect(new FreezeEffect());
+        assertTrue(player.canNotPlay());
+        player.addToInventory(PowerType.UNFREEZE);
+        assertFalse(player.canNotPlay());
+        player.removeEffect(FreezeEffect.class);
+        assertFalse(player.canNotPlay());
+    }
 }

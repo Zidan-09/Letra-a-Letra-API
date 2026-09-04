@@ -2,6 +2,7 @@ package com.letraaletra.api.features.player.application.usecase;
 
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.DiscardPowerActorCommand;
+import com.letraaletra.api.features.game.domain.actor.result.DiscardPowerResult;
 import com.letraaletra.api.features.player.application.input.DiscardPowerInput;
 import com.letraaletra.api.features.player.application.output.DiscardPowerOutput;
 import com.letraaletra.api.features.game.application.port.Actor;
@@ -14,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,7 +52,8 @@ class DiscardPowerUseCaseTest {
 
         when(gameActorManager.get(gameId)).thenReturn(actor);
 
-        CompletableFuture<Game> futureResult = CompletableFuture.completedFuture(mockGame);
+        DiscardPowerResult result = new DiscardPowerResult(mockGame, List.of());
+        CompletableFuture<DiscardPowerResult> futureResult = CompletableFuture.completedFuture(result);
         when(actor.enqueueCommand(any(DiscardPowerActorCommand.class))).thenReturn(futureResult);
 
         DiscardPowerOutput output = useCase.execute(input);

@@ -15,7 +15,10 @@ import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.features.game.domain.GameOver;
+import com.letraaletra.api.features.game.domain.board.power.action.ImmunityPlayerAction;
+import com.letraaletra.api.features.game.domain.board.power.action.UnfreezeAction;
 import com.letraaletra.api.features.game.domain.state.GameState;
+import com.letraaletra.api.features.player.domain.exception.PlayerIsFrozenException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,6 +50,8 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
         validatePlayer(userId, game);
 
         GameState state = game.getGameState();
+
+        validateFreeze(state, userId, action);
 
         List<Event> events = action.execute(state, userId);
 
@@ -97,6 +102,13 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
         if (participant.isSpectator()) {
             throw new SpectatorCanNotPlayException();
+        }
+    }
+
+    private void validateFreeze(GameState state, UUID userId, GameAction action) {
+        Player player = state.getPlayerOrThrow(userId);
+        if (player.isFrozen() && !(action instanceof UnfreezeAction) && !(action instanceof ImmunityPlayerAction)) {
+            throw new PlayerIsFrozenException();
         }
     }
 

@@ -15,6 +15,14 @@ public class Player {
     private final List<PlayerEffect> effects = new ArrayList<>();
     private int passedTurn = 0;
 
+    public boolean isFrozen() {
+        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect);
+    }
+
+    public boolean hasFreezeDefense() {
+        return inventory.values().stream().anyMatch(power -> power == PowerType.UNFREEZE || power == PowerType.IMMUNITY);
+    }
+
     public Player(UUID userId, String nickname) {
         this.userId = userId;
         this.nickname = nickname;
@@ -78,8 +86,7 @@ public class Player {
     }
 
     public boolean canNotPlay() {
-        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect) &&
-                inventory.values().stream().noneMatch(power -> power == PowerType.UNFREEZE || power == PowerType.IMMUNITY);
+        return isFrozen() && !hasFreezeDefense();
     }
 
     public void passedTurn() {
