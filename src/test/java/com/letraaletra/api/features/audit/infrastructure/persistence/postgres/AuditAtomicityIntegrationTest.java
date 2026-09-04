@@ -17,6 +17,7 @@ import com.letraaletra.api.features.audit.domain.AuditActor;
 import com.letraaletra.api.features.audit.domain.AuditActorType;
 import com.letraaletra.api.features.audit.domain.AuditCategory;
 import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventDetails;
 import com.letraaletra.api.features.audit.domain.AuditEventFilter;
 import com.letraaletra.api.features.audit.domain.AuditEventType;
 import com.letraaletra.api.features.audit.domain.AuditOutcome;
@@ -75,7 +76,7 @@ class AuditAtomicityIntegrationTest {
 
         failureRecorder.recordFailure(sampleEvent("FAILED"));
 
-        Page<com.letraaletra.api.features.audit.domain.AuditEvent> failures = repository.find(
+        Page<AuditEventDetails> failures = repository.find(
                 new AuditEventFilter(null, null, AuditEventType.COMMAND_FAILED, null,
                         null, null, null, null, null, null, null, null, null),
                 0, 50, true);

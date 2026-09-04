@@ -1,22 +1,20 @@
-package com.letraaletra.api.features.audit.infrastructure.presentation.dto.response;
+package com.letraaletra.api.features.audit.domain;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-public record AuditEventResponse(
+public record AuditEventDetails(
         UUID eventId,
         Instant occurredAt,
-        String category,
-        String eventType,
-        String outcome,
+        AuditCategory category,
+        AuditEventType eventType,
+        AuditOutcome outcome,
         String failureReason,
-        String actorType,
-        UUID actorId,
-        String actorName,
+        AuditActor actor,
         UUID targetUserId,
         String targetUsername,
-        String resourceType,
+        AuditResourceType resourceType,
         String resourceId,
         Map<String, Object> beforeState,
         Map<String, Object> afterState,
@@ -25,7 +23,7 @@ public record AuditEventResponse(
         String requestId,
         UUID operationId,
         String correlationId,
-        String sourceType,
+        AuditSourceType sourceType,
         String sourceDetail,
         UUID transactionId,
         Map<String, Object> metadata

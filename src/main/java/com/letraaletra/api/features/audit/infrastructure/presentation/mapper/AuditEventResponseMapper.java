@@ -2,6 +2,7 @@ package com.letraaletra.api.features.audit.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.audit.application.output.GetAuditEventsOutput;
 import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventDetails;
 import com.letraaletra.api.features.audit.infrastructure.presentation.dto.response.AuditEventResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 
@@ -22,6 +23,7 @@ public final class AuditEventResponseMapper {
                 event.actor().id(),
                 event.actor().name(),
                 event.targetUserId(),
+                null,
                 event.resourceType().name(),
                 event.resourceId(),
                 event.beforeState(),
@@ -35,6 +37,35 @@ public final class AuditEventResponseMapper {
                 event.sourceDetail(),
                 event.transactionId(),
                 event.metadata()
+        );
+    }
+
+    public static AuditEventResponse toResponse(AuditEventDetails details) {
+        return new AuditEventResponse(
+                details.eventId(),
+                details.occurredAt(),
+                details.category().name(),
+                details.eventType().name(),
+                details.outcome().name(),
+                details.failureReason(),
+                details.actor().type().name(),
+                details.actor().id(),
+                details.actor().name(),
+                details.targetUserId(),
+                details.targetUsername(),
+                details.resourceType().name(),
+                details.resourceId(),
+                details.beforeState(),
+                details.afterState(),
+                details.delta(),
+                details.reasonCode(),
+                details.requestId(),
+                details.operationId(),
+                details.correlationId(),
+                details.sourceType().name(),
+                details.sourceDetail(),
+                details.transactionId(),
+                details.metadata()
         );
     }
 

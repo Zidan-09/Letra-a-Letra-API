@@ -6,7 +6,7 @@ import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.audit.application.input.GetAuditEventsInput;
 import com.letraaletra.api.features.audit.application.output.GetAuditEventsOutput;
 import com.letraaletra.api.features.audit.domain.AuditCategory;
-import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventDetails;
 import com.letraaletra.api.features.audit.domain.AuditEventFilter;
 import com.letraaletra.api.features.audit.domain.AuditEventType;
 import com.letraaletra.api.features.audit.domain.AuditOutcome;
@@ -136,8 +136,8 @@ class GetAuditEventsUseCaseTest {
         verifyNoInteractions(findAuditEvents);
     }
 
-    private AuditEvent sampleEvent() {
-        return AuditEvent.builder()
+    private AuditEventDetails sampleEvent() {
+        var event = com.letraaletra.api.features.audit.domain.AuditEvent.builder()
                 .category(AuditCategory.ECONOMY)
                 .eventType(AuditEventType.WALLET_CREDITED)
                 .actor(new com.letraaletra.api.features.audit.domain.AuditActor(
@@ -148,5 +148,29 @@ class GetAuditEventsUseCaseTest {
                 .resourceId(UUID.randomUUID().toString())
                 .sourceType(AuditSourceType.HTTP)
                 .build();
+        return new AuditEventDetails(
+                event.eventId(),
+                event.occurredAt(),
+                event.category(),
+                event.eventType(),
+                event.outcome(),
+                event.failureReason(),
+                event.actor(),
+                event.targetUserId(),
+                null,
+                event.resourceType(),
+                event.resourceId(),
+                event.beforeState(),
+                event.afterState(),
+                event.delta(),
+                event.reasonCode(),
+                event.requestId(),
+                event.operationId(),
+                event.correlationId(),
+                event.sourceType(),
+                event.sourceDetail(),
+                event.transactionId(),
+                event.metadata()
+        );
     }
 }
