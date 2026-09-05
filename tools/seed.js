@@ -29,6 +29,7 @@ export async function runCasual() {
     try {
         context.addUser("samuel");
         context.addUser("jairo");
+        context.addUser("spectator");
 
         await context.authUsers();
         await context.connectSockets();

@@ -8,12 +8,16 @@ import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.domain.history.GameHistory;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchPlayersJpaEntity;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchSpectatorsJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataGameRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataMatchPlayerRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataMatchRepository;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.jpa.SpringDataMatchSpectatorRepository;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.GameMapper;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.MatchMapper;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.MatchPlayerMapper;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.mapper.MatchSpectatorMapper;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.infrastructure.persistence.ProcedureExceptionTranslator;
@@ -25,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +44,7 @@ public class JpaGameRepository implements GameRepository {
     private final SpringDataGameRepository repository;
     private final SpringDataMatchRepository matchRepository;
     private final SpringDataMatchPlayerRepository matchPlayerRepository;
+    private final SpringDataMatchSpectatorRepository matchSpectatorRepository;
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -47,21 +53,32 @@ public class JpaGameRepository implements GameRepository {
             SpringDataGameRepository repository,
             SpringDataMatchRepository matchRepository,
             SpringDataMatchPlayerRepository matchPlayerRepository,
+            SpringDataMatchSpectatorRepository matchSpectatorRepository,
             @Autowired(required = false) JdbcTemplate jdbcTemplate
     ) {
         this.repository = repository;
         this.matchRepository = matchRepository;
         this.matchPlayerRepository = matchPlayerRepository;
+        this.matchSpectatorRepository = matchSpectatorRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Legacy constructor for tests without JdbcTemplate
+    // Legacy constructor for tests without JdbcTemplate / without spectator repo
     public JpaGameRepository(
             SpringDataGameRepository repository,
             SpringDataMatchRepository matchRepository,
             SpringDataMatchPlayerRepository matchPlayerRepository
     ) {
-        this(repository, matchRepository, matchPlayerRepository, null);
+        this(repository, matchRepository, matchPlayerRepository, null, null);
+    }
+
+    public JpaGameRepository(
+            SpringDataGameRepository repository,
+            SpringDataMatchRepository matchRepository,
+            SpringDataMatchPlayerRepository matchPlayerRepository,
+            SpringDataMatchSpectatorRepository matchSpectatorRepository
+    ) {
+        this(repository, matchRepository, matchPlayerRepository, matchSpectatorRepository, null);
     }
 
     @Override
@@ -75,6 +92,7 @@ public class JpaGameRepository implements GameRepository {
             String gameMode = null;
             Timestamp endedAt = null;
             String playersJson = null;
+            String spectatorsJson = null;
 
             if (game.getGameState() != null) {
                 matchId = game.getGameState().getMatchId();
@@ -96,10 +114,22 @@ public class JpaGameRepository implements GameRepository {
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
+                List<Map<String, Object>> spectators = new ArrayList<>();
+                for (Participant spectator : game.getParticipants().getParticipants().stream().filter(Participant::isSpectator).toList()) {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("user_id", spectator.getUserId().toString());
+                    m.put("nickname", spectator.getNickname());
+                    spectators.add(m);
+                }
+                try {
+                    spectatorsJson = objectMapper.writeValueAsString(spectators);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             jdbcTemplate.update(
-                    "CALL sp_game_save(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)",
+                    "CALL sp_game_save(?, ?, ?, ?, ?, ?, ?, ?::uuid, ?::varchar, ?::timestamp, ?::jsonb, ?::jsonb)",
                     game.getId(),
                     game.getHostId(),
                     game.getRoomName(),
@@ -110,7 +140,8 @@ public class JpaGameRepository implements GameRepository {
                     matchId,
                     gameMode,
                     endedAt,
-                    playersJson
+                    playersJson,
+                    spectatorsJson
             );
         } catch (DataAccessException ex) {
             if (isProcedureMissing(ex)) {
@@ -122,6 +153,14 @@ public class JpaGameRepository implements GameRepository {
     }
 
     private boolean isProcedureMissing(DataAccessException ex) {
+        Throwable cursor = ex;
+        while (cursor != null) {
+            if (cursor instanceof SQLException sqlEx) {
+                String state = sqlEx.getSQLState();
+                if ("42883".equals(state)) return true;
+            }
+            cursor = cursor.getCause();
+        }
         if (ex instanceof org.springframework.jdbc.BadSqlGrammarException) return true;
         String msg = ex.getMessage();
         if (msg != null) {
@@ -130,6 +169,10 @@ public class JpaGameRepository implements GameRepository {
         }
         Throwable cause = ex.getCause();
         while (cause != null) {
+            if (cause instanceof SQLException sqlEx) {
+                String state = sqlEx.getSQLState();
+                if ("42883".equals(state)) return true;
+            }
             String cmsg = cause.getMessage();
             if (cmsg != null) {
                 String lower = cmsg.toLowerCase();
@@ -147,6 +190,11 @@ public class JpaGameRepository implements GameRepository {
             matchRepository.save(MatchMapper.toEntity(game.getGameState(), game.getId(), endedAt));
             for (Player player : game.getGameState().getPlayers().values()) {
                 matchPlayerRepository.save(MatchPlayerMapper.toEntity(player, game.getGameState().getMatchId()));
+            }
+            if (matchSpectatorRepository != null) {
+                for (Participant spectator : game.getParticipants().getParticipants().stream().filter(Participant::isSpectator).toList()) {
+                    matchSpectatorRepository.save(MatchSpectatorMapper.toEntity(spectator, game.getGameState().getMatchId()));
+                }
             }
         }
     }
@@ -176,10 +224,23 @@ public class JpaGameRepository implements GameRepository {
                                             player -> player.getMatchPlayerId().getMatchId()
                                     ));
 
+                    Map<UUID, List<MatchSpectatorsJpaEntity>> spectatorsByMatch = Map.of();
+                    if (matchSpectatorRepository != null) {
+                        List<UUID> matchIds = matches.stream().map(MatchJpaEntity::getId).toList();
+                        if (!matchIds.isEmpty()) {
+                            spectatorsByMatch = matchSpectatorRepository.findByMatchSpectatorIdMatchIdIn(matchIds)
+                                    .stream()
+                                    .collect(Collectors.groupingBy(
+                                            spectator -> spectator.getMatchSpectatorId().getMatchId()
+                                    ));
+                        }
+                    }
+
                     return GameMapper.toDomain(
                             game,
                             matches,
-                            playersByMatch
+                            playersByMatch,
+                            spectatorsByMatch
                     );
                 });
     }

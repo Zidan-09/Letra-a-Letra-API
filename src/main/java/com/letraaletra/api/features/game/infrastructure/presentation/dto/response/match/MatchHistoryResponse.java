@@ -5,5 +5,10 @@ import java.util.List;
 
 public record MatchHistoryResponse(
         Instant finishedAt,
-        List<PlayerHistoryResponse> players
-) {}
+        List<PlayerHistoryResponse> players,
+        List<SpectatorHistoryResponse> spectators
+) {
+    public MatchHistoryResponse(Instant finishedAt, List<PlayerHistoryResponse> players) {
+        this(finishedAt, players, List.of());
+    }
+}

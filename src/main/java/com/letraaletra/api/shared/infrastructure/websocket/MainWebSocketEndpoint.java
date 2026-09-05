@@ -9,6 +9,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -23,6 +24,7 @@ import java.util.concurrent.CompletionException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MainWebSocketEndpoint extends TextWebSocketHandler {
     private final WsConnectionRegistry connectionRegistry;
     private final WsRequestRouter requestRouter;
@@ -38,7 +40,11 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
         connectionRegistry.save(session);
 
         for (WsLifecycleListener listener : lifecycleListeners) {
-            listener.onConnected(session);
+            try {
+                listener.onConnected(session);
+            } catch (Exception e) {
+                log.error("WsLifecycleListener {} failed onConnected for session {}", listener.getClass().getSimpleName(), session.getId(), e);
+            }
         }
     }
 
@@ -79,7 +85,11 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
         connectionRegistry.remove(session);
 
         for (WsLifecycleListener listener : lifecycleListeners) {
-            listener.onDisconnected(session);
+            try {
+                listener.onDisconnected(session);
+            } catch (Exception e) {
+                log.error("WsLifecycleListener {} failed onDisconnected for session {}", listener.getClass().getSimpleName(), session.getId(), e);
+            }
         }
     }
 

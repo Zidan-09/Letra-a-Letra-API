@@ -78,6 +78,17 @@ CREATE TABLE
     );
 
 CREATE TABLE
+    "match_spectators" (
+        "match_id" UUID NOT NULL REFERENCES "matches" ("match_id") ON DELETE CASCADE,
+        "user_id" UUID NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+        "nickname" VARCHAR(15) NOT NULL,
+        PRIMARY KEY ("match_id", "user_id")
+    );
+
+CREATE INDEX idx_match_spectators_user ON "match_spectators" ("user_id");
+CREATE INDEX idx_match_spectators_match ON "match_spectators" ("match_id");
+
+CREATE TABLE
     "cosmetic" (
         "cosmetic_id" UUID PRIMARY KEY NOT NULL,
         "name" VARCHAR(50) UNIQUE NOT NULL,
@@ -1176,9 +1187,11 @@ END;
 $$;
 
 -- ============================================================================
--- SP-05: sp_game_save — atomic game + matches + match_players
+-- SP-05: sp_game_save — atomic game + matches + match_players + match_spectators
 -- Preserves conditional ended_at logic: ended_at = NULL if status = RUNNING
 -- ============================================================================
+
+DROP PROCEDURE IF EXISTS sp_game_save(UUID, UUID, VARCHAR, UUID, VARCHAR, VARCHAR, VARCHAR, UUID, VARCHAR, TIMESTAMP, JSONB);
 
 CREATE OR REPLACE PROCEDURE sp_game_save(
     p_game_id UUID,
@@ -1191,7 +1204,8 @@ CREATE OR REPLACE PROCEDURE sp_game_save(
     p_match_id UUID,
     p_game_mode VARCHAR(50),
     p_ended_at TIMESTAMP,
-    p_players JSONB
+    p_players JSONB,
+    p_spectators JSONB DEFAULT '[]'::JSONB
 )
 LANGUAGE plpgsql AS $$
 BEGIN
@@ -1226,6 +1240,17 @@ BEGIN
                 nickname = EXCLUDED.nickname,
                 score = EXCLUDED.score,
                 is_winner = EXCLUDED.is_winner;
+        END IF;
+
+        IF p_spectators IS NOT NULL AND jsonb_array_length(p_spectators) > 0 THEN
+            INSERT INTO match_spectators (match_id, user_id, nickname)
+            SELECT
+                p_match_id,
+                (elem->>'user_id')::UUID,
+                elem->>'nickname'
+            FROM jsonb_array_elements(p_spectators) AS elem
+            ON CONFLICT (match_id, user_id) DO UPDATE SET
+                nickname = EXCLUDED.nickname;
         END IF;
     END IF;
 END;

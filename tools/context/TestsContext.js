@@ -25,8 +25,19 @@ export class TestContext {
 
     async authUsers() {
         for (const user of this.users) {
-            await AuthFlow.register(user);
+            try {
+                await AuthFlow.register(user);
+            } catch (e) {
+                const msg = String(e.message).toLowerCase();
+                const isDuplicate = msg.includes("already") || msg.includes("em uso") || msg.includes("duplicate");
+                if (!isDuplicate) {
+                    throw e;
+                }
+            }
             await AuthFlow.login(user);
+            if (!user.id || !user.token) {
+                throw new Error(`authUsers: user ${user.nickname} missing id/token after login`);
+            }
         }
     }
 
@@ -70,6 +81,7 @@ export class TestContext {
 
         this.sharedEvents.length = 0;
         this.sharedEventIds.clear();
+        delete this.sharedEvents._listeners;
     }
 
     dispose() {

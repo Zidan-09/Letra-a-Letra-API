@@ -3,9 +3,11 @@ package com.letraaletra.api.features.game.infrastructure.persistence.postgres.ma
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.history.GameHistory;
 import com.letraaletra.api.features.game.domain.history.MatchHistory;
+import com.letraaletra.api.features.game.domain.history.SpectatorHistory;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.GameJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchPlayersJpaEntity;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchSpectatorsJpaEntity;
 import com.letraaletra.api.features.player.domain.PlayerHistory;
 
 import java.time.Instant;
@@ -27,6 +29,10 @@ public class GameMapper {
         entity.setRoomCode(game.getCode());
         entity.setGameType(game.getGameType());
         entity.setStatus(game.getGameStatus());
+        if (game.getRoomSettings() != null) {
+            entity.setAllowSpectators(game.getRoomSettings().roomAllowSpectators());
+            entity.setPrivateGame(game.getRoomSettings().isPrivateGame());
+        }
 
         return entity;
     }
@@ -36,19 +42,36 @@ public class GameMapper {
             List<MatchJpaEntity> matches,
             Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch
     ) {
+        return toDomain(entity, matches, playersByMatch, Map.of());
+    }
+
+    public static GameHistory toDomain(
+            GameJpaEntity entity,
+            List<MatchJpaEntity> matches,
+            Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch,
+            Map<UUID, List<MatchSpectatorsJpaEntity>> spectatorsByMatch
+    ) {
 
         return new GameHistory(
                 entity.getId(),
                 entity.getRoomName(),
                 entity.getGameType(),
                 entity.getStatus(),
-                convert(matches, playersByMatch)
+                convert(matches, playersByMatch, spectatorsByMatch)
         );
     }
 
     private static List<MatchHistory> convert(
             List<MatchJpaEntity> matches,
             Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch
+    ) {
+        return convert(matches, playersByMatch, Map.of());
+    }
+
+    private static List<MatchHistory> convert(
+            List<MatchJpaEntity> matches,
+            Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch,
+            Map<UUID, List<MatchSpectatorsJpaEntity>> spectatorsByMatch
     ) {
 
         List<MatchHistory> result = new ArrayList<>();
@@ -63,9 +86,18 @@ public class GameMapper {
                             )
                     );
 
+            List<SpectatorHistory> spectators =
+                    convertSpectators(
+                            spectatorsByMatch.getOrDefault(
+                                    match.getId(),
+                                    List.of()
+                            )
+                    );
+
             result.add(
                     new MatchHistory(
                             players,
+                            spectators,
                             match.getEndedAt() != null ? match.getEndedAt().toInstant(ZoneOffset.UTC) : Instant.now()
                     )
             );
@@ -93,5 +125,24 @@ public class GameMapper {
         }
 
         return players;
+    }
+
+    private static List<SpectatorHistory> convertSpectators(
+            List<MatchSpectatorsJpaEntity> entities
+    ) {
+
+        List<SpectatorHistory> spectators = new ArrayList<>();
+
+        for (MatchSpectatorsJpaEntity entity : entities) {
+
+            spectators.add(
+                    new SpectatorHistory(
+                            entity.getMatchSpectatorId().getUserId(),
+                            entity.getNickname()
+                    )
+            );
+        }
+
+        return spectators;
     }
 }

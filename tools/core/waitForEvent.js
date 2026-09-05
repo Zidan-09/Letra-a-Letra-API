@@ -1,5 +1,12 @@
 
 export function waitForEvent(name, predicate, events, timeout = 90000) {
+    if (!Array.isArray(events)) {
+        throw new Error(`waitForEvent [${name}]: events is not an array`);
+    }
+    if (typeof predicate !== "function") {
+        throw new Error(`waitForEvent [${name}]: predicate is not a function`);
+    }
+
     return new Promise((resolve, reject) => {
         const existingIndex = events.findIndex(predicate);
 
