@@ -27,7 +27,13 @@ public class VerifyResetTokenUseCase implements UseCase<VerifyResetTokenInput, V
                 .findByTokenHash(tokenHash)
                 .orElseThrow(InvalidTokenException::new);
 
-        resetToken.validate(tokenHash);
+        try {
+            resetToken.validate(tokenHash);
+
+        } catch (InvalidTokenException e) {
+            tokenRepository.save(resetToken);
+            throw e;
+        }
 
         tokenRepository.save(resetToken);
 

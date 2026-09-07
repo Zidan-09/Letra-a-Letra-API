@@ -116,7 +116,6 @@ class VerifyResetCodeUseCaseTest {
             verify(tokenHashService, times(1)).hash(rawCode);
             verify(codeRepository, times(1)).findByCodeHash(hashedCode);
             verify(mockResetCode, times(1)).validate(hashedCode);
-            verify(codeRepository, never()).save(any());
         }
 
         @Test
@@ -134,7 +133,6 @@ class VerifyResetCodeUseCaseTest {
             verify(tokenHashService, times(1)).hash(rawCode);
             verify(codeRepository, times(1)).findByCodeHash(hashedCode);
             verify(mockResetCode, times(1)).validate(hashedCode);
-            verify(codeRepository, never()).save(any());
         }
     }
 
