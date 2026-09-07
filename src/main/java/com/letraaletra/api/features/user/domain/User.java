@@ -142,7 +142,7 @@ public class User {
     }
 
     public boolean isBanned() {
-        return banInfo.type() != null;
+        return banInfo.isActive();
     }
 
     public BanInfo getBanInfo() {
@@ -214,7 +214,7 @@ public class User {
     }
 
     public void ban(LocalDateTime expiresAt, String reason) {
-        if (banInfo.type() != null) {
+        if (isBanned()) {
             throw new UserAlreadyWasBannedException();
         }
 
