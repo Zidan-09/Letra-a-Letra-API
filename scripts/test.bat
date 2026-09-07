@@ -79,9 +79,15 @@ echo ==========================
 
 echo [9] Executando testes de integracao...
 
+echo [DEBUG] Iniciando runner.js...
 call node tools\runner.js
+set "RUNNER_EXIT=%ERRORLEVEL%"
 
-if errorlevel 1 (
+echo.
+echo [DEBUG] runner.js terminou com codigo: %RUNNER_EXIT%
+pause
+
+if not "%RUNNER_EXIT%"=="0" (
     echo.
     echo ERRO: Testes de integracao falharam.
     goto cleanup
@@ -116,5 +122,7 @@ docker rm letra-a-letra-mailhog-test > nul 2>&1
 
 echo.
 echo Ambiente de testes encerrado.
+
+pause
 
 endlocal
