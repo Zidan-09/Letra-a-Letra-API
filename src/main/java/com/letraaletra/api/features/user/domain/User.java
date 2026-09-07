@@ -142,7 +142,7 @@ public class User {
     }
 
     public boolean isBanned() {
-        return banInfo.isActive();
+        return banInfo != null && banInfo.isActive();
     }
 
     public BanInfo getBanInfo() {
