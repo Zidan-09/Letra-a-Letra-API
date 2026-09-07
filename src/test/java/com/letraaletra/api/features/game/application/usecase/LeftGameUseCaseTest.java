@@ -96,7 +96,7 @@ class LeftGameUseCaseTest {
         assertTrue(output.gameOver().isEmpty());
 
         verify(roomTimeoutManager).start(game);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
         verify(gameOverService, never()).handle(any(), any());
         verify(actorManager, never()).remove(any());
     }
@@ -129,7 +129,7 @@ class LeftGameUseCaseTest {
 
         verify(gameOverService).handle(game, gameOver);
         verify(actorManager).remove(gameId);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
         verify(roomTimeoutManager, never()).start(any());
     }
 

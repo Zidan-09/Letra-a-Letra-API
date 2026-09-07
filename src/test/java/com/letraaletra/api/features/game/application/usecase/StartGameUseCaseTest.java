@@ -92,7 +92,7 @@ class StartGameUseCaseTest {
         assertEquals(game, output.game());
 
         verify(themeService).select("theme-id");
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
     }
 
     @Test

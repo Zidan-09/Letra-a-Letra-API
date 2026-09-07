@@ -92,13 +92,12 @@ class GameOverHandlerTest {
 
         HandledGameOver handled = handler.handle(game, gameOver);
 
-        InOrder inOrder = inOrder(userStatsService, rankingPointsService, userRepository, gameRepository);
+        InOrder inOrder = inOrder(userStatsService, rankingPointsService, userRepository);
         inOrder.verify(userStatsService).update(winnerUser, true);
         inOrder.verify(userStatsService).update(loserUser, false);
         inOrder.verify(rankingPointsService).handle(winnerUser, 3, 2);
         inOrder.verify(rankingPointsService).handle(loserUser, 2, 3);
         inOrder.verify(userRepository).saveAll(List.of(winnerUser, loserUser));
-        inOrder.verify(gameRepository).save(game);
 
         assertTrue(handled.winnerPoints().isPresent());
         assertEquals(winnerDelta, handled.winnerPoints().get());

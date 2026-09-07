@@ -67,7 +67,6 @@ public class LeftGameUseCase implements UseCase<LeftGameInput, LeftGameOutput> {
                 .orElseGet(HandledGameOver::withoutRanking);
 
         userRepository.save(user);
-        gameRepository.save(result.game());
 
         return new LeftGameOutput(result.game(), result.gameOver(), handledGameOver);
     }

@@ -92,7 +92,6 @@ public class GameOverHandler implements GameOverService {
         }
 
         userRepository.saveAll(List.of(userWinner, userLoser));
-        gameRepository.save(game);
 
         recordMatchEnded(game, result);
 

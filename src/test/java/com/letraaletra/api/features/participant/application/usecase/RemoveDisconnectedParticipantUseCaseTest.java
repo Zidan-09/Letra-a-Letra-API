@@ -92,7 +92,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         assertNull(output);
         verify(roomTimeoutManager).start(game);
         verify(userRepository).save(mockUser);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
         verify(actorManager, never()).remove(any());
     }
 
@@ -120,7 +120,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         assertNull(output);
         verify(actorManager).remove(gameId);
         verify(userRepository).save(mockUser);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
         verify(roomTimeoutManager, never()).start(any());
     }
 
@@ -146,7 +146,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         // Assert
         assertNull(output);
         verify(userRepository).save(mockUser);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
         verify(roomTimeoutManager, never()).start(any());
         verify(actorManager, never()).remove(any());
     }
@@ -174,7 +174,7 @@ class RemoveDisconnectedParticipantUseCaseTest {
         // Assert
         verify(gameOverService).handle(game, gameOver);
         verify(userRepository).save(mockUser);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
     }
 
     @Test

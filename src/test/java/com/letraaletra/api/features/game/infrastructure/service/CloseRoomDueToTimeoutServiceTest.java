@@ -91,7 +91,7 @@ class CloseRoomDueToTimeoutServiceTest {
         verify(user).leaveGame();
         verify(userRepository).saveAll(userList);
         verify(actorManager).remove(gameId);
-        verify(gameRepository).save(game);
+        verify(gameRepository, never()).save(any());
     }
 
     @Test

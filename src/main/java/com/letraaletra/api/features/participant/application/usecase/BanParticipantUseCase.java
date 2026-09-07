@@ -39,7 +39,6 @@ public class BanParticipantUseCase implements UseCase<BanParticipantInput, BanPa
         Game game = future.join();
 
         userRepository.save(target);
-        gameRepository.save(game);
 
         return new BanParticipantOutput(game);
     }

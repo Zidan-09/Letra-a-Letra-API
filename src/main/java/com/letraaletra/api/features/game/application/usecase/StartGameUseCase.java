@@ -64,8 +64,6 @@ public class StartGameUseCase implements UseCase<StartGameInput, StartGameOutput
 
         Game game = future.join();
 
-        gameRepository.save(game);
-
         recordMatchStarted(game);
 
         return new StartGameOutput(game);

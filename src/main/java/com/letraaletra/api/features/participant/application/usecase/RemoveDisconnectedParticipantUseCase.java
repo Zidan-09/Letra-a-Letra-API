@@ -62,7 +62,6 @@ public class RemoveDisconnectedParticipantUseCase implements UseCase<RemoveDisco
         result.gameOver().ifPresent(over -> gameOverService.handle(result.game(), over));
 
         userRepository.save(user);
-        gameRepository.save(result.game());
 
         return null;
     }

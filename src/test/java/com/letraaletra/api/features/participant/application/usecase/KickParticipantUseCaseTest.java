@@ -84,7 +84,7 @@ class KickParticipantUseCaseTest {
         verify(gameActorManager).get(gameId);
         verify(mockActor).enqueueCommand(any(KickParticipantActorCommand.class));
         verify(userRepository).save(mockUser);
-        verify(gameRepository).save(mockGame);
+        verify(gameRepository, never()).save(any());
     }
 
     @Test
