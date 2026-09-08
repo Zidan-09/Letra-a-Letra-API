@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.presentation.mapper.game;
 
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.exception.GameNotRunningException;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardView;
@@ -17,7 +16,7 @@ import java.util.UUID;
 
 public class GameStateResponseMapper {
     public static GameStateResponse toResponse(Game game, UUID viewerId) {
-        GameState state = requireRunningState(game);
+        GameState state = requireState(game);
 
         BoardView boardView = BoardViewBuilder.build(
                 state,
@@ -38,7 +37,7 @@ public class GameStateResponseMapper {
     }
 
     public static GameStateResponse toGlobalResponse(Game game) {
-        GameState state = requireRunningState(game);
+        GameState state = requireState(game);
 
         return new GameStateResponse(
                 state.getPlayers().values().stream()
@@ -53,11 +52,13 @@ public class GameStateResponseMapper {
         );
     }
 
-    private static GameState requireRunningState(Game game) {
+    private static GameState requireState(Game game) {
         GameState state = game.getGameState();
-        if (state == null || game.getGameStatus() != GameStatus.RUNNING) {
+
+        if (state == null) {
             throw new GameNotRunningException();
         }
+
         return state;
     }
 }

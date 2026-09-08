@@ -89,13 +89,21 @@ public class GameOverHandler implements GameOverService {
 
         if (game.getGameStatus().equals(GameStatus.CLOSED)) {
             actorManager.remove(game.getId());
+            releaseParticipants(userList);
         }
 
         userRepository.saveAll(List.of(userWinner, userLoser));
+        gameRepository.save(game);
 
         recordMatchEnded(game, result);
 
         return handled;
+    }
+
+    private void releaseParticipants(List<User> userList) {
+        userList.forEach(User::leaveGame);
+
+        userRepository.saveAll(userList);
     }
 
     private void recordMatchEnded(Game game, GameOver result) {
