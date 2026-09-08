@@ -8,7 +8,6 @@ import com.letraaletra.api.features.game.domain.event.StateEvent;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.player.domain.exception.InvalidPlayerActionException;
-import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ public class UnfreezeAction implements GameAction {
 
     @Override
     public List<Event> execute(GameState state, UUID userId) {
-        validatePlayerTurn(state, userId);
-
         Player player = state.getPlayerOrThrow(userId);
 
         validatePlayer(player);
@@ -43,12 +40,6 @@ public class UnfreezeAction implements GameAction {
                         userId.toString()
                 )
         )));
-    }
-
-    private void validatePlayerTurn(GameState state, UUID userId) {
-        if (!state.currentPlayerTurn().equals(userId)) {
-            throw new NotYourTurnException();
-        }
     }
 
     private void validatePower(Player player) {

@@ -13,6 +13,7 @@ import com.letraaletra.api.features.game.domain.exception.SpectatorCanNotPlayExc
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
+import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.board.power.action.ImmunityPlayerAction;
@@ -102,6 +103,10 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
         if (participant.isSpectator()) {
             throw new SpectatorCanNotPlayException();
+        }
+
+        if (!participant.getUserId().equals(game.getGameState().currentPlayerTurn())) {
+            throw new NotYourTurnException();
         }
     }
 
