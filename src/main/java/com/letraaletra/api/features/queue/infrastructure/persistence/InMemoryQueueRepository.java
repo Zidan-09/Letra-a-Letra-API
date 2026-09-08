@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Repository
 public class InMemoryQueueRepository implements QueueRepository {
     private final Map<UUID, OnlineUser> users = new ConcurrentHashMap<>();
-    private final Map<QueueType, Queue<OnlineUser>> queues = new EnumMap<>(QueueType.class);
+    private final Map<QueueType, Deque<OnlineUser>> queues = new EnumMap<>(QueueType.class);
+    private final Object lock = new Object();
 
     public InMemoryQueueRepository() {
         for (QueueType type : QueueType.values()) {
@@ -24,20 +25,22 @@ public class InMemoryQueueRepository implements QueueRepository {
 
     @Override
     public void add(QueueType type, OnlineUser onlineUser) {
-       if (users.putIfAbsent(onlineUser.userId(), onlineUser) == null) {
-           Queue<OnlineUser> queue = queues.get(type);
-
-           queue.add(onlineUser);
-       }
+        synchronized (lock) {
+            if (users.putIfAbsent(onlineUser.userId(), onlineUser) == null) {
+                queues.get(type).add(onlineUser);
+            }
+        }
     }
 
     @Override
     public void remove(UUID id) {
-        OnlineUser onlineUser = users.remove(id);
-        
-        if (onlineUser == null) return;
-        
-        queues.values().forEach(q -> q.remove(onlineUser));
+        synchronized (lock) {
+            OnlineUser onlineUser = users.remove(id);
+
+            if (onlineUser == null) return;
+
+            queues.values().forEach(q -> q.remove(onlineUser));
+        }
     }
 
     @Override
@@ -47,9 +50,9 @@ public class InMemoryQueueRepository implements QueueRepository {
 
     @Override
     public Optional<QueueMatch> pollPair(QueueType type) {
-        Queue<OnlineUser> queue = queues.get(type);
+        Deque<OnlineUser> queue = queues.get(type);
 
-        synchronized (queue) {
+        synchronized (lock) {
             if (queue.size() < 2) {
                 return Optional.empty();
             }
@@ -58,6 +61,9 @@ public class InMemoryQueueRepository implements QueueRepository {
             OnlineUser second = queue.poll();
 
             if (first == null || second == null) {
+                if (first != null) {
+                    queue.offerFirst(first);
+                }
                 return Optional.empty();
             }
 

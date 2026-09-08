@@ -12,6 +12,7 @@ import com.letraaletra.api.features.matchmaking.application.port.MatchmakingSend
 import com.letraaletra.api.features.matchmaking.domain.MatchmakingPair;
 import com.letraaletra.api.features.queue.application.port.QueuePairProvider;
 import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class MatchmakingScheduler {
     private static final String SOURCE_DETAIL = "MATCHMAKING_SCHEDULER";
 
     private final QueuePairProvider pairProvider;
+    private final QueueRepository queueRepository;
     private final GameAssemblerService assembler;
     private final MatchmakingSenderService sender;
     private final BusinessAuditRecorder auditRecorder;
@@ -50,7 +52,19 @@ public class MatchmakingScheduler {
 
     private void startGame(MatchmakingPair pair, QueueType type) {
         operationContext.runAsOperation(UUID.randomUUID(), null, () -> {
-            Game game = assembler.create(pair, type);
+            Game game;
+            try {
+                game = assembler.create(pair, type);
+            } catch (Exception e) {
+                logger.warn("Matchmaking failed, requeueing users: queueType={}, userIds=[{}, {}]",
+                        type,
+                        pair.first().userId(),
+                        pair.second().userId(),
+                        e
+                );
+                requeuePair(pair, type);
+                return;
+            }
 
             logger.info("Matchmaking game started: gameId={}, queueType={}",
                     game.getId(),
@@ -78,6 +92,20 @@ public class MatchmakingScheduler {
 
             sender.notify(game, type);
         });
+    }
+
+    private void requeuePair(MatchmakingPair pair, QueueType type) {
+        try {
+            queueRepository.add(type, pair.first());
+            queueRepository.add(type, pair.second());
+        } catch (Exception e) {
+            logger.error("Failed to requeue users after matchmaking failure: queueType={}, userIds=[{}, {}]",
+                    type,
+                    pair.first().userId(),
+                    pair.second().userId(),
+                    e
+            );
+        }
     }
 
     private String resolveMatchId(Game game) {
