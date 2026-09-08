@@ -1,171 +1,130 @@
 package com.letraaletra.api.features.shop.application.usecase;
 
-import com.letraaletra.api.features.offers.domain.CoinType;
-import com.letraaletra.api.features.offers.domain.Offer;
-import com.letraaletra.api.features.offers.domain.OfferReward;
-import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
-import com.letraaletra.api.features.offers.domain.exception.InvalidPaymentException;
-import com.letraaletra.api.features.offers.domain.exception.OfferAlreadyPurchasedException;
-import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
-import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
-import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
-import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
-import com.letraaletra.api.features.transaction.domain.OperationType;
-import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.wallet.exception.InsufficientBalanceException;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.user.domain.wallet.Balance;
-import com.letraaletra.api.features.user.domain.wallet.Wallet;
-import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
-import com.letraaletra.api.features.reward.application.port.RewardFactory;
-import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
+import com.letraaletra.api.features.audit.domain.AuditCategory;
+import com.letraaletra.api.features.audit.domain.AuditEvent;
+import com.letraaletra.api.features.audit.domain.AuditEventType;
+import com.letraaletra.api.features.offers.domain.CoinType;
+import com.letraaletra.api.features.offers.domain.Offer;
+import com.letraaletra.api.features.offers.domain.OfferReward;
+import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
+import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
+import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
+import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
+import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
+import com.letraaletra.api.features.shop.application.port.ShopPurchasePort;
+import com.letraaletra.api.features.shop.application.port.ShopPurchaseResult;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.wallet.exception.InsufficientBalanceException;
 
 @ExtendWith(MockitoExtension.class)
 class BuyOfferUseCaseTest {
 
     @Mock
-    private UserRepository userRepository;
+    private ShopPurchasePort purchasePort;
 
     @Mock
     private OfferRepository offerRepository;
 
     @Mock
-    private TransactionRepository transactionRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private RewardFactory rewardFactory;
-
-    @Mock
-    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
+    private BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
     private BuyOfferUseCase useCase;
 
     private BuyOfferInput input;
     private UUID userId;
+    private UUID offerId;
     private User mockUser;
-    private Wallet mockWallet;
     private Offer mockOffer;
+    private ShopPurchaseResult mockPurchaseResult;
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
-        UUID offerId = UUID.randomUUID();
-
-        mockUser = mock(User.class);
-        mockWallet = mock(Wallet.class);
-        Balance mockBalanceBefore = mock(Balance.class);
-        Balance mockBalanceAfter = mock(Balance.class);
-        mockOffer = mock(Offer.class);
-
-        WalletMovement walletMovement = mock(WalletMovement.class);
-        OfferReward offerReward = mock(OfferReward.class);
-
+        offerId = UUID.randomUUID();
         input = new BuyOfferInput(userId, offerId);
 
-        // User e Wallet base setup
+        mockUser = mock(User.class);
         lenient().when(mockUser.getUserId()).thenReturn(userId);
-        lenient().when(mockUser.getWallet()).thenReturn(mockWallet);
+        lenient().when(mockUser.getUsername()).thenReturn("testuser");
 
-        // Balance setup para evitar NullPointerException no Transaction.create
-        lenient().when(mockBalanceBefore.getAmountFor(any())).thenReturn(1000L);
-        lenient().when(mockBalanceAfter.getAmountFor(any())).thenReturn(900L);
+        mockOffer = mock(Offer.class);
+        OfferReward offerReward = mock(OfferReward.class);
+        lenient().when(offerReward.reward()).thenReturn(new SoftCoinsReward(50));
 
-        // WalletMovement setup
-        lenient().when(walletMovement.coinType()).thenReturn(CoinType.SOFT);
-        lenient().when(walletMovement.amount()).thenReturn(100);
-        lenient().when(walletMovement.operation()).thenReturn(OperationType.DEBIT);
-        lenient().when(walletMovement.balanceBefore()).thenReturn(mockBalanceBefore);
-        lenient().when(walletMovement.balanceAfter()).thenReturn(mockBalanceAfter);
-
-        // Offer setup
         lenient().when(mockOffer.getOfferId()).thenReturn(offerId);
         lenient().when(mockOffer.getPrice()).thenReturn(BigDecimal.valueOf(100));
+        lenient().when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
         lenient().when(mockOffer.getRewards()).thenReturn(List.of(offerReward));
-        lenient().when(mockOffer.isRepeatable()).thenReturn(false);
 
-        // Rewards setup (SoftCoinsReward chama mockWallet.add por baixo)
-        WalletMovement rewardMovement = mock(WalletMovement.class);
-        lenient().when(rewardMovement.coinType()).thenReturn(CoinType.SOFT);
-        lenient().when(rewardMovement.amount()).thenReturn(100);
-        lenient().when(rewardMovement.operation()).thenReturn(OperationType.CREDIT);
-        lenient().when(rewardMovement.balanceBefore()).thenReturn(mockBalanceBefore);
-        lenient().when(rewardMovement.balanceAfter()).thenReturn(mockBalanceAfter);
-
-        lenient().when(mockWallet.add(any(), anyInt())).thenReturn(rewardMovement);
-        lenient().when(offerReward.reward()).thenReturn(new SoftCoinsReward(100));
-
-        lenient().when(mockWallet.remove(any(), anyInt())).thenReturn(walletMovement);
-
-        lenient().when(transactionRepository.existsOfferPurchase(any(), any())).thenReturn(false);
-
-        lenient().when(transactionRepository.save(any())).thenReturn(sampleSavedTransaction());
-    }
-
-    private com.letraaletra.api.features.transaction.domain.Transaction sampleSavedTransaction() {
-        return com.letraaletra.api.features.transaction.domain.Transaction.create(
-                userId,
-                CoinType.SOFT,
-                100,
-                1000,
-                900,
-                OperationType.DEBIT,
-                com.letraaletra.api.features.transaction.domain.TransactionReason.SHOP_PURCHASE,
-                UUID.randomUUID()
+        mockPurchaseResult = new ShopPurchaseResult(
+                List.of(UUID.randomUUID(), UUID.randomUUID()),
+                950L,
+                0L
         );
     }
 
     @Test
     @DisplayName("should buy an offer correctly when all data is valid")
     void shouldBuyOfferWithSuccess() {
+        when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
+        when(userRepository.find(input.auth())).thenReturn(Optional.of(mockUser));
 
         BuyOfferOutput output = useCase.execute(input);
 
         assertNotNull(output);
         assertEquals(mockOffer, output.offer());
 
-        verify(mockWallet).remove(CoinType.SOFT, 100);
-        verify(userRepository).save(mockUser);
-        verify(transactionRepository, atLeastOnce()).save(any());
+        verify(purchasePort).purchase(input.auth(), input.offerId());
+        verify(auditRecorder, atLeastOnce()).record(any());
     }
 
     @Test
-    @org.junit.jupiter.api.DisplayName("débito e créditos da mesma compra devem compartilhar operationId e vincular transactionId")
+    @DisplayName("débito e créditos da mesma compra devem compartilhar operationId e vincular transactionId")
     void purchaseEventsShouldShareOperationIdAndReferenceTransactions() {
+        when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
+        when(userRepository.find(input.auth())).thenReturn(Optional.of(mockUser));
 
         useCase.execute(input);
 
-        org.mockito.ArgumentCaptor<com.letraaletra.api.features.audit.domain.AuditEvent> eventCaptor =
-                org.mockito.ArgumentCaptor.forClass(com.letraaletra.api.features.audit.domain.AuditEvent.class);
-
+        ArgumentCaptor<AuditEvent> eventCaptor = ArgumentCaptor.forClass(AuditEvent.class);
         verify(auditRecorder, atLeastOnce()).record(eventCaptor.capture());
 
-        List<com.letraaletra.api.features.audit.domain.AuditEvent> events = eventCaptor.getAllValues();
+        List<AuditEvent> events = eventCaptor.getAllValues();
 
         assertFalse(events.isEmpty());
         assertTrue(events.stream().allMatch(e -> e.operationId() != null));
@@ -173,118 +132,46 @@ class BuyOfferUseCaseTest {
         UUID sharedOperationId = events.get(0).operationId();
         assertTrue(events.stream().allMatch(e -> e.operationId().equals(sharedOperationId)));
 
-        assertTrue(events.stream().anyMatch(e ->
-                e.eventType() == com.letraaletra.api.features.audit.domain.AuditEventType.WALLET_DEBITED));
-        assertTrue(events.stream().anyMatch(e ->
-                e.eventType() == com.letraaletra.api.features.audit.domain.AuditEventType.WALLET_CREDITED));
+        assertTrue(events.stream().anyMatch(e -> e.eventType() == AuditEventType.WALLET_DEBITED));
+        assertTrue(events.stream().anyMatch(e -> e.eventType() == AuditEventType.WALLET_CREDITED));
         assertTrue(events.stream().allMatch(e -> e.transactionId() != null));
-        assertEquals(
-                com.letraaletra.api.features.audit.domain.AuditCategory.ECONOMY,
-                events.get(0).category()
-        );
+        assertEquals(AuditCategory.ECONOMY, events.get(0).category());
     }
 
     @Test
     @DisplayName("should throw an OfferNotFoundException when offer doesn't exist")
     void shouldThrowOfferNotFoundExceptionWhenOfferDoesNotExist() {
+        when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.empty());
 
         assertThrows(OfferNotFoundException.class, () -> useCase.execute(input));
 
-        verify(userRepository, never()).save(any());
-        verifyNoInteractions(mockWallet);
-    }
-
-    @Test
-    @DisplayName("should throw OfferAlreadyPurchasedException when offer is not repeatable and user already purchased it")
-    void shouldThrowOfferAlreadyPurchasedExceptionWhenUserAlreadyPurchasedOffer() {
-        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
-        when(mockOffer.isRepeatable()).thenReturn(false);
-
-        when(transactionRepository.existsOfferPurchase(userId, input.offerId()))
-                .thenReturn(true);
-
-        assertThrows(
-                OfferAlreadyPurchasedException.class,
-                () -> useCase.execute(input)
-        );
-
-        verify(mockWallet, never()).remove(any(), anyInt());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should not check previous purchases when offer is repeatable")
-    void shouldNotCheckPreviousPurchasesWhenOfferIsRepeatable() {
-        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
-        when(mockOffer.isRepeatable()).thenReturn(true);
-
-        useCase.execute(input);
-
-        verify(transactionRepository, never())
-                .existsOfferPurchase(any(), any());
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(auditRecorder);
     }
 
     @Test
     @DisplayName("should throw an UserNotFoundException when user doesn't exist")
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.empty());
+        when(userRepository.find(input.auth())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> useCase.execute(input));
 
-        verify(userRepository, never()).save(any());
-        verifyNoInteractions(mockWallet);
+        verifyNoInteractions(auditRecorder);
     }
 
     @Test
-    @DisplayName("should throw an InvalidOfferStatusException when offer is not active")
-    void shouldThrowInvalidOfferStatusExceptionWhenOfferIsNotActive() {
-        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockOffer.isActive()).thenReturn(false);
-
-        assertThrows(InvalidOfferStatusException.class, () -> useCase.execute(input));
-
-        verifyNoInteractions(mockWallet);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should throw an InvalidPaymentException when CoinType is REAL")
-    void shouldThrowInvalidPaymentExceptionWhenCoinTypeIsReal() {
-        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.REAL);
-
-        assertThrows(InvalidPaymentException.class, () -> useCase.execute(input));
-
-        verify(mockWallet, never()).remove(any(), any(Integer.class));
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("should throw an InsufficientBalanceException when user balance is insufficient")
-    void shouldPropagateExceptionWhenWalletPaymentFails() {
-        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
-        when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
-        when(mockOffer.isActive()).thenReturn(true);
-        when(mockOffer.getCoinType()).thenReturn(CoinType.SOFT);
-
-        when(mockWallet.remove(CoinType.SOFT, 100))
+    @DisplayName("should propagate exception when purchase in port fails due to insufficient balance")
+    void shouldPropagateExceptionWhenPurchasePortFails() {
+        when(purchasePort.purchase(input.auth(), input.offerId()))
                 .thenThrow(new InsufficientBalanceException());
 
         assertThrows(InsufficientBalanceException.class, () -> useCase.execute(input));
 
-        verify(userRepository, never()).save(any());
+        verifyNoInteractions(offerRepository);
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(auditRecorder);
     }
 }

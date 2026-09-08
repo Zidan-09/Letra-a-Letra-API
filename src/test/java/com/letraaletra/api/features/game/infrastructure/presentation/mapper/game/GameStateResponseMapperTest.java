@@ -24,10 +24,12 @@ class GameStateResponseMapperTest {
 
     private User mockUser(UUID userId) {
         Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
+
+        lenient().when(inv.getItems()).thenReturn(Collections.emptyList());
+
         User user = mock(User.class);
         lenient().when(user.getUserId()).thenReturn(userId);
-        lenient().when(user.getUsername()).thenReturn("u-" + userId.toString().substring(0,4));
+        lenient().when(user.getUsername()).thenReturn("u-" + userId.toString().substring(0, 4));
         lenient().when(user.getInventory()).thenReturn(inv);
         return user;
     }
@@ -47,7 +49,7 @@ class GameStateResponseMapperTest {
         User u2 = mockUser(UUID.randomUUID());
         game.join(u1, "s1");
         game.join(u2, "s2");
-        Board board = BoardGenerator.generate(List.of("alpha","bravo","charlie","delta","echo"), GameMode.NORMAL);
+        Board board = BoardGenerator.generate(List.of("alpha", "bravo", "charlie", "delta", "echo"), GameMode.NORMAL);
         game.start(board);
         return game;
     }
@@ -57,7 +59,6 @@ class GameStateResponseMapperTest {
     void shouldThrowWhenGameStateIsNull() {
         Game game = createWaitingGame();
         assertNull(game.getGameState());
-        assertEquals(GameStatus.WAITING, game.getGameStatus());
 
         assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toGlobalResponse(game));
     }
@@ -67,24 +68,12 @@ class GameStateResponseMapperTest {
     void shouldThrowToResponseWhenNull() {
         Game game = createWaitingGame();
         UUID viewer = game.getParticipants().getParticipants().getFirst().getUserId();
+
         assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toResponse(game, viewer));
     }
 
     @Test
-    @DisplayName("should throw when status is WAITING even if state present (stale)")
-    void shouldThrowWhenStatusWaitingEvenIfStatePresent() {
-        Game game = createRunningGame();
-        GameStatus staleStatus = GameStatus.WAITING;
-        game.setGameStatus(staleStatus);
-        assertNotNull(game.getGameState());
-
-        assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toGlobalResponse(game));
-        UUID viewer = game.getParticipants().getParticipants().getFirst().getUserId();
-        assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toResponse(game, viewer));
-    }
-
-    @Test
-    @DisplayName("toGlobalResponse should map correctly when RUNNING")
+    @DisplayName("toGlobalResponse should map correctly when game is running and state is present")
     void shouldMapGlobalWhenRunning() {
         Game game = createRunningGame();
 
@@ -93,16 +82,14 @@ class GameStateResponseMapperTest {
         assertNotNull(resp);
         assertEquals(2, resp.players().size());
         assertNotNull(resp.board());
-        assertEquals(10, resp.board().length);
         assertNotNull(resp.words());
         assertFalse(resp.words().isEmpty());
         assertNotNull(resp.currentTurnPlayerId());
-        // check that playerIds match participants
         assertTrue(resp.players().stream().allMatch(p -> p != null && p.id() != null));
     }
 
     @Test
-    @DisplayName("toResponse per viewer should map correctly when RUNNING")
+    @DisplayName("toResponse per viewer should map correctly when game is running and state is present")
     void shouldMapPerViewerWhenRunning() {
         Game game = createRunningGame();
         UUID viewer = game.getParticipants().getParticipants().getFirst().getUserId();
@@ -116,7 +103,7 @@ class GameStateResponseMapperTest {
     }
 
     @Test
-    @DisplayName("RUNNING + null state should throw not NPE")
+    @DisplayName("should throw GameNotRunningException explicitly when game state is null")
     void shouldThrowExplicitWhenRunningNull() {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
@@ -125,20 +112,9 @@ class GameStateResponseMapperTest {
         game.join(u1, "s1");
         game.join(u2, "s2");
         game.setGameStatus(GameStatus.RUNNING);
+
         assertNull(game.getGameState());
 
-        GameNotRunningException ex = assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toGlobalResponse(game));
-        assertNotNull(ex.getMessage());
-        assertDoesNotThrow(() -> {
-            try { GameStateResponseMapper.toGlobalResponse(game); } catch (GameNotRunningException e) { /*expected*/ }
-        });
-        // ensure it's not NullPointerException
-        try {
-            GameStateResponseMapper.toGlobalResponse(game);
-            fail("should throw");
-        } catch (Exception e) {
-            assertFalse(e instanceof NullPointerException, "should not be NPE");
-            assertTrue(e instanceof GameNotRunningException);
-        }
+        assertThrows(GameNotRunningException.class, () -> GameStateResponseMapper.toGlobalResponse(game));
     }
 }

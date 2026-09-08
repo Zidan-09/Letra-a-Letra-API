@@ -1,23 +1,9 @@
 package com.letraaletra.api.features.game.infrastructure.service;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import org.mockito.junit.jupiter.MockitoExtension;
-
+import com.letraaletra.api.features.audit.domain.AuditEvent;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.GameOverReasons;
@@ -25,13 +11,39 @@ import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
+import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
 import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.game.application.port.ActorManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GameOverHandlerTest {
@@ -53,8 +65,8 @@ class GameOverHandlerTest {
 
     private User winnerUser;
     private User loserUser;
-    private com.letraaletra.api.features.player.domain.Player winnerPlayer;
-    private com.letraaletra.api.features.player.domain.Player loserPlayer;
+    private Player winnerPlayer;
+    private Player loserPlayer;
     private GameOver gameOver;
 
     @BeforeEach
@@ -62,8 +74,8 @@ class GameOverHandlerTest {
         winnerUser = UserFactory.createLocal("winner", "winner@test.com", "hash");
         loserUser = UserFactory.createLocal("loser", "loser@test.com", "hash");
 
-        winnerPlayer = org.mockito.Mockito.mock(com.letraaletra.api.features.player.domain.Player.class);
-        loserPlayer = org.mockito.Mockito.mock(com.letraaletra.api.features.player.domain.Player.class);
+        winnerPlayer = mock(Player.class);
+        loserPlayer = mock(Player.class);
 
         when(winnerPlayer.getUserId()).thenReturn(winnerUser.getUserId());
         when(loserPlayer.getUserId()).thenReturn(loserUser.getUserId());
@@ -73,7 +85,7 @@ class GameOverHandlerTest {
         when(userRepository.findUsersById(anyList()))
                 .thenReturn(List.of(winnerUser, loserUser));
 
-        lenient().doNothing().when(auditRecorder).record(any());
+        lenient().doNothing().when(auditRecorder).record(any(AuditEvent.class));
     }
 
     @Test
@@ -92,12 +104,13 @@ class GameOverHandlerTest {
 
         HandledGameOver handled = handler.handle(game, gameOver);
 
-        InOrder inOrder = inOrder(userStatsService, rankingPointsService, userRepository);
+        InOrder inOrder = inOrder(userStatsService, rankingPointsService, userRepository, gameRepository);
         inOrder.verify(userStatsService).update(winnerUser, true);
         inOrder.verify(userStatsService).update(loserUser, false);
         inOrder.verify(rankingPointsService).handle(winnerUser, 3, 2);
         inOrder.verify(rankingPointsService).handle(loserUser, 2, 3);
-        inOrder.verify(userRepository).saveAll(List.of(winnerUser, loserUser));
+        inOrder.verify(userRepository, times(2)).saveAll(anyList());
+        inOrder.verify(gameRepository).save(game);
 
         assertTrue(handled.winnerPoints().isPresent());
         assertEquals(winnerDelta, handled.winnerPoints().get());
@@ -127,7 +140,7 @@ class GameOverHandlerTest {
     }
 
     @Test
-    @DisplayName("Deve salvar o agregado completo exatamente uma vez com ambos os jogadores")
+    @DisplayName("Deve salvar os usuarios nos momentos esperados do fluxo com ambos os jogadores")
     void shouldPersistFullAggregateOnceWithBothPlayers() {
         when(game.getGameType()).thenReturn(GameType.RANKING);
         when(game.getGameStatus()).thenReturn(GameStatus.CLOSED);
@@ -138,12 +151,13 @@ class GameOverHandlerTest {
 
         handler.handle(game, gameOver);
 
-        verify(userRepository).saveAll(usersCaptor.capture());
+        verify(userRepository, times(2)).saveAll(usersCaptor.capture());
         verify(userRepository, never()).save(winnerUser);
         verify(userRepository, never()).save(loserUser);
 
-        List<User> saved = usersCaptor.getValue();
-        assertEquals(2, saved.size());
-        assertTrue(saved.containsAll(List.of(winnerUser, loserUser)));
+        List<List<User>> capturedCalls = usersCaptor.getAllValues();
+        assertEquals(2, capturedCalls.size());
+        assertTrue(capturedCalls.get(0).containsAll(List.of(winnerUser, loserUser)));
+        assertTrue(capturedCalls.get(1).containsAll(List.of(winnerUser, loserUser)));
     }
 }
