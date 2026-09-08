@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.game.application.port;
+package com.letraaletra.api.shared.application.port;
 
 import java.util.function.Supplier;
 

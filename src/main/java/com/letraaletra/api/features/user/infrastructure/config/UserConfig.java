@@ -4,6 +4,9 @@ import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.features.user.application.port.ResetCodeService;
 import com.letraaletra.api.features.user.application.port.PasswordResetCodeEmailService;
+import com.letraaletra.api.features.user.application.input.GrantUserRewardInput;
+import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
+import com.letraaletra.api.features.user.application.input.RevokeUserWalletInput;
 import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
@@ -12,6 +15,10 @@ import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRe
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
@@ -20,6 +27,8 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Set;
 
 @Configuration
 public class UserConfig {
@@ -162,17 +171,22 @@ public class UserConfig {
     }
 
     @Bean
-    public ResetPasswordUseCase resetPasswordUseCase(
+    public UseCase<ResetPasswordInput, Void> resetPasswordUseCase(
             UserRepository userRepository,
             TokenHashService tokenHashService,
             PasswordService passwordService,
-            ResetCodeRepository resetCodeRepository
+            ResetCodeRepository resetCodeRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new ResetPasswordUseCase(
-                userRepository,
-                tokenHashService,
-                passwordService,
-                resetCodeRepository
+        return new TransactionalUseCase<>(
+                new ResetPasswordUseCase(
+                        userRepository,
+                        tokenHashService,
+                        passwordService,
+                        resetCodeRepository
+                ),
+                transactions,
+                Set.of(InvalidTokenException.class)
         );
     }
 
@@ -203,19 +217,23 @@ public class UserConfig {
     }
 
     @Bean
-    public GrantUserRewardUseCase grantUserRewardUseCase(
+    public UseCase<GrantUserRewardInput, Void> grantUserRewardUseCase(
             UserRepository userRepository,
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
             RewardFactory rewardFactory,
-            BusinessAuditRecorder auditRecorder
+            BusinessAuditRecorder auditRecorder,
+            TransactionalExecutorService transactions
     ) {
-        return new GrantUserRewardUseCase(
-                userRepository,
-                transactionRepository,
-                adminChecker,
-                rewardFactory,
-                auditRecorder
+        return new TransactionalUseCase<>(
+                new GrantUserRewardUseCase(
+                        userRepository,
+                        transactionRepository,
+                        adminChecker,
+                        rewardFactory,
+                        auditRecorder
+                ),
+                transactions
         );
     }
 
@@ -244,17 +262,21 @@ public class UserConfig {
     }
 
     @Bean
-    public RevokeUserWalletUseCase revokeUserWalletUseCase(
+    public UseCase<RevokeUserWalletInput, Void> revokeUserWalletUseCase(
             UserRepository userRepository,
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
-            BusinessAuditRecorder auditRecorder
+            BusinessAuditRecorder auditRecorder,
+            TransactionalExecutorService transactions
     ) {
-        return new RevokeUserWalletUseCase(
-                userRepository,
-                transactionRepository,
-                adminChecker,
-                auditRecorder
+        return new TransactionalUseCase<>(
+                new RevokeUserWalletUseCase(
+                        userRepository,
+                        transactionRepository,
+                        adminChecker,
+                        auditRecorder
+                ),
+                transactions
         );
     }
 }
