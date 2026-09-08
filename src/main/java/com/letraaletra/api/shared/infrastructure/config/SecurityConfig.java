@@ -2,6 +2,7 @@ package com.letraaletra.api.shared.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -32,9 +33,9 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers(
                                 "/user/auth/**",
-                                "/user",
                                 "/admin/auth/**",
                                 "/ws/**",
                                 "/h2-console/**",
@@ -46,6 +47,10 @@ public class SecurityConfig {
                                 "/admin/activate"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> res.sendError(401, "Unauthorized"))
+                        .accessDeniedHandler((req, res, e) -> res.sendError(403, "Forbidden"))
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,
