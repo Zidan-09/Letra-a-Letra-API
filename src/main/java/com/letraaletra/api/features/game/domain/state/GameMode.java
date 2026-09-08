@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.domain.state;
 
-import com.letraaletra.api.features.game.domain.board.power.PowerRarity;
-
 import java.util.Map;
+
+import com.letraaletra.api.features.game.domain.board.power.PowerRarity;
 
 public enum GameMode {
     EASY(
@@ -49,10 +49,10 @@ public enum GameMode {
             new int[][]{{0, 1}, {1, 0}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}},
             1,
             Map.of(
-                    PowerRarity.COMMON, 0.0375,
-                    PowerRarity.RARE, 0.5875,
-                    PowerRarity.EPIC, 0.375,
-                    PowerRarity.LEGENDARY, 0.0
+                    PowerRarity.COMMON, 0.25,
+                    PowerRarity.RARE, 0.25,
+                    PowerRarity.EPIC, 0.25,
+                    PowerRarity.LEGENDARY, 0.25
             )
     );
 
