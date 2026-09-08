@@ -89,7 +89,6 @@ public class MatchmakingAssembler implements GameAssemblerService {
         game = future.join();
 
         userRepository.saveAll(List.of(user1, user2));
-        gameRepository.save(game);
 
         return game;
     }

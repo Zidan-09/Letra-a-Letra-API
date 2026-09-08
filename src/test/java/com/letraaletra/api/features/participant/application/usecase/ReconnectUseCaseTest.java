@@ -1,11 +1,11 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
+import com.letraaletra.api.features.game.domain.actor.command.ReconnectParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.participant.Participants;
 import com.letraaletra.api.features.participant.application.input.ReconnectParticipantInput;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
-import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.application.port.Actor;
@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -52,12 +53,6 @@ class ReconnectUseCaseTest {
 
     @Mock
     private Game mockGame;
-
-    @Mock
-    private Participant mockParticipant;
-
-    @Mock
-    private Participants participants;
 
     @BeforeEach
     void setUp() {
@@ -102,15 +97,14 @@ class ReconnectUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should successfully reconnect participant, cancel pending disconnect task and return updated game structure")
+    @DisplayName("Should successfully reconnect participant via actor command, cancel pending disconnect task and return updated game structure")
     void shouldReconnectParticipantSuccessfully() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
         when(actorManager.get(gameId)).thenReturn(mockActor);
-        when(mockActor.getGame()).thenReturn(mockGame);
-        when(mockGame.getParticipants()).thenReturn(participants);
-        when(participants.getParticipantByUserId(userId)).thenReturn(mockParticipant);
+        when(mockActor.enqueueCommand(any(ReconnectParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(mockGame)));
         when(mockGame.getId()).thenReturn(gameId);
 
         Optional<ReconnectParticipantOutput> result = useCase.execute(input);
@@ -119,40 +113,41 @@ class ReconnectUseCaseTest {
         assertEquals(mockGame, result.get().game());
 
         verify(disconnectScheduler, times(1)).cancel(userId, gameId);
-        verify(participants).reconnect(userId, sessionToken);
         verify(userRepository, never()).save(any());
+        verify(mockUser, never()).leaveGame();
     }
 
     @Test
-    @DisplayName("Should return empty Optional when actor match registers user but game context reports player is missing")
+    @DisplayName("Should return empty Optional when actor reports player is missing, without touching user state")
     void shouldReturnEmptyWhenParticipantIsMissingInGame() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
         when(actorManager.get(gameId)).thenReturn(mockActor);
-        when(mockActor.getGame()).thenReturn(mockGame);
-        when(mockGame.getParticipants()).thenReturn(participants);
-        when(participants.getParticipantByUserId(userId)).thenReturn(null);
+        when(mockActor.enqueueCommand(any(ReconnectParticipantActorCommand.class)))
+                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
         Optional<ReconnectParticipantOutput> result = useCase.execute(input);
 
         assertTrue(result.isEmpty());
         verifyNoInteractions(disconnectScheduler);
+        verify(mockUser, never()).leaveGame();
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should clear user game states and persist changes locally when internal engine or actor communications crash")
-    void shouldCleanUpUserStateWhenExceptionOccurs() {
+    @DisplayName("Should return empty Optional without ejecting user when actor is not found")
+    void shouldReturnEmptyWithoutEjectingUserWhenActorIsMissing() {
         when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
         when(mockUser.isNotInGame()).thenReturn(false);
         when(mockUser.getCurrentGameId()).thenReturn(gameId);
-        when(actorManager.get(gameId)).thenThrow(new RuntimeException("Actor thread pool terminated unexpectedly"));
+        when(actorManager.get(gameId)).thenThrow(new GameNotFoundException());
 
         Optional<ReconnectParticipantOutput> result = useCase.execute(input);
 
         assertTrue(result.isEmpty());
-        verify(mockUser, times(1)).leaveGame();
-        verify(userRepository, times(1)).save(mockUser);
+        verify(mockUser, never()).leaveGame();
+        verify(userRepository, never()).save(any());
         verifyNoInteractions(disconnectScheduler);
     }
 }

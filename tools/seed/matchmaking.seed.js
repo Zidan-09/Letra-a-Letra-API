@@ -1,11 +1,12 @@
 import { waitForEvent } from "../core/waitForEvent.js";
 import { send } from "../core/websocket.js";
+import { sleep } from "../core/sleep.js";
 
 export async function runFlow(context) {
     const [ws1, ws2] = context.sockets;
 
     const users = context.users;
-    const events = context.events.get(users[0]);
+    const events = context.getSharedEvents();
 
     send(ws1, {
         type: "MATCHMAKING_GAME",
@@ -17,11 +18,21 @@ export async function runFlow(context) {
         gameMode: "NORMAL"
     });
 
-    const started = await waitForEvent("MATCHMAKING_GAME", e => (e.event === "MATCHMAKING_GAME" && e.status === "FOUNDED"), events);
+    const started = await waitForEvent("MATCHMAKING_GAME", e => {
+        const ev = e.event ?? e.type;
+        const st = e.status ?? e.matchStatus ?? e.state;
+        return ev === "MATCHMAKING_GAME" && (st === "FOUNDED" || st === "founded");
+    }, events);
 
-    const gameId = started.gameId;
+    await sleep(1000);
 
-    let currentPlayer = started.data.currentTurnPlayerId;
+    const gameId = started.gameId ?? started.data?.gameId ?? started.roomId ?? started.data?.roomId ?? started.id;
+
+    if (!gameId) {
+        throw new Error(`matchmaking: gameId missing in ${JSON.stringify(started)}`);
+    }
+
+    let currentPlayer = started.data?.currentTurnPlayerId ?? started.data?.currentPlayerId ?? started.currentTurnPlayerId;
 
     const positions = [];
     for (let x = 0; x < 10; x++) {
@@ -54,19 +65,26 @@ export async function runFlow(context) {
 
         const result = await waitForEvent(
             "GAME_OVER / PLAYER_ACTION_RESULT",
-            e => e.event === "GAME_OVER" ||
-                (
-                    e.event === "PLAYER_ACTION_RESULT" &&
-                    e.data.currentTurnPlayerId !== currentPlayer
-                ),
+            e => {
+                const ev = e.event ?? e.type;
+                if (ev === "GAME_OVER") return true;
+                if (ev === "PLAYER_ACTION_RESULT") {
+                    const pid = e.data?.currentTurnPlayerId ?? e.data?.currentPlayerId ?? e.data?.nextTurnPlayerId;
+                    return pid && pid !== currentPlayer;
+                }
+                return false;
+            },
                 events
         );
 
-        if (result.event === "GAME_OVER") {
+        await sleep(125);
+
+        const evResult = result.event ?? result.type;
+        if (evResult === "GAME_OVER") {
             gameRunning = false;
             break;
         }
 
-        currentPlayer = result.data.currentTurnPlayerId;
+        currentPlayer = result.data?.currentTurnPlayerId ?? result.data?.currentPlayerId ?? result.data?.nextTurnPlayerId;
     }
 }

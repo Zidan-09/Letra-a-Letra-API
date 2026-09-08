@@ -19,6 +19,7 @@ public class GameActor implements Actor {
     private final TransactionalExecutorService transactionExecutor;
     private final OperationContext operationContext;
     private final Game game;
+    private final com.letraaletra.api.features.game.domain.repository.SaveGame saveGame;
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
     private record CommandEnvelope<T>(
@@ -32,10 +33,21 @@ public class GameActor implements Actor {
             OperationContext operationContext,
             Game game
     ) {
+        this(executor, transactionExecutor, operationContext, game, null);
+    }
+
+    public GameActor(
+            ExecutorService executor,
+            TransactionalExecutorService transactionExecutor,
+            OperationContext operationContext,
+            Game game,
+            com.letraaletra.api.features.game.domain.repository.SaveGame saveGame
+    ) {
         this.game = game;
         this.transactionExecutor = transactionExecutor;
         this.operationContext = operationContext;
         this.executor = executor;
+        this.saveGame = saveGame;
     }
 
     @Override
@@ -72,9 +84,13 @@ public class GameActor implements Actor {
 
         try {
             operationContext.runAsOperation(operationId, game.getId().toString(), () -> {
-                T result = transactionExecutor.execute(() ->
-                        envelope.command().execute(game)
-                );
+                T result = transactionExecutor.execute(() -> {
+                    T r = envelope.command().execute(game);
+                    if (saveGame != null) {
+                        saveGame.save(game);
+                    }
+                    return r;
+                });
 
                 envelope.future().complete(result);
             });

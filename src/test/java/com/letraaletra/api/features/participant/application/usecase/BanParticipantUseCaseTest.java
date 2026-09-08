@@ -84,7 +84,7 @@ class BanParticipantUseCaseTest {
         verify(gameActorManager).get(gameId);
         verify(mockActor).enqueueCommand(any(BanParticipantActorCommand.class));
         verify(userRepository).save(mockTargetUser);
-        verify(gameRepository).save(mockGame);
+        verify(gameRepository, never()).save(any());
     }
 
     @Test

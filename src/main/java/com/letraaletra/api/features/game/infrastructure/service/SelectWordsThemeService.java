@@ -7,19 +7,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 public class SelectWordsThemeService implements SelectThemeService {
     private final ThemeRepository themeRepository;
-    private final Random random = new Random();
 
     @Override
     public List<String> select() {
         List<String> keys = themeRepository.getIds();
 
-        String key = keys.get(random.nextInt(keys.size()));
+        if (keys == null || keys.isEmpty()) {
+            throw new ThemeNotFoundException();
+        }
+
+        String key = keys.get(ThreadLocalRandom.current().nextInt(keys.size()));
 
         return select(key);
     }

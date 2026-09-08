@@ -41,16 +41,19 @@ public class BanHistory {
             UUID adminId,
             String reason,
             BanType type,
-            int expiresAt
+            int expiresIn
     ) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = type == BanType.PERMANENT ? null : now.plusMinutes(expiresIn);
+
         return new BanHistory(
                UUID.randomUUID(),
                 userId,
                 adminId,
                 reason,
                 type,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(expiresAt),
+                now,
+                expiresAt,
                 null,
                 null
         );

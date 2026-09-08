@@ -11,9 +11,9 @@ public record TransactionDetails(
         String username,
 
         CoinType coinType,
-        int amount,
-        int balanceBefore,
-        int balanceAfter,
+        long amount,
+        long balanceBefore,
+        long balanceAfter,
 
         OperationType operation,
 

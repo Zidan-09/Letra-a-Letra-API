@@ -40,7 +40,6 @@ public class KickParticipantUseCase implements UseCase<KickParticipantInput, Kic
         Game game = future.join();
 
         userRepository.save(target);
-        gameRepository.save(game);
 
         return new KickParticipantOutput(game);
     }

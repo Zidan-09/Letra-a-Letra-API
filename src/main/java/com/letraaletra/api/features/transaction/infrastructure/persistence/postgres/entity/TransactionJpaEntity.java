@@ -27,13 +27,13 @@ public class TransactionJpaEntity {
     private CoinType coinType;
 
     @Column(name = "amount")
-    private int amount;
+    private long amount;
 
     @Column(name = "balance_before")
-    private int balanceBefore;
+    private long balanceBefore;
 
     @Column(name = "balance_after")
-    private int balanceAfter;
+    private long balanceAfter;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "operation")

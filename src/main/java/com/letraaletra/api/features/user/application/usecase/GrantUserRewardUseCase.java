@@ -65,8 +65,8 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
                 input.cosmeticId()
         );
 
-        grantWalletReward(user, reward, actor, operationId);
         grantInventoryReward(user, reward, actor, operationId);
+        grantWalletReward(user, reward, actor, operationId);
 
         userRepository.save(user);
 
@@ -81,9 +81,9 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
                     user.getUserId(),
                     walletMovement.coinType(),
                     walletMovement.amount(),
-                    (int) walletMovement.balanceBefore()
+                    walletMovement.balanceBefore()
                             .getAmountFor(walletMovement.coinType()),
-                    (int) walletMovement.balanceAfter()
+                    walletMovement.balanceAfter()
                             .getAmountFor(walletMovement.coinType()),
                     walletMovement.operation(),
                     TransactionReason.ADMIN_GIVE,

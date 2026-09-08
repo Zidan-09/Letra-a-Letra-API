@@ -1,8 +1,7 @@
 package com.letraaletra.api.features.participant.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
@@ -81,17 +80,13 @@ public class ParticipantConfig {
     @Bean
     public RemoveDisconnectedParticipantUseCase removeDisconnectedParticipantUseCase(
             UserRepository userRepository,
-            GameRepository gameRepository,
-            RoomTimeoutManager roomTimeoutManager,
             ActorManager<Game> actorManager,
-            GameOverService gameOverService
+            GameOverFinalizer gameOverFinalizer
     ) {
         return new RemoveDisconnectedParticipantUseCase(
                 userRepository,
-                gameRepository,
-                roomTimeoutManager,
                 actorManager,
-                gameOverService
+                gameOverFinalizer
         );
     }
 }

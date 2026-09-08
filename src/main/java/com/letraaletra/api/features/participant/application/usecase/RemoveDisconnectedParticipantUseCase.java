@@ -1,12 +1,10 @@
 package com.letraaletra.api.features.participant.application.usecase;
 
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.command.RemoveDisconnectedParticipantActorCommand;
 import com.letraaletra.api.features.game.domain.actor.result.RemoveParticipantResult;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
-import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.participant.application.input.RemoveDisconnectedParticipantInput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -19,23 +17,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class RemoveDisconnectedParticipantUseCase implements UseCase<RemoveDisconnectedParticipantInput, Void> {
     private final UserRepository userRepository;
-    private final GameRepository gameRepository;
-    private final RoomTimeoutManager roomTimeoutManager;
     private final ActorManager<Game> actorManager;
-    private final GameOverService gameOverService;
+    private final GameOverFinalizer gameOverFinalizer;
 
     public RemoveDisconnectedParticipantUseCase(
             UserRepository userRepository,
-            GameRepository gameRepository,
-            RoomTimeoutManager roomTimeoutManager,
             ActorManager<Game> actorManager,
-            GameOverService gameOverService
+            GameOverFinalizer gameOverFinalizer
     ) {
         this.userRepository = userRepository;
-        this.gameRepository = gameRepository;
-        this.roomTimeoutManager = roomTimeoutManager;
         this.actorManager = actorManager;
-        this.gameOverService = gameOverService;
+        this.gameOverFinalizer = gameOverFinalizer;
     }
 
     @Override
@@ -51,18 +43,17 @@ public class RemoveDisconnectedParticipantUseCase implements UseCase<RemoveDisco
 
         RemoveParticipantResult result = future.join();
 
-        if (result.game().getGameStatus().equals(GameStatus.WAITING)) {
-            roomTimeoutManager.start(result.game());
+        if (result.gameOver().isPresent()) {
+            gameOverFinalizer.finish(result.game(), result.gameOver().get());
 
-        } else if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
-            actorManager.remove(result.game().getId());
-
+            return null;
         }
 
-        result.gameOver().ifPresent(over -> gameOverService.handle(result.game(), over));
+        if (result.game().getGameStatus().equals(GameStatus.CLOSED)) {
+            actorManager.remove(result.game().getId());
+        }
 
         userRepository.save(user);
-        gameRepository.save(result.game());
 
         return null;
     }

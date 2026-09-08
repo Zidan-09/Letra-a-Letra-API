@@ -31,6 +31,7 @@ import com.letraaletra.api.features.queue.application.port.QueuePairProvider;
 import com.letraaletra.api.features.queue.domain.OnlineUser;
 import com.letraaletra.api.features.queue.domain.QueueMatch;
 import com.letraaletra.api.features.queue.domain.QueueType;
+import com.letraaletra.api.features.queue.domain.repository.QueueRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
 
@@ -40,6 +41,9 @@ class MatchmakingSchedulerTest {
 
     @Mock
     private QueuePairProvider pairProvider;
+
+    @Mock
+    private QueueRepository queueRepository;
 
     @Mock
     private GameAssemblerService assembler;
@@ -59,7 +63,7 @@ class MatchmakingSchedulerTest {
     void setUp() {
         lenient().when(operationContext.currentOperationId()).thenReturn(Optional.empty());
         lenient().doAnswer(inv -> { ((Runnable) inv.getArgument(2)).run(); return null; }).when(operationContext).runAsOperation(any(UUID.class), any(), any(Runnable.class));
-        scheduler = new MatchmakingScheduler(pairProvider, assembler, sender, auditRecorder, operationContext);
+        scheduler = new MatchmakingScheduler(pairProvider, queueRepository, assembler, sender, auditRecorder, operationContext);
     }
 
     @Test

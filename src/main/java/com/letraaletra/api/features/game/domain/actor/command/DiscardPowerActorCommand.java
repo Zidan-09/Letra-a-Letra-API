@@ -1,12 +1,16 @@
 package com.letraaletra.api.features.game.domain.actor.command;
 
 import com.letraaletra.api.features.game.domain.Game;
+import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.actor.result.DiscardPowerResult;
 import com.letraaletra.api.features.game.domain.event.Event;
 import com.letraaletra.api.features.game.domain.event.StateEvent;
 import com.letraaletra.api.features.game.domain.event.TurnPassedEvent;
+import com.letraaletra.api.features.game.domain.exception.GameNotRunningException;
+import com.letraaletra.api.features.game.domain.exception.SpectatorCanNotPlayException;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
+import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
 
 import java.time.Instant;
@@ -31,6 +35,16 @@ public class DiscardPowerActorCommand implements ActorCommand<DiscardPowerResult
 
     @Override
     public DiscardPowerResult execute(Game game) {
+        if (!(game.getGameStatus().equals(GameStatus.RUNNING)) || game.getGameState() == null) {
+            throw new GameNotRunningException();
+        }
+
+        Participant participant = game.getParticipants().getParticipantByUserId(userId);
+
+        if (participant != null && participant.isSpectator()) {
+            throw new SpectatorCanNotPlayException();
+        }
+
         GameState state = game.getGameState();
         Player player = state.getPlayerOrThrow(userId);
 

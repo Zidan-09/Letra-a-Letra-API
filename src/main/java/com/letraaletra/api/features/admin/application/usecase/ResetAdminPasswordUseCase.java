@@ -11,6 +11,8 @@ import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
+import java.util.UUID;
+
 public class ResetAdminPasswordUseCase implements UseCase<ResetAdminPasswordInput, Void> {
     private final AdminRepository adminRepository;
     private final TokenHashService tokenHashService;
@@ -49,6 +51,7 @@ public class ResetAdminPasswordUseCase implements UseCase<ResetAdminPasswordInpu
         resetToken.markAsUsed();
 
         admin.changePassword(passwordService.hash(input.newPassword()));
+        admin.setTokenVersion(UUID.randomUUID());
 
         adminRepository.save(admin);
         tokenRepository.save(resetToken);

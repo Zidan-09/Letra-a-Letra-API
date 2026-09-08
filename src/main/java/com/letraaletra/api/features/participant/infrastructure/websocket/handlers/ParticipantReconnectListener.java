@@ -7,8 +7,10 @@ import com.letraaletra.api.features.participant.application.output.ReconnectPart
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.participant.infrastructure.presentation.mapper.ReconnectParticipantMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.DomainException;
 import com.letraaletra.api.shared.infrastructure.websocket.WsLifecycleListener;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,6 +20,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ParticipantReconnectListener implements WsLifecycleListener {
     private final UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> useCase;
     private final ParticipantNotifier participantNotifier;
@@ -27,19 +30,35 @@ public class ParticipantReconnectListener implements WsLifecycleListener {
     public void onConnected(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");
 
-        ReconnectParticipantInput command = ReconnectParticipantMapper.toInput(userId, session.getId());
+        if (userId == null) {
+            log.warn("ParticipantReconnectListener.onConnected without userId, session={}", session.getId());
+            return;
+        }
 
-        Optional<ReconnectParticipantOutput> output = useCase.execute(command);
+        try {
+            ReconnectParticipantInput command = ReconnectParticipantMapper.toInput(userId, session.getId());
 
-        output.ifPresent(out -> {
-            ReconnectParticipantResponse dto = ReconnectParticipantMapper.toResponse(out);
+            Optional<ReconnectParticipantOutput> output = useCase.execute(command);
 
-            List<String> socketIds = out.game().getParticipants().getParticipants().stream()
-                    .map(Participant::getSocketId)
-                    .toList();
+            output.ifPresent(out -> {
+                try {
+                    ReconnectParticipantResponse dto = ReconnectParticipantMapper.toResponse(out);
 
-            participantNotifier.notifyAll(socketIds, dto);
-        });
+                    List<String> socketIds = out.game().getParticipants().getParticipants().stream()
+                            .map(Participant::getSocketId)
+                            .toList();
+
+                    participantNotifier.notifyAll(socketIds, dto);
+                    log.info("participant reconnected user={} game={} status={}", userId, out.game().getId(), out.game().getGameStatus());
+                } catch (DomainException e) {
+                    log.warn("failed to map reconnect response user={} game={}: {}", userId, out.game().getId(), e.getMessage());
+                } catch (Exception e) {
+                    log.error("unexpected error mapping reconnect user={} game={}", userId, out.game().getId(), e);
+                }
+            });
+        } catch (Exception e) {
+            log.error("reconnect useCase failed user={} session={}", userId, session.getId(), e);
+        }
     }
 
     @Override

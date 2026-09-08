@@ -27,7 +27,13 @@ public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Voi
                 codeRepository.findByCodeHash(codeHash)
                         .orElseThrow(InvalidTokenException::new);
 
-        resetCode.validate(codeHash);
+        try {
+            resetCode.validate(codeHash);
+
+        } catch (InvalidTokenException e) {
+            codeRepository.save(resetCode);
+            throw e;
+        }
 
         codeRepository.save(resetCode);
 

@@ -19,6 +19,9 @@ public class JsonWebTokenService implements TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    @Value("${api.security.token.expiration}")
+    private Long expiration;
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -31,7 +34,7 @@ public class JsonWebTokenService implements TokenService {
                         "tokenVersion", tokenVersion.toString())
                 )
                 .issuedAt(new java.util.Date())
-                .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
+                .expiration(new java.util.Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -45,7 +48,7 @@ public class JsonWebTokenService implements TokenService {
                         "tokenVersion", tokenVersion.toString())
                 )
                 .issuedAt(new java.util.Date())
-                .expiration(new java.util.Date(System.currentTimeMillis() + (6 * 60 * 60 * 1000L)))
+                .expiration(new java.util.Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
     }

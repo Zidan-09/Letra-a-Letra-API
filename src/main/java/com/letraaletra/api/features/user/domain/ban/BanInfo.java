@@ -34,4 +34,9 @@ public record BanInfo(
                 expiresAt
         );
     }
+
+    public boolean isActive() {
+        return type != null
+                && (expiresAt == null || expiresAt.isAfter(LocalDateTime.now()));
+    }
 }

@@ -3,10 +3,10 @@ import { send } from "../core/websocket.js";
 import { sleep } from "../core/sleep.js";
 
 export async function runFlow(context) {
-    const [ws1, ws2] = context.sockets;
+    const [ws1, ws2, ws3] = context.sockets;
 
     const users = context.users;
-    const events = context.events.get(users[0]);
+    const events = context.getSharedEvents();
 
     let gameId;
 
@@ -15,23 +15,34 @@ export async function runFlow(context) {
             type: "CREATE_GAME",
             name: "Test Casual",
             settings: {
-                allowSpectators: false,
+                allowSpectators: true,
                 privateGame: false
             }
         });
 
-        const created = await waitForEvent("GAME_CREATED", e => (e.event === "GAME_CREATED"), events);
+        const created = await waitForEvent("GAME_CREATED", e => (e.event ?? e.type) === "GAME_CREATED", events);
 
         await sleep(1000);
 
-        gameId = created.data.gameId;
+        gameId = created.data?.gameId ?? created.data?.roomId ?? created.data?.id ?? created.gameId ?? created.roomId;
+
+        if (!gameId) {
+            throw new Error(`casual init: gameId missing in ${JSON.stringify(created)}`);
+        }
 
         send(ws2, {
             type: "JOIN_GAME",
             gameId: gameId
         });
 
-        await waitForEvent("PARTICIPANT_JOIN", e => (e.event === "PARTICIPANT_JOIN"), events);
+        await waitForEvent("PARTICIPANT_JOIN", e => (e.event ?? e.type) === "PARTICIPANT_JOIN", events);
+
+        send(ws3, {
+            type: "JOIN_GAME",
+            gameId: gameId
+        });
+
+        await waitForEvent("PARTICIPANT_JOIN", e => (e.event ?? e.type) === "PARTICIPANT_JOIN", events);
 
         await sleep(1000);
     }
@@ -48,11 +59,11 @@ export async function runFlow(context) {
             }
         });
 
-        const started = await waitForEvent("GAME_STARTED", e => (e.event === "GAME_STARTED"), events);
+        const started = await waitForEvent("GAME_STARTED", e => (e.event ?? e.type) === "GAME_STARTED", events);
 
         await sleep(1000);
 
-        let currentPlayer = started.data.currentTurnPlayerId;
+        let currentPlayer = started.data?.currentTurnPlayerId ?? started.data?.currentPlayerId ?? started.currentTurnPlayerId;
 
         const positions = [];
         for (let x = 0; x < 10; x++) {
@@ -85,22 +96,27 @@ export async function runFlow(context) {
 
             const result = await waitForEvent(
                 "GAME_OVER / PLAYER_ACTION_RESULT",
-                e => e.event === "GAME_OVER" ||
-                    (
-                        e.event === "PLAYER_ACTION_RESULT" &&
-                        e.data.currentTurnPlayerId !== currentPlayer
-                    ),
+                e => {
+                    const ev = e.event ?? e.type;
+                    if (ev === "GAME_OVER") return true;
+                    if (ev === "PLAYER_ACTION_RESULT") {
+                        const pid = e.data?.currentTurnPlayerId ?? e.data?.currentPlayerId ?? e.data?.nextTurnPlayerId;
+                        return pid && pid !== currentPlayer;
+                    }
+                    return false;
+                },
                     events
             );
 
-            await sleep(3000);
+            await sleep(125);
 
-            if (result.event === "GAME_OVER") {
+            const evResult = result.event ?? result.type;
+            if (evResult === "GAME_OVER") {
                 gameRunning = false;
                 break;
             }
 
-            currentPlayer = result.data.currentTurnPlayerId;
+            currentPlayer = result.data?.currentTurnPlayerId ?? result.data?.currentPlayerId ?? result.data?.nextTurnPlayerId;
         }
     }
 

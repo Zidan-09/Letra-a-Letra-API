@@ -2,6 +2,7 @@ package com.letraaletra.api.features.offers.infrastructure.presentation.dto.requ
 
 import com.letraaletra.api.features.reward.domain.RewardType;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ public record RegisterOfferRewardRequest(
 
         UUID rewardReference,
 
+        @Positive
         Integer quantity
 ) {
 }

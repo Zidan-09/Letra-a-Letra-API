@@ -34,7 +34,7 @@ class RemoveFriendControllerTest {
 
     private UUID mockAuthId;
     private AuthenticatedUser principal;
-    private String mockFriendId;
+    private UUID mockFriendId;
     private RemoveFriendRequest mockRequest;
     private RemoveFriendInput mockInput;
     private SuccessResponse<Void> mockSuccessResponse;
@@ -43,7 +43,7 @@ class RemoveFriendControllerTest {
     void setUp() {
         mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
-        mockFriendId = UUID.randomUUID().toString();
+        mockFriendId = UUID.randomUUID();
 
         mockRequest = mock(RemoveFriendRequest.class);
         when(mockRequest.friendId()).thenReturn(mockFriendId);

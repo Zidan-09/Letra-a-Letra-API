@@ -40,7 +40,6 @@ public class CloseRoomDueToTimeoutService implements CloseRoomService {
 
         userRepository.saveAll(userList);
         actorManager.remove(game.getId());
-        gameRepository.save(game);
 
         return new CloseRoomResult(
                 game,

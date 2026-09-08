@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.offers.domain;
 
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferExpirationException;
+import com.letraaletra.api.features.offers.domain.exception.InvalidOfferPriceException;
 import com.letraaletra.api.features.offers.domain.exception.InvalidOfferStatusException;
 
 import java.math.BigDecimal;
@@ -55,6 +56,10 @@ public class Offer {
     ) {
         if (hasExpiration && expiresIn <= 0) {
             throw new InvalidOfferExpirationException();
+        }
+
+        if (price == null || price.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) != 0) {
+            throw new InvalidOfferPriceException();
         }
 
         return new Offer(

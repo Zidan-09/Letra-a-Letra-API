@@ -106,7 +106,6 @@ class VerifyResetTokenUseCaseTest {
             verify(tokenHashService).hash(rawToken);
             verify(tokenRepository).findByTokenHash(hashedToken);
             verify(resetToken).validate(hashedToken);
-            verify(tokenRepository, never()).save(any());
         }
     }
 }

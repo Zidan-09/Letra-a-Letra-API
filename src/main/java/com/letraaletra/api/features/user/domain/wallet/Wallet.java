@@ -39,6 +39,10 @@ public class Wallet {
     }
 
     public WalletMovement add(CoinType coinType, int value) {
+        if (value <= 0) {
+            throw new InvalidPaymentException();
+        }
+
         Balance balanceBefore = getBalance();
 
         switch (coinType) {
@@ -57,6 +61,10 @@ public class Wallet {
     }
 
     public WalletMovement remove(CoinType coinType, int value) {
+        if (value <= 0) {
+            throw new InvalidPaymentException();
+        }
+
         Balance balanceBefore = getBalance();
 
         switch (coinType) {

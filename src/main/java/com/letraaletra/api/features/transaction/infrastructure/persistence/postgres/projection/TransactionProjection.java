@@ -17,11 +17,11 @@ public interface TransactionProjection {
 
     CoinType getCoinType();
 
-    int getAmount();
+    long getAmount();
 
-    int getBalanceBefore();
+    long getBalanceBefore();
 
-    int getBalanceAfter();
+    long getBalanceAfter();
 
     OperationType getOperation();
 

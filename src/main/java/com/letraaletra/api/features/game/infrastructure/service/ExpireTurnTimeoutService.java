@@ -3,12 +3,9 @@ package com.letraaletra.api.features.game.infrastructure.service;
 import com.letraaletra.api.features.game.application.output.ExpireTurnTimeoutResult;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.domain.actor.command.ExpireTurnActorCommand;
 import com.letraaletra.api.features.game.domain.actor.result.ExpireTurnResult;
-import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.application.port.Actor;
 import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
@@ -24,8 +21,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class ExpireTurnTimeoutService implements ExpireTurnService {
     private final ActorManager<Game> gameActorManager;
-    private final GameOverService gameOverService;
-    private final UserRepository userRepository;
+    private final GameOverFinalizer gameOverFinalizer;
 
     @Override
     public Optional<ExpireTurnTimeoutResult> expire(UUID gameId, int version) {
@@ -48,14 +44,7 @@ public class ExpireTurnTimeoutService implements ExpireTurnService {
         Optional<GameOver> gameOver = turnResult.gameOver();
 
         if (gameOver.isPresent()) {
-            User user = userRepository.find(turnResult.whoPassed())
-                    .orElseThrow(UserNotFoundException::new);
-
-            user.leaveGame();
-
-            userRepository.save(user);
-
-            handled = gameOverService.handle(turnResult.game(), gameOver.get());
+            handled = gameOverFinalizer.finish(turnResult.game(), gameOver.get());
         }
 
         return Optional.of(buildOutput(turnResult, handled));

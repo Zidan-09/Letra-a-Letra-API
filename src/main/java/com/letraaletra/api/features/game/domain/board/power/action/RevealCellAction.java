@@ -13,7 +13,6 @@ import com.letraaletra.api.features.game.domain.board.cell.effect.InteractResult
 import com.letraaletra.api.features.game.domain.board.word.Word;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.game.domain.board.position.Position;
-import com.letraaletra.api.features.player.domain.exception.NotYourTurnException;
 
 import java.util.*;
 
@@ -26,8 +25,6 @@ public class RevealCellAction implements GameAction {
 
     @Override
     public List<Event> execute(GameState state, UUID userId) {
-        validatePlayerTurn(state, userId);
-
         Cell cell = state.getBoard().getCell(position);
 
         List<Event> events = new ArrayList<>();
@@ -86,12 +83,6 @@ public class RevealCellAction implements GameAction {
         }
 
         return !wordsFoundEvent.isEmpty() ? wordsFoundEvent : null;
-    }
-
-    private void validatePlayerTurn(GameState state, UUID userId) {
-        if (!state.currentPlayerTurn().equals(userId)) {
-            throw new NotYourTurnException();
-        }
     }
 
     private void addPower(PowerType drop, Player player) {

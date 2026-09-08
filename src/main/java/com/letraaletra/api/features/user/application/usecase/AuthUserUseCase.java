@@ -44,9 +44,7 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     }
 
     private void checkMatch(String password, String hash) {
-        boolean matches = passwordService.matches(password, hash);
-
-        if (!matches) {
+        if (hash == null || !passwordService.matches(password, hash)) {
             throw new InvalidPasswordException();
         }
     }
