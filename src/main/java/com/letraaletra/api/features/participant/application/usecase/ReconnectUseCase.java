@@ -4,15 +4,17 @@ import com.letraaletra.api.features.participant.application.input.ReconnectParti
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.game.application.port.Actor;
 import com.letraaletra.api.features.game.application.port.ActorManager;
+import com.letraaletra.api.features.game.domain.actor.command.ReconnectParticipantActorCommand;
+import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.game.domain.participant.port.DisconnectScheduler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> {
     private final ActorManager<Game> actorManager;
@@ -44,20 +46,21 @@ public class ReconnectUseCase implements UseCase<ReconnectParticipantInput, Opti
         try {
             Actor actor = actorManager.get(user.getCurrentGameId());
 
-            Game game = actor.getGame();
+            CompletableFuture<Optional<Game>> future = actor.enqueueCommand(
+                    new ReconnectParticipantActorCommand(userId, input.session())
+            );
 
-            Participant participant = game.getParticipants().getParticipantByUserId(userId);
-            if (participant == null) return Optional.empty();
+            Optional<Game> game = future.join();
 
-            disconnectScheduler.cancel(userId, game.getId());
+            if (game.isEmpty()) {
+                return Optional.empty();
+            }
 
-            game.getParticipants().reconnect(userId, input.session());
+            disconnectScheduler.cancel(userId, game.get().getId());
 
-            return buildReturn(game);
+            return buildReturn(game.get());
 
-        } catch (Exception e) {
-            user.leaveGame();
-            userRepository.save(user);
+        } catch (GameNotFoundException e) {
             return Optional.empty();
         }
     }
