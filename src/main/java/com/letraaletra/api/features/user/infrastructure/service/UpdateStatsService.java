@@ -58,6 +58,8 @@ public class UpdateStatsService implements UserStatsService {
     private void applyReward(User user, Level level, Reward reward) {
         UUID operationId = operationContext.currentOperationId().orElseGet(UUID::randomUUID);
 
+        List<InventoryMovement> inventoryMovements = reward.applyInventory(user);
+
         Optional<WalletMovement> movement = reward.apply(user);
 
         movement.ifPresent(walletMovement -> {
@@ -87,8 +89,6 @@ public class UpdateStatsService implements UserStatsService {
                     saved.transactionId()
             ));
         });
-
-        List<InventoryMovement> inventoryMovements = reward.applyInventory(user);
 
         AuditEventFactory.inventoryChanges(
                 inventoryMovements,

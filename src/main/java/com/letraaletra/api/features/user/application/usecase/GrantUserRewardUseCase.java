@@ -65,8 +65,8 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
                 input.cosmeticId()
         );
 
-        grantWalletReward(user, reward, actor, operationId);
         grantInventoryReward(user, reward, actor, operationId);
+        grantWalletReward(user, reward, actor, operationId);
 
         userRepository.save(user);
 
