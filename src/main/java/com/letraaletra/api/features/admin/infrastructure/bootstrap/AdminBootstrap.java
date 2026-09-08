@@ -18,7 +18,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AdminBootstrap implements CommandLineRunner {
 
-    @Value("${admin.bootstrap.password:}")
+    @Value("${admin.bootstrap.password:lalAdmin2026}")
     private String bootstrapPassword;
 
     private final AdminRepository repository;
