@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
 import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
@@ -57,16 +57,12 @@ public class GameConfig {
     public LeftGameUseCase leftGameUseCase(
             GameActorManager gameActorManager,
             UserRepository userRepository,
-            GameRepository gameRepository,
-            RoomTimeoutManager roomTimeoutManager,
-            GameOverService gameOverService
+            GameOverFinalizer gameOverFinalizer
     ) {
         return new LeftGameUseCase(
                 gameActorManager,
                 userRepository,
-                gameRepository,
-                roomTimeoutManager,
-                gameOverService
+                gameOverFinalizer
         );
     }
 

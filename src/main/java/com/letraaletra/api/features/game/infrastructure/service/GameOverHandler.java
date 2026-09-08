@@ -12,14 +12,10 @@ import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.ranking.application.port.RankingPointsService;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
-import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.game.domain.Game;
-import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.GameOver;
-import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +30,7 @@ import java.util.UUID;
 public class GameOverHandler implements GameOverService {
     private static final String SOURCE_DETAIL = "MATCH_END";
 
-    private final GameRepository gameRepository;
     private final UserRepository userRepository;
-    private final ActorManager<Game> actorManager;
-    private final RoomTimeoutManager roomTimeoutManager;
     private final UserStatsService userStatsService;
     private final RankingPointsService rankingPointsService;
     private final BusinessAuditRecorder auditRecorder;
@@ -80,30 +73,14 @@ public class GameOverHandler implements GameOverService {
             handled = HandledGameOver.withRanking(winnerPoints, loserPoints);
         }
 
-        if (game.getGameType().equals(GameType.CUSTOM)) {
-            game.setGameStatus(GameStatus.WAITING);
-            roomTimeoutManager.start(game);
-        } else {
-            game.setGameStatus(GameStatus.CLOSED);
-        }
-
-        if (game.getGameStatus().equals(GameStatus.CLOSED)) {
-            actorManager.remove(game.getId());
-            releaseParticipants(userList);
-        }
+        userWinner.leaveGame();
+        userLoser.leaveGame();
 
         userRepository.saveAll(List.of(userWinner, userLoser));
-        gameRepository.save(game);
 
         recordMatchEnded(game, result);
 
         return handled;
-    }
-
-    private void releaseParticipants(List<User> userList) {
-        userList.forEach(User::leaveGame);
-
-        userRepository.saveAll(userList);
     }
 
     private void recordMatchEnded(Game game, GameOver result) {

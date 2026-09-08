@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.infrastructure.config;
 
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.domain.turn.port.TurnTimeoutManager;
 import com.letraaletra.api.features.player.application.usecase.DiscardPowerUseCase;
 import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
@@ -14,12 +14,12 @@ public class PlayerConfig {
     public PlayerActionUseCase playerActionUseCase(
             TurnTimeoutManager turnTimeoutManager,
             GameActorManager gameActorManager,
-            GameOverService gameOverService
+            GameOverFinalizer gameOverFinalizer
             ) {
         return new PlayerActionUseCase(
                 turnTimeoutManager,
                 gameActorManager,
-                gameOverService
+                gameOverFinalizer
         );
     }
 

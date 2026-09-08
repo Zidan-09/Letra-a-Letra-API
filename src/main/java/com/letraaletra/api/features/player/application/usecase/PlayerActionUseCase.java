@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.player.application.usecase;
 
-import com.letraaletra.api.features.game.application.port.GameOverService;
+import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.actor.command.PlayerActionActorCommand;
 import com.letraaletra.api.features.player.application.input.PlayerActionInput;
@@ -18,16 +18,16 @@ import java.util.concurrent.CompletableFuture;
 public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerActionOutput> {
     private final TurnTimeoutManager turnTimeoutManager;
     private final ActorManager<Game> gameActorManager;
-    private final GameOverService gameOverService;
+    private final GameOverFinalizer gameOverFinalizer;
 
     public PlayerActionUseCase(
             TurnTimeoutManager turnTimeoutManager,
             ActorManager<Game> gameActorManager,
-            GameOverService gameOverService
+            GameOverFinalizer gameOverFinalizer
     ) {
         this.turnTimeoutManager = turnTimeoutManager;
         this.gameActorManager = gameActorManager;
-        this.gameOverService = gameOverService;
+        this.gameOverFinalizer = gameOverFinalizer;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PlayerActionUseCase implements UseCase<PlayerActionInput, PlayerAct
         PlayerActionResult result = future.join();
 
         HandledGameOver handledGameOver = result.gameOver()
-                .map(over -> gameOverService.handle(result.game(), over))
+                .map(over -> gameOverFinalizer.finish(result.game(), over))
                 .orElseGet(HandledGameOver::withoutRanking);
 
         return buildOutput(result, handledGameOver);
