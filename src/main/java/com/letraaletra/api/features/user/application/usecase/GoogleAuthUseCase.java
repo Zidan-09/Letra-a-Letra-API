@@ -5,6 +5,7 @@ import com.letraaletra.api.features.user.application.output.GoogleAuthData;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
+import com.letraaletra.api.features.user.domain.ban.exception.UserBannedFromGameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.security.TokenService;
@@ -44,6 +45,10 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
                             payload.googleId()
                     );
                 });
+
+        if (user.isBanned()) {
+            throw new UserBannedFromGameException();
+        }
 
         user.setTokenVersion(UUID.randomUUID());
         String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
