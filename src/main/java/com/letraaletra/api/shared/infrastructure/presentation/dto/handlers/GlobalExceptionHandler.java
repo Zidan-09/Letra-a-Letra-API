@@ -73,6 +73,22 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request
+    ) {
+        request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse(
+                        false,
+                        "INVALID_REQUEST",
+                        ex.getMessage() != null ? ex.getMessage() : "Invalid request"
+                ));
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(
             ConstraintViolationException ex,

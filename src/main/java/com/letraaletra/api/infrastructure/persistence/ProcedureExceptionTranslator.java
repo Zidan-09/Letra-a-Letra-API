@@ -15,7 +15,6 @@ import com.letraaletra.api.features.user.domain.inventory.exception.InvalidUserC
 import com.letraaletra.api.features.user.domain.wallet.exception.InsufficientBalanceException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.UncategorizedSQLException;
 
 import java.sql.SQLException;
 

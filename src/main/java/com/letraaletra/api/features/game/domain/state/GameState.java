@@ -105,8 +105,15 @@ public class GameState {
         ));
     }
 
+    private List<Player> playersInTurnOrder() {
+        return turnOrder.stream()
+                .map(players::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
     public Optional<GameOver> gameOverBecauseScore() {
-        List<Player> playersList = players.values().stream().toList();
+        List<Player> playersList = playersInTurnOrder();
 
         if (playersList.size() < 2) {
             return Optional.empty();
@@ -135,7 +142,7 @@ public class GameState {
     }
 
     public Optional<GameOver> gameOverBecauseAfk() {
-        List<Player> playersList = players.values().stream().toList();
+        List<Player> playersList = playersInTurnOrder();
 
         if (playersList.size() < 2) {
             return Optional.empty();

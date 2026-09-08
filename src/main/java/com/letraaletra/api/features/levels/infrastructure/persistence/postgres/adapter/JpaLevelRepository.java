@@ -85,7 +85,7 @@ public class JpaLevelRepository implements LevelRepository {
                 return new PageImpl<>(List.of(), pageable, 0);
             }
             long total = rows.get(0).total();
-            List<Level> content = rows.stream().map(LevelPageRow::level).toList();
+            List<Level> content = applySort(rows.stream().map(LevelPageRow::level).toList(), page.sort());
             Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort().and(Sort.by("level")));
             return new PageImpl<>(content, pageable, total);
         } catch (DataAccessException ex) {
@@ -95,6 +95,37 @@ public class JpaLevelRepository implements LevelRepository {
             }
             throw ProcedureExceptionTranslator.translate(ex);
         }
+    }
+
+    private List<Level> applySort(List<Level> content, Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return content;
+        }
+
+        java.util.Comparator<Level> combined = null;
+        for (Sort.Order order : sort) {
+            java.util.Comparator<Level> next = comparatorFor(order.getProperty());
+            if (next == null) {
+                continue;
+            }
+            if (order.isDescending()) {
+                next = next.reversed();
+            }
+            combined = combined == null ? next : combined.thenComparing(next);
+        }
+
+        if (combined == null) {
+            return content;
+        }
+
+        return content.stream().sorted(combined).toList();
+    }
+
+    private java.util.Comparator<Level> comparatorFor(String property) {
+        if ("level".equalsIgnoreCase(property)) {
+            return java.util.Comparator.comparingInt(Level::getLevel);
+        }
+        return null;
     }
 
     private boolean isProcedureMissing(DataAccessException ex) {

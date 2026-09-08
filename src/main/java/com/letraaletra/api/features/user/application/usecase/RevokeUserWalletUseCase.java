@@ -58,9 +58,9 @@ public class RevokeUserWalletUseCase implements UseCase<RevokeUserWalletInput, V
                 input.userId(),
                 input.type(),
                 input.amount(),
-                (int) movement.balanceBefore()
+                movement.balanceBefore()
                         .getAmountFor(input.type()),
-                (int) movement.balanceAfter()
+                movement.balanceAfter()
                         .getAmountFor(input.type()),
                 OperationType.DEBIT,
                 TransactionReason.ADMIN_REVOKE,

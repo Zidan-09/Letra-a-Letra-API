@@ -5,10 +5,10 @@ import com.letraaletra.api.features.friend.application.input.RejectFriendRequest
 import java.util.UUID;
 
 public class RejectFriendRequestMapper {
-    public static RejectFriendRequestInput toInput(UUID userId, String friendId) {
+    public static RejectFriendRequestInput toInput(UUID userId, UUID friendId) {
         return new RejectFriendRequestInput(
                 userId,
-                UUID.fromString(friendId)
+                friendId
         );
     }
 }

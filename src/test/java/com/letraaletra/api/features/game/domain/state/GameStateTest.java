@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.game.domain.state;
 
+import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.game.domain.GameOverReasons;
 import com.letraaletra.api.features.game.domain.board.Board;
-import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.exception.PlayerNotInGameException;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,6 @@ class GameStateTest {
 
     private UUID userId1;
     private UUID userId2;
-
     private UUID matchId;
 
     @BeforeEach
@@ -90,11 +89,14 @@ class GameStateTest {
         @Test
         @DisplayName("Deve validar corretamente se o tempo do turno atual expirou")
         void shouldCheckIfTurnIsExpired() {
-            Instant pastTime = Instant.now().plusSeconds(60);
-            Instant insideLimitTime = Instant.now().plusSeconds(10);
+            Instant turnEndsAt = Instant.now().plusSeconds(10);
+            Instant beforeLimit = Instant.now();
+            Instant afterLimit = turnEndsAt.plusSeconds(1);
 
-            assertTrue(gameState.isTurnExpired(pastTime), "Deveria acusar que o turno expirou");
-            assertFalse(gameState.isTurnExpired(insideLimitTime), "Ainda está dentro do tempo do turno");
+            gameState.nextTurn(turnEndsAt);
+
+            assertFalse(gameState.isTurnExpired(beforeLimit), "Ainda está dentro do tempo do turno");
+            assertTrue(gameState.isTurnExpired(afterLimit), "Deveria acusar que o turno expirou");
         }
     }
 
@@ -171,9 +173,12 @@ class GameStateTest {
         }
 
         @Test
-        @DisplayName("Deve declarar Player 1 vencedor ao atingir 3 pontos")
-        void shouldFinishWhenPlayerOneReachesThreePoints() {
-            when(mockPlayer1.getScore()).thenReturn(3);
+        @DisplayName("Deve declarar o primeiro jogador da ordem vencedor ao atingir 3 pontos")
+        void shouldFinishWhenFirstPlayerInTurnOrderReachesThreePoints() {
+            Player p1 = gameState.getPlayerOrThrow(gameState.currentPlayerTurn());
+            Player p2 = p1.equals(mockPlayer1) ? mockPlayer2 : mockPlayer1;
+
+            when(p1.getScore()).thenReturn(3);
 
             Optional<GameOver> result = gameState.gameOverBecauseScore();
 
@@ -182,15 +187,18 @@ class GameStateTest {
             GameOver gameOver = result.get();
 
             assertEquals(GameOverReasons.SCORE, gameOver.reason());
-            assertEquals(mockPlayer1, gameOver.winner());
-            assertEquals(mockPlayer2, gameOver.loser());
+            assertEquals(p1, gameOver.winner());
+            assertEquals(p2, gameOver.loser());
         }
 
         @Test
-        @DisplayName("Deve declarar Player 2 vencedor ao atingir 3 pontos")
-        void shouldFinishWhenPlayerTwoReachesThreePoints() {
-            when(mockPlayer1.getScore()).thenReturn(1);
-            when(mockPlayer2.getScore()).thenReturn(3);
+        @DisplayName("Deve declarar o segundo jogador da ordem vencedor ao atingir 3 pontos")
+        void shouldFinishWhenSecondPlayerInTurnOrderReachesThreePoints() {
+            Player p1 = gameState.getPlayerOrThrow(gameState.currentPlayerTurn());
+            Player p2 = p1.equals(mockPlayer1) ? mockPlayer2 : mockPlayer1;
+
+            when(p1.getScore()).thenReturn(1);
+            when(p2.getScore()).thenReturn(3);
 
             Optional<GameOver> result = gameState.gameOverBecauseScore();
 
@@ -199,8 +207,8 @@ class GameStateTest {
             GameOver gameOver = result.get();
 
             assertEquals(GameOverReasons.SCORE, gameOver.reason());
-            assertEquals(mockPlayer2, gameOver.winner());
-            assertEquals(mockPlayer1, gameOver.loser());
+            assertEquals(p2, gameOver.winner());
+            assertEquals(p1, gameOver.loser());
         }
 
         @Test
@@ -215,10 +223,12 @@ class GameStateTest {
         }
 
         @Test
-        @DisplayName("Deve encerrar a partida quando Player 2 ficar AFK")
-        void shouldFinishWhenPlayerOneIsAfk() {
-            when(mockPlayer1.getPassedTurn()).thenReturn(0);
-            when(mockPlayer2.getPassedTurn()).thenReturn(3);
+        @DisplayName("Deve encerrar a partida quando o primeiro jogador da ordem ficar AFK")
+        void shouldFinishWhenFirstPlayerInTurnOrderIsAfk() {
+            Player p1 = gameState.getPlayerOrThrow(gameState.currentPlayerTurn());
+            Player p2 = p1.equals(mockPlayer1) ? mockPlayer2 : mockPlayer1;
+
+            when(p1.getPassedTurn()).thenReturn(3);
 
             Optional<GameOver> result = gameState.gameOverBecauseAfk();
 
@@ -227,15 +237,18 @@ class GameStateTest {
             GameOver gameOver = result.get();
 
             assertEquals(GameOverReasons.PLAYER_AFK, gameOver.reason());
-            assertEquals(mockPlayer1, gameOver.winner());
-            assertEquals(mockPlayer2, gameOver.loser());
+            assertEquals(p2, gameOver.winner());
+            assertEquals(p1, gameOver.loser());
         }
 
         @Test
-        @DisplayName("Deve encerrar a partida quando Player 2 ficar AFK")
-        void shouldFinishWhenPlayerTwoIsAfk() {
-            when(mockPlayer1.getPassedTurn()).thenReturn(0);
-            when(mockPlayer2.getPassedTurn()).thenReturn(3);
+        @DisplayName("Deve encerrar a partida quando o segundo jogador da ordem ficar AFK")
+        void shouldFinishWhenSecondPlayerInTurnOrderIsAfk() {
+            Player p1 = gameState.getPlayerOrThrow(gameState.currentPlayerTurn());
+            Player p2 = p1.equals(mockPlayer1) ? mockPlayer2 : mockPlayer1;
+
+            when(p1.getPassedTurn()).thenReturn(0);
+            when(p2.getPassedTurn()).thenReturn(3);
 
             Optional<GameOver> result = gameState.gameOverBecauseAfk();
 
@@ -244,8 +257,8 @@ class GameStateTest {
             GameOver gameOver = result.get();
 
             assertEquals(GameOverReasons.PLAYER_AFK, gameOver.reason());
-            assertEquals(mockPlayer1, gameOver.winner());
-            assertEquals(mockPlayer2, gameOver.loser());
+            assertEquals(p1, gameOver.winner());
+            assertEquals(p2, gameOver.loser());
         }
 
         @Test

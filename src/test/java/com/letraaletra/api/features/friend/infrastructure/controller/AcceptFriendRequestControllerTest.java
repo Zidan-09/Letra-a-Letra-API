@@ -34,7 +34,7 @@ class AcceptFriendRequestControllerTest {
 
     private UUID mockAuthId;
     private AuthenticatedUser principal;
-    private String mockFriendId;
+    private UUID mockFriendId;
     private AcceptFriendRequestRequest mockRequest;
     private AcceptFriendRequestInput mockInput;
     private SuccessResponse<Void> mockSuccessResponse;
@@ -43,7 +43,7 @@ class AcceptFriendRequestControllerTest {
     void setUp() {
         mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
-        mockFriendId = UUID.randomUUID().toString();
+        mockFriendId = UUID.randomUUID();
 
         mockRequest = mock(AcceptFriendRequestRequest.class);
         when(mockRequest.friendId()).thenReturn(mockFriendId);

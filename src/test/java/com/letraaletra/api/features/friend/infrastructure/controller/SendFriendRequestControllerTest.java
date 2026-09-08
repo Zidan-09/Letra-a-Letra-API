@@ -36,7 +36,7 @@ class SendFriendRequestControllerTest {
 
     private UUID mockAuthId;
     private AuthenticatedUser principal;
-    private String mockFriendId;
+    private UUID mockFriendId;
     private SendFriendRequestRequest mockRequest;
     private SendFriendRequestInput mockInput;
     private SendFriendRequestOutput mockOutput;
@@ -47,7 +47,7 @@ class SendFriendRequestControllerTest {
     void setUp() {
         mockAuthId = UUID.randomUUID();
         principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
-        mockFriendId = UUID.randomUUID().toString();
+        mockFriendId = UUID.randomUUID();
 
         mockRequest = mock(SendFriendRequestRequest.class);
         when(mockRequest.friendId()).thenReturn(mockFriendId);
