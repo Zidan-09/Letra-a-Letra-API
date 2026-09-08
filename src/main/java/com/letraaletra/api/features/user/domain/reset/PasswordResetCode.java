@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class PasswordResetCode {
+    private static final int MAX_ATTEMPTS = 5;
+
     private final UUID id;
     private final UUID userId;
     private final String codeHash;
@@ -98,7 +100,7 @@ public class PasswordResetCode {
     }
 
     public void incrementAttempts() {
-        if (attempts >= 5) {
+        if (attempts >= MAX_ATTEMPTS) {
             throw new MaxAttemptsExceededException();
         }
 
@@ -110,6 +112,10 @@ public class PasswordResetCode {
     }
 
     public void validate(String codeHashed) {
+        if (attempts >= MAX_ATTEMPTS) {
+            throw new MaxAttemptsExceededException();
+        }
+
         if (used) {
             throw new InvalidTokenException();
         }

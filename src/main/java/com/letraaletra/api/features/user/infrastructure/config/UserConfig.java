@@ -150,10 +150,12 @@ public class UserConfig {
 
     @Bean
     public VerifyResetCodeUseCase verifyResetCodeUseCase(
+            UserRepository userRepository,
             ResetCodeRepository resetCodeRepository,
             TokenHashService tokenHashService
     ) {
         return new VerifyResetCodeUseCase(
+                userRepository,
                 resetCodeRepository,
                 tokenHashService
         );

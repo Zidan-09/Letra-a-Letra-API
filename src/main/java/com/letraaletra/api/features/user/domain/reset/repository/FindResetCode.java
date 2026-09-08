@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface FindResetCode {
     Optional<PasswordResetCode> findById(UUID id);
-    Optional<PasswordResetCode> findByCodeHash(String codeHash);
+    Optional<PasswordResetCode> findActiveByUserId(UUID userId);
 }

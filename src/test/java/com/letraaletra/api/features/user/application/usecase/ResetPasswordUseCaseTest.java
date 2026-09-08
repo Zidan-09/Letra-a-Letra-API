@@ -54,6 +54,7 @@ class ResetPasswordUseCaseTest {
     @InjectMocks
     private ResetPasswordUseCase useCase;
 
+    private String email;
     private String rawCode;
     private String codeHash;
     private String currentPasswordHash;
@@ -66,6 +67,7 @@ class ResetPasswordUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        email = "user@example.com";
         rawCode = "123456";
         codeHash = "hashed_123456";
         currentPasswordHash = "$2a$10$oldPasswordHash";
@@ -73,7 +75,7 @@ class ResetPasswordUseCaseTest {
         newPasswordHash = "$2a$10$newPasswordHash";
         userId = UUID.randomUUID();
 
-        input = new ResetPasswordInput(newRawPassword, rawCode);
+        input = new ResetPasswordInput(email, newRawPassword, rawCode);
         mockResetCode = mock(PasswordResetCode.class);
         mockUser = mock(User.class);
     }
@@ -86,9 +88,9 @@ class ResetPasswordUseCaseTest {
         @DisplayName("Deve redefinir a senha com sucesso, marcar o código como usado e salvar o usuário e o código")
         void execute_WhenValidCodeAndNewPassword_ShouldResetPasswordAndSaveEntities() {
             when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.of(mockResetCode));
-            when(mockResetCode.getUserId()).thenReturn(userId);
-            when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
             when(mockUser.getPasswordHash()).thenReturn(currentPasswordHash);
             when(passwordService.matches(newRawPassword, currentPasswordHash)).thenReturn(false);
             when(passwordService.hash(newRawPassword)).thenReturn(newPasswordHash);
@@ -97,11 +99,11 @@ class ResetPasswordUseCaseTest {
 
             assertNull(result);
 
-            InOrder inOrder = inOrder(tokenHashService, codeRepository, mockResetCode, userRepository, passwordService, mockUser);
+            InOrder inOrder = inOrder(tokenHashService, userRepository, codeRepository, mockResetCode, passwordService, mockUser);
             inOrder.verify(tokenHashService).hash(rawCode);
-            inOrder.verify(codeRepository).findByCodeHash(codeHash);
+            inOrder.verify(userRepository).findByEmail(email);
+            inOrder.verify(codeRepository).findActiveByUserId(userId);
             inOrder.verify(mockResetCode).validate(codeHash);
-            inOrder.verify(userRepository).find(userId);
             inOrder.verify(passwordService).matches(newRawPassword, currentPasswordHash);
             inOrder.verify(mockResetCode).markAsUsed();
             inOrder.verify(passwordService).hash(newRawPassword);
@@ -117,10 +119,10 @@ class ResetPasswordUseCaseTest {
     class ResetCodeValidationFailures {
 
         @Test
-        @DisplayName("Deve lançar InvalidTokenException quando o código fornecido não for encontrado no repositório")
-        void execute_WhenCodeNotFound_ShouldThrowInvalidTokenException() {
+        @DisplayName("Deve lançar InvalidTokenException quando o usuário não for encontrado")
+        void execute_WhenUserNotFound_ShouldThrowInvalidTokenException() {
             when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.empty());
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
             assertThrows(
                     InvalidTokenException.class,
@@ -128,15 +130,37 @@ class ResetPasswordUseCaseTest {
             );
 
             verify(tokenHashService, times(1)).hash(rawCode);
-            verify(codeRepository, times(1)).findByCodeHash(codeHash);
-            verifyNoInteractions(userRepository, passwordService);
+            verify(userRepository, times(1)).findByEmail(email);
+            verify(codeRepository, never()).findActiveByUserId(any());
+            verifyNoInteractions(passwordService);
         }
 
         @Test
-        @DisplayName("Deve propagar InvalidTokenException quando a validação do código falhar (ex: usado ou expirado)")
-        void execute_WhenCodeValidationFails_ShouldPropagateInvalidTokenException() {
+        @DisplayName("Deve lançar InvalidTokenException quando o código fornecido não for encontrado no repositório")
+        void execute_WhenCodeNotFound_ShouldThrowInvalidTokenException() {
             when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.of(mockResetCode));
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.empty());
+
+            assertThrows(
+                    InvalidTokenException.class,
+                    () -> useCase.execute(input)
+            );
+
+            verify(tokenHashService, times(1)).hash(rawCode);
+            verify(userRepository, times(1)).findByEmail(email);
+            verify(codeRepository, times(1)).findActiveByUserId(userId);
+            verifyNoInteractions(passwordService);
+        }
+
+        @Test
+        @DisplayName("Deve propagar InvalidTokenException quando a validação do código falhar (ex: usado ou expirado) e salvar a tentativa")
+        void execute_WhenCodeValidationFails_ShouldPropagateInvalidTokenExceptionAndSave() {
+            when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
             doThrow(new InvalidTokenException()).when(mockResetCode).validate(codeHash);
 
             assertThrows(
@@ -145,29 +169,11 @@ class ResetPasswordUseCaseTest {
             );
 
             verify(tokenHashService, times(1)).hash(rawCode);
-            verify(codeRepository, times(1)).findByCodeHash(codeHash);
+            verify(userRepository, times(1)).findByEmail(email);
+            verify(codeRepository, times(1)).findActiveByUserId(userId);
             verify(mockResetCode, times(1)).validate(codeHash);
-            verifyNoInteractions(userRepository, passwordService);
-            verify(codeRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Deve lançar InvalidTokenException quando o usuário associado ao código não for encontrado")
-        void execute_WhenUserNotFound_ShouldThrowInvalidTokenException() {
-            when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.of(mockResetCode));
-            when(mockResetCode.getUserId()).thenReturn(userId);
-            when(userRepository.find(userId)).thenReturn(Optional.empty());
-
-            assertThrows(
-                    InvalidTokenException.class,
-                    () -> useCase.execute(input)
-            );
-
-            verify(mockResetCode, times(1)).validate(codeHash);
-            verify(userRepository, times(1)).find(userId);
+            verify(codeRepository, times(1)).save(mockResetCode);
             verifyNoInteractions(passwordService);
-            verify(codeRepository, never()).save(any());
         }
     }
 
@@ -179,9 +185,9 @@ class ResetPasswordUseCaseTest {
         @DisplayName("Deve lançar SamePasswordException quando a nova senha for igual à senha atual")
         void execute_WhenNewPasswordMatchesOldPassword_ShouldThrowSamePasswordExceptionAndNotMarkCodeAsUsed() {
             when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.of(mockResetCode));
-            when(mockResetCode.getUserId()).thenReturn(userId);
-            when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
             when(mockUser.getPasswordHash()).thenReturn(currentPasswordHash);
             when(passwordService.matches(newRawPassword, currentPasswordHash)).thenReturn(true);
 
@@ -206,9 +212,9 @@ class ResetPasswordUseCaseTest {
         @DisplayName("Deve propagar exceção caso o UserRepository falhe ao salvar as alterações do usuário")
         void execute_WhenUserRepositorySaveFails_ShouldPropagateException() {
             when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
-            when(codeRepository.findByCodeHash(codeHash)).thenReturn(Optional.of(mockResetCode));
-            when(mockResetCode.getUserId()).thenReturn(userId);
-            when(userRepository.find(userId)).thenReturn(Optional.of(mockUser));
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
             when(mockUser.getPasswordHash()).thenReturn(currentPasswordHash);
             when(passwordService.matches(newRawPassword, currentPasswordHash)).thenReturn(false);
             when(passwordService.hash(newRawPassword)).thenReturn(newPasswordHash);

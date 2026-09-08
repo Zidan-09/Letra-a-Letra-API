@@ -22,9 +22,11 @@ public class JpaAdminPasswordResetTokenRepository implements AdminResetTokenRepo
     }
 
     @Override
-    public Optional<AdminPasswordResetToken> findByTokenHash(String tokenHash) {
+    public Optional<AdminPasswordResetToken> findActiveByAdminId(UUID adminId) {
         return repository
-                .findValidByTokenHash(tokenHash)
+                .findActiveByAdminId(adminId)
+                .stream()
+                .findFirst()
                 .map(AdminPasswordResetTokenJpaMapper::toDomain);
     }
 

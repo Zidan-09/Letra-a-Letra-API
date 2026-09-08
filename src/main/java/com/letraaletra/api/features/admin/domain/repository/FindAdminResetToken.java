@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface FindAdminResetToken {
     Optional<AdminPasswordResetToken> findById(UUID id);
-    Optional<AdminPasswordResetToken> findByTokenHash(String tokenHash);
+    Optional<AdminPasswordResetToken> findActiveByAdminId(UUID adminId);
 }

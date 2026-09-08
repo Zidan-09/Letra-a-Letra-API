@@ -131,10 +131,12 @@ public class AdminConfig {
 
     @Bean
     public VerifyResetTokenUseCase verifyResetTokenUseCase(
+            AdminRepository adminRepository,
             TokenHashService tokenHashService,
             AdminResetTokenRepository tokenRepository
     ) {
         return new VerifyResetTokenUseCase(
+                adminRepository,
                 tokenHashService,
                 tokenRepository
         );

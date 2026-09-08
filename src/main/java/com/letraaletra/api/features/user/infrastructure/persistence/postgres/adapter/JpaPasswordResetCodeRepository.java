@@ -22,9 +22,11 @@ public class JpaPasswordResetCodeRepository implements ResetCodeRepository {
     }
 
     @Override
-    public Optional<PasswordResetCode> findByCodeHash(String codeHash) {
+    public Optional<PasswordResetCode> findActiveByUserId(UUID userId) {
         return repository
-                .findValidByCodeHash(codeHash)
+                .findActiveByUserId(userId)
+                .stream()
+                .findFirst()
                 .map(PasswordResetCodeJpaMapper::toDomain);
     }
 

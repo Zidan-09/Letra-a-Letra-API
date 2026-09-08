@@ -59,6 +59,7 @@ class ResetAdminPasswordUseCaseTest {
         @Test
         @DisplayName("Should successfully reset admin password when token and input are valid")
         void execute_WhenTokenAndPasswordAreValid_ShouldResetPasswordAndSaveEntities() {
+            String email = "admin@example.com";
             String rawToken = "valid-raw-token";
             String tokenHash = "hashed-token";
             String newPassword = "NewSecurePassword123!";
@@ -66,14 +67,14 @@ class ResetAdminPasswordUseCaseTest {
             String currentPasswordHash = "current-hashed-password";
             UUID adminId = UUID.randomUUID();
 
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput(newPassword, rawToken);
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, newPassword, rawToken);
             AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
             Admin admin = mock(Admin.class);
 
             given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.of(resetToken));
-            given(resetToken.getAdminId()).willReturn(adminId);
-            given(adminRepository.find(adminId)).willReturn(Optional.of(admin));
+            given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+            given(admin.getId()).willReturn(adminId);
+            given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.of(resetToken));
             given(admin.getPasswordHash()).willReturn(currentPasswordHash);
             given(passwordService.matches(newPassword, currentPasswordHash)).willReturn(false);
             given(passwordService.hash(newPassword)).willReturn(newPasswordHash);
@@ -84,17 +85,17 @@ class ResetAdminPasswordUseCaseTest {
 
             InOrder inOrder = inOrder(
                     tokenHashService,
+                    adminRepository,
                     tokenRepository,
                     resetToken,
-                    adminRepository,
                     passwordService,
                     admin
             );
 
             inOrder.verify(tokenHashService).hash(rawToken);
-            inOrder.verify(tokenRepository).findByTokenHash(tokenHash);
+            inOrder.verify(adminRepository).findByEmail(email);
+            inOrder.verify(tokenRepository).findActiveByAdminId(adminId);
             inOrder.verify(resetToken).validate(tokenHash);
-            inOrder.verify(adminRepository).find(adminId);
             inOrder.verify(passwordService).matches(newPassword, currentPasswordHash);
             inOrder.verify(resetToken).markAsUsed();
             inOrder.verify(passwordService).hash(newPassword);
@@ -109,87 +110,95 @@ class ResetAdminPasswordUseCaseTest {
     class ExceptionScenarios {
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when token is not found in repository")
-        void execute_WhenTokenNotFound_ShouldThrowInvalidTokenException() {
-            String rawToken = "non-existent-token";
-            String tokenHash = "hashed-non-existent-token";
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput("NewPassword123!", rawToken);
+        @DisplayName("Should throw InvalidTokenException when admin is not found")
+        void execute_WhenAdminNotFound_ShouldThrowInvalidTokenException() {
+            String email = "unknown@example.com";
+            String rawToken = "some-token";
+            String tokenHash = "hashed-some-token";
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, "NewPassword123!", rawToken);
 
             given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.empty());
+            given(adminRepository.findByEmail(email)).willReturn(Optional.empty());
 
             assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
 
             verify(tokenHashService).hash(rawToken);
-            verify(tokenRepository).findByTokenHash(tokenHash);
-            verify(adminRepository, never()).find(any());
+            verify(adminRepository).findByEmail(email);
+            verify(tokenRepository, never()).findActiveByAdminId(any());
             verify(passwordService, never()).matches(any(), any());
             verify(adminRepository, never()).save(any());
             verify(tokenRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when token validation fails (expired or used)")
-        void execute_WhenTokenValidationFails_ShouldThrowInvalidTokenException() {
-            String rawToken = "expired-token";
-            String tokenHash = "hashed-expired-token";
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput("NewPassword123!", rawToken);
-            AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
+        @DisplayName("Should throw InvalidTokenException when token is not found in repository")
+        void execute_WhenTokenNotFound_ShouldThrowInvalidTokenException() {
+            String email = "admin@example.com";
+            UUID adminId = UUID.randomUUID();
+            String rawToken = "non-existent-token";
+            String tokenHash = "hashed-non-existent-token";
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, "NewPassword123!", rawToken);
+
+            Admin admin = mock(Admin.class);
 
             given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.of(resetToken));
+            given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+            given(admin.getId()).willReturn(adminId);
+            given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.empty());
+
+            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+
+            verify(tokenHashService).hash(rawToken);
+            verify(adminRepository).findByEmail(email);
+            verify(tokenRepository).findActiveByAdminId(adminId);
+            verify(adminRepository, never()).save(any());
+            verify(passwordService, never()).matches(any(), any());
+            verify(tokenRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Should throw InvalidTokenException when token validation fails (expired or used) and save the attempt")
+        void execute_WhenTokenValidationFails_ShouldThrowInvalidTokenExceptionAndSave() {
+            String email = "admin@example.com";
+            UUID adminId = UUID.randomUUID();
+            String rawToken = "expired-token";
+            String tokenHash = "hashed-expired-token";
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, "NewPassword123!", rawToken);
+            AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
+            Admin admin = mock(Admin.class);
+
+            given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
+            given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+            given(admin.getId()).willReturn(adminId);
+            given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.of(resetToken));
             willThrow(new InvalidTokenException()).given(resetToken).validate(tokenHash);
 
             assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
 
             verify(resetToken).validate(tokenHash);
-            verify(adminRepository, never()).find(any());
+            verify(tokenRepository).save(resetToken);
             verify(passwordService, never()).matches(any(), any());
             verify(adminRepository, never()).save(any());
-            verify(tokenRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidTokenException when admin associated with token does not exist")
-        void execute_WhenAdminNotFound_ShouldThrowInvalidTokenException() {
-            String rawToken = "valid-token";
-            String tokenHash = "hashed-token";
-            UUID adminId = UUID.randomUUID();
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput("NewPassword123!", rawToken);
-            AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
-
-            given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.of(resetToken));
-            given(resetToken.getAdminId()).willReturn(adminId);
-            given(adminRepository.find(adminId)).willReturn(Optional.empty());
-
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
-
-            verify(resetToken).validate(tokenHash);
-            verify(adminRepository).find(adminId);
-            verify(passwordService, never()).matches(any(), any());
-            verify(resetToken, never()).markAsUsed();
-            verify(adminRepository, never()).save(any());
-            verify(tokenRepository, never()).save(any());
         }
 
         @Test
         @DisplayName("Should throw SamePasswordException when new password matches the current password")
         void execute_WhenNewPasswordIsSameAsCurrent_ShouldThrowSamePasswordException() {
+            String email = "admin@example.com";
+            UUID adminId = UUID.randomUUID();
             String rawToken = "valid-token";
             String tokenHash = "hashed-token";
             String samePassword = "SamePassword123!";
             String currentPasswordHash = "current-hashed-password";
-            UUID adminId = UUID.randomUUID();
 
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput(samePassword, rawToken);
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, samePassword, rawToken);
             AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
             Admin admin = mock(Admin.class);
 
             given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.of(resetToken));
-            given(resetToken.getAdminId()).willReturn(adminId);
-            given(adminRepository.find(adminId)).willReturn(Optional.of(admin));
+            given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+            given(admin.getId()).willReturn(adminId);
+            given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.of(resetToken));
             given(admin.getPasswordHash()).willReturn(currentPasswordHash);
             given(passwordService.matches(samePassword, currentPasswordHash)).willReturn(true);
 
@@ -205,19 +214,20 @@ class ResetAdminPasswordUseCaseTest {
         @Test
         @DisplayName("Should propagate exception when adminRepository.save fails")
         void execute_WhenRepositorySaveFails_ShouldPropagateException() {
+            String email = "admin@example.com";
             String rawToken = "valid-token";
             String tokenHash = "hashed-token";
             String newPassword = "NewPassword123!";
             UUID adminId = UUID.randomUUID();
 
-            ResetAdminPasswordInput input = new ResetAdminPasswordInput(newPassword, rawToken);
+            ResetAdminPasswordInput input = new ResetAdminPasswordInput(email, newPassword, rawToken);
             AdminPasswordResetToken resetToken = mock(AdminPasswordResetToken.class);
             Admin admin = mock(Admin.class);
 
             given(tokenHashService.hash(rawToken)).willReturn(tokenHash);
-            given(tokenRepository.findByTokenHash(tokenHash)).willReturn(Optional.of(resetToken));
-            given(resetToken.getAdminId()).willReturn(adminId);
-            given(adminRepository.find(adminId)).willReturn(Optional.of(admin));
+            given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
+            given(admin.getId()).willReturn(adminId);
+            given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.of(resetToken));
             given(admin.getPasswordHash()).willReturn("old-hash");
             given(passwordService.matches(newPassword, "old-hash")).willReturn(false);
             given(passwordService.hash(newPassword)).willReturn("new-hash");
