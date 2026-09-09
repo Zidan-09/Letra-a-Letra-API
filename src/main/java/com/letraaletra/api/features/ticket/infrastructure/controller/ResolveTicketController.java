@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +29,6 @@ import java.util.UUID;
 public class ResolveTicketController {
     private final UseCase<ResolveTicketInput, ResolveTicketOutput> useCase;
 
-    @Transactional
     @PatchMapping(path = "/{ticketId}/resolve")
     public ResponseEntity<SuccessResponse<ResolveTicketResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

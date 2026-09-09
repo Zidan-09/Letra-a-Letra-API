@@ -1,16 +1,18 @@
 package com.letraaletra.api.features.player.infrastructure.websocket.handlers.action;
 
+import com.letraaletra.api.features.player.application.input.PlayerActionInput;
+import com.letraaletra.api.features.player.application.output.PlayerActionOutput;
 import com.letraaletra.api.features.player.application.port.PlayerNotifier;
 import com.letraaletra.api.features.game.domain.board.position.Position;
-import com.letraaletra.api.features.player.application.usecase.PlayerActionUseCase;
 import com.letraaletra.api.features.game.domain.board.power.action.GameAction;
 import com.letraaletra.api.features.game.domain.board.power.action.TrapCellAction;
 import com.letraaletra.api.features.player.infrastructure.presentation.dto.request.TrapActionRequest;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TrapActionHandler extends AbstractPlayerActionHandler<TrapActionRequest> {
-    public TrapActionHandler(PlayerActionUseCase useCase, PlayerNotifier notifier) {
+    public TrapActionHandler(UseCase<PlayerActionInput, PlayerActionOutput> useCase, PlayerNotifier notifier) {
         super(useCase, notifier);
     }
 

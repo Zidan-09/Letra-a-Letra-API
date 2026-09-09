@@ -12,7 +12,6 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsRes
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
@@ -24,7 +23,6 @@ public class LeftGameHandler implements RoomRequestHandler<LeftGameWsRequest> {
     private final GameResponseAssembler gameResponseAssembler;
     private final GameNotifier gameNotifier;
 
-    @Transactional
     @Override
     public void handle(LeftGameWsRequest request, WebSocketSession session) {
         UUID userId = resolveUserId(session);

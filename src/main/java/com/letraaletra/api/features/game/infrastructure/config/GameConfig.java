@@ -1,5 +1,21 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
+import com.letraaletra.api.features.game.application.input.CreateGameInput;
+import com.letraaletra.api.features.game.application.input.FindByCodeInput;
+import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
+import com.letraaletra.api.features.game.application.input.GetGamesInput;
+import com.letraaletra.api.features.game.application.input.GetPublicGamesInput;
+import com.letraaletra.api.features.game.application.input.JoinGameInput;
+import com.letraaletra.api.features.game.application.input.LeftGameInput;
+import com.letraaletra.api.features.game.application.input.StartGameInput;
+import com.letraaletra.api.features.game.application.output.CreateGameOutput;
+import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
+import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
+import com.letraaletra.api.features.game.application.output.GetGamesOutput;
+import com.letraaletra.api.features.game.application.output.GetPublicGamesOutput;
+import com.letraaletra.api.features.game.application.output.JoinGameOutput;
+import com.letraaletra.api.features.game.application.output.LeftGameOutput;
+import com.letraaletra.api.features.game.application.output.StartGameOutput;
 import com.letraaletra.api.features.game.application.port.GameOverFinalizer;
 import com.letraaletra.api.features.game.application.port.RoomCodeService;
 import com.letraaletra.api.features.game.application.port.SelectThemeService;
@@ -14,6 +30,9 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.infrastructure.concurrency.GameActorManager;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssemblerService;
 import org.springframework.context.annotation.Bean;
@@ -22,66 +41,97 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GameConfig {
     @Bean
-    public CreateGameUseCase createGameUseCase(
+    public UseCase<CreateGameInput, CreateGameOutput> createGameUseCase(
             UserRepository userRepository,
             GameRepository gameRepository,
             ActorManager<Game> actorManager,
             RoomTimeoutManager roomTimeoutManager,
-            RoomCodeService roomCodeService
+            RoomCodeService roomCodeService,
+            TransactionalExecutorService transactions
     ) {
-        return new CreateGameUseCase(
-                userRepository,
-                gameRepository,
-                actorManager,
-                roomTimeoutManager,
-                roomCodeService
+        return new TransactionalUseCase<>(
+                new CreateGameUseCase(
+                        userRepository,
+                        gameRepository,
+                        actorManager,
+                        roomTimeoutManager,
+                        roomCodeService
+                ),
+                transactions
         );
     }
 
     @Bean
-    public FindByCodeUseCase findByCodeUseCase(GameQueryService gameQueryService) {
-        return new FindByCodeUseCase( gameQueryService);
+    public UseCase<FindByCodeInput, FindByCodeOutput> findByCodeUseCase(
+            GameQueryService gameQueryService,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new FindByCodeUseCase(gameQueryService),
+                transactions
+        );
     }
 
     @Bean
-    public GetPublicGamesUseCase getPublicGamesUseCase(GameQueryService gameQueryService) {
-        return new GetPublicGamesUseCase(gameQueryService);
+    public UseCase<GetPublicGamesInput, GetPublicGamesOutput> getPublicGamesUseCase(
+            GameQueryService gameQueryService,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new GetPublicGamesUseCase(gameQueryService),
+                transactions
+        );
     }
 
     @Bean
-    public JoinGameUseCase joinGameUseCase(UserRepository userRepository, ActorManager<Game> actorManager) {
-        return new JoinGameUseCase(userRepository, actorManager);
+    public UseCase<JoinGameInput, JoinGameOutput> joinGameUseCase(
+            UserRepository userRepository,
+            ActorManager<Game> actorManager,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new JoinGameUseCase(userRepository, actorManager),
+                transactions
+        );
     }
 
     @Bean
-    public LeftGameUseCase leftGameUseCase(
+    public UseCase<LeftGameInput, LeftGameOutput> leftGameUseCase(
             GameActorManager gameActorManager,
             UserRepository userRepository,
-            GameOverFinalizer gameOverFinalizer
+            GameOverFinalizer gameOverFinalizer,
+            TransactionalExecutorService transactions
     ) {
-        return new LeftGameUseCase(
-                gameActorManager,
-                userRepository,
-                gameOverFinalizer
+        return new TransactionalUseCase<>(
+                new LeftGameUseCase(
+                        gameActorManager,
+                        userRepository,
+                        gameOverFinalizer
+                ),
+                transactions
         );
     }
 
     @Bean
-    public StartGameUseCase startGameUseCase(
+    public UseCase<StartGameInput, StartGameOutput> startGameUseCase(
             GameRepository gameRepository,
              RoomTimeoutManager roomTimeoutManager,
              SelectThemeService themeService,
              TurnTimeoutManager turnTimeoutManager,
              GameActorManager gameActorManager,
-             BusinessAuditRecorder auditRecorder
+             BusinessAuditRecorder auditRecorder,
+             TransactionalExecutorService transactions
     ) {
-        return new StartGameUseCase(
-                gameRepository,
-                roomTimeoutManager,
-                themeService,
-                turnTimeoutManager,
-                gameActorManager,
-                auditRecorder
+        return new TransactionalUseCase<>(
+                new StartGameUseCase(
+                        gameRepository,
+                        roomTimeoutManager,
+                        themeService,
+                        turnTimeoutManager,
+                        gameActorManager,
+                        auditRecorder
+                ),
+                transactions
         );
     }
 
@@ -97,24 +147,32 @@ public class GameConfig {
     }
 
     @Bean
-    public GetGamesUseCase getGamesUseCase(
+    public UseCase<GetGamesInput, GetGamesOutput> getGamesUseCase(
             GameRepository gameRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new GetGamesUseCase(
-                gameRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new GetGamesUseCase(
+                        gameRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetActiveGamesUseCase getActiveGamesUseCase(
+    public UseCase<GetActiveGamesInput, GetActiveGamesOutput> getActiveGamesUseCase(
             GameQueryService gameQueryService,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new GetActiveGamesUseCase(
-                gameQueryService,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new GetActiveGamesUseCase(
+                        gameQueryService,
+                        adminChecker
+                ),
+                transactions
         );
     }
 }

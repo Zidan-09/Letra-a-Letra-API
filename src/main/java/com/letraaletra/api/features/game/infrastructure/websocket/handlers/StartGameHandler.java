@@ -10,7 +10,6 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.infrastructure.websocket.handlers.RoomRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
@@ -19,7 +18,6 @@ public class StartGameHandler implements RoomRequestHandler<StartGameWsRequest> 
     private final UseCase<StartGameInput, StartGameOutput> useCase;
     private final GameNotifier gameNotifier;
 
-    @Transactional
     @Override
     public void handle(StartGameWsRequest request, WebSocketSession session) {
         StartGameInput input = StartGameMapper.toInput(request, session.getId());

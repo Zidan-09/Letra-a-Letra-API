@@ -4,9 +4,35 @@ import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.features.user.application.port.ResetCodeService;
 import com.letraaletra.api.features.user.application.port.PasswordResetCodeEmailService;
+import com.letraaletra.api.features.user.application.input.AuthInput;
+import com.letraaletra.api.features.user.application.input.BanUserInput;
+import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
+import com.letraaletra.api.features.user.application.input.CreateUserInput;
+import com.letraaletra.api.features.user.application.input.FindUserByUsernameInput;
+import com.letraaletra.api.features.user.application.input.ForgotPasswordInput;
+import com.letraaletra.api.features.user.application.input.GetMyInventoryInput;
+import com.letraaletra.api.features.user.application.input.GetMyProfileInput;
+import com.letraaletra.api.features.user.application.input.GetMyTransactionsInput;
+import com.letraaletra.api.features.user.application.input.GetUserInventoryInput;
+import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.input.GrantUserRewardInput;
 import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
+import com.letraaletra.api.features.user.application.input.RevokeUserCosmeticInput;
 import com.letraaletra.api.features.user.application.input.RevokeUserWalletInput;
+import com.letraaletra.api.features.user.application.input.SignInInput;
+import com.letraaletra.api.features.user.application.input.UnbanUserInput;
+import com.letraaletra.api.features.user.application.input.VerifyResetCodeInput;
+import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
+import com.letraaletra.api.features.user.application.output.CreateUserOutput;
+import com.letraaletra.api.features.user.application.output.FindUserByUsernameOutput;
+import com.letraaletra.api.features.user.application.output.GetMyInventoryOutput;
+import com.letraaletra.api.features.user.application.output.GetMyProfileOutput;
+import com.letraaletra.api.features.user.application.output.GetMyTransactionsOutput;
+import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
+import com.letraaletra.api.features.user.application.output.GetUsersOutput;
+import com.letraaletra.api.features.user.application.output.SignInOutput;
+import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
+import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
 import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
@@ -33,140 +59,189 @@ import java.util.Set;
 @Configuration
 public class UserConfig {
     @Bean
-    public CreateUserUseCase createUserUseCase(
+    public UseCase<CreateUserInput, CreateUserOutput> createUserUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
-            NicknameService nicknameService
+            NicknameService nicknameService,
+            TransactionalExecutorService transactions
     ) {
-        return new CreateUserUseCase(
-                userRepository,
-                passwordService,
-                nicknameService
+        return new TransactionalUseCase<>(
+                new CreateUserUseCase(
+                        userRepository,
+                        passwordService,
+                        nicknameService
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GoogleAuthUseCase authUseCase(
+    public UseCase<AuthInput, SignInOutput> authUseCase(
             TokenService tokenService,
             NicknameService nicknameService,
             UserRepository userRepository,
-            GoogleTokenService googleTokenService
+            GoogleTokenService googleTokenService,
+            TransactionalExecutorService transactions
     ) {
-        return new GoogleAuthUseCase(
-                tokenService,
-                nicknameService,
-                userRepository,
-                googleTokenService
+        return new TransactionalUseCase<>(
+                new GoogleAuthUseCase(
+                        tokenService,
+                        nicknameService,
+                        userRepository,
+                        googleTokenService
+                ),
+                transactions
         );
     }
 
     @Bean
-    public ChangeNicknameUseCase setNicknameUseCase(
-            UserRepository userRepository
+    public UseCase<ChangeNicknameInput, ChangeNicknameOutput> setNicknameUseCase(
+            UserRepository userRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new ChangeNicknameUseCase(
-                userRepository
+        return new TransactionalUseCase<>(
+                new ChangeNicknameUseCase(
+                        userRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public AuthUserUseCase signInUseCase(
+    public UseCase<SignInInput, SignInOutput> signInUseCase(
             UserRepository userRepository,
             PasswordService passwordService,
-            TokenService tokenService
+            TokenService tokenService,
+            TransactionalExecutorService transactions
     ) {
-        return new AuthUserUseCase(
-                userRepository,
-                passwordService,
-                tokenService
+        return new TransactionalUseCase<>(
+                new AuthUserUseCase(
+                        userRepository,
+                        passwordService,
+                        tokenService
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetMyInventoryUseCase getMyInventoryUseCase(
-            InventoryRepository inventoryRepository
+    public UseCase<GetMyInventoryInput, GetMyInventoryOutput> getMyInventoryUseCase(
+            InventoryRepository inventoryRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new GetMyInventoryUseCase(
-                inventoryRepository
+        return new TransactionalUseCase<>(
+                new GetMyInventoryUseCase(
+                        inventoryRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetMyProfileUseCase getMyProfileUseCase(
-            UserRepository userRepository
-    ) {
-        return new GetMyProfileUseCase(
-                userRepository
-        );
-    }
-
-    @Bean
-    public GetTransactionsUseCase getTransactionsUseCase(
-            TransactionRepository transactionRepository,
-            AdminChecker adminChecker
-    ) {
-        return new GetTransactionsUseCase(
-                transactionRepository,
-                adminChecker
-        );
-    }
-
-    @Bean
-    public GetUsersUseCase getUsersUseCase(
+    public UseCase<GetMyProfileInput, GetMyProfileOutput> getMyProfileUseCase(
             UserRepository userRepository,
-            AdminChecker adminChecker
+            TransactionalExecutorService transactions
     ) {
-        return new GetUsersUseCase(
-                userRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new GetMyProfileUseCase(
+                        userRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public FindUserByUsernameUseCase findUserByUsernameUseCase(
-            UserRepository userRepository
+    public UseCase<GetTransactionsInput, GetTransactionsOutput> getTransactionsUseCase(
+            TransactionRepository transactionRepository,
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new FindUserByUsernameUseCase(
-                userRepository
+        return new TransactionalUseCase<>(
+                new GetTransactionsUseCase(
+                        transactionRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetMyTransactionsUseCase getMyTransactionsUseCase(
-            TransactionRepository transactionRepository
+    public UseCase<GetUsersInput, GetUsersOutput> getUsersUseCase(
+            UserRepository userRepository,
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new GetMyTransactionsUseCase(
-                transactionRepository
+        return new TransactionalUseCase<>(
+                new GetUsersUseCase(
+                        userRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public ForgotPasswordUseCase forgotPasswordUseCase(
+    public UseCase<FindUserByUsernameInput, FindUserByUsernameOutput> findUserByUsernameUseCase(
+            UserRepository userRepository,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new FindUserByUsernameUseCase(
+                        userRepository
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<GetMyTransactionsInput, GetMyTransactionsOutput> getMyTransactionsUseCase(
+            TransactionRepository transactionRepository,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new GetMyTransactionsUseCase(
+                        transactionRepository
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<ForgotPasswordInput, Void> forgotPasswordUseCase(
             UserRepository userRepository,
             TokenHashService tokenHashService,
             ResetCodeRepository resetCodeRepository,
             ResetCodeService resetCodeService,
-            PasswordResetCodeEmailService emailService
+            PasswordResetCodeEmailService emailService,
+            TransactionalExecutorService transactions
     ) {
-        return new ForgotPasswordUseCase(
-                userRepository,
-                tokenHashService,
-                resetCodeRepository,
-                resetCodeService,
-                emailService
+        return new TransactionalUseCase<>(
+                new ForgotPasswordUseCase(
+                        userRepository,
+                        tokenHashService,
+                        resetCodeRepository,
+                        resetCodeService,
+                        emailService
+                ),
+                transactions
         );
     }
 
     @Bean
-    public VerifyResetCodeUseCase verifyResetCodeUseCase(
+    public UseCase<VerifyResetCodeInput, Void> verifyResetCodeUseCase(
             UserRepository userRepository,
             ResetCodeRepository resetCodeRepository,
-            TokenHashService tokenHashService
+            TokenHashService tokenHashService,
+            TransactionalExecutorService transactions
     ) {
-        return new VerifyResetCodeUseCase(
-                userRepository,
-                resetCodeRepository,
-                tokenHashService
+        return new TransactionalUseCase<>(
+                new VerifyResetCodeUseCase(
+                        userRepository,
+                        resetCodeRepository,
+                        tokenHashService
+                ),
+                transactions,
+                Set.of(InvalidTokenException.class)
         );
     }
 
@@ -191,28 +266,36 @@ public class UserConfig {
     }
 
     @Bean
-    public BanUserUseCase banUserUseCase(
+    public UseCase<BanUserInput, Void> banUserUseCase(
             UserRepository userRepository,
             BanHistoryRepository banHistoryRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new BanUserUseCase(
-                userRepository,
-                banHistoryRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new BanUserUseCase(
+                        userRepository,
+                        banHistoryRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public UnbanUserUseCase unbanUserUseCase(
+    public UseCase<UnbanUserInput, Void> unbanUserUseCase(
             UserRepository userRepository,
             BanHistoryRepository banHistoryRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new UnbanUserUseCase(
-                userRepository,
-                banHistoryRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new UnbanUserUseCase(
+                        userRepository,
+                        banHistoryRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
@@ -238,26 +321,34 @@ public class UserConfig {
     }
 
     @Bean
-    public GetUserInventoryUseCase getUserInventoryUseCase(
+    public UseCase<GetUserInventoryInput, GetUserInventoryOutput> getUserInventoryUseCase(
             InventoryRepository inventoryRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new GetUserInventoryUseCase(
-                inventoryRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new GetUserInventoryUseCase(
+                        inventoryRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public RevokeUserCosmeticUseCase revokeUserCosmeticUseCase(
+    public UseCase<RevokeUserCosmeticInput, Void> revokeUserCosmeticUseCase(
             UserRepository userRepository,
             AdminChecker adminChecker,
-            BusinessAuditRecorder auditRecorder
+            BusinessAuditRecorder auditRecorder,
+            TransactionalExecutorService transactions
     ) {
-        return new RevokeUserCosmeticUseCase(
-                userRepository,
-                adminChecker,
-                auditRecorder
+        return new TransactionalUseCase<>(
+                new RevokeUserCosmeticUseCase(
+                        userRepository,
+                        adminChecker,
+                        auditRecorder
+                ),
+                transactions
         );
     }
 
