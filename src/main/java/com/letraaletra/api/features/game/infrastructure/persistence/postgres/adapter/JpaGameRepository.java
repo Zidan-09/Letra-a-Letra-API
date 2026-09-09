@@ -6,6 +6,7 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GamesPage;
 import com.letraaletra.api.features.game.domain.history.GameHistory;
+import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.GameJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchPlayersJpaEntity;
 import com.letraaletra.api.features.game.infrastructure.persistence.postgres.entity.MatchSpectatorsJpaEntity;
@@ -207,42 +208,57 @@ public class JpaGameRepository implements GameRepository {
                 page.sort()
         );
 
-        return repository.findAll(pageable)
-                .map(game -> {
+        Page<GameJpaEntity> games = repository.findAll(pageable);
+        if (games.isEmpty()) {
+            return games.map(game -> GameMapper.toDomain(
+                    game,
+                    List.of(),
+                    Map.of(),
+                    Map.of()
+            ));
+        }
 
-                    List<MatchJpaEntity> matches =
-                            matchRepository.findByGameId(game.getId());
+        List<UUID> gameIds = games.stream()
+                .map(GameJpaEntity::getId)
+                .toList();
 
-                    Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch =
-                            matchPlayerRepository.findByMatchPlayerIdMatchIdIn(
-                                            matches.stream()
-                                                    .map(MatchJpaEntity::getId)
-                                                    .toList()
-                                    )
-                                    .stream()
-                                    .collect(Collectors.groupingBy(
-                                            player -> player.getMatchPlayerId().getMatchId()
-                                    ));
+        Map<UUID, List<MatchJpaEntity>> matchesByGame =
+                matchRepository.findByGameIdIn(gameIds).stream()
+                        .collect(Collectors.groupingBy(MatchJpaEntity::getGameId));
 
-                    Map<UUID, List<MatchSpectatorsJpaEntity>> spectatorsByMatch = Map.of();
-                    if (matchSpectatorRepository != null) {
-                        List<UUID> matchIds = matches.stream().map(MatchJpaEntity::getId).toList();
-                        if (!matchIds.isEmpty()) {
-                            spectatorsByMatch = matchSpectatorRepository.findByMatchSpectatorIdMatchIdIn(matchIds)
-                                    .stream()
-                                    .collect(Collectors.groupingBy(
-                                            spectator -> spectator.getMatchSpectatorId().getMatchId()
-                                    ));
-                        }
-                    }
+        List<UUID> matchIds = matchesByGame.values().stream()
+                .flatMap(List::stream)
+                .map(MatchJpaEntity::getId)
+                .toList();
 
-                    return GameMapper.toDomain(
-                            game,
-                            matches,
-                            playersByMatch,
-                            spectatorsByMatch
-                    );
-                });
+        Map<UUID, List<MatchPlayersJpaEntity>> playersByMatch = Map.of();
+        Map<UUID, List<MatchSpectatorsJpaEntity>> spectatorsByMatch = Map.of();
+
+        if (!matchIds.isEmpty()) {
+            playersByMatch = matchPlayerRepository.findByMatchPlayerIdMatchIdIn(matchIds)
+                    .stream()
+                    .collect(Collectors.groupingBy(
+                            player -> player.getMatchPlayerId().getMatchId()
+                    ));
+
+            if (matchSpectatorRepository != null) {
+                spectatorsByMatch = matchSpectatorRepository.findByMatchSpectatorIdMatchIdIn(matchIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(
+                                spectator -> spectator.getMatchSpectatorId().getMatchId()
+                        ));
+            }
+        }
+
+        final Map<UUID, List<MatchPlayersJpaEntity>> players = playersByMatch;
+        final Map<UUID, List<MatchSpectatorsJpaEntity>> spectators = spectatorsByMatch;
+
+        return games.map(game -> GameMapper.toDomain(
+                game,
+                matchesByGame.getOrDefault(game.getId(), List.of()),
+                players,
+                spectators
+        ));
     }
 }
 

@@ -1,6 +1,8 @@
 package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.adapter;
 
+import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
+import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.entity.CosmeticJpaEntity;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
 import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import com.letraaletra.api.features.offers.domain.Offer;
@@ -8,6 +10,7 @@ import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.OffersPage;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferJpaEntity;
+import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.entity.OfferRewardJpaEntity;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.jpa.SpringDataOfferRewardRepository;
 import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.mapper.OfferMapper;
@@ -16,6 +19,7 @@ import com.letraaletra.api.features.offers.infrastructure.persistence.postgres.m
 import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.Reward;
+import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.infrastructure.persistence.ProcedureExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +35,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class JpaOfferRepository implements OfferRepository {
@@ -137,7 +144,14 @@ public class JpaOfferRepository implements OfferRepository {
 
     private Page<Offer> legacyGet(OffersPage page) {
         Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
-        return repository.findAll(pageable).map(entity -> OfferMapper.toDomain(entity, loadRewards(entity.getId())));
+        Page<OfferJpaEntity> entities = repository.findAll(pageable);
+        Map<UUID, List<OfferReward>> rewardsByOffer = loadRewardsGrouped(
+                entities.stream().map(OfferJpaEntity::getId).toList()
+        );
+        return entities.map(entity -> OfferMapper.toDomain(
+                entity,
+                rewardsByOffer.getOrDefault(entity.getId(), List.of())
+        ));
     }
 
     @Override
@@ -157,8 +171,16 @@ public class JpaOfferRepository implements OfferRepository {
     }
 
     private List<Offer> legacyGetActive() {
-        return repository.findByActive(true).stream()
-                .map(entity -> OfferMapper.toDomain(entity, loadRewards(entity.getId()))).toList();
+        List<OfferJpaEntity> entities = repository.findByActive(true);
+        Map<UUID, List<OfferReward>> rewardsByOffer = loadRewardsGrouped(
+                entities.stream().map(OfferJpaEntity::getId).toList()
+        );
+        return entities.stream()
+                .map(entity -> OfferMapper.toDomain(
+                        entity,
+                        rewardsByOffer.getOrDefault(entity.getId(), List.of())
+                ))
+                .toList();
     }
 
     @Override
@@ -201,14 +223,58 @@ public class JpaOfferRepository implements OfferRepository {
     }
 
     private List<OfferReward> loadRewards(UUID offerId) {
-        return offerRewardRepository.findByOfferId(offerId).stream().map(entity -> {
-            Reward reward = switch (entity.getRewardType()) {
-                case COSMETIC -> new CosmeticReward(CosmeticMapper.toDomain(cosmeticRepository.findById(entity.getRewardReference()).orElseThrow(CosmeticNotFoundException::new)));
-                case COIN -> new SoftCoinsReward(entity.getQuantity());
-                case GEMS -> new HardGemsReward(entity.getQuantity());
-            };
-            return OfferRewardMapper.toDomain(entity, reward);
-        }).toList();
+        return loadRewardsGrouped(List.of(offerId)).getOrDefault(offerId, List.of());
+    }
+
+    private Map<UUID, List<OfferReward>> loadRewardsGrouped(List<UUID> offerIds) {
+        if (offerIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<OfferRewardJpaEntity> entities = offerRewardRepository.findByOfferIdIn(offerIds);
+        Map<UUID, Cosmetic> cosmeticsById = loadCosmetics(entities);
+
+        return entities.stream().collect(Collectors.groupingBy(
+                OfferRewardJpaEntity::getOfferId,
+                Collectors.mapping(
+                        entity -> toReward(entity, cosmeticsById),
+                        Collectors.toList()
+                )
+        ));
+    }
+
+    private Map<UUID, Cosmetic> loadCosmetics(List<OfferRewardJpaEntity> entities) {
+        List<UUID> cosmeticIds = entities.stream()
+                .filter(entity -> entity.getRewardType() == RewardType.COSMETIC)
+                .map(OfferRewardJpaEntity::getRewardReference)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (cosmeticIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return cosmeticRepository.findAllById(cosmeticIds).stream()
+                .collect(Collectors.toMap(
+                        CosmeticJpaEntity::getId,
+                        CosmeticMapper::toDomain
+                ));
+    }
+
+    private OfferReward toReward(OfferRewardJpaEntity entity, Map<UUID, Cosmetic> cosmeticsById) {
+        Reward reward = switch (entity.getRewardType()) {
+            case COSMETIC -> {
+                Cosmetic cosmetic = cosmeticsById.get(entity.getRewardReference());
+                if (cosmetic == null) {
+                    throw new CosmeticNotFoundException();
+                }
+                yield new CosmeticReward(cosmetic);
+            }
+            case COIN -> new SoftCoinsReward(entity.getQuantity());
+            case GEMS -> new HardGemsReward(entity.getQuantity());
+        };
+        return OfferRewardMapper.toDomain(entity, reward);
     }
 
     @Override
