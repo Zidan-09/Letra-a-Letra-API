@@ -15,7 +15,8 @@ const tests = [
     ranking,
     casual,
     room,
-    turn
+    turn,
+    adminRoutes
 ];
 
 for(const test of tests) {

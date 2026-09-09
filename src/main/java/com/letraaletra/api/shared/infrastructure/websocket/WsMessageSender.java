@@ -39,11 +39,15 @@ public class WsMessageSender {
     }
 
     public void sendToUser(UUID userId, Object payload) {
+        sendToUser(userId, payload, UUID.randomUUID());
+    }
+
+    public void sendToUser(UUID userId, Object payload, UUID eventId) {
         WebSocketSession session = connectionRegistry.findByUserId(userId);
 
         if (session == null || !session.isOpen()) return;
 
-        String json = encode(payload);
+        String json = encode(payload, eventId.toString());
 
         if (json == null) return;
 
@@ -51,9 +55,13 @@ public class WsMessageSender {
     }
 
     private String encode(Object payload) {
+        return encode(payload, UUID.randomUUID().toString());
+    }
+
+    private String encode(Object payload, String eventId) {
         try {
             ObjectNode message = objectMapper.valueToTree(payload);
-            message.put("eventId", UUID.randomUUID().toString());
+            message.put("eventId", eventId);
 
             return objectMapper.writeValueAsString(message);
 

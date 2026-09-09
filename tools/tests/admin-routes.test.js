@@ -12,7 +12,7 @@ export async function run() {
     try {
         await context.authAdmins(1);
 
-        // await runCosmetic(context);
+        await runCosmetic(context);
         await runOffers(context);
         await runGame(context);
         await runLevels(context);

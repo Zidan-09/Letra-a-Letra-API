@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsRequest> {
@@ -70,10 +71,12 @@ public class DiscardPowerHandler implements RoomRequestHandler<DiscardPowerWsReq
                 .getPlayers().values()
                 .stream().toList();
 
+        UUID eventId = UUID.randomUUID();
+
         for (Player player : players) {
             DiscardPowerResponse dto = discardPowerResponseMapper.toResponse(output, player.getUserId());
 
-            playerNotifier.notifyUser(player.getUserId(), dto);
+            playerNotifier.notifyUser(player.getUserId(), dto, eventId);
         }
     }
 

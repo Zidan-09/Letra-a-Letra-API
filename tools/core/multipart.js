@@ -19,8 +19,11 @@ export async function multipart(
         }
     );
 
+    const data = await response.json();
+
     return {
         status: response.status,
-        data: await response.json()
+        data,
+        body: data
     };
 }

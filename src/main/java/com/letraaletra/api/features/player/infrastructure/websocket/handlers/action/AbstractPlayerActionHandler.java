@@ -62,16 +62,18 @@ public abstract class AbstractPlayerActionHandler<T extends PlayerActionRequest>
                 .filter(Participant::isSpectator)
                 .toList();
 
+        UUID eventId = UUID.randomUUID();
+
         for (Player player : players) {
             PlayerActionResponse dto = PlayerActionMapper.toResponse(output, player.getUserId());
 
-            notifier.notifyUser(player.getUserId(), dto);
+            notifier.notifyUser(player.getUserId(), dto, eventId);
         }
 
         for (Participant spectator : spectators) {
             PlayerActionResponse dto = PlayerActionMapper.toGlobalResponse(output);
 
-            notifier.notifyUser(spectator.getUserId(), dto);
+            notifier.notifyUser(spectator.getUserId(), dto, eventId);
         }
     }
 }
