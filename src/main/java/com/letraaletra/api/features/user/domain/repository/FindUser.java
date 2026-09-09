@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface FindUser {
     Optional<User> find(UUID id);
+    boolean exists(UUID id);
     List<User> findUsersById(List<UUID> ids);
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);

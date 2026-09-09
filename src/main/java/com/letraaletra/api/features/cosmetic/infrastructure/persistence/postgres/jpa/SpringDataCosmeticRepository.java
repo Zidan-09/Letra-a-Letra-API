@@ -13,6 +13,8 @@ import java.util.UUID;
 public interface SpringDataCosmeticRepository extends JpaRepository<CosmeticJpaEntity, UUID> {
     Optional<CosmeticJpaEntity> findByName(String name);
 
+    boolean existsByName(String name);
+
     @Query("""
     SELECT c
     FROM CosmeticJpaEntity c

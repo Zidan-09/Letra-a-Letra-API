@@ -6,14 +6,17 @@ import com.letraaletra.api.features.ticket.domain.TicketCategory;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.ticket.infrastructure.presentation.dto.response.ticket.TicketResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class GetTicketsMapper {
+    private static final Set<String> ALLOWED_SORTS =
+            Set.of("createdAt", "status", "category", "subject");
 
     public static GetTicketsInput toInput(
             AuthenticatedUser principal,
@@ -22,9 +25,7 @@ public class GetTicketsMapper {
             UUID userId,
             Pageable pageable
     ) {
-        Pageable pages = pageable == null ?
-                PageRequest.of(0, 20, Sort.Direction.ASC) :
-                pageable;
+        Pageable pages = Pageables.sanitize(pageable, ALLOWED_SORTS, Sort.unsorted());
 
         return new GetTicketsInput(
                 principal,

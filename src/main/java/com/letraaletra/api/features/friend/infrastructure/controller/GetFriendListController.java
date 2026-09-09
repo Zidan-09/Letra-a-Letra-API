@@ -2,14 +2,16 @@ package com.letraaletra.api.features.friend.infrastructure.controller;
 
 import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
-import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendListResponse;
+import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +26,15 @@ public class GetFriendListController {
     private final UseCase<GetFriendListInput, GetFriendListOutput> useCase;
 
     @GetMapping
-    public ResponseEntity<SuccessResponse<GetFriendListResponse>> handle(
-            @AuthenticationPrincipal AuthenticatedUser principal
+    public ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> handle(
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            Pageable pageable
     ) {
-        GetFriendListInput input = GetFriendListMapper.toInput(principal.auth());
+        GetFriendListInput input = GetFriendListMapper.toInput(principal.auth(), pageable);
 
         GetFriendListOutput output = useCase.execute(input);
 
-        GetFriendListResponse dto = GetFriendListMapper.toResponse(output);
+        PageResponse<FriendResponse> dto = GetFriendListMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

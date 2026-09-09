@@ -13,6 +13,7 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
+import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -68,8 +69,8 @@ public class GetAuditEventsController {
                 operationId,
                 correlationId,
                 transactionId,
-                page,
-                size,
+                Pageables.clampPage(page),
+                Pageables.clampSize(size),
                 "ASC".equalsIgnoreCase(direction)
         );
 

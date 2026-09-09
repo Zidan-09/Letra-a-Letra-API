@@ -15,7 +15,7 @@ public class RepositoryWsUserDirectory implements WsUserDirectory {
 
     @Override
     public boolean exists(UUID userId) {
-        return userRepository.find(userId).isPresent();
+        return userRepository.exists(userId);
     }
 
     @Override
