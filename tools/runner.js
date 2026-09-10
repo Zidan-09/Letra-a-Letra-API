@@ -13,7 +13,6 @@ import { run as gameLobby } from "./tests/game-lobby.test.js";
 import { run as matchmakingExit } from "./tests/matchmaking-exit.test.js";
 import { run as rankingExit } from "./tests/ranking-exit.test.js";
 import { run as gameMatch } from "./tests/game-match.test.js";
-import { run as shop } from "./tests/shop.test.js";
 
 const tests = [
     adminRoutes,
