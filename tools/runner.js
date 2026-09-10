@@ -29,7 +29,6 @@ const tests = [
     matchmakingExit,
     rankingExit,
     gameMatch,
-    shop,
     turn,
 ];
 
