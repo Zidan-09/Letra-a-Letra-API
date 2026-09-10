@@ -10,6 +10,7 @@ import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
     adminRoutes,
+    admin,
     profile,
     friends,
     matchmaking,

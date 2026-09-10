@@ -39,18 +39,28 @@ function collectText(value, out) {
     }
 }
 
-export function extractToken(message) {
+const UUID_PATTERN = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})";
+
+export function extractTokenByPath(message, path) {
     const parts = [];
 
     collectText(message ?? {}, parts);
 
     const raw = decodeQuotedPrintableFragment(parts.join("\n"));
-    const match = raw.match(/ativar-conta\?token=([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
+    const match = raw.match(new RegExp(path + "\\?token=" + UUID_PATTERN));
 
     return match ? match[1] : undefined;
 }
 
-function findToken(messages, recipientEmail) {
+export function extractToken(message) {
+    return extractTokenByPath(message, "ativar-conta");
+}
+
+export function extractResetToken(message) {
+    return extractTokenByPath(message, "redefinir-senha");
+}
+
+function findToken(messages, recipientEmail, extractor) {
     const wanted = recipientEmail.toLowerCase();
 
     const sorted = [...messages].sort(
@@ -65,7 +75,7 @@ function findToken(messages, recipientEmail) {
             continue;
         }
 
-        const token = extractToken(message);
+        const token = extractor(message);
 
         if (token) {
             return token;
@@ -75,17 +85,14 @@ function findToken(messages, recipientEmail) {
     return undefined;
 }
 
-export async function waitForAdminActivationToken(
-    recipientEmail,
-    { timeoutMs = 30000, intervalMs = 500 } = {}
-) {
+async function waitForMailToken(recipientEmail, extractor, label, { timeoutMs = 30000, intervalMs = 500 } = {}) {
     const deadline = Date.now() + timeoutMs;
     let lastError;
 
     while (Date.now() < deadline) {
         try {
             const messages = await fetchMessages();
-            const token = findToken(messages, recipientEmail);
+            const token = findToken(messages, recipientEmail, extractor);
 
             if (token) {
                 return token;
@@ -98,7 +105,21 @@ export async function waitForAdminActivationToken(
     }
 
     throw new Error(
-        `MailHog: activation email for ${recipientEmail} not received` +
+        `MailHog: ${label} email for ${recipientEmail} not received` +
         (lastError ? ` (last error: ${lastError.message})` : "")
     );
+}
+
+export async function waitForAdminActivationToken(
+    recipientEmail,
+    options
+) {
+    return waitForMailToken(recipientEmail, extractToken, "activation", options);
+}
+
+export async function waitForAdminResetToken(
+    recipientEmail,
+    options
+) {
+    return waitForMailToken(recipientEmail, extractResetToken, "password reset", options);
 }

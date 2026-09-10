@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { websocket } from "./config.js";
+import { endpoint, websocket } from "./config.js";
 
 export function connect(user, events, onEvent, timeoutMs = 10000) {
     return new Promise((resolve, reject) => {
@@ -83,4 +83,69 @@ export function connect(user, events, onEvent, timeoutMs = 10000) {
 
 export function send(ws, payload) {
     ws.send(JSON.stringify(payload));
+}
+
+export function connectAdmin(token, timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+        if (!token) {
+            return reject(new Error("connectAdmin: missing admin token"));
+        }
+
+        let settled = false;
+        let timer;
+
+        const messages = [];
+        const url = `${endpoint.replace(/^http/, "ws")}/ws/admin?token=${token}`;
+        const ws = new WebSocket(url);
+
+        timer = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            try { ws.terminate?.(); } catch {}
+            try { ws.close(); } catch {}
+            reject(new Error(`Admin WebSocket connect timeout (${timeoutMs}ms)`));
+        }, timeoutMs);
+
+        ws.on("open", () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve({ ws, messages });
+        });
+
+        ws.on("error", (err) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(err);
+        });
+
+        ws.on("close", (code, reason) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(new Error(`Admin WebSocket closed before open code=${code} reason=${String(reason)}`));
+        });
+
+        ws.on("unexpected-response", (req, res) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            let body = "";
+            res.on("data", chunk => body += chunk);
+            res.on("end", () => {
+                reject(new Error(`Admin WebSocket handshake failed status=${res.statusCode} body=${body.slice(0,500)}`));
+            });
+        });
+
+        ws.on("message", data => {
+            let message;
+            try {
+                message = JSON.parse(data);
+            } catch {
+                return;
+            }
+            messages.push(message);
+        });
+    });
 }
