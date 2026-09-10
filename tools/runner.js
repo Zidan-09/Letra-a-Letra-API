@@ -5,12 +5,14 @@ import { run as ranking } from "./tests/ranking.test.js";
 import { run as casual } from "./tests/casual.test.js";
 import { run as room } from "./tests/room.test.js";
 import { run as admin } from "./tests/admin.test.js";
+import { run as audit } from "./tests/audit.test.js";
 import { run as adminRoutes } from "./tests/admin-routes.test.js";
 import { run as turn } from "./tests/turn.test.js";
 
 const tests = [
     adminRoutes,
     admin,
+    audit,
     profile,
     friends,
     matchmaking,
