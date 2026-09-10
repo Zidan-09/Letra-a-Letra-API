@@ -19,6 +19,7 @@ import com.letraaletra.api.features.audit.infrastructure.presentation.dto.respon
 import com.letraaletra.api.features.audit.infrastructure.presentation.mapper.AuditEventResponseMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
@@ -52,8 +53,8 @@ public class GetUserAuditHistoryController {
                 category,
                 from,
                 to,
-                page,
-                size
+                Pageables.clampPage(page),
+                Pageables.clampSize(size)
         );
 
         GetAuditEventsOutput output = useCase.execute(input);

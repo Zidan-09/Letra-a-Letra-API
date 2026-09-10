@@ -2,9 +2,13 @@ package com.letraaletra.api.features.friend.infrastructure.persistence.postgres.
 
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
+import com.letraaletra.api.features.friend.domain.FriendsPage;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import com.letraaletra.api.features.friend.infrastructure.persistence.postgres.jpa.SpringDataFriendRepository;
 import com.letraaletra.api.features.friend.infrastructure.persistence.postgres.mapper.FriendMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,10 +26,11 @@ public class JpaFriendRepository implements FriendRepository {
     }
 
     @Override
-    public List<Friend> getFriends(UUID userId) {
-        return repository.getFriendsList(userId, FriendStatus.ACCEPT)
-                .stream().map(FriendMapper::toDomain)
-                .toList();
+    public Page<Friend> getFriends(UUID userId, FriendsPage page) {
+        Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
+
+        return repository.getFriendsList(userId, FriendStatus.ACCEPT, pageable)
+                .map(FriendMapper::toDomain);
     }
 
     @Override

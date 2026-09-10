@@ -71,6 +71,6 @@ public class JpaCosmeticRepository implements CosmeticRepository {
 
     @Override
     public boolean checkIfExistsByName(String name) {
-        return repository.findByName(name).isPresent();
+        return repository.existsByName(name);
     }
 }

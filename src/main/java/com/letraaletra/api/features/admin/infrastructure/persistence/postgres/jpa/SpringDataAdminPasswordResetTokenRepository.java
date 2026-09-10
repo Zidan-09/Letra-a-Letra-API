@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 public interface SpringDataAdminPasswordResetTokenRepository extends JpaRepository<AdminPasswordResetTokenJpaEntity, UUID> {
@@ -22,9 +22,10 @@ public interface SpringDataAdminPasswordResetTokenRepository extends JpaReposito
     @Query("""
         SELECT p
         FROM AdminPasswordResetTokenJpaEntity p
-        WHERE p.tokenHash = :tokenHash
+        WHERE p.adminId = :adminId
           AND p.used = false
           AND p.expiresAt > CURRENT_TIMESTAMP
+        ORDER BY p.createdAt DESC
     """)
-    Optional<AdminPasswordResetTokenJpaEntity> findValidByTokenHash(@Param("tokenHash") String tokenHash);
+    List<AdminPasswordResetTokenJpaEntity> findActiveByAdminId(@Param("adminId") UUID adminId);
 }

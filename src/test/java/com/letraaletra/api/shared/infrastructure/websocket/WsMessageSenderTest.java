@@ -124,4 +124,49 @@ class WsMessageSenderTest {
 
         verify(sessionB, never()).sendMessage(any());
     }
+
+    @Test
+    @DisplayName("sendToUser com eventId compartilhado reutiliza o mesmo eventId em payloads distintos")
+    void shouldReuseSharedEventIdAcrossDistinctPayloads() throws Exception {
+        UUID userA = UUID.randomUUID();
+        UUID userB = UUID.randomUUID();
+        when(registry.findByUserId(userA)).thenReturn(sessionA);
+        when(registry.findByUserId(userB)).thenReturn(sessionB);
+
+        UUID sharedEventId = UUID.randomUUID();
+
+        sender.sendToUser(userA, SamplePayload.of("view-a"), sharedEventId);
+        sender.sendToUser(userB, SamplePayload.of("view-b"), sharedEventId);
+
+        JsonNode sentA = json.readTree(captured(sessionA).get(0).getPayload());
+        JsonNode sentB = json.readTree(captured(sessionB).get(0).getPayload());
+
+        assertEquals(sharedEventId.toString(), sentA.path("eventId").asText());
+        assertEquals(sharedEventId.toString(), sentB.path("eventId").asText());
+        assertEquals("view-a", sentA.path("value").asText());
+        assertEquals("view-b", sentB.path("value").asText());
+    }
+
+    @Test
+    @DisplayName("sendToUser sem eventId gera eventIds distintos por envio")
+    void shouldGenerateDistinctEventIdsByDefault() throws Exception {
+        UUID userId = UUID.randomUUID();
+        when(registry.findByUserId(userId)).thenReturn(sessionA);
+
+        sender.sendToUser(userId, SamplePayload.of("one"));
+        sender.sendToUser(userId, SamplePayload.of("two"));
+
+        ArgumentCaptor<TextMessage> captor = ArgumentCaptor.forClass(TextMessage.class);
+        verify(sessionA, org.mockito.Mockito.times(2)).sendMessage(captor.capture());
+        java.util.List<TextMessage> all = captor.getAllValues();
+        JsonNode first = json.readTree(all.get(0).getPayload());
+        JsonNode second = json.readTree(all.get(1).getPayload());
+
+        assertEquals(false, first.path("eventId").isMissingNode());
+        assertEquals(false, second.path("eventId").isMissingNode());
+        org.junit.jupiter.api.Assertions.assertNotEquals(
+                first.path("eventId").asText(),
+                second.path("eventId").asText()
+        );
+    }
 }

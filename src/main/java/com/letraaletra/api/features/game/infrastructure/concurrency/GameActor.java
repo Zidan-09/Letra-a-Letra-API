@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.concurrency;
 
-import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
 import com.letraaletra.api.features.game.domain.actor.command.ActorCommand;
 import com.letraaletra.api.features.game.application.port.Actor;
 import com.letraaletra.api.shared.application.port.OperationContext;

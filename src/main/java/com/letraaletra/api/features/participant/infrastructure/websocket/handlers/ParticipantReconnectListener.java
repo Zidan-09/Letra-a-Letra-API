@@ -12,7 +12,6 @@ import com.letraaletra.api.shared.infrastructure.websocket.WsLifecycleListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -25,7 +24,6 @@ public class ParticipantReconnectListener implements WsLifecycleListener {
     private final UseCase<ReconnectParticipantInput, Optional<ReconnectParticipantOutput>> useCase;
     private final ParticipantNotifier participantNotifier;
 
-    @Transactional
     @Override
     public void onConnected(WebSocketSession session) {
         String userId = (String) session.getAttributes().get("userId");

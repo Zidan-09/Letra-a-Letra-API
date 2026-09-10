@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class AuthUserController {
     private final UseCase<SignInInput, SignInOutput> useCase;
-
-    @Transactional
     @PostMapping(path = "/auth")
     public ResponseEntity<SuccessResponse<AuthUserResponse>> handle(
             @Valid @RequestBody AuthUserRequest request

@@ -149,7 +149,7 @@ public class JpaLevelRepository implements LevelRepository {
 
     @Override
     public boolean existsByLevel(int level) {
-        return repository.findByLevel(level).isPresent();
+        return repository.existsByLevel(level);
     }
 
     @Override

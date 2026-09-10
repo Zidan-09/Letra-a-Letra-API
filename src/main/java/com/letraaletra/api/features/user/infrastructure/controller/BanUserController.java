@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,8 +23,6 @@ import java.util.UUID;
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class BanUserController {
     private final UseCase<BanUserInput, Void> useCase;
-
-    @Transactional
     @PatchMapping(path = "/{userId}/ban")
     public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,

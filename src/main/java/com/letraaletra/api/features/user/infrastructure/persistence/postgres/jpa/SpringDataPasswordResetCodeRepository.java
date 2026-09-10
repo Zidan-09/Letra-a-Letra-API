@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 public interface SpringDataPasswordResetCodeRepository extends JpaRepository<PasswordResetCodeJpaEntity, UUID> {
@@ -22,9 +22,10 @@ public interface SpringDataPasswordResetCodeRepository extends JpaRepository<Pas
     @Query("""
         SELECT p
         FROM PasswordResetCodeJpaEntity p
-        WHERE p.codeHash = :codeHash
+        WHERE p.userId = :userId
             AND p.used = false
             AND p.expiresAt > CURRENT_TIMESTAMP
+        ORDER BY p.createdAt DESC
     """)
-    Optional<PasswordResetCodeJpaEntity> findValidByCodeHash(@Param("codeHash") String codeHash);
+    List<PasswordResetCodeJpaEntity> findActiveByUserId(@Param("userId") UUID userId);
 }

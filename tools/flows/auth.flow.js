@@ -50,12 +50,23 @@ export class AuthFlow {
     static async registerAdmin(admin, authAdmin, c) {
         const response = await http("POST", "/admin", {
             name: `admin-${c}`,
-            email: admin.email,
-            password: admin.password
+            email: admin.email
         }, 
         authAdmin.token);
 
         ensureStatus(response, [200, 201], "registerAdmin");
+
+        return response;
+    }
+
+    static async activateAdmin(admin, token) {
+        const response = await http(
+            "PATCH",
+            `/admin/activate?token=${encodeURIComponent(token)}`,
+            { password: admin.password }
+        );
+
+        ensureStatus(response, 200, "activateAdmin");
 
         return response;
     }

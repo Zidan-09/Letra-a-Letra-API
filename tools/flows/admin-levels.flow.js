@@ -112,7 +112,60 @@ export async function runFlow(context) {
         throw new Error("Rewards were not updated");
     }
 
-    // Fluxo 5: Remover level
+    // Fluxo 5: Buscar level por id
+
+    res = await http(
+        "GET",
+        `/level/${levelId}`,
+        undefined,
+        admin.token
+    );
+
+    ensureStatus(res, 200, "Get level by id");
+
+    if (res.body.data.level.levelId !== levelId) {
+        throw new Error("Get level by id: id mismatch");
+    }
+
+    if (res.body.data.level.value !== 100) {
+        throw new Error("Get level by id: value mismatch");
+    }
+
+    // Fluxo 6: Buscar level por valor
+
+    res = await http(
+        "GET",
+        "/level/value/100",
+        undefined,
+        admin.token
+    );
+
+    ensureStatus(res, 200, "Get level by value");
+
+    if (res.body.data.level.levelId !== levelId) {
+        throw new Error("Get level by value: id mismatch");
+    }
+
+    if (res.body.data.level.value !== 100) {
+        throw new Error("Get level by value: value mismatch");
+    }
+
+    res = await http(
+        "GET",
+        "/level/value/999999",
+        undefined,
+        admin.token
+    );
+
+    ensureStatus(res, 400, "Get unknown level by value");
+
+    if (res.body?.code !== "LEVEL_NOT_FOUND") {
+        throw new Error(
+            `Get unknown level by value: expected LEVEL_NOT_FOUND, received ${JSON.stringify(res.body)}`
+        );
+    }
+
+    // Fluxo 7: Remover level
 
     /* res = await http(
         "DELETE",
@@ -123,7 +176,7 @@ export async function runFlow(context) {
 
     ensureStatus(res, 200, "Delete level");
 
-    // Fluxo 6: Confirmar remoção
+    // Fluxo 8: Confirmar remoção
 
     res = await http(
         "GET",

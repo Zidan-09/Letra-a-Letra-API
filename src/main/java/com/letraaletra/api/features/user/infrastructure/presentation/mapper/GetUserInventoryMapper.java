@@ -5,19 +5,20 @@ import com.letraaletra.api.features.user.application.output.GetUserInventoryOutp
 import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
+import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class GetUserInventoryMapper {
+    private static final Set<String> ALLOWED_SORTS = Set.of("unlockedAt", "equipped");
+
     public static GetUserInventoryInput toInput(AuthenticatedUser principal, UUID userId, Pageable pageable) {
-        Pageable pages = pageable == null ?
-                PageRequest.of(0, 20, Sort.Direction.ASC) :
-                pageable;
+        Pageable pages = Pageables.sanitize(pageable, ALLOWED_SORTS, Sort.unsorted());
 
         return new GetUserInventoryInput(
                 principal,

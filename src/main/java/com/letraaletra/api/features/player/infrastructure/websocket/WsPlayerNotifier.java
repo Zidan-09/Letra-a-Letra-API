@@ -22,4 +22,9 @@ public class WsPlayerNotifier implements PlayerNotifier {
     public void notifyUser(UUID userId, Object dto) {
         messageSender.sendToUser(userId, dto);
     }
+
+    @Override
+    public void notifyUser(UUID userId, Object dto, UUID eventId) {
+        messageSender.sendToUser(userId, dto, eventId);
+    }
 }

@@ -35,14 +35,19 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     public Void execute(ResetPasswordInput input) {
         String codeHash = tokenHashService.hash(input.code());
 
+        User user = userRepository.findByEmail(input.email())
+                .orElseThrow(InvalidTokenException::new);
+
         PasswordResetCode resetCode =
-                codeRepository.findByCodeHash(codeHash)
+                codeRepository.findActiveByUserId(user.getUserId())
                         .orElseThrow(InvalidTokenException::new);
 
-        resetCode.validate(codeHash);
-
-        User user = userRepository.find(resetCode.getUserId())
-                .orElseThrow(InvalidTokenException::new);
+        try {
+            resetCode.validate(codeHash);
+        } catch (InvalidTokenException e) {
+            codeRepository.save(resetCode);
+            throw e;
+        }
 
         if (passwordService.matches(input.newPassword(), user.getPasswordHash())) {
             throw new SamePasswordException();

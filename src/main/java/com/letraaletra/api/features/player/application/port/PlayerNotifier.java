@@ -7,4 +7,6 @@ public interface PlayerNotifier {
     void notifyAll(Collection<String> socketIds, Object dto);
 
     void notifyUser(UUID userId, Object dto);
+
+    void notifyUser(UUID userId, Object dto, UUID eventId);
 }

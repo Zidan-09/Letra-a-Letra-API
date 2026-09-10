@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.scheduler;
 
 import com.letraaletra.api.features.game.application.port.ExpireTurnService;
-import com.letraaletra.api.features.game.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
 import com.letraaletra.api.features.game.domain.*;
 import com.letraaletra.api.features.game.application.port.GameNotifier;
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;

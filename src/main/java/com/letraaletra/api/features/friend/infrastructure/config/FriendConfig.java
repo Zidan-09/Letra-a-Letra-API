@@ -1,66 +1,102 @@
 package com.letraaletra.api.features.friend.infrastructure.config;
 
+import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
+import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
+import com.letraaletra.api.features.friend.application.input.GetFriendPendingRequestsInput;
+import com.letraaletra.api.features.friend.application.input.RejectFriendRequestInput;
+import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
+import com.letraaletra.api.features.friend.application.input.SendFriendRequestInput;
+import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
+import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
+import com.letraaletra.api.features.friend.application.output.SendFriendRequestOutput;
 import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.application.usecase.*;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FriendConfig {
     @Bean
-    public SendFriendRequestUseCase addFriendUseCase(
+    public UseCase<SendFriendRequestInput, SendFriendRequestOutput> addFriendUseCase(
             FriendRepository friendRepository,
-            FriendNotifier notifier
+            FriendNotifier notifier,
+            TransactionalExecutorService transactions
     ) {
-        return new SendFriendRequestUseCase(
-                friendRepository,
-                notifier
+        return new TransactionalUseCase<>(
+                new SendFriendRequestUseCase(
+                        friendRepository,
+                        notifier
+                ),
+                transactions
         );
     }
 
     @Bean
-    public AcceptFriendRequestUseCase acceptFriendRequestUseCase(
-            FriendRepository friendRepository
+    public UseCase<AcceptFriendRequestInput, Void> acceptFriendRequestUseCase(
+            FriendRepository friendRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new AcceptFriendRequestUseCase(
-                friendRepository
+        return new TransactionalUseCase<>(
+                new AcceptFriendRequestUseCase(
+                        friendRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public RejectFriendRequestUseCase rejectFriendRequestUseCase(
-            FriendRepository friendRepository
+    public UseCase<RejectFriendRequestInput, Void> rejectFriendRequestUseCase(
+            FriendRepository friendRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new RejectFriendRequestUseCase(
-                friendRepository
+        return new TransactionalUseCase<>(
+                new RejectFriendRequestUseCase(
+                        friendRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetFriendListUseCase getFriendListUseCase(
-            FriendRepository friendRepository
+    public UseCase<GetFriendListInput, GetFriendListOutput> getFriendListUseCase(
+            FriendRepository friendRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new GetFriendListUseCase(
-                friendRepository
+        return new TransactionalUseCase<>(
+                new GetFriendListUseCase(
+                        friendRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public RemoveFriendUseCase removeFriendUseCase(
-            FriendRepository friendRepository
+    public UseCase<RemoveFriendInput, Void> removeFriendUseCase(
+            FriendRepository friendRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new RemoveFriendUseCase(
-                friendRepository
+        return new TransactionalUseCase<>(
+                new RemoveFriendUseCase(
+                        friendRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetFriendPendingRequestsUseCase getFriendPendingRequestsUseCase(
-            FriendRepository friendRepository
+    public UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> getFriendPendingRequestsUseCase(
+            FriendRepository friendRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new GetFriendPendingRequestsUseCase(
-                friendRepository
+        return new TransactionalUseCase<>(
+                new GetFriendPendingRequestsUseCase(
+                        friendRepository
+                ),
+                transactions
         );
     }
 }

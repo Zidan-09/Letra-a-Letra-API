@@ -14,7 +14,6 @@ import com.letraaletra.api.features.user.infrastructure.persistence.postgres.map
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection;
 import com.letraaletra.api.infrastructure.persistence.ProcedureExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -143,6 +142,11 @@ public class JpaUserRepository implements UserRepository {
     @Transactional
     public void saveAll(List<User> users) {
         users.forEach(this::save);
+    }
+
+    @Override
+    public boolean exists(UUID id) {
+        return repository.existsById(id);
     }
 
     @Override
@@ -327,7 +331,7 @@ public class JpaUserRepository implements UserRepository {
                 Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
                 return new PageImpl<>(List.of(), pageable, 0);
             }
-            long total = rows.get(0).total();
+            long total = rows.getFirst().total();
             List<User> content = rows.stream().map(UserPageRow::user).toList();
             Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
             return new PageImpl<>(content, pageable, total);

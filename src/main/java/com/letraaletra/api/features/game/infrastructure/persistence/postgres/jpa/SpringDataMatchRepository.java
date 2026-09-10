@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface SpringDataMatchRepository extends JpaRepository<MatchJpaEntity, UUID> {
     List<MatchJpaEntity> findByGameId(UUID gameId);
+    List<MatchJpaEntity> findByGameIdIn(List<UUID> gameIds);
 }

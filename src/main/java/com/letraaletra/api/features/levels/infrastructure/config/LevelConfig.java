@@ -1,9 +1,22 @@
 package com.letraaletra.api.features.levels.infrastructure.config;
 
 import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
+import com.letraaletra.api.features.levels.application.input.FindLevelByValueInput;
+import com.letraaletra.api.features.levels.application.input.FindLevelInput;
+import com.letraaletra.api.features.levels.application.input.GetLevelsInput;
+import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
+import com.letraaletra.api.features.levels.application.output.CreateLevelOutput;
+import com.letraaletra.api.features.levels.application.output.FindLevelByValueOutput;
+import com.letraaletra.api.features.levels.application.output.FindLevelOutput;
+import com.letraaletra.api.features.levels.application.output.GetLevelsOutput;
+import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
 import com.letraaletra.api.features.levels.application.usecase.*;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,55 +24,75 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LevelConfig {
     @Bean
-    public CreateLevelUseCase createLevelUseCase(
+    public UseCase<CreateLevelInput, CreateLevelOutput> createLevelUseCase(
             LevelRepository levelRepository,
             AdminChecker adminChecker,
-            RewardFactory rewardFactory
+            RewardFactory rewardFactory,
+            TransactionalExecutorService transactions
     ) {
-        return new CreateLevelUseCase(
-                levelRepository,
-                adminChecker,
-                rewardFactory
+        return new TransactionalUseCase<>(
+                new CreateLevelUseCase(
+                        levelRepository,
+                        adminChecker,
+                        rewardFactory
+                ),
+                transactions
         );
     }
 
     @Bean
-    public GetLevelsUseCase getLevelsUseCase(
-            LevelRepository levelRepository
+    public UseCase<GetLevelsInput, GetLevelsOutput> getLevelsUseCase(
+            LevelRepository levelRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new GetLevelsUseCase(
-                levelRepository
+        return new TransactionalUseCase<>(
+                new GetLevelsUseCase(
+                        levelRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public FindLevelUseCase findLevelUseCase(
-            LevelRepository levelRepository
+    public UseCase<FindLevelInput, FindLevelOutput> findLevelUseCase(
+            LevelRepository levelRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new FindLevelUseCase(
-                levelRepository
+        return new TransactionalUseCase<>(
+                new FindLevelUseCase(
+                        levelRepository
+                ),
+                transactions
         );
     }
 
     @Bean
-    public UpdateLevelUseCase updateLevelUseCase(
+    public UseCase<UpdateLevelInput, UpdateLevelOutput> updateLevelUseCase(
             LevelRepository levelRepository,
             CosmeticRepository cosmeticRepository,
-            AdminChecker adminChecker
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
     ) {
-        return new UpdateLevelUseCase(
-                levelRepository,
-                cosmeticRepository,
-                adminChecker
+        return new TransactionalUseCase<>(
+                new UpdateLevelUseCase(
+                        levelRepository,
+                        cosmeticRepository,
+                        adminChecker
+                ),
+                transactions
         );
     }
 
     @Bean
-    public FindLevelByValueUseCase findLevelByValueUseCase(
-            LevelRepository levelRepository
+    public UseCase<FindLevelByValueInput, FindLevelByValueOutput> findLevelByValueUseCase(
+            LevelRepository levelRepository,
+            TransactionalExecutorService transactions
     ) {
-        return new FindLevelByValueUseCase(
-                levelRepository
+        return new TransactionalUseCase<>(
+                new FindLevelByValueUseCase(
+                        levelRepository
+                ),
+                transactions
         );
     }
 }

@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface SpringDataLevelRepository extends JpaRepository<LevelJpaEntity, UUID> {
     Optional<LevelJpaEntity> findByLevel(int level);
+    boolean existsByLevel(int level);
     @Query("SELECT MAX(l.level) FROM LevelJpaEntity l")
     Integer findBiggestLevel();
 }

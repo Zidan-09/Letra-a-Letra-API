@@ -35,14 +35,19 @@ public class ResetAdminPasswordUseCase implements UseCase<ResetAdminPasswordInpu
     public Void execute(ResetAdminPasswordInput input) {
         String tokenHash = tokenHashService.hash(input.token());
 
+        Admin admin = adminRepository.findByEmail(input.email())
+                .orElseThrow(InvalidTokenException::new);
+
         AdminPasswordResetToken resetToken = tokenRepository
-                .findByTokenHash(tokenHash)
+                .findActiveByAdminId(admin.getId())
                 .orElseThrow(InvalidTokenException::new);
 
-        resetToken.validate(tokenHash);
-
-        Admin admin = adminRepository.find(resetToken.getAdminId())
-                .orElseThrow(InvalidTokenException::new);
+        try {
+            resetToken.validate(tokenHash);
+        } catch (InvalidTokenException e) {
+            tokenRepository.save(resetToken);
+            throw e;
+        }
 
         if (passwordService.matches(input.newPassword(), admin.getPasswordHash())) {
             throw new SamePasswordException();

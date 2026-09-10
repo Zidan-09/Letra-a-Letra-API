@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class AdminPasswordResetToken {
+    private static final int MAX_ATTEMPTS = 5;
+
     private final UUID id;
     private final UUID adminId;
     private final String tokenHash;
@@ -97,7 +99,7 @@ public class AdminPasswordResetToken {
     }
 
     public void incrementAttempts() {
-        if (attempts >= 5) {
+        if (attempts >= MAX_ATTEMPTS) {
             throw new MaxAttemptsExceededException();
         }
 
@@ -113,6 +115,10 @@ public class AdminPasswordResetToken {
     }
 
     public void validate(String tokenHashed) {
+        if (attempts >= MAX_ATTEMPTS) {
+            throw new MaxAttemptsExceededException();
+        }
+
         if (used) {
             throw new InvalidTokenException();
         }

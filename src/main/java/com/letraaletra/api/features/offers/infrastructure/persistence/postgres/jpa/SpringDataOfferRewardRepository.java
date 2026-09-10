@@ -8,5 +8,6 @@ import java.util.UUID;
 
 public interface SpringDataOfferRewardRepository extends JpaRepository<OfferRewardJpaEntity, UUID> {
     List<OfferRewardJpaEntity> findByOfferId(UUID offerId);
+    List<OfferRewardJpaEntity> findByOfferIdIn(List<UUID> offerIds);
     void deleteByOfferId(UUID offerId);
 }
