@@ -267,5 +267,16 @@ export function observeResult(memory, action, myId = null) {
         memory.lastDetectTurn = memory.turns;
         if (myId) memory.afflictions.detecting.add(myId);
     }
+    if (action?.type === "UNFREEZE" && myId) {
+        memory.afflictions.frozen.delete(myId);
+    }
+    if (action?.type === "IMMUNITY" && myId) {
+        memory.afflictions.frozen.delete(myId);
+        memory.afflictions.blind.delete(myId);
+        memory.afflictions.immune.add(myId);
+    }
+    if (action?.type === "LANTERN" && myId) {
+        memory.afflictions.blind.delete(myId);
+    }
     return memory;
 }
