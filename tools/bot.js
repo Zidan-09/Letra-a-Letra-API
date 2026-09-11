@@ -89,12 +89,13 @@ function describeAction(action) {
     return `${action.type} ${target} actionId=${action.actionId ? String(action.actionId).slice(0, 8) : "-"}`;
 }
 
-function drainStaleAcks(events, myId) {
+function drainStaleAcks(events, myId, memory) {
     for (let i = events.length - 1; i >= 0; i--) {
         const e = events[i];
         if (e?.event === "ERROR" ||
             ((e?.event === "PLAYER_ACTION_RESULT" || e?.event === "TURN_EXPIRED") &&
                 e?.data?.currentTurnPlayerId !== myId)) {
+            if (memory) observeGameEvent(memory, e);
             events.splice(i, 1);
         }
     }
@@ -110,7 +111,7 @@ async function playOneTurn(ws, events, gameId, gameData, memory, rng, powerChanc
         return;
     }
 
-    drainStaleAcks(events, memory.myId);
+    drainStaleAcks(events, memory.myId, memory);
     console.log(`[bot] ${describeAction(action)} gameId=${gameId}`);
     send(ws, payload);
 
@@ -131,6 +132,8 @@ async function playOneTurn(ws, events, gameId, gameData, memory, rng, powerChanc
         return;
     }
 
+    observeGameEvent(memory, ack);
+
     if (ack.event === "ERROR") {
         const msg = String(ack.message ?? JSON.stringify(ack));
         console.log(`[bot] jogada rejeitada pelo servidor: ${msg} — tentando fallback para REVEAL.`);
@@ -142,6 +145,21 @@ async function playOneTurn(ws, events, gameId, gameData, memory, rng, powerChanc
             console.log(`[bot] fallback: ${describeAction(fallback)}`);
             observeResult(memory, fallback, memory.myId);
             send(ws, retry);
+            try {
+                const retryAck = await waitForEvent(
+                    "ACTION_ACK_RETRY",
+                    e => e.event === "ERROR" ||
+                        e.event === "GAME_OVER" ||
+                        e.event === "REMOVED_BECAUSE_INACTIVITY" ||
+                        ((e.event === "PLAYER_ACTION_RESULT" || e.event === "TURN_EXPIRED") &&
+                            e.data?.currentTurnPlayerId !== memory.myId),
+                    events,
+                    ACK_TIMEOUT_MS
+                );
+                observeGameEvent(memory, retryAck);
+            } catch {
+                console.log("[bot] sem confirmação do fallback (timeout); seguindo para aguardar turno.");
+            }
         } else {
             console.log("[bot] fallback PASS — aguardando turno expirar.");
         }
