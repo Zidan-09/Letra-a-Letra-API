@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.friend.application.usecase;
 
 import com.letraaletra.api.features.friend.application.input.RejectFriendRequestInput;
+import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.CanNotDeclineTheRequestException;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -27,6 +29,9 @@ import static org.mockito.Mockito.*;
 class RejectFriendRequestUseCaseTest {
     @Mock
     private FriendRepository repository;
+
+    @Mock
+    private FriendNotifier notifier;
 
     @InjectMocks
     private RejectFriendRequestUseCase useCase;
@@ -61,6 +66,7 @@ class RejectFriendRequestUseCaseTest {
         Friend friendSaved = friendCaptor.getValue();
 
         assertEquals(FriendStatus.DECLINED, friendSaved.getStatus());
+        verify(notifier, times(1)).notifyFriendshipDeclined(senderId);
     }
 
     @Test
@@ -75,8 +81,8 @@ class RejectFriendRequestUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw an InvalidFriendRequestException because status is not PENDING")
-    void throwInvalidFriendRequestExceptionBecauseStatus() {
+    @DisplayName("should throw an InvalidFriendRequestException because status is ACCEPT")
+    void throwInvalidFriendRequestExceptionBecauseAccepted() {
         Friend friend = new Friend(senderId, receiverId, FriendStatus.ACCEPT, now);
 
         when(repository.find(input.userId(), input.friendId()))
@@ -86,6 +92,19 @@ class RejectFriendRequestUseCaseTest {
                 () -> useCase.execute(input)
         );
         verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("should be idempotent when rejecting an already declined request")
+    void rejectIdempotent() {
+        Friend friend = new Friend(senderId, receiverId, FriendStatus.DECLINED, now);
+
+        when(repository.find(input.userId(), input.friendId()))
+                .thenReturn(Optional.of(friend));
+
+        assertDoesNotThrow(() -> useCase.execute(input));
+
+        verify(repository, times(1)).save(any(Friend.class));
     }
 
     @Test

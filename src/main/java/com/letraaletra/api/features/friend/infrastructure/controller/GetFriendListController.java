@@ -34,7 +34,7 @@ public class GetFriendListController {
 
         GetFriendListOutput output = useCase.execute(input);
 
-        PageResponse<FriendResponse> dto = GetFriendListMapper.toResponse(output);
+        PageResponse<FriendResponse> dto = GetFriendListMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

@@ -168,13 +168,11 @@ public class UserConfig {
     @Bean
     public UseCase<GetUsersInput, GetUsersOutput> getUsersUseCase(
             UserRepository userRepository,
-            AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetUsersUseCase(
-                        userRepository,
-                        adminChecker
+                        userRepository
                 ),
                 transactions
         );

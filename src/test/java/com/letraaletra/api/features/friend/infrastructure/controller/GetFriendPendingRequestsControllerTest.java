@@ -58,7 +58,7 @@ class GetFriendPendingRequestsControllerTest {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
+            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(mockOutput, mockAuthId)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
@@ -84,7 +84,7 @@ class GetFriendPendingRequestsControllerTest {
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal));
 
-            mapperMock.verify(() -> GetFriendPendingRequestsMapper.toResponse(any()), never());
+            mapperMock.verify(() -> GetFriendPendingRequestsMapper.toResponse(any(), any()), never());
         }
     }
 
@@ -110,7 +110,7 @@ class GetFriendPendingRequestsControllerTest {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(mockOutput)).thenReturn(null);
+            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(mockOutput, mockAuthId)).thenReturn(null);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();

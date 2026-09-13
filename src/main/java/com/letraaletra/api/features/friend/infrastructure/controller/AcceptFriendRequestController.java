@@ -10,7 +10,6 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.Succe
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,6 +33,6 @@ public class AcceptFriendRequestController {
 
         useCase.execute(input);
 
-        return ApiResponseHandler.success(null, HttpStatus.NO_CONTENT);
+        return ApiResponseHandler.success(null);
     }
 }

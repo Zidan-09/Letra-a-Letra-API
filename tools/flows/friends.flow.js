@@ -78,7 +78,7 @@ export async function runFlow(context) {
         pombao.token
     );
 
-    ensureStatus(res, [200, 204], "Receiver accepting friend request");
+    ensureStatus(res, 200, "Receiver accepting friend request");
 
     res = await http(
         "GET",
@@ -270,4 +270,44 @@ export async function runFlow(context) {
     );
 
     ensureStatus(res, 200, "Buscar pendentes após reenvio");
+
+    // Fluxo 7: Solicitações enviadas e cancelamento
+
+    res = await http(
+        "GET",
+        "/friend/pending/sent",
+        undefined,
+        wadawueu.token
+    );
+
+    ensureStatus(res, 200, "Buscar enviadas");
+
+    res = await http(
+        "PATCH",
+        "/friend/cancel",
+        {
+            friendId: torugo.id
+        },
+        wadawueu.token
+    );
+
+    ensureStatus(res, 200, "Cancelar solicitação enviada");
+
+    res = await http(
+        "GET",
+        "/friend/pending/sent",
+        undefined,
+        wadawueu.token
+    );
+
+    ensureStatus(res, 200, "Buscar enviadas após cancelamento");
+
+    res = await http(
+        "GET",
+        "/friend/pending",
+        undefined,
+        torugo.token
+    );
+
+    ensureStatus(res, 200, "Buscar pendentes após cancelamento");
 }

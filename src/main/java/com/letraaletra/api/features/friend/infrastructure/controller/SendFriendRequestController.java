@@ -35,7 +35,7 @@ public class SendFriendRequestController {
 
         SendFriendRequestOutput output = useCase.execute(input);
 
-        SendFriendRequestResponse dto = SendFriendRequestMapper.toResponse(output);
+        SendFriendRequestResponse dto = SendFriendRequestMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

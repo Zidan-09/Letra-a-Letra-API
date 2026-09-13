@@ -80,8 +80,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
             if (path.equals("/cosmetic")) return true;
             if (path.startsWith("/shop/offers/")) return true;
         }
+        if ("PATCH".equalsIgnoreCase(method) && isFriendMutationPath(path)) return true;
         return isMutating(method)
                 && (path.equals("/admin") || path.startsWith("/admin/"));
+    }
+
+    private boolean isFriendMutationPath(String path) {
+        return path.equals("/friend/accept")
+                || path.equals("/friend/reject")
+                || path.equals("/friend/remove")
+                || path.equals("/friend/cancel");
     }
 
     private boolean isPasswordResetPath(String path) {

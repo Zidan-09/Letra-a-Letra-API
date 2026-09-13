@@ -23,7 +23,8 @@ public interface SpringDataUserInventoryRepository
             c.name AS name,
             c.type AS type,
             i.equipped AS equipped,
-            i.unlockedAt AS unlockedAt
+            i.unlockedAt AS unlockedAt,
+            c.assetPath AS assetPath
 
         FROM UserInventoryJpaEntity i
 
@@ -44,7 +45,8 @@ public interface SpringDataUserInventoryRepository
             c.name AS name,
             c.type AS type,
             i.equipped AS equipped,
-            i.unlockedAt AS unlockedAt
+            i.unlockedAt AS unlockedAt,
+            c.assetPath AS assetPath
 
         FROM UserInventoryJpaEntity i
 
@@ -65,7 +67,8 @@ public interface SpringDataUserInventoryRepository
             c.name AS name,
             c.type AS type,
             i.equipped AS equipped,
-            i.unlockedAt AS unlockedAt
+            i.unlockedAt AS unlockedAt,
+            c.assetPath AS assetPath
 
         FROM UserInventoryJpaEntity i
 

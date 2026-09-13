@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -144,6 +145,30 @@ class GlobalExceptionHandlerTest {
         assertEquals("CONFLICT", response.getBody().code());
         assertEquals("the request conflicts with the current state of the resource",
                 response.getBody().message());
+    }
+
+    @Test
+    @DisplayName("resultado não-único responde 409 CONFLICT em vez de 500")
+    void shouldMapIncorrectResultSize() {
+        request.setMethod("PATCH");
+
+        ResponseEntity<ErrorResponse> response = handler.handleIncorrectResultSize(
+                new IncorrectResultSizeDataAccessException("Query did not return a unique result: 2", 2), request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("CONFLICT", response.getBody().code());
+    }
+
+    @Test
+    @DisplayName("NonUniqueResultException responde 409 CONFLICT em vez de 500")
+    void shouldMapNonUniqueResult() {
+        request.setMethod("PATCH");
+
+        ResponseEntity<ErrorResponse> response = handler.handleNonUniqueResult(
+                new jakarta.persistence.NonUniqueResultException("2 results"), request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("CONFLICT", response.getBody().code());
     }
 
     @Test

@@ -1,16 +1,11 @@
 package com.letraaletra.api.features.user.application.usecase;
 
-import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
-import com.letraaletra.api.shared.domain.security.PermissionAction;
-import com.letraaletra.api.shared.domain.security.PermissionKey;
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,11 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,22 +37,21 @@ class GetUsersUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private AdminChecker adminChecker;
-
     @InjectMocks
     private GetUsersUseCase useCase;
 
     @Captor
     private ArgumentCaptor<UsersPage> usersPageCaptor;
 
-    private AuthenticatedUser principal;
+    private AuthenticatedUser adminPrincipal;
+    private AuthenticatedUser commonPrincipal;
     private Page<User> mockPage;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        principal = new AuthenticatedUser(UUID.randomUUID(), "AdminUser", true, false);
+        adminPrincipal = new AuthenticatedUser(UUID.randomUUID(), "AdminUser", true, false);
+        commonPrincipal = new AuthenticatedUser(UUID.randomUUID(), "CommonUser", false, false);
         mockPage = mock(Page.class);
     }
 
@@ -68,12 +60,12 @@ class GetUsersUseCaseTest {
     class SuccessFlows {
 
         @Test
-        @DisplayName("Deve verificar permissão de admin, instanciar UsersPage e retornar lista paginada de usuários")
-        void execute_WhenAdminHasPermission_ShouldReturnOutputWithUsersPage() {
+        @DisplayName("Deve instanciar UsersPage e retornar lista paginada quando admin solicitar")
+        void execute_WhenAdminRequests_ShouldReturnOutputWithUsersPage() {
             int page = 0;
             int size = 15;
             Sort sort = Sort.by(Sort.Direction.ASC, "username");
-            GetUsersInput input = new GetUsersInput(principal, page, size, sort);
+            GetUsersInput input = new GetUsersInput(adminPrincipal, page, size, sort);
 
             when(userRepository.get(any(UsersPage.class))).thenReturn(mockPage);
 
@@ -82,50 +74,31 @@ class GetUsersUseCaseTest {
             assertNotNull(output);
             assertEquals(mockPage, output.users());
 
-            verify(adminChecker, times(1)).check(principal, PermissionKey.USER, PermissionAction.VIEW);
             verify(userRepository, times(1)).get(usersPageCaptor.capture());
 
             UsersPage capturedPage = usersPageCaptor.getValue();
             assertNotNull(capturedPage);
         }
-    }
-
-    @Nested
-    @DisplayName("Autorização e Validação de Permissões")
-    class AuthorizationAndPermissions {
 
         @Test
-        @DisplayName("Deve lançar UserIsNotAdminException quando o usuário não for administrador")
-        void execute_WhenUserIsNotAdmin_ShouldThrowUserIsNotAdminExceptionAndNotQueryRepository() {
-            GetUsersInput input = new GetUsersInput(principal, 0, 10, Sort.unsorted());
+        @DisplayName("Deve retornar lista paginada quando usuário comum autenticado solicitar")
+        void execute_WhenCommonUserRequests_ShouldReturnOutputWithUsersPage() {
+            int page = 0;
+            int size = 15;
+            Sort sort = Sort.by(Sort.Direction.ASC, "username");
+            GetUsersInput input = new GetUsersInput(commonPrincipal, page, size, sort);
 
-            doThrow(new UserIsNotAdminException())
-                    .when(adminChecker).check(principal, PermissionKey.USER, PermissionAction.VIEW);
+            when(userRepository.get(any(UsersPage.class))).thenReturn(mockPage);
 
-            assertThrows(
-                    UserIsNotAdminException.class,
-                    () -> useCase.execute(input)
-            );
+            GetUsersOutput output = useCase.execute(input);
 
-            verify(adminChecker, times(1)).check(principal, PermissionKey.USER, PermissionAction.VIEW);
-            verifyNoInteractions(userRepository);
-        }
+            assertNotNull(output);
+            assertEquals(mockPage, output.users());
 
-        @Test
-        @DisplayName("Deve lançar PermissionDeniedException quando o admin não possuir a permissão requerida")
-        void execute_WhenAdminLacksPermission_ShouldThrowPermissionDeniedExceptionAndNotQueryRepository() {
-            GetUsersInput input = new GetUsersInput(principal, 0, 10, Sort.unsorted());
+            verify(userRepository, times(1)).get(usersPageCaptor.capture());
 
-            doThrow(new PermissionDeniedException())
-                    .when(adminChecker).check(principal, PermissionKey.USER, PermissionAction.VIEW);
-
-            assertThrows(
-                    PermissionDeniedException.class,
-                    () -> useCase.execute(input)
-            );
-
-            verify(adminChecker, times(1)).check(principal, PermissionKey.USER, PermissionAction.VIEW);
-            verifyNoInteractions(userRepository);
+            UsersPage capturedPage = usersPageCaptor.getValue();
+            assertNotNull(capturedPage);
         }
     }
 
@@ -136,7 +109,7 @@ class GetUsersUseCaseTest {
         @Test
         @DisplayName("Deve propagar exceção quando o repositório falhar ao buscar a página de usuários")
         void execute_WhenRepositoryThrowsException_ShouldPropagateException() {
-            GetUsersInput input = new GetUsersInput(principal, 0, 10, Sort.unsorted());
+            GetUsersInput input = new GetUsersInput(commonPrincipal, 0, 10, Sort.unsorted());
 
             when(userRepository.get(any(UsersPage.class)))
                     .thenThrow(new RuntimeException("Erro ao realizar consulta no banco de dados"));
@@ -147,7 +120,6 @@ class GetUsersUseCaseTest {
             );
 
             assertEquals("Erro ao realizar consulta no banco de dados", exception.getMessage());
-            verify(adminChecker, times(1)).check(principal, PermissionKey.USER, PermissionAction.VIEW);
             verify(userRepository, times(1)).get(any(UsersPage.class));
         }
     }
@@ -157,8 +129,8 @@ class GetUsersUseCaseTest {
     class NullAndEdgeCases {
 
         @Test
-        @DisplayName("Deve repassar principal nulo para o AdminChecker caso venha nulo no input")
-        void execute_WhenPrincipalIsNull_ShouldPassNullToAdminChecker() {
+        @DisplayName("Deve aceitar principal nulo no input e ainda consultar o repositório")
+        void execute_WhenPrincipalIsNull_ShouldStillQueryRepository() {
             GetUsersInput input = new GetUsersInput(null, 0, 10, Sort.unsorted());
 
             when(userRepository.get(any(UsersPage.class))).thenReturn(mockPage);
@@ -166,21 +138,19 @@ class GetUsersUseCaseTest {
             GetUsersOutput output = useCase.execute(input);
 
             assertNotNull(output);
-            verify(adminChecker, times(1)).check(null, PermissionKey.USER, PermissionAction.VIEW);
             verify(userRepository, times(1)).get(any(UsersPage.class));
         }
 
         @Test
         @DisplayName("Deve aceitar Sort nulo no input e repassar para a instância de UsersPage")
         void execute_WhenSortIsNull_ShouldPassNullSortToUsersPage() {
-            GetUsersInput input = new GetUsersInput(principal, 1, 20, null);
+            GetUsersInput input = new GetUsersInput(commonPrincipal, 1, 20, null);
 
             when(userRepository.get(any(UsersPage.class))).thenReturn(mockPage);
 
             GetUsersOutput output = useCase.execute(input);
 
             assertNotNull(output);
-            verify(adminChecker, times(1)).check(principal, PermissionKey.USER, PermissionAction.VIEW);
             verify(userRepository, times(1)).get(usersPageCaptor.capture());
         }
     }

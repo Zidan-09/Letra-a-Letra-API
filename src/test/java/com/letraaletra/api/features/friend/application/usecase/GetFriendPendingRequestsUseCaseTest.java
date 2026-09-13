@@ -3,13 +3,17 @@ package com.letraaletra.api.features.friend.application.usecase;
 import com.letraaletra.api.features.friend.application.input.GetFriendPendingRequestsInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
 import com.letraaletra.api.features.friend.domain.Friend;
+import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,11 +26,14 @@ class GetFriendPendingRequestsUseCaseTest {
     @Mock
     private FriendRepository friendRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     private GetFriendPendingRequestsUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        useCase = new GetFriendPendingRequestsUseCase(friendRepository);
+        useCase = new GetFriendPendingRequestsUseCase(friendRepository, userRepository);
     }
 
     @Test
@@ -68,5 +75,29 @@ class GetFriendPendingRequestsUseCaseTest {
 
         verify(friendRepository).getPendingRequests(userId);
         verifyNoMoreInteractions(friendRepository);
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void shouldBatchLoadCounterpartsInASingleCall() {
+        UUID userId = UUID.randomUUID();
+        UUID senderId = UUID.randomUUID();
+        GetFriendPendingRequestsInput input =
+                new GetFriendPendingRequestsInput(userId);
+
+        Friend request = Friend.restore(senderId, userId, FriendStatus.PENDING, LocalDateTime.now());
+        when(friendRepository.getPendingRequests(userId))
+                .thenReturn(List.of(request));
+
+        User sender = mock(User.class);
+        when(sender.getUserId()).thenReturn(senderId);
+        when(userRepository.findUsersById(List.of(senderId)))
+                .thenReturn(List.of(sender));
+
+        GetFriendPendingRequestsOutput output = useCase.execute(input);
+
+        assertNotNull(output);
+        assertEquals(sender, output.users().get(senderId));
+        verify(userRepository, times(1)).findUsersById(List.of(senderId));
     }
 }

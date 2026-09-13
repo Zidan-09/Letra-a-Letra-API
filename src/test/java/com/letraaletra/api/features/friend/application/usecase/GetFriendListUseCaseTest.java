@@ -5,6 +5,9 @@ import com.letraaletra.api.features.friend.application.output.GetFriendListOutpu
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendsPage;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.friend.domain.FriendStatus;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -33,6 +37,9 @@ import static org.mockito.Mockito.when;
 class GetFriendListUseCaseTest {
     @Mock
     private FriendRepository repository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private GetFriendListUseCase useCase;
@@ -68,8 +75,7 @@ class GetFriendListUseCaseTest {
 
     @Test
     @DisplayName("should delegate pagination to the repository")
-    void getFriends_ShouldPassThroughPageable() {
-        GetFriendListInput pagedInput = new GetFriendListInput(
+    void getFriends_ShouldPassThroughPageable() {        GetFriendListInput pagedInput = new GetFriendListInput(
                 userId,
                 0,
                 PageRequest.of(0, 20, Sort.by("requestDate")).getPageSize(),
@@ -85,5 +91,39 @@ class GetFriendListUseCaseTest {
         verify(repository).getFriends(eq(userId), pageCaptor.capture());
         assertEquals(0, pageCaptor.getValue().page());
         assertEquals(20, pageCaptor.getValue().size());
+    }
+
+    @Test
+    @DisplayName("should batch load counterpart users in a single call")
+    void getFriends_ShouldEnrichWithUsers() {
+        UUID friendId = UUID.randomUUID();
+        Friend friendship = Friend.restore(userId, friendId, FriendStatus.ACCEPT, java.time.LocalDateTime.now());
+        Page<Friend> page = new PageImpl<>(List.of(friendship));
+        when(repository.getFriends(eq(userId), any(FriendsPage.class)))
+                .thenReturn(page);
+
+        User friendUser = org.mockito.Mockito.mock(User.class);
+        when(friendUser.getUserId()).thenReturn(friendId);
+        when(userRepository.findUsersById(List.of(friendId)))
+                .thenReturn(List.of(friendUser));
+
+        GetFriendListOutput output = useCase.execute(input);
+
+        assertNotNull(output);
+        assertEquals(friendUser, output.users().get(friendId));
+        verify(userRepository, org.mockito.Mockito.times(1)).findUsersById(List.of(friendId));
+    }
+
+    @Test
+    @DisplayName("should not query users when the page is empty")
+    void getFriends_ShouldSkipUserLookupWhenEmpty() {
+        when(repository.getFriends(eq(userId), any(FriendsPage.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        GetFriendListOutput output = useCase.execute(input);
+
+        assertNotNull(output);
+        assertTrue(output.users().isEmpty());
+        verify(userRepository, org.mockito.Mockito.never()).findUsersById(any());
     }
 }

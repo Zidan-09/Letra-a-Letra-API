@@ -10,7 +10,8 @@ public record InventoryItem(
         String name,
         CosmeticTypes type,
         boolean equipped,
-        LocalDateTime unlockedAt
+        LocalDateTime unlockedAt,
+        String assetPath
 ) {
     public static InventoryItem create(
             UUID cosmeticId,
@@ -22,7 +23,8 @@ public record InventoryItem(
                 name,
                 type,
                 false,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
         );
     }
 
@@ -33,12 +35,24 @@ public record InventoryItem(
             boolean equipped,
             LocalDateTime unlockedAt
     ) {
+        return restore(cosmeticId, name, type, equipped, unlockedAt, null);
+    }
+
+    public static InventoryItem restore(
+            UUID cosmeticId,
+            String name,
+            CosmeticTypes type,
+            boolean equipped,
+            LocalDateTime unlockedAt,
+            String assetPath
+    ) {
         return new InventoryItem(
                 cosmeticId,
                 name,
                 type,
                 equipped,
-                unlockedAt
+                unlockedAt,
+                assetPath
         );
     }
 }

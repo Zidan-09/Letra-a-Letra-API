@@ -8,7 +8,10 @@ import java.util.UUID;
 public record FriendResponse(
         UUID userId1,
         UUID userId2,
+        UUID friendId,
+        FriendDirection direction,
         FriendStatus status,
-        LocalDateTime requestDate
+        LocalDateTime requestDate,
+        FriendProfileResponse profile
 ) {
 }

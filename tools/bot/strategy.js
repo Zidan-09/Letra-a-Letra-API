@@ -49,6 +49,106 @@ export function takePower(inventory, name) {
     return (inventory ?? []).find(item => item?.name === name);
 }
 
+const DIRECTIONS = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1]
+];
+
+function normalizeLetter(value) {
+    return String(value ?? "").trim().toUpperCase();
+}
+
+function normalizeWord(value) {
+    return normalizeLetter(value);
+}
+
+function getCell(board, x, y) {
+    if (!Array.isArray(board) || !Array.isArray(board[x])) {
+        return undefined;
+    }
+
+    return board[x][y];
+}
+
+function isAvailableCell(cell) {
+    return Boolean(cell) && !cell.revealed && !cell.effect;
+}
+
+function findPatternForWord(word, board, x, y, dx, dy) {
+    const target = normalizeWord(word?.word);
+    if (!target) return null;
+
+    const missingCells = [];
+    for (let i = 0; i < target.length; i++) {
+        const cell = getCell(board, x + dx * i, y + dy * i);
+        if (!cell) return null;
+
+        if (cell.revealed) {
+            if (normalizeLetter(cell.letter) !== target[i]) return null;
+            continue;
+        }
+
+        if (!isAvailableCell(cell)) return null;
+        missingCells.push({ x: x + dx * i, y: y + dy * i });
+    }
+
+    if (missingCells.length === 0 || missingCells.length === target.length) return null;
+
+    return {
+        word: target,
+        missingCells,
+        position: missingCells[0]
+    };
+}
+
+function addBestCandidate(candidates, pattern) {
+    const key = `${pattern.position.x},${pattern.position.y}`;
+    if (!candidates.some(candidate =>
+        `${candidate.position.x},${candidate.position.y}` === key)) {
+        candidates.push(pattern);
+    }
+}
+
+function findBestPattern(gameData, rng) {
+    const board = gameData?.board;
+    const words = Array.isArray(gameData?.words) ? gameData.words : [];
+    let best = null;
+    const candidates = [];
+
+    for (const word of words) {
+        if (word?.found === true) continue;
+
+        for (let x = 0; x < board?.length ?? 0; x++) {
+            const row = board?.[x];
+            if (!Array.isArray(row)) continue;
+
+            for (let y = 0; y < row.length; y++) {
+                for (const [dx, dy] of DIRECTIONS) {
+                    const pattern = findPatternForWord(word, board, x, y, dx, dy);
+                    if (!pattern) continue;
+
+                    if (!best || pattern.missingCells.length < best.missingCells.length) {
+                        best = pattern;
+                        candidates.length = 0;
+                        candidates.push(pattern);
+                    } else if (pattern.missingCells.length === best.missingCells.length) {
+                        addBestCandidate(candidates, pattern);
+                    }
+                }
+            }
+        }
+    }
+
+    if (candidates.length === 0) return null;
+    return pickRandom(rng ?? Math.random, candidates);
+}
+
 export function scanBoard(board) {
     const unrevealed = [];
     const blocked = [];
@@ -223,6 +323,11 @@ export function chooseAction({ gameData, myId, memory, rng, powerChance = 0.4 })
     if (block && freeCells.length > 0 && roll() < powerChance) {
         const cell = pickRandom(roll, freeCells);
         return usePowerAction("BLOCK", block, { position: { x: cell.x, y: cell.y } });
+    }
+
+    const pattern = findBestPattern(gameData, roll);
+    if (pattern) {
+        return { type: "REVEAL", position: pattern.position };
     }
 
     if (mem.spied) {

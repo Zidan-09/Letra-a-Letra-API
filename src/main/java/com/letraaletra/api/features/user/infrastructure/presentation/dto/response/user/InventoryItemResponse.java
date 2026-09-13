@@ -8,6 +8,7 @@ public record InventoryItemResponse(
         UUID cosmeticId,
         String name,
         CosmeticTypes type,
-        boolean equipped
+        boolean equipped,
+        String assetPath
 ) {
 }

@@ -15,8 +15,12 @@ public class SendFriendRequestMapper {
     }
 
     public static SendFriendRequestResponse toResponse(SendFriendRequestOutput output) {
+        return toResponse(output, null);
+    }
+
+    public static SendFriendRequestResponse toResponse(SendFriendRequestOutput output, UUID viewerId) {
         return new SendFriendRequestResponse(
-                FriendResponseMapper.toResponse(output.friend())
+                FriendResponseMapper.toResponse(output.friend(), viewerId, output.users())
         );
     }
 }

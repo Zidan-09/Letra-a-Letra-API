@@ -31,7 +31,7 @@ public class GetFriendPendingRequestsController {
 
         GetFriendPendingRequestsOutput output = useCase.execute(input);
 
-        GetFriendPendingRequestsResponse dto = GetFriendPendingRequestsMapper.toResponse(output);
+        GetFriendPendingRequestsResponse dto = GetFriendPendingRequestsMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

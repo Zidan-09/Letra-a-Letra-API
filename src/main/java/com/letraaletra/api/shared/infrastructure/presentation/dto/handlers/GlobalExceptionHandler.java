@@ -9,6 +9,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -163,6 +164,46 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(
+                        false,
+                        ServerMessages.CONFLICT.getCode(),
+                        ServerMessages.CONFLICT.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectResultSize(
+            IncorrectResultSizeDataAccessException ex,
+            HttpServletRequest request
+    ) {
+        request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        logger.warn("Query returned a non-unique result: {}", ex.getMessage());
+
+        recordHttpFailure(ex, request, HttpStatus.CONFLICT.value());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(
+                        false,
+                        ServerMessages.CONFLICT.getCode(),
+                        ServerMessages.CONFLICT.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(jakarta.persistence.NonUniqueResultException.class)
+    public ResponseEntity<ErrorResponse> handleNonUniqueResult(
+            jakarta.persistence.NonUniqueResultException ex,
+            HttpServletRequest request
+    ) {
+        request.setAttribute("AUDIT_EXCEPTION", ex);
+
+        logger.warn("Non-unique query result: {}", ex.getMessage());
+
+        recordHttpFailure(ex, request, HttpStatus.CONFLICT.value());
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)

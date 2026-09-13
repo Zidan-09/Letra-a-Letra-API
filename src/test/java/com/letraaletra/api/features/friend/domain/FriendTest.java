@@ -2,6 +2,7 @@ package com.letraaletra.api.features.friend.domain;
 
 import com.letraaletra.api.features.friend.domain.exception.CanNotAcceptTheRequestException;
 import com.letraaletra.api.features.friend.domain.exception.CanNotDeclineTheRequestException;
+import com.letraaletra.api.features.friend.domain.exception.FriendRequestStillPendingException;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,13 +60,11 @@ class FriendTest {
         }
 
         @Test
-        @DisplayName("Deve permitir IDs nulos ou idênticos na criação se não houver validação explícita de domínio (Comportamento Desejado/Ausente)")
+        @DisplayName("Deve rejeitar IDs nulos ou idênticos na criação")
         void create_ShouldFail_WhenIdenticalUserIdsOrNullsArePassed() {
-            assertDoesNotThrow(() -> Friend.create(userId1, userId1),
-                    "Falta validação para impedir que um usuário envie solicitação para si mesmo");
-
-            assertDoesNotThrow(() -> Friend.create(null, null),
-                    "Falta validação contra IDs nulos");
+            assertThrows(InvalidFriendRequestException.class, () -> Friend.create(userId1, userId1));
+            assertThrows(InvalidFriendRequestException.class, () -> Friend.create(null, userId2));
+            assertThrows(InvalidFriendRequestException.class, () -> Friend.create(userId1, null));
         }
     }
 
@@ -96,11 +95,17 @@ class FriendTest {
         @Test
         @DisplayName("Deve lançar InvalidFriendRequestException se tentar aceitar uma solicitação que não está PENDING")
         void accept_ShouldThrowInvalidFriendRequestException_WhenStatusIsNotPending() {
-            Friend friend = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
-            assertThrows(InvalidFriendRequestException.class, () -> friend.accept(userId2));
-
             Friend declinedFriend = Friend.restore(userId1, userId2, FriendStatus.DECLINED, LocalDateTime.now());
             assertThrows(InvalidFriendRequestException.class, () -> declinedFriend.accept(userId2));
+        }
+
+        @Test
+        @DisplayName("Deve ser idempotente ao aceitar uma solicitação já aceita pelo mesmo destinatário")
+        void accept_ShouldBeIdempotent_WhenAlreadyAccepted() {
+            Friend friend = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
+
+            assertDoesNotThrow(() -> friend.accept(userId2));
+            assertEquals(FriendStatus.ACCEPT, friend.getStatus());
         }
     }
 
@@ -133,9 +138,15 @@ class FriendTest {
         void decline_ShouldThrowInvalidFriendRequestException_WhenStatusIsNotPending() {
             Friend friend = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
             assertThrows(InvalidFriendRequestException.class, () -> friend.decline(userId2));
+        }
 
+        @Test
+        @DisplayName("Deve ser idempotente ao recusar uma solicitação já recusada pelo mesmo destinatário")
+        void decline_ShouldBeIdempotent_WhenAlreadyDeclined() {
             Friend declinedFriend = Friend.restore(userId1, userId2, FriendStatus.DECLINED, LocalDateTime.now());
-            assertThrows(InvalidFriendRequestException.class, () -> declinedFriend.accept(userId2));
+
+            assertDoesNotThrow(() -> declinedFriend.decline(userId2));
+            assertEquals(FriendStatus.DECLINED, declinedFriend.getStatus());
         }
     }
 
@@ -148,30 +159,72 @@ class FriendTest {
         void remove_ShouldChangeStatusToDeclined_WhenCurrentStatusIsAccept() {
             Friend friend = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
 
-            friend.remove();
+            friend.remove(userId1);
 
             assertEquals(FriendStatus.DECLINED, friend.getStatus());
         }
 
         @Test
-        @DisplayName("Deve lançar InvalidFriendRequestException se tentar remover uma amizade que não está com status ACCEPT")
-        void remove_ShouldThrowInvalidFriendRequestException_WhenStatusIsNotAccept() {
-            Friend pendingFriend = Friend.create(userId1, userId2);
-            assertThrows(InvalidFriendRequestException.class, pendingFriend::remove);
+        @DisplayName("Deve permitir que qualquer um dos envolvidos desfaça a amizade")
+        void remove_ShouldAllowEitherParticipant_ToRemoveFriendship() {
+            Friend bySender = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
+            assertDoesNotThrow(() -> bySender.remove(userId1));
 
-            Friend declinedFriend = Friend.restore(userId1, userId2, FriendStatus.DECLINED, LocalDateTime.now());
-            assertThrows(InvalidFriendRequestException.class, declinedFriend::remove);
+            Friend byReceiver = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
+            assertDoesNotThrow(() -> byReceiver.remove(userId2));
         }
 
         @Test
-        @DisplayName("Deve permitir que qualquer um dos envolvidos desfaça a amizade (Comportamento Desejado/Ausente)")
-        void remove_ShouldRequireActorContext_ToValidateWhoIsRemovingFriendship() {
-            // Nota de Especificação: O método remove() atual não recebe parâmetros contextuais (quem está removendo).
-            // Idealmente, deveria ser garantido por contrato que apenas userId1 ou userId2 podem invocar a remoção.
+        @DisplayName("Deve rejeitar remoção por quem não participa da amizade")
+        void remove_ShouldThrowInvalidFriendRequestException_WhenActorIsOutsider() {
             Friend friend = Friend.restore(userId1, userId2, FriendStatus.ACCEPT, LocalDateTime.now());
 
-            assertDoesNotThrow(friend::remove,
-                    "O método executa a ação cegamente sem rastrear a intenção de quem desfez a amizade");
+            assertThrows(InvalidFriendRequestException.class, () -> friend.remove(UUID.randomUUID()));
+        }
+
+        @Test
+        @DisplayName("Deve lançar FriendRequestStillPendingException se tentar remover uma solicitação PENDING")
+        void remove_ShouldThrowStillPending_WhenStatusIsPending() {
+            Friend pendingFriend = Friend.create(userId1, userId2);
+            assertThrows(FriendRequestStillPendingException.class, () -> pendingFriend.remove(userId1));
+        }
+
+        @Test
+        @DisplayName("Deve ser idempotente ao remover uma amizade já desfeita")
+        void remove_ShouldBeIdempotent_WhenAlreadyDeclined() {
+            Friend declinedFriend = Friend.restore(userId1, userId2, FriendStatus.DECLINED, LocalDateTime.now());
+
+            assertDoesNotThrow(() -> declinedFriend.remove(userId1));
+            assertEquals(FriendStatus.DECLINED, declinedFriend.getStatus());
+        }
+
+        @Test
+        @DisplayName("Deve permitir que apenas o remetente cancele uma solicitação PENDING")
+        void cancel_ShouldChangeStatusToDeclined_WhenSenderCancelsPending() {
+            Friend pending = Friend.create(userId1, userId2);
+
+            pending.cancel(userId1);
+
+            assertEquals(FriendStatus.DECLINED, pending.getStatus());
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar cancelamento pelo destinatário")
+        void cancel_ShouldThrowCanNotDecline_WhenReceiverTriesToCancel() {
+            Friend pending = Friend.create(userId1, userId2);
+
+            assertThrows(CanNotDeclineTheRequestException.class, () -> pending.cancel(userId2));
+        }
+
+        @Test
+        @DisplayName("Deve reabrir uma solicitação DECLINED para PENDING")
+        void reopen_ShouldChangeStatusToPending_WhenDeclined() {
+            Friend declined = Friend.restore(userId1, userId2, FriendStatus.DECLINED, LocalDateTime.now().minusDays(1));
+
+            declined.reopen();
+
+            assertEquals(FriendStatus.PENDING, declined.getStatus());
+            assertNotNull(declined.getRequestDate());
         }
     }
 }

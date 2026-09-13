@@ -66,7 +66,7 @@ class SendFriendRequestControllerTest {
 
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> SendFriendRequestMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
+            mapperMock.when(() -> SendFriendRequestMapper.toResponse(mockOutput, mockAuthId)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
@@ -92,7 +92,7 @@ class SendFriendRequestControllerTest {
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
 
-            mapperMock.verify(() -> SendFriendRequestMapper.toResponse(any()), never());
+            mapperMock.verify(() -> SendFriendRequestMapper.toResponse(any(), any()), never());
         }
     }
 
@@ -104,7 +104,7 @@ class SendFriendRequestControllerTest {
 
             mapperMock.when(() -> SendFriendRequestMapper.toInput(mockAuthId, mockFriendId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> SendFriendRequestMapper.toResponse(mockOutput)).thenReturn(null);
+            mapperMock.when(() -> SendFriendRequestMapper.toResponse(mockOutput, mockAuthId)).thenReturn(null);
 
             ResponseEntity<SuccessResponse<SendFriendRequestResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();

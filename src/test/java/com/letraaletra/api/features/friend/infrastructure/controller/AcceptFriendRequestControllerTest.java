@@ -53,8 +53,8 @@ class AcceptFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve aceitar a solicitação com sucesso retornando 204 No Content")
-    void acceptFriendRequest_ShouldReturnNoContent_WhenValidParametersAreProvided() {
+    @DisplayName("Deve aceitar a solicitação com sucesso retornando 200 OK")
+    void acceptFriendRequest_ShouldReturnOk_WhenValidParametersAreProvided() {
         try (MockedStatic<AcceptFriendRequestMapper> mapperMock = mockStatic(AcceptFriendRequestMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
@@ -62,15 +62,15 @@ class AcceptFriendRequestControllerTest {
                     .thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity =
-                    ResponseEntity.status(HttpStatus.NO_CONTENT).body(mockSuccessResponse);
+                    ResponseEntity.ok(mockSuccessResponse);
 
-            apiResponseMock.when(() -> ApiResponseHandler.success(null, HttpStatus.NO_CONTENT))
+            apiResponseMock.when(() -> ApiResponseHandler.success(null))
                     .thenReturn(expectedResponseEntity);
 
             ResponseEntity<SuccessResponse<Void>> response = controller.handle(principal, mockRequest);
 
             assertNotNull(response);
-            assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+            assertEquals(HttpStatus.OK, response.getStatusCode());
             assertEquals(mockSuccessResponse, response.getBody());
 
             verify(useCase).execute(mockInput);
