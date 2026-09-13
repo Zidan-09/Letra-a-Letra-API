@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.friend.application.usecase;
 
 import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
+import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.CanNotAcceptTheRequestException;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -27,6 +29,9 @@ import static org.mockito.Mockito.*;
 class AcceptFriendRequestUseCaseTest {
     @Mock
     private FriendRepository repository;
+
+    @Mock
+    private FriendNotifier notifier;
 
     @InjectMocks
     private AcceptFriendRequestUseCase useCase;
@@ -61,6 +66,20 @@ class AcceptFriendRequestUseCaseTest {
         Friend friendSaved = friendCaptor.getValue();
 
         assertEquals(FriendStatus.ACCEPT, friendSaved.getStatus());
+        verify(notifier, times(1)).notifyFriendshipAccepted(senderId);
+    }
+
+    @Test
+    @DisplayName("should be idempotent when accepting an already accepted request")
+    void acceptIdempotent() {
+        Friend friendRequest = new Friend(senderId, receiverId, FriendStatus.ACCEPT, now);
+
+        when(repository.find(input.userId(), input.friendId()))
+                .thenReturn(Optional.of(friendRequest));
+
+        assertDoesNotThrow(() -> useCase.execute(input));
+
+        verify(repository, times(1)).save(any(Friend.class));
     }
 
     @Test
@@ -75,9 +94,9 @@ class AcceptFriendRequestUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw an InvalidFriendRequestException because status is not PENDING")
+    @DisplayName("should throw an InvalidFriendRequestException because status is DECLINED")
     void throwInvalidFriendRequestExceptionBecauseStatus() {
-        Friend friend = new Friend(senderId, receiverId, FriendStatus.ACCEPT, now);
+        Friend friend = new Friend(senderId, receiverId, FriendStatus.DECLINED, now);
 
         when(repository.find(input.userId(), input.friendId()))
                 .thenReturn(Optional.of(friend));

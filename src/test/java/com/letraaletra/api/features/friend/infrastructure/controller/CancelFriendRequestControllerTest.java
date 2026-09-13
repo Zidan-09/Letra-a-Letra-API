@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
-import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
-import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.AcceptFriendRequestRequest;
-import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
+import com.letraaletra.api.features.friend.application.input.CancelFriendRequestInput;
+import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.CancelFriendRequestRequest;
+import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.CancelFriendRequestMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -24,41 +24,41 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AcceptFriendRequestControllerTest {
+class CancelFriendRequestControllerTest {
 
     @Mock
-    private UseCase<AcceptFriendRequestInput, Void> useCase;
+    private UseCase<CancelFriendRequestInput, Void> useCase;
 
     @InjectMocks
-    private AcceptFriendRequestController controller;
+    private CancelFriendRequestController controller;
 
     private UUID mockAuthId;
     private AuthenticatedUser principal;
     private UUID mockFriendId;
-    private AcceptFriendRequestRequest mockRequest;
-    private AcceptFriendRequestInput mockInput;
+    private CancelFriendRequestRequest mockRequest;
+    private CancelFriendRequestInput mockInput;
     private SuccessResponse<Void> mockSuccessResponse;
 
     @BeforeEach
     void setUp() {
         mockAuthId = UUID.randomUUID();
-        principal = new AuthenticatedUser(mockAuthId, "Admin", true, true);
+        principal = new AuthenticatedUser(mockAuthId, "User", false, false);
         mockFriendId = UUID.randomUUID();
 
-        mockRequest = mock(AcceptFriendRequestRequest.class);
+        mockRequest = mock(CancelFriendRequestRequest.class);
         when(mockRequest.friendId()).thenReturn(mockFriendId);
 
-        mockInput = mock(AcceptFriendRequestInput.class);
+        mockInput = mock(CancelFriendRequestInput.class);
         mockSuccessResponse = new SuccessResponse<>(true, null);
     }
 
     @Test
-    @DisplayName("Deve aceitar a solicitação com sucesso retornando 200 OK")
-    void acceptFriendRequest_ShouldReturnOk_WhenValidParametersAreProvided() {
-        try (MockedStatic<AcceptFriendRequestMapper> mapperMock = mockStatic(AcceptFriendRequestMapper.class);
+    @DisplayName("Deve cancelar a solicitação com sucesso retornando 200 OK")
+    void cancelFriendRequest_ShouldReturnOk_WhenValidParametersAreProvided() {
+        try (MockedStatic<CancelFriendRequestMapper> mapperMock = mockStatic(CancelFriendRequestMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> AcceptFriendRequestMapper.toInput(mockAuthId, mockFriendId))
+            mapperMock.when(() -> CancelFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
 
             ResponseEntity<SuccessResponse<Void>> expectedResponseEntity =
@@ -78,15 +78,14 @@ class AcceptFriendRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Deve propagar a exceção sem interceptor caso a execução do UseCase falhe por regra de domínio")
-    void acceptFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
-        try (MockedStatic<AcceptFriendRequestMapper> mapperMock = mockStatic(AcceptFriendRequestMapper.class)) {
+    @DisplayName("Deve propagar a exceção quando o UseCase falhar")
+    void cancelFriendRequest_ShouldPropagateException_WhenUseCaseThrowsException() {
+        try (MockedStatic<CancelFriendRequestMapper> mapperMock = mockStatic(CancelFriendRequestMapper.class)) {
 
-            mapperMock.when(() -> AcceptFriendRequestMapper.toInput(mockAuthId, mockFriendId))
+            mapperMock.when(() -> CancelFriendRequestMapper.toInput(mockAuthId, mockFriendId))
                     .thenReturn(mockInput);
 
-            doThrow(new RuntimeException("Friend request not found or unauthorized"))
-                    .when(useCase).execute(mockInput);
+            doThrow(new RuntimeException("cannot cancel")).when(useCase).execute(mockInput);
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, mockRequest));
         }

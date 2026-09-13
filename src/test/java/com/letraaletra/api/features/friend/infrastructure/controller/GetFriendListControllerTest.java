@@ -64,7 +64,7 @@ class GetFriendListControllerTest {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId, pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
+            mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput, mockAuthId)).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
@@ -90,7 +90,7 @@ class GetFriendListControllerTest {
 
             assertThrows(RuntimeException.class, () -> controller.handle(principal, pageable));
 
-            mapperMock.verify(() -> GetFriendListMapper.toResponse(any()), never());
+            mapperMock.verify(() -> GetFriendListMapper.toResponse(any(), any()), never());
         }
     }
 
@@ -116,7 +116,7 @@ class GetFriendListControllerTest {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId, pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput)).thenReturn(null);
+            mapperMock.when(() -> GetFriendListMapper.toResponse(mockOutput, mockAuthId)).thenReturn(null);
 
             ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> expectedResponseEntity =
                     ResponseEntity.noContent().build();

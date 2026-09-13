@@ -1,10 +1,11 @@
 package com.letraaletra.api.features.friend.application.usecase;
 
 import com.letraaletra.api.features.friend.application.input.RemoveFriendInput;
+import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
-import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
+import com.letraaletra.api.features.friend.domain.exception.FriendRequestStillPendingException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,9 @@ import static org.mockito.Mockito.*;
 class RemoveFriendUseCaseTest {
     @Mock
     private FriendRepository repository;
+
+    @Mock
+    private FriendNotifier notifier;
 
     @InjectMocks
     private RemoveFriendUseCase useCase;
@@ -58,6 +62,7 @@ class RemoveFriendUseCaseTest {
         Friend friendSaved = friendCaptor.getValue();
 
         assertEquals(FriendStatus.DECLINED, friendSaved.getStatus());
+        verify(notifier, times(1)).notifyFriendshipRemoved(friendId);
     }
 
     @Test
@@ -72,14 +77,25 @@ class RemoveFriendUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw an InvalidFriendRequestException when trying to remove someone who is not ACCEPT")
-    void throwFriendNotFoundExceptionBecauseStatus() {
-        Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+    @DisplayName("should throw FriendRequestStillPendingException when trying to remove a pending request")
+    void throwStillPendingBecauseStatusIsPending() {
+        Friend friend = new Friend(userId, friendId, FriendStatus.PENDING, now);
         when(repository.find(input.userId(), input.friendId())).thenReturn(Optional.of(friend));
 
-        assertThrows(InvalidFriendRequestException.class,
+        assertThrows(FriendRequestStillPendingException.class,
                 () -> useCase.execute(input)
         );
         verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("should be idempotent when removing an already removed friendship")
+    void removeIdempotentWhenAlreadyDeclined() {
+        Friend friend = new Friend(userId, friendId, FriendStatus.DECLINED, now);
+        when(repository.find(input.userId(), input.friendId())).thenReturn(Optional.of(friend));
+
+        assertDoesNotThrow(() -> useCase.execute(input));
+
+        verify(repository, times(1)).save(any(Friend.class));
     }
 }

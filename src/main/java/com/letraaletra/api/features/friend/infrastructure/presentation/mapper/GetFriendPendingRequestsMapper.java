@@ -14,9 +14,13 @@ public class GetFriendPendingRequestsMapper {
     }
 
     public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output) {
+        return toResponse(output, null);
+    }
+
+    public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output, UUID viewerId) {
         return new GetFriendPendingRequestsResponse(
                 output.requests().stream()
-                        .map(FriendResponseMapper::toResponse)
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId))
                         .toList()
         );
     }

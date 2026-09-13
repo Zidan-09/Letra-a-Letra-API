@@ -29,11 +29,15 @@ public class GetFriendListMapper {
     }
 
     public static PageResponse<FriendResponse> toResponse(GetFriendListOutput output) {
+        return toResponse(output, null);
+    }
+
+    public static PageResponse<FriendResponse> toResponse(GetFriendListOutput output, UUID viewerId) {
         Page<Friend> page = output.friends();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(FriendResponseMapper::toResponse)
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

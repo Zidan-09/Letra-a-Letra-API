@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
-import com.letraaletra.api.features.friend.application.input.AcceptFriendRequestInput;
-import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.AcceptFriendRequestRequest;
-import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.AcceptFriendRequestMapper;
+import com.letraaletra.api.features.friend.application.input.CancelFriendRequestInput;
+import com.letraaletra.api.features.friend.infrastructure.presentation.dto.request.CancelFriendRequestRequest;
+import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.CancelFriendRequestMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -21,15 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
-public class AcceptFriendRequestController {
-    private final UseCase<AcceptFriendRequestInput, Void> useCase;
+public class CancelFriendRequestController {
+    private final UseCase<CancelFriendRequestInput, Void> useCase;
 
-    @PatchMapping(path = "/accept")
+    @PatchMapping(path = "/cancel")
     public ResponseEntity<SuccessResponse<Void>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestBody AcceptFriendRequestRequest request
+            @Valid @RequestBody CancelFriendRequestRequest request
     ) {
-        AcceptFriendRequestInput input = AcceptFriendRequestMapper.toInput(principal.auth(), request.friendId());
+        CancelFriendRequestInput input = CancelFriendRequestMapper.toInput(principal.auth(), request.friendId());
 
         useCase.execute(input);
 

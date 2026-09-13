@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.friend.infrastructure.controller;
 
-import com.letraaletra.api.features.friend.application.input.GetFriendPendingRequestsInput;
-import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
-import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendPendingRequestsResponse;
-import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendPendingRequestsMapper;
+import com.letraaletra.api.features.friend.application.input.GetSentPendingRequestsInput;
+import com.letraaletra.api.features.friend.application.output.GetSentPendingRequestsOutput;
+import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetSentPendingRequestsResponse;
+import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetSentPendingRequestsMapper;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -20,18 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping(path = "/friend")
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
-public class GetFriendPendingRequestsController {
-    private final UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> useCase;
+public class GetSentPendingRequestsController {
+    private final UseCase<GetSentPendingRequestsInput, GetSentPendingRequestsOutput> useCase;
 
-    @GetMapping("/pending")
-    public ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> handle(
+    @GetMapping("/pending/sent")
+    public ResponseEntity<SuccessResponse<GetSentPendingRequestsResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal
-            ) {
-        GetFriendPendingRequestsInput input = GetFriendPendingRequestsMapper.toInput(principal.auth());
+    ) {
+        GetSentPendingRequestsInput input = GetSentPendingRequestsMapper.toInput(principal.auth());
 
-        GetFriendPendingRequestsOutput output = useCase.execute(input);
+        GetSentPendingRequestsOutput output = useCase.execute(input);
 
-        GetFriendPendingRequestsResponse dto = GetFriendPendingRequestsMapper.toResponse(output, principal.auth());
+        GetSentPendingRequestsResponse dto = GetSentPendingRequestsMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

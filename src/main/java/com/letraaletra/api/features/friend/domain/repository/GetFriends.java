@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface GetFriends {
     Page<Friend> getFriends(UUID userId, FriendsPage page);
     List<Friend> getPendingRequests(UUID userId);
+    List<Friend> getSentPendingRequests(UUID userId);
 }

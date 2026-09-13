@@ -5,50 +5,67 @@ import com.letraaletra.api.features.friend.application.output.SendFriendRequestO
 import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
+import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-
-import java.util.UUID;
 
 public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput, SendFriendRequestOutput> {
     private final FriendRepository friendRepository;
+    private final UserRepository userRepository;
     private final FriendNotifier notifier;
 
     public SendFriendRequestUseCase(
             FriendRepository friendRepository,
+            UserRepository userRepository,
             FriendNotifier notifier
     ) {
         this.friendRepository = friendRepository;
+        this.userRepository = userRepository;
         this.notifier = notifier;
     }
 
     @Override
     public SendFriendRequestOutput execute(SendFriendRequestInput input) {
-        checkFriendRequest(input.userId(), input.friendId());
-
-        Friend friend = Friend.create(
-                input.userId(),
-                input.friendId()
-        );
-
-        friendRepository.save(friend);
-
-        notifier.notifierUser(input.friendId());
-
-        return buildOutput(friend);
-    }
-
-    private void checkFriendRequest(UUID userId, UUID friendId) {
-        if (userId.equals(friendId)) {
+        if (input.userId() == null || input.friendId() == null) {
             throw new InvalidFriendRequestException();
         }
 
-        Friend request = friendRepository.find(userId, friendId).orElse(null);
-
-        if (request != null && !request.getStatus().equals(FriendStatus.DECLINED)) {
+        if (input.userId().equals(input.friendId())) {
             throw new InvalidFriendRequestException();
         }
+
+        if (!userRepository.exists(input.friendId())) {
+            throw new FriendNotFoundException();
+        }
+
+        Friend existing = friendRepository.find(input.userId(), input.friendId()).orElse(null);
+
+        if (existing == null) {
+            Friend friend = Friend.create(
+                    input.userId(),
+                    input.friendId()
+            );
+
+            friendRepository.save(friend);
+
+            notifier.notifierUser(input.friendId());
+
+            return buildOutput(friend);
+        }
+
+        if (!existing.getStatus().equals(FriendStatus.DECLINED)) {
+            throw new InvalidFriendRequestException();
+        }
+
+        existing.reopen();
+
+        friendRepository.save(existing);
+
+        notifier.notifierUser(existing.otherParty(input.userId()));
+
+        return buildOutput(existing);
     }
 
     private SendFriendRequestOutput buildOutput(Friend friend) {
