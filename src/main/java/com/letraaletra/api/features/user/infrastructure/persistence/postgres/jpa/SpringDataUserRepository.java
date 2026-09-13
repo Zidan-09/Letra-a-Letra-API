@@ -77,4 +77,15 @@ public interface SpringDataUserRepository
 
     @Query(FIND_DETAILS)
     Page<UserProjection> findDetails(Pageable pageable);
+
+    @Query(FIND_DETAILS + """
+             WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%'))
+             ORDER BY
+             CASE
+                 WHEN LOWER(u.username) LIKE LOWER(CONCAT(:search, '%')) THEN 0
+                 ELSE 1
+             END,
+             u.username
+            """)
+    Page<UserProjection> search(String search, Pageable pageable);
 }

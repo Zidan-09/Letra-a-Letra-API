@@ -2,15 +2,17 @@ package com.letraaletra.api.features.user.infrastructure.controller;
 
 import com.letraaletra.api.features.user.application.input.FindUserByUsernameInput;
 import com.letraaletra.api.features.user.application.output.FindUserByUsernameOutput;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.FindUserByUsernameResponse;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.FindUserByUsernameMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
+import com.letraaletra.api.shared.infrastructure.presentation.dto.response.PageResponse;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +28,16 @@ public class FindUserByUsernameController {
     private final UseCase<FindUserByUsernameInput, FindUserByUsernameOutput> useCase;
 
     @GetMapping(path = "/username/{username}")
-    public ResponseEntity<SuccessResponse<FindUserByUsernameResponse>> handle(
+    public ResponseEntity<SuccessResponse<PageResponse<UserResponse>>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @PathVariable @NotBlank String username
+            @PathVariable @NotBlank String username,
+            Pageable pageable
     ) {
-        FindUserByUsernameInput input = FindUserByUsernameMapper.toInput(principal, username);
+        FindUserByUsernameInput input = FindUserByUsernameMapper.toInput(principal, username, pageable);
 
         FindUserByUsernameOutput output = useCase.execute(input);
 
-        FindUserByUsernameResponse dto = FindUserByUsernameMapper.toResponse(output);
+        PageResponse<UserResponse> dto = FindUserByUsernameMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

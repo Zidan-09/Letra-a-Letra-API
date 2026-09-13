@@ -349,6 +349,17 @@ public class JpaUserRepository implements UserRepository {
         return users.map(user -> UserJpaMapper.toDomain(user, inventories.getOrDefault(user.getUserId(), List.of())));
     }
 
+    @Override
+    public Page<User> search(String search, UsersPage page) {
+        Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
+        var users = repository.search(search, pageable);
+        List<UUID> ids = users.stream().map(com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection::getUserId).toList();
+        Map<UUID, List<InventoryProjection>> inventories = ids.isEmpty()
+                ? Map.of()
+                : inventoryRepository.findInventoryByUserIds(ids).stream().collect(Collectors.groupingBy(InventoryProjection::getUserId));
+        return users.map(user -> UserJpaMapper.toDomain(user, inventories.getOrDefault(user.getUserId(), List.of())));
+    }
+
     private User mapUser(ResultSet rs) throws SQLException {
         return UserProcedureMapper.toDomain(rs);
     }
