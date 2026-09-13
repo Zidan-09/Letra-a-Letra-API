@@ -20,7 +20,7 @@ public class SendFriendRequestMapper {
 
     public static SendFriendRequestResponse toResponse(SendFriendRequestOutput output, UUID viewerId) {
         return new SendFriendRequestResponse(
-                FriendResponseMapper.toResponse(output.friend(), viewerId)
+                FriendResponseMapper.toResponse(output.friend(), viewerId, output.users())
         );
     }
 }

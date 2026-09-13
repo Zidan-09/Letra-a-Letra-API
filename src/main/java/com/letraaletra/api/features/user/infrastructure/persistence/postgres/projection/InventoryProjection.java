@@ -13,4 +13,5 @@ public interface InventoryProjection {
     CosmeticTypes getType();
     boolean isEquipped();
     LocalDateTime getUnlockedAt();
+    String getAssetPath();
 }

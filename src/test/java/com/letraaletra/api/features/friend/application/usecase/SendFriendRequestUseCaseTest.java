@@ -141,4 +141,19 @@ class SendFriendRequestUseCaseTest {
         verify(repository, never()).save(any());
         verify(notifier, never()).notifierUser(any());
     }
+
+    @Test
+    @DisplayName("Should include the target user profile data in the output")
+    void sendFriendRequest_ShouldEnrichOutputWithTargetUser() {
+        com.letraaletra.api.features.user.domain.User target = mock(com.letraaletra.api.features.user.domain.User.class);
+        when(target.getUserId()).thenReturn(friendId);
+        when(userRepository.exists(friendId)).thenReturn(true);
+        when(repository.find(userId, friendId)).thenReturn(Optional.empty());
+        when(userRepository.find(friendId)).thenReturn(Optional.of(target));
+
+        SendFriendRequestOutput output = useCase.execute(input);
+
+        assertEquals(FriendStatus.PENDING, output.friend().getStatus());
+        assertEquals(target, output.users().get(friendId));
+    }
 }

@@ -37,7 +37,7 @@ public class GetFriendListMapper {
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId))
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users()))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

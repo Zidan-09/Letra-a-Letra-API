@@ -74,11 +74,13 @@ public class FriendConfig {
     @Bean
     public UseCase<GetFriendListInput, GetFriendListOutput> getFriendListUseCase(
             FriendRepository friendRepository,
+            UserRepository userRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetFriendListUseCase(
-                        friendRepository
+                        friendRepository,
+                        userRepository
                 ),
                 transactions
         );
@@ -117,11 +119,13 @@ public class FriendConfig {
     @Bean
     public UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> getFriendPendingRequestsUseCase(
             FriendRepository friendRepository,
+            UserRepository userRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetFriendPendingRequestsUseCase(
-                        friendRepository
+                        friendRepository,
+                        userRepository
                 ),
                 transactions
         );
@@ -130,11 +134,13 @@ public class FriendConfig {
     @Bean
     public UseCase<GetSentPendingRequestsInput, GetSentPendingRequestsOutput> getSentPendingRequestsUseCase(
             FriendRepository friendRepository,
+            UserRepository userRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetSentPendingRequestsUseCase(
-                        friendRepository
+                        friendRepository,
+                        userRepository
                 ),
                 transactions
         );

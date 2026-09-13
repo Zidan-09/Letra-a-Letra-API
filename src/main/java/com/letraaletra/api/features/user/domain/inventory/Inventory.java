@@ -116,7 +116,8 @@ public class Inventory {
                         item.name(),
                         item.type(),
                         isTarget,
-                        item.unlockedAt()
+                        item.unlockedAt(),
+                        item.assetPath()
                 ));
             } else {
                 updatedInventory.add(item);

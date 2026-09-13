@@ -22,7 +22,7 @@ class ParticipantTest {
 
     @BeforeEach
     void setUp() {
-        InventoryItem equippedBanner = new InventoryItem(UUID.randomUUID(), "Banner Dev", CosmeticTypes.BANNER, true, LocalDateTime.now());
+        InventoryItem equippedBanner = new InventoryItem(UUID.randomUUID(), "Banner Dev", CosmeticTypes.BANNER, true, LocalDateTime.now(), null);
         mockCosmetics = List.of(equippedBanner);
 
         participant = new Participant(userId, initialSocketId, nickname, mockCosmetics);

@@ -20,7 +20,7 @@ public class GetSentPendingRequestsMapper {
     public static GetSentPendingRequestsResponse toResponse(GetSentPendingRequestsOutput output, UUID viewerId) {
         return new GetSentPendingRequestsResponse(
                 output.requests().stream()
-                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId))
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users()))
                         .toList()
         );
     }

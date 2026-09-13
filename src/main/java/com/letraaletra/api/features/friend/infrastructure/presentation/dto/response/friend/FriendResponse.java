@@ -11,6 +11,7 @@ public record FriendResponse(
         UUID friendId,
         FriendDirection direction,
         FriendStatus status,
-        LocalDateTime requestDate
+        LocalDateTime requestDate,
+        FriendProfileResponse profile
 ) {
 }

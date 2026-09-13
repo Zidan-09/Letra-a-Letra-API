@@ -8,8 +8,12 @@ import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.domain.exception.FriendNotFoundException;
 import com.letraaletra.api.features.friend.domain.exception.InvalidFriendRequestException;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput, SendFriendRequestOutput> {
     private final FriendRepository friendRepository;
@@ -52,7 +56,7 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
 
             notifier.notifierUser(input.friendId());
 
-            return buildOutput(friend);
+            return buildOutput(friend, loadTarget(input.friendId()));
         }
 
         if (!existing.getStatus().equals(FriendStatus.DECLINED)) {
@@ -65,12 +69,19 @@ public class SendFriendRequestUseCase implements UseCase<SendFriendRequestInput,
 
         notifier.notifierUser(existing.otherParty(input.userId()));
 
-        return buildOutput(existing);
+        return buildOutput(existing, loadTarget(input.friendId()));
     }
 
-    private SendFriendRequestOutput buildOutput(Friend friend) {
+    private Map<UUID, User> loadTarget(UUID targetId) {
+        return userRepository.find(targetId)
+                .map(user -> Map.of(user.getUserId(), user))
+                .orElseGet(Map::of);
+    }
+
+    private SendFriendRequestOutput buildOutput(Friend friend, Map<UUID, User> users) {
         return new SendFriendRequestOutput(
-                friend
+                friend,
+                users
         );
     }
 }

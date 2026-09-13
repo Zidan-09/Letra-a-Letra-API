@@ -9,7 +9,8 @@ public class InventoryItemResponseMapper {
                 inventoryItem.cosmeticId(),
                 inventoryItem.name(),
                 inventoryItem.type(),
-                inventoryItem.equipped()
+                inventoryItem.equipped(),
+                inventoryItem.assetPath()
         );
     }
 }

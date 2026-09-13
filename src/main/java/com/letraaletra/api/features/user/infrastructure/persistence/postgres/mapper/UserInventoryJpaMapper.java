@@ -28,7 +28,8 @@ public class UserInventoryJpaMapper {
                 projection.getName(),
                 projection.getType(),
                 projection.isEquipped(),
-                projection.getUnlockedAt()
+                projection.getUnlockedAt(),
+                projection.getAssetPath()
         );
     }
 
