@@ -77,7 +77,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
             if (path.startsWith("/admin/auth")) return true;
             if (path.equals("/ticket")) return true;
             if (path.equals("/friend/request")) return true;
-            if (path.equals("/cosmetic")) return true;
             if (path.startsWith("/shop/offers/")) return true;
         }
         if ("PATCH".equalsIgnoreCase(method) && isFriendMutationPath(path)) return true;

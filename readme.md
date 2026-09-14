@@ -1,6 +1,6 @@
 # Letra a Letra — API
 
-Backend do jogo **Letra a Letra**: um jogo de palavras multiplayer em tempo real, com salas customizadas, matchmaking casual e ranqueado, sistema de turnos com poderes, economia (carteira, loja, transações), níveis, cosméticos, amigos, tickets de suporte, auditoria e console administrativo.
+Backend do jogo **Letra a Letra**: um jogo de palavras multiplayer em tempo real, com salas customizadas, matchmaking casual e ranqueado, sistema de turnos com poderes, economia (carteira, loja, transações), níveis, inventário de itens, amigos, tickets de suporte, auditoria e console administrativo.
 
 - API HTTP: `http://<host>:8080`
 - WebSocket de jogo: `ws://<host>:8080/ws/game?token=<USER_JWT>`
@@ -17,7 +17,7 @@ Backend do jogo **Letra a Letra**: um jogo de palavras multiplayer em tempo real
 | Banco de dados | PostgreSQL 16 (dev/prod) · H2 em memória (testes) |
 | Tempo real | WebSocket puro (`spring-boot-starter-websocket`) |
 | Autenticação | JWT próprio (HS256, expiração de 6h) + login com Google |
-| Armazenamento de assets | Cloudflare R2 (cosméticos) |
+| Armazenamento de assets | Cloudflare R2 (assets de itens) |
 
 O projeto expõe uma API HTTP pública e dois canais WebSocket para ações em tempo real (salas/gameplay e console admin). A autenticação HTTP usa `Authorization: Bearer <JWT>`; o WebSocket recebe o JWT via query param `token`.
 
@@ -31,7 +31,7 @@ Organizadas por feature (pacotes em `features/`):
 - Criação de conta local (email/senha) e autenticação por Google
 - Login (`POST /user/auth`) retornando JWT; perfil próprio (`GET /user/me`)
 - Alteração de nickname; busca por username; listagem de usuários (admin)
-- Inventário de cosméticos (equipar/remover), carteira (`soft_coins`, `hard_gems`)
+- Inventário de itens (consultar, equipar, consumir, revogar), carteira (`soft_coins`, `hard_gems`)
 - Banimento/desbanimento, concessão e revogação de recompensas e itens (admin)
 - Recuperação de senha por código enviado por email
 
@@ -58,10 +58,10 @@ Organizadas por feature (pacotes em `features/`):
 ### Amigos (`friend`)
 - Envio/aceite/rejeição de solicitações, listagem e remoção de amigos; notificação em tempo real
 
-### Níveis (`levels`), Cosméticos (`cosmetic`), Recompensas (`reward`)
+### Níveis (`levels`), Inventário (`inventory`), Recompensas (`reward`)
 - CRUD de níveis com recompensas associadas
-- Cadastro/gestão de cosméticos com upload para Cloudflare R2 (conversão WebP)
-- Modelo de recompensas (moedas, gems ou cosmético) reapresentado por levels/offers/user
+- Catálogo de definições de item (`POST/PUT /admin/items`) com `assetPath` direto para Cloudflare R2 (conversão WebP)
+- Modelo de recompensas (moedas, gems ou item) reapresentado por levels/offers/user
 
 ### Loja e ofertas (`shop`, `offers`)
 - Catálogo de ofertas ativas, compra com débito em carteira
@@ -133,8 +133,8 @@ aplicação da feature dona (ex.: `audit.application.port.BusinessAuditRecorder`
 | springdoc-openapi | 3.0.3 | Swagger UI/OpenAPI |
 | Lombok | 1.18.42 | redução de boilerplate |
 | Google API Client | 2.0.0 | login com Google |
-| Cloudflare R2 (AWS SDK S3) | 2.31.74 | storage de cosméticos |
-| webp-imageio | 0.1.6 | conversão de imagens de cosméticos |
+| Cloudflare R2 (AWS SDK S3) | 2.31.74 | storage de assets de itens |
+| webp-imageio | 0.1.6 | conversão de imagens de itens |
 | Node.js + ws | 22 / ^8.21.0 | testes de integração E2E |
 
 ---
@@ -146,11 +146,12 @@ A especificação OpenAPI é gerada pelo springdoc: JSON em `/docs` e Swagger UI
 
 | Domínio | Rotas |
 |---|---|
-| Usuário | `POST /user` · `POST /user/auth` · `POST /user/auth/google` · `GET /user/me` · `PATCH /user/nickname` · `GET /user` · `GET /user/username/{username}` · `GET /user/inventory` · `PATCH /user/cosmetic/{cosmeticId}` · `GET /user/transactions` · `POST /user/auth/forgot-password` · `POST /user/auth/verify-reset-code` · `POST /user/auth/reset-password` |
-| Usuário (admin) | `PATCH /user/{userId}/ban` · `PATCH /user/{userId}/unban` · `PATCH /user/{userId}/grant-reward` · `DELETE /user/{userId}/inventory/{cosmeticId}` · `PATCH /user/{userId}/wallet/revoke` · `GET /user/{userId}/inventory` |
+| Usuário | `POST /user` · `POST /user/auth` · `POST /user/auth/google` · `GET /user/me` · `PATCH /user/nickname` · `GET /user` · `GET /user/username/{username}` · `GET /user/transactions` · `POST /user/auth/forgot-password` · `POST /user/auth/verify-reset-code` · `POST /user/auth/reset-password` |
+| Usuário (admin) | `PATCH /user/{userId}/ban` · `PATCH /user/{userId}/unban` · `PATCH /user/{userId}/grant-reward` · `PATCH /user/{userId}/wallet/revoke` |
+| Inventário | `GET /user/items` · `POST /user/items/{itemId}/consume` · `POST /user/items/{itemId}/equip` · `DELETE /user/items/{itemId}` |
+| Inventário (admin) | `POST /admin/items` · `PUT /admin/items/{itemId}` |
 | Jogo | `GET /game` · `GET /game/public` · `GET /game/active` · `GET /game/code/{code}` |
 | Níveis | `GET /level` · `GET /level/{levelId}` · `GET /level/value/{value}` · `POST /level` · `PUT /level/{levelId}` |
-| Cosméticos | `GET /cosmetic` · `GET /cosmetic/name/{name}` · `GET /cosmetic/search` · `POST /cosmetic` · `PUT /cosmetic/{cosmeticId}` · `DELETE /cosmetic/{cosmeticId}` · `PATCH /cosmetic/enable/{id}` · `PATCH /cosmetic/disable/{id}` |
 | Ofertas | `GET /offer` · `GET /offer/{offerId}` · `POST /offer` · `DELETE /offer/{offerId}` · `PATCH /offer/enable/{id}` · `PATCH /offer/disable/{id}` |
 | Loja | `GET /shop/offers` · `POST /shop/offers/{offerId}/buy` |
 | Amigos | `GET /friend` · `GET /friend/pending` · `POST /friend/request` · `PATCH /friend/accept` · `PATCH /friend/reject` · `PATCH /friend/remove` |
@@ -248,7 +249,7 @@ Variáveis esperadas:
 | `JWT_SECRET` | segredo HS256 dos tokens (mínimo 32 caracteres) |
 | `CLIENT_ID` | client id do login Google |
 | `CLOUDFLARE_TOKEN` / `CLOUDFLARE_ACCESS_KEY_ID` / `CLOUDFLARE_SECRET_ACCESS_KEY` | credenciais R2 |
-| `CLOUDFLARE_BUCKET_NAME` / `CLOUDFLARE_PUBLIC_URL` | bucket e URL pública dos cosméticos |
+| `CLOUDFLARE_BUCKET_NAME` / `CLOUDFLARE_PUBLIC_URL` | bucket e URL pública dos assets de itens |
 | `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP em produção |
 
 ### Subindo o ambiente de desenvolvimento

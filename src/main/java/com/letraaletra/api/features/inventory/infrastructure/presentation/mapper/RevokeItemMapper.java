@@ -13,12 +13,4 @@ public class RevokeItemMapper {
                 itemId
         );
     }
-
-    public static RevokeItemInput toInput(AuthenticatedUser principal, UUID userId, UUID itemId) {
-        return new RevokeItemInput(
-                principal,
-                userId,
-                itemId
-        );
-    }
 }
