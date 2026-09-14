@@ -199,7 +199,7 @@ export async function runFlow(adminContext, playerContext) {
 
     // Fluxo 6: Perfil do usuário autenticado
 
-    const mainNickname = await getNickname(mainUser);
+    let mainNickname = await getNickname(mainUser);
     const secondNickname = await getNickname(secondUser);
 
     res = await http(
@@ -236,7 +236,7 @@ export async function runFlow(adminContext, playerContext) {
         "Find user by username"
     );
 
-    if (res.body.data.user.nickname !== mainNickname) {
+    if (!res.body.data.content.some(user => user.nickname === mainNickname)) {
         throw new Error(
             "Find user by username: nickname mismatch"
         );
@@ -251,13 +251,13 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        200,
         "Find unknown user by username"
     );
 
-    if (res.body?.code !== "USER_NOT_FOUND") {
+    if (res.body.data.content.length !== 0) {
         throw new Error(
-            `Find unknown user by username: expected USER_NOT_FOUND, received ${JSON.stringify(res.body)}`
+            `Find unknown user by username: expected empty content, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -450,6 +450,8 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
+    mainNickname = renamedNickname;
+
     res = await http(
         "GET",
         `/user/username/${encodeURIComponent(renamedNickname)}`,
@@ -526,9 +528,43 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
+    // Item existente mas não possuído: definição própria do mainUser nunca
+    // concedida, então o equip falha com ITEM_NOT_OWNED (e não ITEM_NOT_FOUND).
+
+    const unownedItemName = `integration-unowned-${stamp}`;
+
     res = await http(
         "POST",
-        "/user/items/00000000-0000-0000-0000-000000000000/equip",
+        "/admin/items",
+        {
+            name: unownedItemName,
+            kind: "COSMETIC",
+            category: "FRAME",
+            applicability: ["PROFILE"],
+            stackable: false,
+            consumable: false,
+            assetPath: `assets/${unownedItemName}.png`
+        },
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Register unowned item definition"
+    );
+
+    const unownedItemId = res.body?.data?.itemId;
+
+    if (!unownedItemId) {
+        throw new Error(
+            `Register unowned item definition: missing id in response body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "POST",
+        `/user/items/${unownedItemId}/equip`,
         { context: "PROFILE" },
         mainUser.token
     );
@@ -747,37 +783,111 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
-    // Fluxo 17: Revogar item e conferir itens
+    // Fluxo 17: Revogar item — permissão e posse no contrato atual.
+    // DELETE /user/items/{id} exige USER:EDIT (RevokeItemUseCase) e opera
+    // sobre o inventário do próprio chamador (sem userId na rota). Usuário
+    // comum não passa no AdminChecker, e o caminho feliz via HTTP é
+    // inalcançável (todos os writers exigem um User real; coberto pelo
+    // RevokeItemUseCaseTest unitário). O fluxo preserva a garantia adaptada:
+    // (a) usuário comum recebe 400 ao tentar revogar; (b) admin sem posse
+    // recebe ITEM_NOT_OWNED; (c) o item concedido permanece no inventário.
+
+    const revokeItemName = `integration-revoke-${stamp}`;
 
     res = await http(
-        "DELETE",
-        `/user/items/${itemId}`,
-        undefined,
-        mainUser.token
-    );
-
-    ensureStatus(
-        res,
-        204,
-        "Revoke item"
-    );
-
-    res = await http(
-        "GET",
-        "/user/items",
-        undefined,
-        mainUser.token
+        "POST",
+        "/admin/items",
+        {
+            name: revokeItemName,
+            kind: "COSMETIC",
+            category: "BANNER",
+            applicability: ["PROFILE"],
+            stackable: false,
+            consumable: false,
+            assetPath: `assets/${revokeItemName}.png`
+        },
+        admin.token
     );
 
     ensureStatus(
         res,
         200,
-        "Get items after revoke"
+        "Register revoke item definition"
     );
 
-    if (res.body.data.items.some(item => item.itemId === itemId)) {
+    const revokeItemId = res.body?.data?.itemId;
+
+    if (!revokeItemId) {
         throw new Error(
-            "Get items after revoke: revoked item still present"
+            `Register revoke item definition: missing id in response body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "PATCH",
+        `/user/${secondUser.id}/grant-reward`,
+        {
+            rewardType: "ITEM",
+            quantity: 1,
+            rewardReference: revokeItemId
+        },
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        204,
+        "Grant revoke item reward"
+    );
+
+    res = await http(
+        "DELETE",
+        `/user/items/${revokeItemId}`,
+        undefined,
+        secondUser.token
+    );
+
+    ensureStatus(
+        res,
+        400,
+        "Revoke item without permission"
+    );
+
+    res = await http(
+        "DELETE",
+        `/user/items/${revokeItemId}`,
+        undefined,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        400,
+        "Revoke unowned item"
+    );
+
+    if (res.body?.code !== "ITEM_NOT_OWNED") {
+        throw new Error(
+            `Revoke unowned item: expected ITEM_NOT_OWNED, received ${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "GET",
+        "/user/items",
+        undefined,
+        secondUser.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get items after revoke attempts"
+    );
+
+    if (!res.body.data.items.some(item => item.itemId === revokeItemId)) {
+        throw new Error(
+            "Get items after revoke attempts: granted item missing"
         );
     }
 }

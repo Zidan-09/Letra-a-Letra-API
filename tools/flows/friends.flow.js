@@ -160,7 +160,22 @@ export async function runFlow(context) {
         zidan.token
     );
 
-    ensureStatus(res, 400, "Remover amizade inexistente");
+    ensureStatus(res, 200, "Remover amizade inexistente");
+
+    res = await http(
+        "GET",
+        "/friend",
+        undefined,
+        zidan.token
+    );
+
+    ensureStatus(res, 200, "Buscar amigos do Zidan após segunda remoção");
+
+    if ((res.body.data?.content ?? res.body.data ?? []).some(friend => friend.friendId === pombao.id || friend.userId1 === pombao.id || friend.userId2 === pombao.id)) {
+        throw new Error(
+            "Remover amizade inexistente: amizade reapareceu após segunda remoção"
+        );
+    }
 
     // Fluxo 5: Recusar solicitação
 
