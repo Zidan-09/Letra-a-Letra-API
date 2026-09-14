@@ -11,17 +11,32 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
     private final UserRepository userRepository;
     private final ActorManager<Game> actorManager;
+    private final InventoryRepository inventoryRepository;
+    private final ItemDefinitionRepository itemDefinitionRepository;
 
-    public JoinGameUseCase(UserRepository userRepository, ActorManager<Game> actorManager) {
+    public JoinGameUseCase(
+        UserRepository userRepository, 
+        ActorManager<Game> actorManager,
+        InventoryRepository inventoryRepository,
+        ItemDefinitionRepository itemDefinitionRepository
+    ) {
         this.userRepository = userRepository;
         this.actorManager = actorManager;
+        this.inventoryRepository = inventoryRepository;
+        this.itemDefinitionRepository = itemDefinitionRepository;
     }
 
     @Override
@@ -33,22 +48,36 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
 
         validateUser(user);
 
+        List<UserItem> items = inventoryRepository.findItemsByOwner(user.getUserId());
+
+        List<EquippedCosmetic> equipped = EquippedCosmetic.fromProfileItems(
+                items,
+                definitionId -> itemDefinitionRepository.findById(definitionId)
+                        .orElseThrow(com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException::new),
+                ItemContext.PROFILE
+        );
+
         Actor actor = actorManager.get(gameId);
-        CompletableFuture<Game> future = actor.enqueueCommand(new JoinGameActorCommand(user, input.session()));
+
+        CompletableFuture<Game> future =
+                actor.enqueueCommand(
+                        new JoinGameActorCommand(
+                                user,
+                                input.session(),
+                                equipped
+                        )
+                );
 
         Game game = future.join();
+
         userRepository.save(user);
 
-        return buildOutput(game);
+        return new JoinGameOutput(game);
     }
 
     private void validateUser(User user) {
         if (!user.isNotInGame()) {
             throw new UserAlreadyInGameException();
         }
-    }
-
-    private JoinGameOutput buildOutput(Game game) {
-        return new JoinGameOutput(game);
     }
 }

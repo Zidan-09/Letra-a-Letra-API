@@ -35,6 +35,8 @@ import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssemblerService;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -47,8 +49,8 @@ public class GameConfig {
             ActorManager<Game> actorManager,
             RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService,
-            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
-            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
+            InventoryRepository inventoryRepository,
+            ItemDefinitionRepository itemDefinitionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -91,8 +93,8 @@ public class GameConfig {
     public UseCase<JoinGameInput, JoinGameOutput> joinGameUseCase(
             UserRepository userRepository,
             ActorManager<Game> actorManager,
-            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
-            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
+            InventoryRepository inventoryRepository,
+            ItemDefinitionRepository itemDefinitionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(

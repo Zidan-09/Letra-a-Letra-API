@@ -2,14 +2,16 @@ package com.letraaletra.api.features.game.application.usecase;
 
 import com.letraaletra.api.features.game.application.input.JoinGameInput;
 import com.letraaletra.api.features.game.application.output.JoinGameOutput;
+import com.letraaletra.api.features.game.application.port.Actor;
+import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorCommand;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.features.game.application.port.Actor;
-import com.letraaletra.api.features.game.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -27,11 +30,18 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JoinGameUseCaseTest {
+
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private ActorManager<Game> actorManager;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
+
+    @Mock
+    private ItemDefinitionRepository itemDefinitionRepository;
 
     @InjectMocks
     private JoinGameUseCase useCase;
@@ -58,14 +68,11 @@ class JoinGameUseCaseTest {
         Game game = mock(Game.class);
         Actor actor = mock(Actor.class);
 
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
-        when(user.isNotInGame())
-                .thenReturn(true);
-
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
+        when(user.getUserId()).thenReturn(userId);
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
+        when(user.isNotInGame()).thenReturn(true);
+        when(inventoryRepository.findItemsByOwner(userId)).thenReturn(Collections.emptyList());
+        when(actorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any(JoinGameActorCommand.class)))
                 .thenReturn(CompletableFuture.completedFuture(game));
@@ -80,14 +87,14 @@ class JoinGameUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
-        when(userRepository.find(userId))
-                .thenReturn(Optional.empty());
+        when(userRepository.find(userId)).thenReturn(Optional.empty());
 
         assertThrows(
                 UserNotFoundException.class,
                 () -> useCase.execute(input)
         );
 
+        verify(inventoryRepository, never()).findItemsByOwner(any());
         verify(actorManager, never()).get(any());
         verify(userRepository, never()).save(any());
     }
@@ -98,14 +105,11 @@ class JoinGameUseCaseTest {
         Game game = mock(Game.class);
         Actor actor = mock(Actor.class);
 
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
-        when(user.isNotInGame())
-                .thenReturn(true);
-
-        when(actorManager.get(gameId))
-                .thenReturn(actor);
+        when(user.getUserId()).thenReturn(userId);
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
+        when(user.isNotInGame()).thenReturn(true);
+        when(inventoryRepository.findItemsByOwner(userId)).thenReturn(Collections.emptyList());
+        when(actorManager.get(gameId)).thenReturn(actor);
 
         when(actor.enqueueCommand(any()))
                 .thenReturn(CompletableFuture.completedFuture(game));
@@ -126,19 +130,15 @@ class JoinGameUseCaseTest {
     void shouldThrowExceptionWhenUserAlreadyInGame() {
         User user = mock(User.class);
 
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
-        when(user.isNotInGame())
-                .thenReturn(false);
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
+        when(user.isNotInGame()).thenReturn(false);
 
         assertThrows(
                 UserAlreadyInGameException.class,
-                () -> useCase.execute(
-                        input
-                )
+                () -> useCase.execute(input)
         );
 
+        verify(inventoryRepository, never()).findItemsByOwner(any());
         verify(actorManager, never()).get(any());
     }
 }
