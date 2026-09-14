@@ -3,8 +3,8 @@ package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.entity.LevelRewardJpaEntity;
 import com.letraaletra.api.features.reward.domain.RewardType;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 
@@ -25,10 +25,10 @@ public class LevelRewardMapper {
         entity.setLevelId(levelId);
 
         switch (domain.reward()) {
-            case CosmeticReward reward -> {
-                entity.setRewardType(RewardType.COSMETIC);
-                entity.setRewardReference(reward.cosmetic().getId());
-                entity.setQuantity(1);
+            case ItemGrantReward reward -> {
+                entity.setRewardType(RewardType.ITEM);
+                entity.setRewardReference(reward.definitionId());
+                entity.setQuantity(reward.quantity());
             }
 
             case SoftCoinsReward reward -> {

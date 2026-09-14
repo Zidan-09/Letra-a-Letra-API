@@ -77,11 +77,11 @@ class JpaGameRepositorySpectatorTest {
         // Need host id etc will be set on join
         User host = newUser("host_" + UUID.randomUUID().toString().substring(0,4));
         User p2 = newUser("p2_" + UUID.randomUUID().toString().substring(0,4));
-        game.join(host, "s-host");
-        game.join(p2, "s-p2");
+        game.join(host, "s-host", List.of());
+        game.join(p2, "s-p2", List.of());
         for (int i=0;i<spectatorCount;i++) {
             User s = newUser("spec" + i + "_" + UUID.randomUUID().toString().substring(0,3));
-            game.join(s, "s-spec-" + i);
+            game.join(s, "s-spec-" + i, List.of());
         }
         Board board = BoardGenerator.generate(List.of("alpha","beta","gamma","delta","epsilon","zeta","eta","theta"), GameMode.NORMAL);
         game.start(board);
@@ -94,7 +94,7 @@ class JpaGameRepositorySpectatorTest {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE01", "room-wait", settings, GameType.CUSTOM);
         User host = newUser("waitHost");
-        game.join(host, "s-wait");
+        game.join(host, "s-wait", List.of());
         // save while WAITING / gameState null
         gameRepository.save(game);
         em.flush(); em.clear();
@@ -158,8 +158,8 @@ class JpaGameRepositorySpectatorTest {
         Game game = Game.create("CODEOLD", "oldRoom", settings, GameType.CUSTOM);
         User host = newUser("oldHost");
         User p2 = newUser("oldP2");
-        game.join(host, "s-oldHost");
-        game.join(p2, "s-oldP2");
+        game.join(host, "s-oldHost", List.of());
+        game.join(p2, "s-oldP2", List.of());
         Board board = BoardGenerator.generate(List.of("a","b","c","d","e","f","g","h"), GameMode.NORMAL);
         game.start(board);
         // save without adding spectators
@@ -183,9 +183,9 @@ class JpaGameRepositorySpectatorTest {
         User host = newUser("legHost_" + UUID.randomUUID().toString().substring(0,3));
         User p2 = newUser("legP2_" + UUID.randomUUID().toString().substring(0,3));
         User spec = newUser("legSpec_" + UUID.randomUUID().toString().substring(0,3));
-        game.join(host, "s-legHost");
-        game.join(p2, "s-legP2");
-        game.join(spec, "s-legSpec");
+        game.join(host, "s-legHost", List.of());
+        game.join(p2, "s-legP2", List.of());
+        game.join(spec, "s-legSpec", List.of());
         Board board = BoardGenerator.generate(List.of("a","b","c","d","e","f","g","h"), GameMode.NORMAL);
         game.start(board);
 

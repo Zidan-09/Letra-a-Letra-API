@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 
 import java.util.List;
 import java.util.UUID;
@@ -9,41 +8,43 @@ import java.util.UUID;
 public class Participant {
     private final UUID userId;
     private final String nickname;
-    private final List<InventoryItem> cosmeticsEquipped;
+    private final List<EquippedCosmetic> cosmeticsEquipped;
     private String socketId;
     private ParticipantRole role;
     private boolean connected;
 
-    public Participant(UUID userId, String socketId, String nickname, List<InventoryItem> cosmeticsEquipped) {
+    public Participant(UUID userId, String socketId, String nickname, List<EquippedCosmetic> cosmeticsEquipped) {
         this.userId = userId;
         this.socketId = socketId;
         this.nickname = nickname;
-        this.cosmeticsEquipped = cosmeticsEquipped;
+        this.cosmeticsEquipped = cosmeticsEquipped == null ? List.of() : List.copyOf(cosmeticsEquipped);
         this.connected = true;
         this.role = ParticipantRole.SPECTATOR;
     }
 
-    public static Participant create(User user, String sessionId) {
+    public static Participant create(User user, String sessionId, List<EquippedCosmetic> equipped) {
+        return create(user.getUserId(), user.getUsername(), sessionId, equipped);
+    }
+
+    public static Participant create(UUID userId, String username, String sessionId, List<EquippedCosmetic> equipped) {
         return new Participant(
-                user.getUserId(),
+                userId,
                 sessionId,
-                user.getUsername(),
-                user.getInventory()
-                        .getItems().stream()
-                        .filter(InventoryItem::equipped)
-                        .toList()
+                username,
+                equipped
         );
     }
 
-    public static Participant restore(User user) {
+    public static Participant restore(User user, List<EquippedCosmetic> equipped) {
+        return restore(user.getUserId(), user.getUsername(), equipped);
+    }
+
+    public static Participant restore(UUID userId, String username, List<EquippedCosmetic> equipped) {
         return new Participant(
-                user.getUserId(),
+                userId,
                 "not-connected",
-                user.getUsername(),
-                user.getInventory()
-                        .getItems().stream()
-                        .filter(InventoryItem::equipped)
-                        .toList()
+                username,
+                equipped
         );
     }
 
@@ -59,7 +60,7 @@ public class Participant {
         return nickname;
     }
 
-    public List<InventoryItem> getCosmeticsEquipped() {
+    public List<EquippedCosmetic> getCosmeticsEquipped() {
         return cosmeticsEquipped;
     }
 

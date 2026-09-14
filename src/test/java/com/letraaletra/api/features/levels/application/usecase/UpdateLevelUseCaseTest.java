@@ -2,9 +2,6 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
 import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
@@ -13,12 +10,17 @@ import com.letraaletra.api.features.levels.domain.exception.LevelAlreadyExistsEx
 import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundException;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.reward.domain.RewardType;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +40,7 @@ class UpdateLevelUseCaseTest {
     private LevelRepository levelRepository;
 
     @Mock
-    private CosmeticRepository cosmeticRepository;
+    private ItemDefinitionRepository itemDefinitionRepository;
 
     @Mock
     private AdminChecker adminChecker;
@@ -83,27 +85,33 @@ class UpdateLevelUseCaseTest {
         verify(mockLevel, times(1)).setLevel(newTargetLevel);
         verify(mockLevel, times(1)).setRewards(anyList());
         verify(levelRepository, times(1)).save(mockLevel);
-        verifyNoInteractions(cosmeticRepository);
+        verifyNoInteractions(itemDefinitionRepository);
     }
 
     @Test
-    @DisplayName("Should successfully update a level with COSMETIC reward type when the cosmetic reference exists")
-    void shouldUpdateLevelWithCosmeticRewardSuccessfully() {
-        UUID cosmeticId = UUID.randomUUID();
-        Cosmetic mockCosmetic = mock(Cosmetic.class);
-        CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-        UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(cosmeticReward));
+    @DisplayName("Should successfully update a level with ITEM reward type when the definition exists")
+    void shouldUpdateLevelWithItemRewardSuccessfully() {
+        UUID definitionId = UUID.randomUUID();
+        ItemDefinition definition = mock(ItemDefinition.class);
+        when(definition.getId()).thenReturn(definitionId);
+        CreateLevelRewardInput itemReward = new CreateLevelRewardInput(RewardType.ITEM, definitionId, 2);
+        UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(itemReward));
 
         doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
-        when(cosmeticRepository.find(cosmeticId)).thenReturn(Optional.of(mockCosmetic));
+        when(itemDefinitionRepository.findById(definitionId)).thenReturn(Optional.of(definition));
 
         UpdateLevelOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        verify(cosmeticRepository, times(1)).find(cosmeticId);
+        verify(itemDefinitionRepository, times(1)).findById(definitionId);
+
+        ArgumentCaptor<List<LevelReward>> rewardsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(mockLevel, times(1)).setRewards(rewardsCaptor.capture());
+        assertEquals(1, rewardsCaptor.getValue().size());
+        assertEquals(new ItemGrantReward(definitionId, 2), rewardsCaptor.getValue().get(0).reward());
         verify(levelRepository, times(1)).save(mockLevel);
     }
 
@@ -134,7 +142,7 @@ class UpdateLevelUseCaseTest {
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(cosmeticRepository);
+        verifyNoInteractions(itemDefinitionRepository);
     }
 
     @Test
@@ -148,25 +156,7 @@ class UpdateLevelUseCaseTest {
         assertThrows(LevelNotFoundException.class, () -> useCase.execute(input));
 
         verify(levelRepository, never()).save(any());
-        verifyNoInteractions(cosmeticRepository);
-    }
-
-    @Test
-    @DisplayName("Should throw CosmeticNotFoundException when updating rewards contains a COSMETIC type but reference cannot be resolved")
-    void shouldThrowCosmeticNotFoundExceptionWhenCosmeticIdIsInvalid() {
-        UUID nonExistentCosmeticId = UUID.randomUUID();
-        CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, nonExistentCosmeticId, 1);
-        UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(cosmeticReward));
-
-        doNothing().when(adminChecker).check(principal, key, action);
-        when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
-        when(levelRepository.findByLevel(input.level()))
-                .thenReturn(Optional.empty());
-        when(cosmeticRepository.find(nonExistentCosmeticId)).thenReturn(Optional.empty());
-
-        assertThrows(CosmeticNotFoundException.class, () -> useCase.execute(input));
-
-        verify(levelRepository, never()).save(any());
+        verifyNoInteractions(itemDefinitionRepository);
     }
 
     @Test
@@ -176,7 +166,7 @@ class UpdateLevelUseCaseTest {
 
         verifyNoInteractions(adminChecker);
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(cosmeticRepository);
+        verifyNoInteractions(itemDefinitionRepository);
     }
 
     @Test

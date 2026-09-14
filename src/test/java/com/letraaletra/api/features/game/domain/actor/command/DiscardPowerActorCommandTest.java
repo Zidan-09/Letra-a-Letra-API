@@ -13,7 +13,6 @@ import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,10 +45,6 @@ class DiscardPowerActorCommandTest {
     private void initGame() {
         lenient().when(mockBoard.getCell(any())).thenAnswer(inv -> null);
         game = Game.create("CODE", "room", new RoomSettings(true, false), GameType.CUSTOM);
-        Inventory inv1 = mock(Inventory.class);
-        Inventory inv2 = mock(Inventory.class);
-        lenient().when(inv1.getItems()).thenReturn(Collections.emptyList());
-        lenient().when(inv2.getItems()).thenReturn(Collections.emptyList());
         User u1 = mock(User.class);
         User u2 = mock(User.class);
         UUID id1 = UUID.randomUUID();
@@ -58,10 +53,8 @@ class DiscardPowerActorCommandTest {
         lenient().when(u2.getUserId()).thenReturn(id2);
         lenient().when(u1.getUsername()).thenReturn("p1");
         lenient().when(u2.getUsername()).thenReturn("p2");
-        lenient().when(u1.getInventory()).thenReturn(inv1);
-        lenient().when(u2.getInventory()).thenReturn(inv2);
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
         Map<UUID, Player> players = new LinkedHashMap<>();
         for (Participant p : game.getParticipants().getParticipants()) {
             if (p.isPlayer()) players.put(p.getUserId(), new Player(p.getUserId(), p.getNickname()));

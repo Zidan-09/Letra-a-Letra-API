@@ -9,7 +9,7 @@ public record GrantUserRewardInput(
         AuthenticatedUser principal,
         UUID userId,
         RewardType rewardType,
-        UUID cosmeticId,
-        Integer amount
+        UUID referenceId,
+        Integer quantity
 ) {
 }

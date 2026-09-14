@@ -14,13 +14,17 @@ public class GetFriendPendingRequestsMapper {
     }
 
     public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output) {
-        return toResponse(output, null);
+        return toResponse(output, null, null);
     }
 
     public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output, UUID viewerId) {
+        return toResponse(output, viewerId, null);
+    }
+
+    public static GetFriendPendingRequestsResponse toResponse(GetFriendPendingRequestsOutput output, UUID viewerId, java.util.Map<UUID, java.util.List<com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse>> equippedByUser) {
         return new GetFriendPendingRequestsResponse(
                 output.requests().stream()
-                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users()))
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users(), equippedByUser))
                         .toList()
         );
     }

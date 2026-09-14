@@ -2,8 +2,6 @@ package com.letraaletra.api.features.offers.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
 import com.letraaletra.api.features.offers.application.input.RegisterOfferInput;
 import com.letraaletra.api.features.offers.application.input.RegisterOfferRewardInput;
 import com.letraaletra.api.features.offers.application.output.RegisterOfferOutput;
@@ -14,7 +12,6 @@ import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import org.junit.jupiter.api.BeforeEach;
@@ -171,59 +168,16 @@ class RegisterOfferUseCaseTest {
         }
 
         @Test
-        @DisplayName("shouldMapCosmeticRewardWhenCosmeticExists")
-        void shouldMapCosmeticRewardWhenCosmeticExists() {
-            UUID cosmeticId = UUID.randomUUID();
-            Cosmetic mockCosmetic = mock(Cosmetic.class);
-
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-            RegisterOfferInput input = new RegisterOfferInput(
-                    principal, "Oferta Cosmético", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
-            );
-
-            doNothing().when(adminChecker).check(principal, key, action);
-            when(rewardFactory.create(eq(RewardType.COSMETIC), eq(1), eq(cosmeticId)))
-                    .thenReturn(new CosmeticReward(mockCosmetic));
-
-            RegisterOfferOutput output = useCase.execute(input);
-
-            assertNotNull(output);
-            verify(rewardFactory, times(1)).create(eq(RewardType.COSMETIC), eq(1), eq(cosmeticId));
-            verify(offerRepository, times(1)).save(any());
-        }
-
-        @Test
-        @DisplayName("shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist")
-        void shouldThrowCosmeticNotFoundExceptionWhenCosmeticDoesNotExist() {
-            UUID cosmeticId = UUID.randomUUID();
-            RegisterOfferRewardInput rewardInput = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-            RegisterOfferInput input = new RegisterOfferInput(
-                    principal, "Oferta Inválida", CoinType.REAL, BigDecimal.TEN, List.of(rewardInput), true, false, 0L
-            );
-
-            doNothing().when(adminChecker).check(principal, key, action);
-            when(rewardFactory.create(eq(RewardType.COSMETIC), anyInt(), eq(cosmeticId)))
-                    .thenThrow(new CosmeticNotFoundException());
-
-            assertThrows(
-                    CosmeticNotFoundException.class,
-                    () -> useCase.execute(input)
-            );
-
-            verify(offerRepository, never()).save(any());
-        }
-
-        @Test
         @DisplayName("shouldProcessMultipleMixedRewardsCorrectly")
         void shouldProcessMultipleMixedRewardsCorrectly() {
-            UUID cosmeticId = UUID.randomUUID();
+            UUID itemId = UUID.randomUUID();
             RegisterOfferRewardInput coinReward = new RegisterOfferRewardInput(RewardType.COIN, null, 100);
             RegisterOfferRewardInput gemsReward = new RegisterOfferRewardInput(RewardType.GEMS, null, 10);
-            RegisterOfferRewardInput cosmeticReward = new RegisterOfferRewardInput(RewardType.COSMETIC, cosmeticId, 1);
+            RegisterOfferRewardInput itemReward = new RegisterOfferRewardInput(RewardType.ITEM, itemId, 1);
 
             RegisterOfferInput input = new RegisterOfferInput(
                     principal, "Super Combo", CoinType.REAL, BigDecimal.valueOf(50),
-                    List.of(coinReward, gemsReward, cosmeticReward), true, false, 0L
+                    List.of(coinReward, gemsReward, itemReward), true, false, 0L
             );
 
             doNothing().when(adminChecker).check(principal, key, action);

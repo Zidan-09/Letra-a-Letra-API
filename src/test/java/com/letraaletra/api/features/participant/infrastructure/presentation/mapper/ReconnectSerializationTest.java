@@ -11,11 +11,9 @@ import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,12 +23,9 @@ import static org.mockito.Mockito.*;
 class ReconnectSerializationTest {
 
     private User mockUser(UUID id) {
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
         User u = mock(User.class);
         lenient().when(u.getUserId()).thenReturn(id);
         lenient().when(u.getUsername()).thenReturn("u-" + id.toString().substring(0,4));
-        lenient().when(u.getInventory()).thenReturn(inv);
         return u;
     }
 
@@ -39,8 +34,8 @@ class ReconnectSerializationTest {
     void waitingSerializationComFasterxml() throws Exception {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODEW", "roomW", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
-        game.join(mockUser(UUID.randomUUID()), "s1");
-        game.join(mockUser(UUID.randomUUID()), "s2");
+        game.join(mockUser(UUID.randomUUID()), "s1", List.of());
+        game.join(mockUser(UUID.randomUUID()), "s2", List.of());
 
         ReconnectParticipantResponse dto = ReconnectParticipantMapper.toResponse(new ReconnectParticipantOutput(game));
 
@@ -65,8 +60,8 @@ class ReconnectSerializationTest {
     void runningSerialization() throws Exception {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODER", "roomR", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
-        game.join(mockUser(UUID.randomUUID()), "s1");
-        game.join(mockUser(UUID.randomUUID()), "s2");
+        game.join(mockUser(UUID.randomUUID()), "s1", List.of());
+        game.join(mockUser(UUID.randomUUID()), "s2", List.of());
         Board board = BoardGenerator.generate(List.of("alpha","bravo","charlie","delta","echo"), GameMode.NORMAL);
         game.start(board);
 
@@ -94,8 +89,8 @@ class ReconnectSerializationTest {
     void waitingSerializationToolsJackson() throws Exception {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODEW2", "roomW2", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
-        game.join(mockUser(UUID.randomUUID()), "s1");
-        game.join(mockUser(UUID.randomUUID()), "s2");
+        game.join(mockUser(UUID.randomUUID()), "s1", List.of());
+        game.join(mockUser(UUID.randomUUID()), "s2", List.of());
 
         ReconnectParticipantResponse dto = ReconnectParticipantMapper.toResponse(new ReconnectParticipantOutput(game));
 

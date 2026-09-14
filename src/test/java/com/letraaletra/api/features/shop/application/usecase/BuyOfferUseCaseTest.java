@@ -3,6 +3,7 @@ package com.letraaletra.api.features.shop.application.usecase;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.atLeastOnce;
@@ -35,6 +37,16 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
+import com.letraaletra.api.features.inventory.domain.EffectType;
+import com.letraaletra.api.features.inventory.domain.ItemCategory;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.ItemEffect;
+import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
@@ -59,6 +71,12 @@ class BuyOfferUseCaseTest {
 
     @Mock
     private BusinessAuditRecorder auditRecorder;
+
+    @Mock
+    private ItemDefinitionRepository itemDefinitionRepository;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
 
     @InjectMocks
     private BuyOfferUseCase useCase;
@@ -173,5 +191,36 @@ class BuyOfferUseCaseTest {
         verifyNoInteractions(offerRepository);
         verifyNoInteractions(userRepository);
         verifyNoInteractions(auditRecorder);
+    }
+
+    @Test
+    @DisplayName("should grant ITEM rewards through the new inventory")
+    void shouldGrantItemRewardsThroughNewInventory() {
+        ItemDefinition boost = ItemDefinition.create(
+                "XP Boost 50%",
+                ItemKind.CONSUMABLE,
+                ItemCategory.XP_BOOST,
+                Set.of(ItemContext.PROFILE),
+                true,
+                null,
+                true,
+                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                null
+        );
+        OfferReward itemOfferReward = mock(OfferReward.class);
+        when(itemOfferReward.reward()).thenReturn(new ItemGrantReward(boost.getId(), 2));
+        when(mockOffer.getRewards()).thenReturn(List.of(itemOfferReward));
+
+        when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
+        when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
+        when(userRepository.find(input.auth())).thenReturn(Optional.of(mockUser));
+        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of());
+
+        BuyOfferOutput output = useCase.execute(input);
+
+        assertNotNull(output);
+        verify(inventoryRepository).deleteItemsByOwner(userId);
+        verify(inventoryRepository).saveItem(eq(userId), any(UserItem.class));
     }
 }

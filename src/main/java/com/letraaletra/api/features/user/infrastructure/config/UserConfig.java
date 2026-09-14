@@ -10,14 +10,11 @@ import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.input.CreateUserInput;
 import com.letraaletra.api.features.user.application.input.FindUserByUsernameInput;
 import com.letraaletra.api.features.user.application.input.ForgotPasswordInput;
-import com.letraaletra.api.features.user.application.input.GetMyInventoryInput;
 import com.letraaletra.api.features.user.application.input.GetMyProfileInput;
 import com.letraaletra.api.features.user.application.input.GetMyTransactionsInput;
-import com.letraaletra.api.features.user.application.input.GetUserInventoryInput;
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.input.GrantUserRewardInput;
 import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
-import com.letraaletra.api.features.user.application.input.RevokeUserCosmeticInput;
 import com.letraaletra.api.features.user.application.input.RevokeUserWalletInput;
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.input.UnbanUserInput;
@@ -25,10 +22,8 @@ import com.letraaletra.api.features.user.application.input.VerifyResetCodeInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.output.FindUserByUsernameOutput;
-import com.letraaletra.api.features.user.application.output.GetMyInventoryOutput;
 import com.letraaletra.api.features.user.application.output.GetMyProfileOutput;
 import com.letraaletra.api.features.user.application.output.GetMyTransactionsOutput;
-import com.letraaletra.api.features.user.application.output.GetUserInventoryOutput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
@@ -37,7 +32,6 @@ import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
-import com.letraaletra.api.features.user.domain.inventory.repository.InventoryRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -119,19 +113,6 @@ public class UserConfig {
                         userRepository,
                         passwordService,
                         tokenService
-                ),
-                transactions
-        );
-    }
-
-    @Bean
-    public UseCase<GetMyInventoryInput, GetMyInventoryOutput> getMyInventoryUseCase(
-            InventoryRepository inventoryRepository,
-            TransactionalExecutorService transactions
-    ) {
-        return new TransactionalUseCase<>(
-                new GetMyInventoryUseCase(
-                        inventoryRepository
                 ),
                 transactions
         );
@@ -303,6 +284,8 @@ public class UserConfig {
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
             RewardFactory rewardFactory,
+            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
+            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder,
             TransactionalExecutorService transactions
     ) {
@@ -312,38 +295,8 @@ public class UserConfig {
                         transactionRepository,
                         adminChecker,
                         rewardFactory,
-                        auditRecorder
-                ),
-                transactions
-        );
-    }
-
-    @Bean
-    public UseCase<GetUserInventoryInput, GetUserInventoryOutput> getUserInventoryUseCase(
-            InventoryRepository inventoryRepository,
-            AdminChecker adminChecker,
-            TransactionalExecutorService transactions
-    ) {
-        return new TransactionalUseCase<>(
-                new GetUserInventoryUseCase(
+                        itemDefinitionRepository,
                         inventoryRepository,
-                        adminChecker
-                ),
-                transactions
-        );
-    }
-
-    @Bean
-    public UseCase<RevokeUserCosmeticInput, Void> revokeUserCosmeticUseCase(
-            UserRepository userRepository,
-            AdminChecker adminChecker,
-            BusinessAuditRecorder auditRecorder,
-            TransactionalExecutorService transactions
-    ) {
-        return new TransactionalUseCase<>(
-                new RevokeUserCosmeticUseCase(
-                        userRepository,
-                        adminChecker,
                         auditRecorder
                 ),
                 transactions

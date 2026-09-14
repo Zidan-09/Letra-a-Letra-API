@@ -2,9 +2,9 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
 import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
@@ -15,8 +15,8 @@ import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundExcepti
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 
 import java.util.List;
@@ -24,16 +24,16 @@ import java.util.UUID;
 
 public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevelOutput> {
     private final LevelRepository levelRepository;
-    private final CosmeticRepository cosmeticRepository;
+    private final ItemDefinitionRepository itemDefinitionRepository;
     private final AdminChecker adminChecker;
 
     public UpdateLevelUseCase(
             LevelRepository levelRepository,
-            CosmeticRepository cosmeticRepository,
+            ItemDefinitionRepository itemDefinitionRepository,
             AdminChecker adminChecker
     ) {
         this.levelRepository = levelRepository;
-        this.cosmeticRepository = cosmeticRepository;
+        this.itemDefinitionRepository = itemDefinitionRepository;
         this.adminChecker = adminChecker;
     }
 
@@ -77,13 +77,13 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
                     new HardGemsReward(reward.quantity())
             );
 
-            case COSMETIC -> {
-                Cosmetic cosmetic = cosmeticRepository.find(reward.rewardReference())
-                        .orElseThrow(CosmeticNotFoundException::new);
+            case ITEM -> {
+                ItemDefinition definition = itemDefinitionRepository.findById(reward.rewardReference())
+                        .orElseThrow(ItemNotFoundException::new);
 
                 yield new LevelReward(
                         id,
-                        new CosmeticReward(cosmetic)
+                        new ItemGrantReward(definition.getId(), reward.quantity())
                 );
             }
         };

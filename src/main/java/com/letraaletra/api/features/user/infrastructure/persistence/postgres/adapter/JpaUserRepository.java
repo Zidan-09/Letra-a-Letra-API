@@ -3,17 +3,13 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ad
 import com.letraaletra.api.features.user.domain.UsersPage;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserProcedureMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserInventoryJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserJpaMapper;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserProcedureMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserWalletJpaMapper;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
 import com.letraaletra.api.infrastructure.persistence.ProcedureExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -28,16 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Repository
 public class JpaUserRepository implements UserRepository {
 
     private final SpringDataUserRepository repository;
-    private final SpringDataUserInventoryRepository inventoryRepository;
     private final SpringDataUserWalletRepository walletRepository;
     private final SpringDataUserStatsRepository statsRepository;
     private final JdbcTemplate jdbcTemplate;
@@ -45,13 +38,11 @@ public class JpaUserRepository implements UserRepository {
     @Autowired
     public JpaUserRepository(
             SpringDataUserRepository repository,
-            SpringDataUserInventoryRepository inventoryRepository,
             SpringDataUserWalletRepository walletRepository,
             SpringDataUserStatsRepository statsRepository,
-            JdbcTemplate jdbcTemplate
+            @Autowired(required = false) JdbcTemplate jdbcTemplate
     ) {
         this.repository = repository;
-        this.inventoryRepository = inventoryRepository;
         this.walletRepository = walletRepository;
         this.statsRepository = statsRepository;
         this.jdbcTemplate = jdbcTemplate;
@@ -60,24 +51,26 @@ public class JpaUserRepository implements UserRepository {
     // Legacy constructor for unit tests without JdbcTemplate
     public JpaUserRepository(
             SpringDataUserRepository repository,
-            SpringDataUserInventoryRepository inventoryRepository,
             SpringDataUserWalletRepository walletRepository,
             SpringDataUserStatsRepository statsRepository
     ) {
-        this(repository, inventoryRepository, walletRepository, statsRepository, null);
+        this(repository, walletRepository, statsRepository, null);
     }
 
     @Override
     @Transactional
     public void save(User user) {
+        saveUser(user);
+    }
+
+    private void saveUser(User user) {
         if (jdbcTemplate == null) {
             legacySave(user);
             return;
         }
         try {
-            String inventoryJson = UserProcedureMapper.inventoryToJson(user);
             jdbcTemplate.update(
-                    "CALL sp_user_save(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)",
+                    "CALL sp_user_save(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     user.getUserId(),
                     user.getUsername(),
                     user.getEmail(),
@@ -94,8 +87,7 @@ public class JpaUserRepository implements UserRepository {
                     user.getStats().getExperience(),
                     user.getStats().getRankingPoints(),
                     user.getWallet().getBalance().coins(),
-                    user.getWallet().getBalance().gems(),
-                    inventoryJson
+                    user.getWallet().getBalance().gems()
             );
         } catch (DataAccessException ex) {
             if (isProcedureMissing(ex)) {
@@ -131,11 +123,6 @@ public class JpaUserRepository implements UserRepository {
         repository.save(UserJpaMapper.toEntity(user));
         statsRepository.save(UserStatsJpaMapper.toEntity(user));
         walletRepository.save(UserWalletJpaMapper.toEntity(user));
-        List<UserInventoryJpaEntity> inventoryEntities = user.getInventory().getItems().stream()
-                .map(item -> UserInventoryJpaMapper.toEntity(user.getUserId(), item))
-                .toList();
-        inventoryRepository.deleteAllByUserId(user.getUserId());
-        inventoryRepository.saveAll(inventoryEntities);
     }
 
     @Override
@@ -169,12 +156,7 @@ public class JpaUserRepository implements UserRepository {
 
     private Optional<User> legacyFind(UUID id) {
         return repository.findDetailsById(id)
-                .map(projection ->
-                        UserJpaMapper.toDomain(
-                                projection,
-                                inventoryRepository.findInventory(id)
-                        )
-                );
+                .map(UserJpaMapper::toDomain);
     }
 
     @Override
@@ -200,14 +182,8 @@ public class JpaUserRepository implements UserRepository {
 
     private List<User> legacyFindUsersById(List<UUID> ids) {
         List<com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection> users = repository.findDetailsByIds(ids);
-        List<InventoryProjection> inventories = inventoryRepository.findInventoryByUserIds(ids);
         return users.stream()
-                .map(user -> UserJpaMapper.toDomain(
-                        user,
-                        inventories.stream()
-                                .filter(item -> item.getUserId().equals(user.getUserId()))
-                                .toList()
-                ))
+                .map(UserJpaMapper::toDomain)
                 .toList();
     }
 
@@ -231,12 +207,7 @@ public class JpaUserRepository implements UserRepository {
 
     private Optional<User> legacyFindByUsername(String username) {
         return repository.findDetailsByUsername(username)
-                .map(projection ->
-                        UserJpaMapper.toDomain(
-                                projection,
-                                inventoryRepository.findInventory(projection.getUserId())
-                        )
-                );
+                .map(UserJpaMapper::toDomain);
     }
 
     @Override
@@ -259,12 +230,7 @@ public class JpaUserRepository implements UserRepository {
 
     private Optional<User> legacyFindByEmail(String email) {
         return repository.findDetailsByEmail(email)
-                .map(projection ->
-                        UserJpaMapper.toDomain(
-                                projection,
-                                inventoryRepository.findInventory(projection.getUserId())
-                        )
-                );
+                .map(UserJpaMapper::toDomain);
     }
 
     @Override
@@ -287,12 +253,7 @@ public class JpaUserRepository implements UserRepository {
 
     private Optional<User> legacyFindByGoogleId(String googleId) {
         return repository.findDetailsByGoogleId(googleId)
-                .map(projection ->
-                        UserJpaMapper.toDomain(
-                                projection,
-                                inventoryRepository.findInventory(projection.getUserId())
-                        )
-                );
+                .map(UserJpaMapper::toDomain);
     }
 
     @Override
@@ -344,20 +305,14 @@ public class JpaUserRepository implements UserRepository {
     private Page<User> legacyGet(UsersPage page) {
         Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
         var users = repository.findDetails(pageable);
-        List<UUID> ids = users.stream().map(com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection::getUserId).toList();
-        Map<UUID, List<InventoryProjection>> inventories = inventoryRepository.findInventoryByUserIds(ids).stream().collect(Collectors.groupingBy(InventoryProjection::getUserId));
-        return users.map(user -> UserJpaMapper.toDomain(user, inventories.getOrDefault(user.getUserId(), List.of())));
+        return users.map(UserJpaMapper::toDomain);
     }
 
     @Override
     public Page<User> search(String search, UsersPage page) {
         Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
         var users = repository.search(search, pageable);
-        List<UUID> ids = users.stream().map(com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection::getUserId).toList();
-        Map<UUID, List<InventoryProjection>> inventories = ids.isEmpty()
-                ? Map.of()
-                : inventoryRepository.findInventoryByUserIds(ids).stream().collect(Collectors.groupingBy(InventoryProjection::getUserId));
-        return users.map(user -> UserJpaMapper.toDomain(user, inventories.getOrDefault(user.getUserId(), List.of())));
+        return users.map(UserJpaMapper::toDomain);
     }
 
     private User mapUser(ResultSet rs) throws SQLException {

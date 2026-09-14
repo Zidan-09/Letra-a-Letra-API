@@ -9,8 +9,14 @@ import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
 import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundException;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
+import com.letraaletra.api.features.inventory.domain.Inventory;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
 import com.letraaletra.api.features.shop.application.output.BuyOfferOutput;
@@ -20,8 +26,6 @@ import com.letraaletra.api.features.transaction.domain.OperationType;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.inventory.InventoryChangeKind;
-import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
@@ -38,17 +42,23 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
     private final ShopPurchasePort purchasePort;
     private final OfferRepository offerRepository;
     private final UserRepository userRepository;
+    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final InventoryRepository inventoryRepository;
     private final BusinessAuditRecorder auditRecorder;
 
     public BuyOfferUseCase(
             ShopPurchasePort purchasePort,
             OfferRepository offerRepository,
             UserRepository userRepository,
+            ItemDefinitionRepository itemDefinitionRepository,
+            InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder
     ) {
         this.purchasePort = purchasePort;
         this.offerRepository = offerRepository;
         this.userRepository = userRepository;
+        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.inventoryRepository = inventoryRepository;
         this.auditRecorder = auditRecorder;
     }
 
@@ -64,12 +74,33 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
         User user = userRepository.find(input.auth())
                 .orElseThrow(UserNotFoundException::new);
 
-        recordAudit(user, offer, result, operationId);
+        List<com.letraaletra.api.features.inventory.domain.InventoryMovement> itemMovements = grantItemRewards(user, offer);
+        recordAudit(user, offer, result, operationId, itemMovements);
 
         return new BuyOfferOutput(offer);
     }
 
-    private void recordAudit(User user, Offer offer, ShopPurchaseResult result, UUID operationId) {
+    private List<com.letraaletra.api.features.inventory.domain.InventoryMovement> grantItemRewards(User user, Offer offer) {
+        List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements = new ArrayList<>();
+        for (OfferReward offerReward : offer.getRewards()) {
+            if (offerReward.reward() instanceof ItemGrantReward itemReward) {
+                ItemDefinition definition = itemDefinitionRepository.findById(itemReward.definitionId())
+                        .orElseThrow(ItemNotFoundException::new);
+
+                Inventory inventory = Inventory.restore(
+                        user.getUserId(),
+                        inventoryRepository.findItemsByOwner(user.getUserId())
+                );
+
+                movements.addAll(inventory.grant(definition, itemReward.quantity()));
+
+                InventoryPersistence.save(inventoryRepository, user.getUserId(), inventory);
+            }
+        }
+        return movements;
+    }
+
+    private void recordAudit(User user, Offer offer, ShopPurchaseResult result, UUID operationId, List<com.letraaletra.api.features.inventory.domain.InventoryMovement> itemMovements) {
         AuditActor actor = buyerActor(user);
         List<UUID> transactionIds = result.transactionIds();
         UUID debitTransactionId = transactionIds.isEmpty() ? null : transactionIds.get(0);
@@ -167,20 +198,8 @@ public class BuyOfferUseCase implements UseCase<BuyOfferInput, BuyOfferOutput> {
             }
         }
 
-        List<InventoryMovement> inventoryMovements = new ArrayList<>();
-        for (OfferReward offerReward : offer.getRewards()) {
-            if (offerReward.reward() instanceof CosmeticReward cosmetic) {
-                inventoryMovements.add(new InventoryMovement(
-                        cosmetic.cosmetic().getId(),
-                        InventoryChangeKind.ACQUIRED,
-                        null,
-                        false
-                ));
-            }
-        }
-
-        AuditEventFactory.inventoryChanges(
-                inventoryMovements,
+        AuditEventFactory.itemChanges(
+                itemMovements,
                 user.getUserId(),
                 actor,
                 TransactionReason.SHOP_PURCHASE.name(),

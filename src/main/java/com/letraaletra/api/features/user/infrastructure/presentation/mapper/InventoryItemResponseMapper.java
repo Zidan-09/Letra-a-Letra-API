@@ -1,16 +1,32 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 
+import java.util.List;
+import java.util.UUID;
+
 public class InventoryItemResponseMapper {
-    public static InventoryItemResponse toResponse(InventoryItem inventoryItem) {
+    public static InventoryItemResponse toResponse(UserItem item, ItemDefinition definition) {
         return new InventoryItemResponse(
-                inventoryItem.cosmeticId(),
-                inventoryItem.name(),
-                inventoryItem.type(),
-                inventoryItem.equipped(),
-                inventoryItem.assetPath()
+                definition.getId(),
+                definition.getName(),
+                definition.getKind(),
+                definition.getCategory(),
+                definition.getApplicability().stream().findFirst().orElse(ItemContext.PROFILE),
+                item.getQuantity(),
+                item.isEquipped(),
+                definition.getAssetPath()
         );
     }
+
+    public static List<InventoryItemResponse> toEquippedResponses(List<UserItem> items, java.util.function.Function<UUID, ItemDefinition> lookup) {
+        return items.stream()
+                .filter(UserItem::isEquipped)
+                .map(item -> toResponse(item, lookup.apply(item.getDefinitionId())))
+                .toList();
+    }
+
 }

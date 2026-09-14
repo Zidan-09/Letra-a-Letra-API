@@ -9,7 +9,6 @@ import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.ticket.domain.Ticket;
 import com.letraaletra.api.features.ticket.domain.TicketStatus;
 import com.letraaletra.api.features.transaction.domain.OperationType;
-import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 
 import java.util.HashMap;
@@ -49,8 +48,8 @@ public final class AuditEventFactory {
                 .build();
     }
 
-    public static List<AuditEvent> inventoryChanges(
-            List<InventoryMovement> movements,
+    public static List<AuditEvent> itemChanges(
+            List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements,
             UUID targetUserId,
             AuditActor actor,
             String reasonCode,
@@ -59,7 +58,7 @@ public final class AuditEventFactory {
             UUID operationId
     ) {
         return movements.stream()
-                .map(movement -> inventoryChange(
+                .map(movement -> itemChange(
                         movement,
                         targetUserId,
                         actor,
@@ -71,8 +70,8 @@ public final class AuditEventFactory {
                 .toList();
     }
 
-    public static AuditEvent inventoryChange(
-            InventoryMovement movement,
+    public static AuditEvent itemChange(
+            com.letraaletra.api.features.inventory.domain.InventoryMovement movement,
             UUID targetUserId,
             AuditActor actor,
             String reasonCode,
@@ -81,23 +80,31 @@ public final class AuditEventFactory {
             UUID operationId
     ) {
         AuditEventType eventType = switch (movement.kind()) {
-            case ACQUIRED -> AuditEventType.COSMETIC_ACQUIRED;
-            case REMOVED -> AuditEventType.COSMETIC_REVOKED;
-            case EQUIPPED -> AuditEventType.COSMETIC_EQUIPPED;
-            case UNEQUIPPED -> AuditEventType.COSMETIC_UNEQUIPPED;
+            case ACQUIRED -> AuditEventType.ITEM_ACQUIRED;
+            case REMOVED -> AuditEventType.ITEM_REMOVED;
+            case EQUIPPED -> AuditEventType.ITEM_EQUIPPED;
+            case UNEQUIPPED -> AuditEventType.ITEM_UNEQUIPPED;
+            case CONSUMED -> AuditEventType.ITEM_CONSUMED;
+            case QUANTITY_CHANGED -> AuditEventType.ITEM_QUANTITY_CHANGED;
         };
 
         var builder = base(actor, targetUserId, reasonCode, sourceType, sourceDetail, operationId)
                 .category(AuditCategory.INVENTORY)
                 .eventType(eventType)
                 .resourceType(AuditResourceType.INVENTORY_ITEM)
-                .resourceId(movement.cosmeticId().toString());
+                .resourceId(movement.itemId().toString());
 
         if (movement.equippedBefore() != null) {
-            builder.beforeState(Map.of("equipped", movement.equippedBefore()));
+            builder.beforeState(Map.of(
+                    "equipped", movement.equippedBefore(),
+                    "quantity", movement.quantityBefore()
+            ));
         }
 
-        builder.afterState(Map.of("equipped", movement.equippedAfter()));
+        builder.afterState(Map.of(
+                "equipped", movement.equippedAfter(),
+                "quantity", movement.quantityAfter()
+        ));
 
         return builder.build();
     }

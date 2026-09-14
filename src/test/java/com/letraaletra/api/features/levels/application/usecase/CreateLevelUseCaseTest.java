@@ -102,31 +102,31 @@ class CreateLevelUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should successfully create a level with COSMETIC reward type when the reference exists")
-    void shouldCreateLevelWithCosmeticRewardSuccessfully() {
-        UUID cosmeticId = UUID.randomUUID();
-        CreateLevelRewardInput cosmeticRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
-        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(cosmeticRewardInput));
+    @DisplayName("Should successfully create a level with ITEM reward type when the reference exists")
+    void shouldCreateLevelWithItemRewardSuccessfully() {
+        UUID itemId = UUID.randomUUID();
+        CreateLevelRewardInput itemRewardInput = new CreateLevelRewardInput(RewardType.ITEM, itemId, 1);
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(itemRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level())).thenReturn(false);
-        when(rewardFactory.create(RewardType.COSMETIC, 1, cosmeticId)).thenReturn(new SoftCoinsReward(1));
+        when(rewardFactory.create(RewardType.ITEM, 1, itemId)).thenReturn(new SoftCoinsReward(1));
 
         useCase.execute(input);
 
-        verify(rewardFactory, times(1)).create(RewardType.COSMETIC, 1, cosmeticId);
+        verify(rewardFactory, times(1)).create(RewardType.ITEM, 1, itemId);
         verify(levelRepository, times(1)).save(any(Level.class));
     }
 
     @Test
     @DisplayName("Should successfully create a level with multiple mixed reward types")
     void shouldCreateLevelWithMixedRewardsSuccessfully() {
-        UUID cosmeticId = UUID.randomUUID();
-        CreateLevelRewardInput coinReward = new CreateLevelRewardInput(RewardType.COSMETIC, null, 100);
+        UUID itemId = UUID.randomUUID();
+        CreateLevelRewardInput coinReward = new CreateLevelRewardInput(RewardType.ITEM, null, 100);
         CreateLevelRewardInput gemsReward = new CreateLevelRewardInput(RewardType.GEMS, null, 10);
-        CreateLevelRewardInput cosmeticReward = new CreateLevelRewardInput(RewardType.COSMETIC, cosmeticId, 1);
+        CreateLevelRewardInput itemReward = new CreateLevelRewardInput(RewardType.ITEM, itemId, 1);
 
-        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinReward, gemsReward, cosmeticReward));
+        CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(coinReward, gemsReward, itemReward));
 
         doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level())).thenReturn(false);
@@ -183,12 +183,12 @@ class CreateLevelUseCaseTest {
     @DisplayName("Should propagate exception when RewardFactory fails to create reward")
     void shouldPropagateExceptionWhenRewardFactoryFails() {
         UUID invalidRef = UUID.randomUUID();
-        CreateLevelRewardInput invalidRewardInput = new CreateLevelRewardInput(RewardType.COSMETIC, invalidRef, 1);
+        CreateLevelRewardInput invalidRewardInput = new CreateLevelRewardInput(RewardType.ITEM, invalidRef, 1);
         CreateLevelInput input = new CreateLevelInput(principal, targetLevel, List.of(invalidRewardInput));
 
         doNothing().when(adminChecker).check(principal, key, action);
         when(levelRepository.existsByLevel(input.level())).thenReturn(false);
-        when(rewardFactory.create(RewardType.COSMETIC, 1, invalidRef))
+        when(rewardFactory.create(RewardType.ITEM, 1, invalidRef))
                 .thenThrow(new IllegalArgumentException("Invalid reward reference"));
 
         assertThrows(IllegalArgumentException.class, () -> useCase.execute(input));

@@ -1,15 +1,11 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.InventoryProjection;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.projection.UserProjection;
-
-import java.util.List;
 
 public class UserJpaMapper {
     public static UserJpaEntity toEntity(User user) {
@@ -29,7 +25,7 @@ public class UserJpaMapper {
         return entity;
     }
 
-    public static User toDomain(UserProjection projection, List<InventoryProjection> inventory) {
+    public static User toDomain(UserProjection projection) {
         return User.restore(
                 projection.getUserId(),
                 projection.getUsername(),
@@ -53,13 +49,6 @@ public class UserJpaMapper {
                         projection.getLevel(),
                         projection.getExperience(),
                         projection.getRankingPoints()
-                ),
-                Inventory.restore(
-                        inventory == null
-                                ? List.of()
-                                : inventory.stream()
-                                .map(UserInventoryJpaMapper::toDomain)
-                                .toList()
                 ),
                 Wallet.restore(
                         projection.getSoftCoins(),

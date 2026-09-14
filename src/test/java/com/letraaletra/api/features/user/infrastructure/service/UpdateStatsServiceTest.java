@@ -9,14 +9,22 @@ import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Balance;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
+import com.letraaletra.api.features.inventory.domain.EffectType;
+import com.letraaletra.api.features.inventory.domain.ItemCategory;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.ItemEffect;
+import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,12 +38,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -59,6 +69,12 @@ class UpdateStatsServiceTest {
 
     @Mock
     private com.letraaletra.api.shared.application.port.OperationContext operationContext;
+
+    @Mock
+    private ItemDefinitionRepository itemDefinitionRepository;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
 
     @InjectMocks
     private UpdateStatsService service;
@@ -219,18 +235,28 @@ class UpdateStatsServiceTest {
         }
 
         @Test
-        @DisplayName("Não deve salvar transação se o Reward.apply retornar Optional.empty()")
-        void update_WhenLevelUpRewardReturnsEmptyMovement_ShouldNotSaveTransaction() {
+        @DisplayName("Deve conceder ItemGrantReward no inventário novo ao subir de nível")
+        void update_WhenLevelUpWithItemGrantReward_ShouldGrantToNewInventory() {
             boolean isWinner = true;
             int maxLevel = 20;
             int beforeLevel = 1;
             int afterLevel = 2;
             UUID levelId = UUID.randomUUID();
 
-            Inventory inventory = mock(Inventory.class);
+            ItemDefinition boost = ItemDefinition.create(
+                    "XP Boost 50%",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    Set.of(ItemContext.PROFILE),
+                    true,
+                    null,
+                    true,
+                    new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            );
 
+            when(mockUser.getUserId()).thenReturn(userId);
             when(mockUser.getStats()).thenReturn(mockUserStats);
-            when(mockUser.getInventory()).thenReturn(inventory);
 
             when(levelRepository.findBiggestLevel())
                     .thenReturn(maxLevel);
@@ -239,30 +265,25 @@ class UpdateStatsServiceTest {
                     .thenReturn(beforeLevel)
                     .thenReturn(afterLevel);
 
-            Reward reward = new CosmeticReward(null);
-
-            LevelReward levelReward = new LevelReward(
-                    levelId,
-                    reward
-            );
+            Reward reward = new ItemGrantReward(boost.getId(), 2);
 
             Level level = new Level(
                     levelId,
                     afterLevel,
-                    List.of(levelReward)
+                    List.of(new LevelReward(levelId, reward))
             );
 
             when(levelRepository.findByLevel(afterLevel))
                     .thenReturn(Optional.of(level));
+            when(itemDefinitionRepository.findById(boost.getId()))
+                    .thenReturn(Optional.of(boost));
+            when(inventoryRepository.findItemsByOwner(userId))
+                    .thenReturn(List.of());
 
             service.update(mockUser, isWinner);
 
-            verify(mockUser).registerMatchResult(true);
-            verify(mockUserStats).incrementExperience(30, maxLevel);
-            verify(levelRepository).findByLevel(afterLevel);
-
-            verify(inventory).unlock(null);
-
+            verify(inventoryRepository).deleteItemsByOwner(userId);
+            verify(inventoryRepository).saveItem(eq(userId), any(UserItem.class));
             verifyNoInteractions(walletTransactionRepository);
         }
 

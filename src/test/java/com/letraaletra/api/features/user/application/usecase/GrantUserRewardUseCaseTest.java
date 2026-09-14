@@ -3,7 +3,6 @@ package com.letraaletra.api.features.user.application.usecase;
 import com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.transaction.domain.OperationType;
@@ -18,8 +17,17 @@ import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
+import com.letraaletra.api.features.inventory.domain.EffectType;
+import com.letraaletra.api.features.inventory.domain.ItemCategory;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.ItemEffect;
+import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,12 +43,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -69,6 +79,12 @@ class GrantUserRewardUseCaseTest {
     private RewardFactory rewardFactory;
 
     @Mock
+    private ItemDefinitionRepository itemDefinitionRepository;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
+
+    @Mock
     private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
 
     @InjectMocks
@@ -79,7 +95,6 @@ class GrantUserRewardUseCaseTest {
 
     private AuthenticatedUser principal;
     private UUID targetUserId;
-    private UUID cosmeticId;
     private User mockUser;
 
     @BeforeEach
@@ -94,7 +109,6 @@ class GrantUserRewardUseCaseTest {
         );
 
         targetUserId = UUID.randomUUID();
-        cosmeticId = UUID.randomUUID();
 
         mockUser = mock(User.class);
 
@@ -192,62 +206,6 @@ class GrantUserRewardUseCaseTest {
             Transaction savedTransaction = transactionCaptor.getValue();
 
             assertNotNull(savedTransaction);
-        }
-
-        @Test
-        @DisplayName("Deve conceder recompensa sem movimentação de carteira (ex: cosmético) e não gerar transação")
-        void execute_WhenRewardHasNoWalletMovement_ShouldSaveUserWithoutTransaction() {
-            GrantUserRewardInput input = new GrantUserRewardInput(
-                    principal,
-                    targetUserId,
-                    RewardType.COSMETIC,
-                    cosmeticId,
-                    null
-            );
-
-            Cosmetic cosmetic = mock(Cosmetic.class);
-            CosmeticReward reward = mock(CosmeticReward.class);
-
-            when(userRepository.find(targetUserId))
-                    .thenReturn(Optional.of(mockUser));
-
-            when(rewardFactory.create(
-                    RewardType.COSMETIC,
-                    null,
-                    cosmeticId
-            )).thenReturn(reward);
-
-            when(reward.apply(mockUser))
-                    .thenReturn(Optional.empty());
-
-            Void result = useCase.execute(input);
-
-            assertNull(result);
-
-            verify(adminChecker, times(1))
-                    .check(
-                            principal,
-                            PermissionKey.USER,
-                            PermissionAction.EDIT
-                    );
-
-            verify(userRepository, times(1))
-                    .find(targetUserId);
-
-            verify(rewardFactory, times(1))
-                    .create(
-                            RewardType.COSMETIC,
-                            null,
-                            cosmeticId
-                    );
-
-            verify(reward, times(1))
-                    .apply(mockUser);
-
-            verify(userRepository, times(1))
-                    .save(mockUser);
-
-            verifyNoInteractions(transactionRepository);
         }
     }
 
@@ -439,27 +397,41 @@ class GrantUserRewardUseCaseTest {
         @Test
         @DisplayName("Deve propagar exceção caso o UserRepository falhe ao salvar as alterações do usuário")
         void execute_WhenUserRepositorySaveFails_ShouldPropagateException() {
+            ItemDefinition definition = ItemDefinition.create(
+                    "XP Boost 50%",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    Set.of(ItemContext.PROFILE),
+                    true,
+                    null,
+                    true,
+                    new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            );
             GrantUserRewardInput input = new GrantUserRewardInput(
                     principal,
                     targetUserId,
-                    RewardType.COSMETIC,
-                    cosmeticId,
-                    null
+                    RewardType.ITEM,
+                    definition.getId(),
+                    2
             );
 
-            CosmeticReward reward = mock(CosmeticReward.class);
+            ItemGrantReward reward = new ItemGrantReward(definition.getId(), 2);
+
+            when(mockUser.getUserId()).thenReturn(targetUserId);
+            when(itemDefinitionRepository.findById(definition.getId()))
+                    .thenReturn(Optional.of(definition));
+            when(inventoryRepository.findItemsByOwner(targetUserId))
+                    .thenReturn(java.util.List.of());
 
             when(userRepository.find(targetUserId))
                     .thenReturn(Optional.of(mockUser));
 
             when(rewardFactory.create(
-                    RewardType.COSMETIC,
-                    null,
-                    cosmeticId
+                    RewardType.ITEM,
+                    2,
+                    definition.getId()
             )).thenReturn(reward);
-
-            when(reward.apply(mockUser))
-                    .thenReturn(Optional.empty());
 
             doThrow(new RuntimeException(
                     "Erro ao conectar ao banco de dados"
@@ -479,6 +451,53 @@ class GrantUserRewardUseCaseTest {
 
             verify(userRepository, times(1))
                     .save(mockUser);
+        }
+    }
+
+    @Nested
+    @DisplayName("recompensa genérica ITEM")
+    class ItemGrantFlows {
+
+        @Test
+        @DisplayName("Deve conceder ItemGrantReward via agregado novo sem transação de wallet")
+        void execute_WhenItemGrantReward_ShouldGrantViaNewInventory() {
+            ItemDefinition boost = ItemDefinition.create(
+                    "XP Boost 50%",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    Set.of(ItemContext.PROFILE),
+                    true,
+                    null,
+                    true,
+                    new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            );
+            GrantUserRewardInput input = new GrantUserRewardInput(
+                    principal,
+                    targetUserId,
+                    RewardType.ITEM,
+                    boost.getId(),
+                    2
+            );
+
+            when(userRepository.find(targetUserId))
+                    .thenReturn(Optional.of(mockUser));
+            when(rewardFactory.create(RewardType.ITEM, 2, boost.getId()))
+                    .thenReturn(new ItemGrantReward(boost.getId(), 2));
+            when(mockUser.getUserId()).thenReturn(targetUserId);
+            when(itemDefinitionRepository.findById(boost.getId()))
+                    .thenReturn(Optional.of(boost));
+            when(inventoryRepository.findItemsByOwner(targetUserId))
+                    .thenReturn(java.util.List.of());
+
+            Void result = useCase.execute(input);
+
+            assertNull(result);
+            verify(adminChecker).check(principal, PermissionKey.USER, PermissionAction.EDIT);
+            verify(inventoryRepository).deleteItemsByOwner(targetUserId);
+            verify(inventoryRepository).saveItem(eq(targetUserId), any(UserItem.class));
+            verify(userRepository).save(mockUser);
+            verify(transactionRepository, never()).save(any(Transaction.class));
         }
     }
 }

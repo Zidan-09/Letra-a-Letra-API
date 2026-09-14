@@ -5,13 +5,19 @@ import com.letraaletra.api.features.audit.domain.AuditActor;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
+import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
+import com.letraaletra.api.features.inventory.domain.Inventory;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
-import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.OperationContext;
@@ -31,6 +37,8 @@ public class UpdateStatsService implements UserStatsService {
     private final TransactionRepository walletTransactionRepository;
     private final BusinessAuditRecorder auditRecorder;
     private final OperationContext operationContext;
+    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
     public void update(User user, boolean isWinner) {
@@ -58,7 +66,10 @@ public class UpdateStatsService implements UserStatsService {
     private void applyReward(User user, Level level, Reward reward) {
         UUID operationId = operationContext.currentOperationId().orElseGet(UUID::randomUUID);
 
-        List<InventoryMovement> inventoryMovements = reward.applyInventory(user);
+        if (reward instanceof ItemGrantReward itemReward) {
+            grantItemReward(user, itemReward, operationId);
+            return;
+        }
 
         Optional<WalletMovement> movement = reward.apply(user);
 
@@ -89,9 +100,28 @@ public class UpdateStatsService implements UserStatsService {
                     saved.transactionId()
             ));
         });
+    }
 
-        AuditEventFactory.inventoryChanges(
-                inventoryMovements,
+    private void grantItemReward(User user, ItemGrantReward reward, UUID operationId) {
+        ItemDefinition definition = itemDefinitionRepository.findById(reward.definitionId())
+                .orElseThrow(ItemNotFoundException::new);
+
+        grantDefinition(user, definition, reward.quantity(), operationId);
+    }
+
+    private void grantDefinition(User user, ItemDefinition definition, int quantity, UUID operationId) {
+        Inventory inventory = Inventory.restore(
+                user.getUserId(),
+                inventoryRepository.findItemsByOwner(user.getUserId())
+        );
+
+        List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements =
+                inventory.grant(definition, quantity);
+
+        InventoryPersistence.save(inventoryRepository, user.getUserId(), inventory);
+
+        AuditEventFactory.itemChanges(
+                movements,
                 user.getUserId(),
                 AuditActor.system(),
                 TransactionReason.LEVEL_UP.name(),

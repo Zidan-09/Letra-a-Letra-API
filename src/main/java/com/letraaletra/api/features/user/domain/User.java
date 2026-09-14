@@ -5,7 +5,6 @@ import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
 import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
@@ -23,7 +22,6 @@ public class User {
     private BanInfo banInfo;
     private boolean canChangeNickname;
     private final UserStats stats;
-    private final Inventory inventory;
     private final Wallet wallet;
     private final LocalDateTime createdAt;
 
@@ -38,7 +36,6 @@ public class User {
             BanInfo banInfo,
             boolean canChangeNickname,
             UserStats stats,
-            Inventory inventory,
             Wallet wallet,
             LocalDateTime createdAt
     ) {
@@ -52,7 +49,6 @@ public class User {
         this.banInfo = banInfo == null ? BanInfo.create() : banInfo;
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
-        this.inventory = inventory;
         this.wallet = wallet;
         this.createdAt = createdAt;
     }
@@ -75,7 +71,6 @@ public class User {
                 BanInfo.create(),
                 canChangeNickname,
                 UserStats.create(),
-                Inventory.create(),
                 Wallet.create(),
                 LocalDateTime.now()
         );
@@ -92,7 +87,6 @@ public class User {
             boolean canChangeNickname,
             BanInfo banInfo,
             UserStats stats,
-            Inventory inventory,
             Wallet wallet,
             LocalDateTime createdAt
     ) {
@@ -107,7 +101,6 @@ public class User {
                 banInfo,
                 canChangeNickname,
                 stats,
-                inventory,
                 wallet,
                 createdAt
         );
@@ -155,10 +148,6 @@ public class User {
 
     public UserStats getStats() {
         return stats;
-    }
-
-    public Inventory getInventory() {
-        return inventory;
     }
 
     public Wallet getWallet() {

@@ -4,6 +4,7 @@ import com.letraaletra.api.features.user.application.input.FindUserByUsernameInp
 import com.letraaletra.api.features.user.application.output.FindUserByUsernameOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.FindUserByUsernameMapper;
+import com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class FindUserByUsernameController {
     private final UseCase<FindUserByUsernameInput, FindUserByUsernameOutput> useCase;
+    private final UserEquippedItemsService equippedItemsService;
 
     @GetMapping(path = "/username/{username}")
     public ResponseEntity<SuccessResponse<PageResponse<UserResponse>>> handle(
@@ -37,7 +39,8 @@ public class FindUserByUsernameController {
 
         FindUserByUsernameOutput output = useCase.execute(input);
 
-        PageResponse<UserResponse> dto = FindUserByUsernameMapper.toResponse(output);
+        java.util.List<java.util.UUID> ids = output.users().getContent().stream().map(u -> u.getUserId()).toList();
+        PageResponse<UserResponse> dto = FindUserByUsernameMapper.toResponse(output, equippedItemsService.equippedResponsesFor(ids));
 
         return ApiResponseHandler.success(dto);
     }

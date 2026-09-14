@@ -11,11 +11,9 @@ import com.letraaletra.api.features.game.domain.state.GameStateFactory;
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.infrastructure.presentation.dto.response.ReconnectParticipantResponse;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +22,10 @@ import static org.mockito.Mockito.*;
 
 class ReconnectParticipantMapperTest {
 
-    private User mockUser(UUID userId, Inventory inventory) {
+    private User mockUser(UUID userId) {
         User user = mock(User.class);
         lenient().when(user.getUserId()).thenReturn(userId);
         lenient().when(user.getUsername()).thenReturn("user-" + userId.toString().substring(0, 4));
-        lenient().when(user.getInventory()).thenReturn(inventory);
         return user;
     }
 
@@ -38,13 +35,11 @@ class ReconnectParticipantMapperTest {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE1", "Lobby", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
 
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
-        User u1 = mockUser(UUID.randomUUID(), inv);
-        User u2 = mockUser(UUID.randomUUID(), inv);
+        User u1 = mockUser(UUID.randomUUID());
+        User u2 = mockUser(UUID.randomUUID());
 
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
 
         assertEquals(GameStatus.WAITING, game.getGameStatus());
         assertNull(game.getGameState());
@@ -66,13 +61,11 @@ class ReconnectParticipantMapperTest {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE2", "Lobby2", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
 
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
-        User u1 = mockUser(UUID.randomUUID(), inv);
-        User u2 = mockUser(UUID.randomUUID(), inv);
+        User u1 = mockUser(UUID.randomUUID());
+        User u2 = mockUser(UUID.randomUUID());
 
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
 
         // force RUNNING then back to WAITING with stale state
         Board board = BoardGenerator.generate(List.of("alpha", "bravo", "charlie", "delta", "echo"), com.letraaletra.api.features.game.domain.state.GameMode.NORMAL);
@@ -98,13 +91,11 @@ class ReconnectParticipantMapperTest {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE3", "Lobby3", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
 
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
-        User u1 = mockUser(UUID.randomUUID(), inv);
-        User u2 = mockUser(UUID.randomUUID(), inv);
+        User u1 = mockUser(UUID.randomUUID());
+        User u2 = mockUser(UUID.randomUUID());
 
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
 
         Board board = BoardGenerator.generate(List.of("alpha", "bravo", "charlie", "delta", "echo"), com.letraaletra.api.features.game.domain.state.GameMode.NORMAL);
         game.start(board);
@@ -130,13 +121,11 @@ class ReconnectParticipantMapperTest {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE4", "Lobby4", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
 
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
-        User u1 = mockUser(UUID.randomUUID(), inv);
-        User u2 = mockUser(UUID.randomUUID(), inv);
+        User u1 = mockUser(UUID.randomUUID());
+        User u2 = mockUser(UUID.randomUUID());
 
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
 
         // manually set RUNNING without state to simulate invariant violation
         game.setGameStatus(GameStatus.RUNNING);

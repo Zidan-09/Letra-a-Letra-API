@@ -47,6 +47,8 @@ public class GameConfig {
             ActorManager<Game> actorManager,
             RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService,
+            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
+            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -55,7 +57,9 @@ public class GameConfig {
                         gameRepository,
                         actorManager,
                         roomTimeoutManager,
-                        roomCodeService
+                        roomCodeService,
+                        inventoryRepository,
+                        itemDefinitionRepository
                 ),
                 transactions
         );
@@ -87,10 +91,12 @@ public class GameConfig {
     public UseCase<JoinGameInput, JoinGameOutput> joinGameUseCase(
             UserRepository userRepository,
             ActorManager<Game> actorManager,
+            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
+            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new JoinGameUseCase(userRepository, actorManager),
+                new JoinGameUseCase(userRepository, actorManager, inventoryRepository, itemDefinitionRepository),
                 transactions
         );
     }
@@ -138,11 +144,15 @@ public class GameConfig {
     @Bean
     public GameResponseAssemblerService gameResponseAssemblerService(
             UserRepository userRepository,
-            WsConnectionRegistry connectionRegistry
+            WsConnectionRegistry connectionRegistry,
+            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
+            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository
     ) {
         return new GameResponseAssemblerService(
                 userRepository,
-                connectionRegistry
+                connectionRegistry,
+                inventoryRepository,
+                itemDefinitionRepository
         );
     }
 

@@ -1,20 +1,20 @@
 package com.letraaletra.api.features.friend.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendDirection;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendProfileResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
+import com.letraaletra.api.features.inventory.domain.ItemCategory;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemKind;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +24,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class FriendProfileMapperTest {
+
+    private InventoryItemResponse equippedResponse(UUID id, String name, ItemCategory category, String assetPath) {
+        return new InventoryItemResponse(
+                id, name, ItemKind.COSMETIC, category, ItemContext.PROFILE, 1, true, assetPath
+        );
+    }
 
     @Test
     @DisplayName("Deve mapear perfil público com equipados, inGame e ban")
@@ -36,12 +42,13 @@ class FriendProfileMapperTest {
         when(user.getCurrentGameId()).thenReturn(UUID.randomUUID());
         when(user.getStats()).thenReturn(mock(UserStats.class));
         when(user.getBanInfo()).thenReturn(mock(BanInfo.class));
-        when(user.getInventory()).thenReturn(Inventory.restore(List.of(
-                InventoryItem.restore(UUID.randomUUID(), "Dragão", CosmeticTypes.AVATAR, true, LocalDateTime.now(), "https://cdn/avatar.webp"),
-                InventoryItem.restore(UUID.randomUUID(), "Comum", CosmeticTypes.EMOTE, false, LocalDateTime.now(), null)
-        )));
 
-        FriendProfileResponse response = FriendProfileMapper.toResponse(user);
+        UUID avatarId = UUID.randomUUID();
+        List<InventoryItemResponse> equipped = List.of(
+                equippedResponse(avatarId, "Dragão", ItemCategory.AVATAR, "https://cdn/avatar.webp")
+        );
+
+        FriendProfileResponse response = FriendProfileMapper.toResponse(user, equipped);
 
         assertEquals(userId, response.userId());
         assertEquals("Zidan", response.nickname());
@@ -56,7 +63,7 @@ class FriendProfileMapperTest {
     void friendResponse_ShouldAttachProfile() {
         UUID viewer = UUID.randomUUID();
         UUID friendId = UUID.randomUUID();
-        Friend friendship = Friend.restore(viewer, friendId, FriendStatus.ACCEPT, LocalDateTime.now());
+        Friend friendship = Friend.restore(viewer, friendId, FriendStatus.ACCEPT, java.time.LocalDateTime.now());
 
         User friendUser = mock(User.class);
         when(friendUser.getUserId()).thenReturn(friendId);
@@ -65,10 +72,9 @@ class FriendProfileMapperTest {
         when(friendUser.getCurrentGameId()).thenReturn(null);
         when(friendUser.getStats()).thenReturn(mock(UserStats.class));
         when(friendUser.getBanInfo()).thenReturn(mock(BanInfo.class));
-        when(friendUser.getInventory()).thenReturn(Inventory.restore(List.of()));
 
         FriendResponse response = FriendResponseMapper.toResponse(
-                friendship, viewer, Map.of(friendId, friendUser));
+                friendship, viewer, Map.of(friendId, friendUser), Map.of(friendId, List.of()));
 
         assertEquals(friendId, response.friendId());
         assertEquals(FriendDirection.SENT, response.direction());
@@ -82,7 +88,7 @@ class FriendProfileMapperTest {
     void friendResponse_ShouldReturnNullProfileWhenUserMissing() {
         UUID viewer = UUID.randomUUID();
         UUID friendId = UUID.randomUUID();
-        Friend friendship = Friend.restore(viewer, friendId, FriendStatus.PENDING, LocalDateTime.now());
+        Friend friendship = Friend.restore(viewer, friendId, FriendStatus.PENDING, java.time.LocalDateTime.now());
 
         FriendResponse response = FriendResponseMapper.toResponse(
                 friendship, viewer, Map.of());

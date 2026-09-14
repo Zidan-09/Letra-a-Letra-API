@@ -18,7 +18,6 @@ import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
 import com.letraaletra.api.features.player.domain.exception.PlayerIsFrozenException;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -62,10 +61,6 @@ class PlayerActionActorCommandTest {
         });
 
         game = Game.create("CODE12", "room", new RoomSettings(true, false), GameType.CUSTOM);
-        Inventory inv1 = mock(Inventory.class);
-        Inventory inv2 = mock(Inventory.class);
-        lenient().when(inv1.getItems()).thenReturn(Collections.emptyList());
-        lenient().when(inv2.getItems()).thenReturn(Collections.emptyList());
 
         User mockU1 = mock(User.class);
         User mockU2 = mock(User.class);
@@ -75,10 +70,8 @@ class PlayerActionActorCommandTest {
         lenient().when(mockU2.getUserId()).thenReturn(id2);
         lenient().when(mockU1.getUsername()).thenReturn("player1");
         lenient().when(mockU2.getUsername()).thenReturn("player2");
-        lenient().when(mockU1.getInventory()).thenReturn(inv1);
-        lenient().when(mockU2.getInventory()).thenReturn(inv2);
-        game.join(mockU1, "sess1");
-        game.join(mockU2, "sess2");
+        game.join(mockU1, "sess1", List.of());
+        game.join(mockU2, "sess2", List.of());
 
         Map<UUID, Player> realPlayers = new LinkedHashMap<>();
         for (Participant p : game.getParticipants().getParticipants()) {

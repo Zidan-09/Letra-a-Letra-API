@@ -32,8 +32,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<ErrorResponse> handleHttpException(
-            DomainException ex,
+    public ResponseEntity<ErrorResponse> handleHttpException(            DomainException ex,
             HttpServletRequest request
     ) {
         request.setAttribute("AUDIT_EXCEPTION", ex);

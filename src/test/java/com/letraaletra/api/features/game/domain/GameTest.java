@@ -8,7 +8,6 @@ import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.participant.domain.ParticipantRole;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,8 +17,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.UUID;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,9 +43,6 @@ class GameTest {
     @Mock
     private User mockSecondUser;
 
-    @Mock
-    private Inventory mockInventory;
-
     @BeforeEach
     void setUp() {
         roomSettings = new RoomSettings(true, false);
@@ -56,10 +52,6 @@ class GameTest {
                 roomSettings,
                 GameType.CUSTOM
         );
-
-        lenient().when(mockInventory.getItems()).thenReturn(Collections.emptyList());
-        lenient().when(mockUser.getInventory()).thenReturn(mockInventory);
-        lenient().when(mockSecondUser.getInventory()).thenReturn(mockInventory);
     }
 
     @Test
@@ -87,7 +79,7 @@ class GameTest {
             UUID userId = UUID.randomUUID();
             when(mockUser.getUserId()).thenReturn(userId);
 
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             assertEquals(userId, game.getCreatedById());
             assertEquals(userId, game.getHostId());
@@ -106,8 +98,8 @@ class GameTest {
             when(mockUser.getUserId()).thenReturn(hostUserId);
             when(mockSecondUser.getUserId()).thenReturn(secondUserId);
 
-            game.join(mockUser, "session-1");
-            game.join(mockSecondUser, "session-2");
+            game.join(mockUser, "session-1", List.of());
+            game.join(mockSecondUser, "session-2", List.of());
 
             assertEquals(hostUserId, game.getHostId());
             assertEquals(hostUserId, game.getCreatedById());
@@ -125,8 +117,8 @@ class GameTest {
             when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
             when(mockSecondUser.getUserId()).thenReturn(UUID.randomUUID());
 
-            game.join(mockUser, "session-1");
-            game.join(mockSecondUser, "session-2");
+            game.join(mockUser, "session-1", List.of());
+            game.join(mockSecondUser, "session-2", List.of());
 
             game.getParticipants().getParticipants().get(1).changeRole(ParticipantRole.PLAYER);
 
@@ -145,7 +137,7 @@ class GameTest {
         @DisplayName("Deve lançar InsufficientPlayersException ao tentar iniciar com menos de 2 jogadores")
         void shouldThrowExceptionWhenLessThanTwoPlayers() {
             when(mockUser.getUserId()).thenReturn(UUID.randomUUID());
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             assertThrows(
                     InsufficientPlayersException.class,
@@ -174,7 +166,7 @@ class GameTest {
         void shouldAllowChangePositionWhenWaiting() {
             UUID userId = UUID.randomUUID();
             when(mockUser.getUserId()).thenReturn(userId);
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             assertDoesNotThrow(() -> game.changePosition(userId, 1));
         }
@@ -184,7 +176,7 @@ class GameTest {
         void shouldThrowExceptionWhenChangingPositionWhileRunning() {
             UUID userId = UUID.randomUUID();
             when(mockUser.getUserId()).thenReturn(userId);
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             game.setGameStatus(GameStatus.RUNNING);
 
@@ -204,7 +196,7 @@ class GameTest {
         void shouldRemovePlayerFromGameStateWhenGameIsRunning() {
             UUID userId = UUID.randomUUID();
             when(mockUser.getUserId()).thenReturn(userId);
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             game.updateGameState(mockGameState);
             game.setGameStatus(GameStatus.RUNNING);
@@ -223,8 +215,8 @@ class GameTest {
             when(mockUser.getUserId()).thenReturn(hostUserId);
             when(mockSecondUser.getUserId()).thenReturn(secondUserId);
 
-            game.join(mockUser, "session-1");
-            game.join(mockSecondUser, "session-2");
+            game.join(mockUser, "session-1", List.of());
+            game.join(mockSecondUser, "session-2", List.of());
 
             game.remove(hostUserId);
 
@@ -236,7 +228,7 @@ class GameTest {
         void shouldAllowRemovingLastParticipant() {
             UUID userId = UUID.randomUUID();
             when(mockUser.getUserId()).thenReturn(userId);
-            game.join(mockUser, "session-1");
+            game.join(mockUser, "session-1", List.of());
 
             assertDoesNotThrow(() -> game.remove(userId));
             assertTrue(game.getParticipants().getParticipants().isEmpty());

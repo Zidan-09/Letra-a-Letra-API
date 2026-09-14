@@ -27,6 +27,27 @@ a versão e a data reais.
   dependências de `shared` para `features.*`.
 - Atualização mecânica de imports nos testes após a movimentação das permissões e dos actors.
 - Remoção de imports não utilizados.
+- Inventário genérico de itens (`features/inventory/`, em paralelo ao legado): catálogo
+  `ItemDefinition` (`kind`/`category`/`applicability`), posse `UserItem` com quantidade, agregado
+  `Inventory` com policies, UseCases (`grant`/`consume`/`equip`/`revoke`/consultas), API
+  (`GET /user/items`, `POST …/consume`, `POST …/equip`, catálogo em `/admin/items`), `Reward`
+  genérico (`ItemGrantReward`, `RewardType.ITEM`) e eventos de auditoria `ITEM_*` — com
+  compatibilidade total das rotas/respostas legadas, dual-write JPA + procedures (`09`, `10` e
+  `11_*` validados em Postgres 16) e remoção do fallback silencioso `AVATAR`. Remoção integral
+  do legado pendente de `User` migrado + janela estável (ver `docs/plan.md`).
+- **Remoção integral do inventário legado (Etapa 8b, ver `docs/step18.md`):** removidas as
+  tabelas `user_inventory`/`cosmetic` (script `docker/postgres/12_drop_legacy_inventory.sql`,
+  com migração `COSMETIC → ITEM` em `offer_reward`/`level_reward`), as procedures
+  `sp_grant_cosmetic`/`sp_revoke_cosmetic`, o ramo `COSMETIC` de `sp_buy_offer` e a coluna
+  `inventory` de `sp_user_save`/`sp_user_find_*`; removida a feature `features/cosmetic/`
+  (catálogo passa a ser gerido em `/admin/items`), o pacote `user/domain/inventory/`, os
+  UseCases/controllers/DTOs legados (`ChangeCosmetic`, `RevokeUserCosmetic`, `GetMy/GetUserInventory`,
+  rotas `/user/inventory`, `/user/cosmetic/*`), `CosmeticReward`/`RewardType.COSMETIC` e os
+  aliases `cosmeticId`/`type`/`unlockedAt` (payloads passam a usar `itemId`/`category`/`quantity`/`context`,
+  eventos `ITEM_*`). **Breaking changes:** rotas `/cosmetic/*`, `/user/inventory`,
+  `/user/{id}/inventory`, `PATCH /user/cosmetic/*` removidas; `rewardType=COSMETIC` não é mais
+  aceito (usar `ITEM`); `ParticipantResponse`/`PlayerResponse` expõem `EquippedCosmetic`
+  (`itemId`, `name`, `category`, `equipped`, `assetPath`).
 
 ### Infrastructure
 - `.gitignore` atualizado para ignorar logs de teste da API e o diretório `docs/`.

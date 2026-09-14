@@ -5,20 +5,26 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendProfileResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class FriendResponseMapper {
     public static FriendResponse toResponse(Friend friend) {
-        return toResponse(friend, null, Map.of());
+        return toResponse(friend, null, Map.of(), Map.of());
     }
 
     public static FriendResponse toResponse(Friend friend, UUID viewerId) {
-        return toResponse(friend, viewerId, Map.of());
+        return toResponse(friend, viewerId, Map.of(), Map.of());
     }
 
     public static FriendResponse toResponse(Friend friend, UUID viewerId, Map<UUID, User> users) {
+        return toResponse(friend, viewerId, users, Map.of());
+    }
+
+    public static FriendResponse toResponse(Friend friend, UUID viewerId, Map<UUID, User> users, Map<UUID, List<InventoryItemResponse>> equippedByUser) {
         UUID friendId = friend.getUserId2();
         FriendDirection direction = null;
         FriendProfileResponse profile = null;
@@ -29,7 +35,8 @@ public class FriendResponseMapper {
 
             User user = users != null ? users.get(friendId) : null;
             if (user != null) {
-                profile = FriendProfileMapper.toResponse(user);
+                List<InventoryItemResponse> equipped = equippedByUser == null ? List.of() : equippedByUser.getOrDefault(friendId, List.of());
+                profile = FriendProfileMapper.toResponse(user, equipped);
             }
         }
 

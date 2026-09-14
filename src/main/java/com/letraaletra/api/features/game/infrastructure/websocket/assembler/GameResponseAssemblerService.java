@@ -3,10 +3,15 @@ package com.letraaletra.api.features.game.infrastructure.websocket.assembler;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
+import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
@@ -17,16 +22,32 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.response.WsResponse;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.List;
+import java.util.UUID;
+
 public class GameResponseAssemblerService implements GameResponseAssembler {
     private final UserRepository userRepository;
     private final WsConnectionRegistry connectionRegistry;
+    private final InventoryRepository inventoryRepository;
+    private final ItemDefinitionRepository itemDefinitionRepository;
 
     public GameResponseAssemblerService(
             UserRepository userRepository,
             WsConnectionRegistry connectionRegistry
     ) {
+        this(userRepository, connectionRegistry, null, null);
+    }
+
+    public GameResponseAssemblerService(
+            UserRepository userRepository,
+            WsConnectionRegistry connectionRegistry,
+            InventoryRepository inventoryRepository,
+            ItemDefinitionRepository itemDefinitionRepository
+    ) {
         this.userRepository = userRepository;
         this.connectionRegistry = connectionRegistry;
+        this.inventoryRepository = inventoryRepository;
+        this.itemDefinitionRepository = itemDefinitionRepository;
     }
 
     @Override
@@ -42,12 +63,14 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
 
         Participant winnerParticipant = Participant.create(
                 winner,
-                winnerSession != null ? winnerSession.getId() : ""
+                winnerSession != null ? winnerSession.getId() : "",
+                equippedItems(winner.getUserId())
         );
 
         Participant loserParticipant = Participant.create(
                 loser,
-                loserSession != null ? loserSession.getId() : ""
+                loserSession != null ? loserSession.getId() : "",
+                equippedItems(loser.getUserId())
         );
 
         if (game.getGameType().equals(GameType.RANKING)) {
@@ -70,6 +93,19 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
                 gameOver,
                 winnerParticipant,
                 loserParticipant
+        );
+    }
+
+    private List<EquippedCosmetic> equippedItems(UUID userId) {
+        if (inventoryRepository == null || itemDefinitionRepository == null) {
+            return List.of();
+        }
+        List<UserItem> items = inventoryRepository.findItemsByOwner(userId);
+        return EquippedCosmetic.fromProfileItems(
+                items,
+                definitionId -> itemDefinitionRepository.findById(definitionId)
+                        .orElseThrow(com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException::new),
+                ItemContext.PROFILE
         );
     }
 }

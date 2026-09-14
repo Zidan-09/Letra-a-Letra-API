@@ -6,13 +6,19 @@ import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
 import com.letraaletra.api.features.audit.domain.AuditActor;
 import com.letraaletra.api.features.audit.domain.AuditActorType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
+import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
+import com.letraaletra.api.features.inventory.domain.Inventory;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.application.input.GrantUserRewardInput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.inventory.InventoryMovement;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -33,6 +39,8 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
     private final TransactionRepository transactionRepository;
     private final AdminChecker adminChecker;
     private final RewardFactory rewardFactory;
+    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final InventoryRepository inventoryRepository;
     private final BusinessAuditRecorder auditRecorder;
 
     public GrantUserRewardUseCase(
@@ -40,12 +48,16 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
             RewardFactory rewardFactory,
+            ItemDefinitionRepository itemDefinitionRepository,
+            InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder
     ) {
         this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
         this.adminChecker = adminChecker;
         this.rewardFactory = rewardFactory;
+        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.inventoryRepository = inventoryRepository;
         this.auditRecorder = auditRecorder;
     }
 
@@ -61,8 +73,8 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
 
         Reward reward = rewardFactory.create(
                 input.rewardType(),
-                input.amount(),
-                input.cosmeticId()
+                input.quantity(),
+                input.referenceId()
         );
 
         grantInventoryReward(user, reward, actor, operationId);
@@ -104,9 +116,30 @@ public class GrantUserRewardUseCase implements UseCase<GrantUserRewardInput, Voi
     }
 
     private void grantInventoryReward(User user, Reward reward, AuditActor actor, UUID operationId) {
-        List<InventoryMovement> movements = reward.applyInventory(user);
+        if (reward instanceof ItemGrantReward itemReward) {
+            grantItemReward(user, itemReward, actor, operationId);
+        }
+    }
 
-        AuditEventFactory.inventoryChanges(
+    private void grantItemReward(User user, ItemGrantReward reward, AuditActor actor, UUID operationId) {
+        ItemDefinition definition = itemDefinitionRepository.findById(reward.definitionId())
+                .orElseThrow(ItemNotFoundException::new);
+
+        grantDefinition(user, definition, reward.quantity(), actor, operationId);
+    }
+
+    private void grantDefinition(User user, ItemDefinition definition, int quantity, AuditActor actor, UUID operationId) {
+        Inventory inventory = Inventory.restore(
+                user.getUserId(),
+                inventoryRepository.findItemsByOwner(user.getUserId())
+        );
+
+        List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements =
+                inventory.grant(definition, quantity);
+
+        InventoryPersistence.save(inventoryRepository, user.getUserId(), inventory);
+
+        AuditEventFactory.itemChanges(
                 movements,
                 user.getUserId(),
                 actor,

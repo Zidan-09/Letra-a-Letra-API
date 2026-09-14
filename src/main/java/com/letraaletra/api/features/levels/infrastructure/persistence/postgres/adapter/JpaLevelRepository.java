@@ -1,8 +1,5 @@
 package com.letraaletra.api.features.levels.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
-import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.features.levels.domain.LevelsPage;
@@ -14,7 +11,7 @@ import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.j
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelMapper;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelProcedureMapper;
 import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.mapper.LevelRewardMapper;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
@@ -38,28 +35,24 @@ import java.util.UUID;
 public class JpaLevelRepository implements LevelRepository {
     private final SpringDataLevelRepository repository;
     private final SpringDataLevelRewardRepository levelRewardRepository;
-    private final SpringDataCosmeticRepository cosmeticRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public JpaLevelRepository(
             SpringDataLevelRepository repository,
             SpringDataLevelRewardRepository levelRewardRepository,
-            SpringDataCosmeticRepository cosmeticRepository,
             @Autowired(required = false) JdbcTemplate jdbcTemplate
     ) {
         this.repository = repository;
         this.levelRewardRepository = levelRewardRepository;
-        this.cosmeticRepository = cosmeticRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public JpaLevelRepository(
             SpringDataLevelRepository repository,
-            SpringDataLevelRewardRepository levelRewardRepository,
-            SpringDataCosmeticRepository cosmeticRepository
+            SpringDataLevelRewardRepository levelRewardRepository
     ) {
-        this(repository, levelRewardRepository, cosmeticRepository, null);
+        this(repository, levelRewardRepository, null);
     }
 
     @Override
@@ -242,9 +235,9 @@ public class JpaLevelRepository implements LevelRepository {
     private List<LevelReward> loadRewards(UUID levelId) {
         return levelRewardRepository.findByLevelId(levelId).stream().map(entity -> {
             Reward reward = switch (entity.getRewardType()) {
-                case COSMETIC -> new CosmeticReward(CosmeticMapper.toDomain(cosmeticRepository.findById(entity.getRewardReference()).orElseThrow(CosmeticNotFoundException::new)));
                 case COIN -> new SoftCoinsReward(entity.getQuantity());
                 case GEMS -> new HardGemsReward(entity.getQuantity());
+                case ITEM -> new ItemGrantReward(entity.getRewardReference(), entity.getQuantity());
             };
             return LevelRewardMapper.toDomain(entity, reward);
         }).toList();

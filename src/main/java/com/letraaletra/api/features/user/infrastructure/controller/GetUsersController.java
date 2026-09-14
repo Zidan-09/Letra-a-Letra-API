@@ -4,6 +4,7 @@ import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetUsersMapper;
+import com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GetUsersController {
     private final UseCase<GetUsersInput, GetUsersOutput> useCase;
+    private final UserEquippedItemsService equippedItemsService;
 
     @GetMapping()
     public ResponseEntity<SuccessResponse<PageResponse<UserResponse>>> handle(
@@ -34,7 +36,8 @@ public class GetUsersController {
 
         GetUsersOutput output = useCase.execute(input);
 
-        PageResponse<UserResponse> dto = GetUsersMapper.toResponse(output);
+        java.util.List<java.util.UUID> ids = output.users().getContent().stream().map(u -> u.getUserId()).toList();
+        PageResponse<UserResponse> dto = GetUsersMapper.toResponse(output, equippedItemsService.equippedResponsesFor(ids));
 
         return ApiResponseHandler.success(dto);
     }

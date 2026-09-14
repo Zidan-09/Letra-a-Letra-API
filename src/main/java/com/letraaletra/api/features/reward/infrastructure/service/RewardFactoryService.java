@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.reward.infrastructure.service;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException;
-import com.letraaletra.api.features.cosmetic.domain.exceptions.InvalidCosmeticException;
-import com.letraaletra.api.features.cosmetic.domain.repository.CosmeticRepository;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
+import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
@@ -19,24 +19,30 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class RewardFactoryService implements RewardFactory {
-    private final CosmeticRepository cosmeticRepository;
+    private final ItemDefinitionRepository itemDefinitionRepository;
 
     public Reward create(RewardType type, Integer quantity, UUID referenceId) {
         return switch (type) {
             case COIN -> new SoftCoinsReward(requirePositiveQuantity(quantity));
             case GEMS -> new HardGemsReward(requirePositiveQuantity(quantity));
-            case COSMETIC -> {
+            case ITEM -> {
                 if (referenceId == null) {
-                    throw new InvalidCosmeticException();
+                    throw new ItemNotFoundException();
                 }
-                Cosmetic cosmetic = cosmeticRepository.find(referenceId)
-                        .orElseThrow(CosmeticNotFoundException::new);
+                ItemDefinition definition = itemDefinitionRepository.findById(referenceId)
+                        .orElseThrow(ItemNotFoundException::new);
 
-                if (!cosmetic.isAvailable()) {
-                    throw new InvalidCosmeticException();
+                if (!definition.isAvailable()) {
+                    throw new ItemNotAvailableException();
                 }
 
-                yield new CosmeticReward(cosmetic);
+                int amount = requirePositiveQuantity(quantity);
+
+                if (!definition.canStack() && amount != 1) {
+                    throw new InvalidRewardQuantityException();
+                }
+
+                yield new ItemGrantReward(definition.getId(), amount);
             }
         };
     }

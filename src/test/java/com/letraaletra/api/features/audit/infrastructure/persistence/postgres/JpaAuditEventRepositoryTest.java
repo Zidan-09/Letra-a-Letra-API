@@ -11,6 +11,12 @@ import com.letraaletra.api.features.audit.domain.AuditOutcome;
 import com.letraaletra.api.features.audit.domain.AuditResourceType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.adapter.JpaAuditEventRepository;
+import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
+import com.letraaletra.api.features.inventory.domain.Inventory;
+import com.letraaletra.api.features.inventory.domain.ItemCategory;
+import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.inventory.domain.ItemKind;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,6 +239,56 @@ class JpaAuditEventRepositoryTest {
         assertEquals(userA, result.getContent().get(0).targetUserId());
         assertEquals(AuditEventType.WALLET_CREDITED, result.getContent().get(0).eventType());
         assertEquals(AuditCategory.ECONOMY, result.getContent().get(0).category());
+    }
+
+    @Test
+    @DisplayName("eventos ITEM_* do agregado novo devem persistir e ser filtráveis em audit_event")
+    void shouldPersistItemEventsFromNewInventoryAggregate() {
+        UUID userId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+
+        ItemDefinition definition = ItemDefinition.create(
+                "audit-avatar",
+                ItemKind.COSMETIC,
+                ItemCategory.AVATAR,
+                java.util.EnumSet.of(ItemContext.PROFILE),
+                false,
+                null,
+                false,
+                null,
+                "assets/audit-avatar.png"
+        );
+
+        Inventory inventory = Inventory.create(userId);
+        List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements =
+                inventory.grant(definition, 1);
+
+        List<AuditEvent> events = AuditEventFactory.itemChanges(
+                movements,
+                userId,
+                AuditActor.system(),
+                "ADMIN_GIVE",
+                AuditSourceType.HTTP,
+                "GRANT_USER_REWARD",
+                operationId
+        );
+
+        assertEquals(1, events.size());
+        assertEquals(AuditEventType.ITEM_ACQUIRED, events.get(0).eventType());
+
+        events.forEach(repository::save);
+
+        Page<AuditEventDetails> result = repository.find(
+                new AuditEventFilter(userId, null, AuditEventType.ITEM_ACQUIRED, null,
+                        null, null, null, null, null, null, null, null, null),
+                0, 10, false);
+
+        assertEquals(1, result.getTotalElements());
+
+        AuditEventDetails loaded = result.getContent().get(0);
+        assertEquals(definition.getId().toString(), loaded.resourceId());
+        assertEquals(AuditResourceType.INVENTORY_ITEM, loaded.resourceType());
+        assertEquals(1, ((Number) loaded.afterState().get("quantity")).intValue());
     }
 
     private AuditEvent.Builder sampleEvent(UUID userId, AuditEventType type, Instant occurredAt) {

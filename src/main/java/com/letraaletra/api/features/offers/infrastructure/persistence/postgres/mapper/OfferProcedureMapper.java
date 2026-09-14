@@ -3,13 +3,11 @@ package com.letraaletra.api.features.offers.infrastructure.persistence.postgres.
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.offers.domain.Offer;
 import com.letraaletra.api.features.offers.domain.OfferReward;
-import com.letraaletra.api.features.reward.domain.CosmeticReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
+import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
@@ -66,30 +64,19 @@ public final class OfferProcedureMapper {
 
                 Reward reward;
                 switch (rewardType) {
-                    case COSMETIC -> {
-                        JsonNode cosNode = node.get("cosmetic");
-                        if (cosNode == null || cosNode.isNull()) {
-                            // Fallback: try to load cosmetic later? For now throw
-                            throw new com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException();
-                        }
-                        UUID cosId = UUID.fromString(cosNode.get("cosmetic_id").asText());
-                        String name = cosNode.get("name").asText();
-                        CosmeticTypes type = CosmeticTypes.valueOf(cosNode.get("type").asText());
-                        String asset = cosNode.has("asset_path") && !cosNode.get("asset_path").isNull() ? cosNode.get("asset_path").asText() : "";
-                        int version = cosNode.has("version") && !cosNode.get("version").isNull() ? cosNode.get("version").asInt() : 1;
-                        boolean available = cosNode.has("available") && !cosNode.get("available").isNull() && cosNode.get("available").asBoolean();
-                        Cosmetic cosmetic = Cosmetic.restore(cosId, name, type, asset, version, available);
-                        reward = new CosmeticReward(cosmetic);
-                    }
                     case COIN -> reward = new SoftCoinsReward(quantity);
                     case GEMS -> reward = new HardGemsReward(quantity);
+                    case ITEM -> {
+                        if (ref == null) {
+                            throw new com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException();
+                        }
+                        reward = new ItemGrantReward(ref, quantity);
+                    }
                     default -> throw new IllegalArgumentException("Unknown reward type: " + rewardType);
                 }
                 list.add(new OfferReward(rewardId, reward));
             }
             return list;
-        } catch (com.letraaletra.api.features.cosmetic.domain.exceptions.CosmeticNotFoundException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse rewards JSON: " + json, e);
         }
@@ -103,10 +90,10 @@ public final class OfferProcedureMapper {
                 m.put("offer_reward_id", r.offerRewardId().toString());
                 Reward reward = r.reward();
                 switch (reward) {
-                    case CosmeticReward cr -> {
-                        m.put("reward_type", "COSMETIC");
-                        m.put("reward_reference", cr.cosmetic().getId().toString());
-                        m.put("quantity", 1);
+                    case ItemGrantReward ir -> {
+                        m.put("reward_type", "ITEM");
+                        m.put("reward_reference", ir.definitionId().toString());
+                        m.put("quantity", ir.quantity());
                     }
                     case SoftCoinsReward sr -> {
                         m.put("reward_type", "COIN");

@@ -10,6 +10,7 @@ import com.letraaletra.api.features.game.domain.state.GameStateFactory;
 import com.letraaletra.api.features.game.domain.state.GameState;
 import com.letraaletra.api.features.participant.domain.exception.InvalidModerateActionException;
 import com.letraaletra.api.features.participant.domain.exception.OnlyHostCanModerateException;
+import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
 import com.letraaletra.api.features.user.domain.User;
 
 import java.util.*;
@@ -112,8 +113,8 @@ public class Game {
         return roomSettings;
     }
 
-    public void join(User user, String session) {
-        Participant participant = Participant.create(user, session);
+    public void join(User user, String session, List<EquippedCosmetic> equipped) {
+        Participant participant = Participant.create(user, session, equipped);
 
         if (participants.getParticipants().isEmpty()) {
             createdById = participant.getUserId();

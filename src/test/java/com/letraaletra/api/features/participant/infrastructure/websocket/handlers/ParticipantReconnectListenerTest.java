@@ -10,7 +10,6 @@ import com.letraaletra.api.features.participant.application.input.ReconnectParti
 import com.letraaletra.api.features.participant.application.output.ReconnectParticipantOutput;
 import com.letraaletra.api.features.participant.application.port.ParticipantNotifier;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,12 +52,9 @@ class ParticipantReconnectListenerTest {
     }
 
     private User mockUser(UUID id) {
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
         User u = mock(User.class);
         lenient().when(u.getUserId()).thenReturn(id);
         lenient().when(u.getUsername()).thenReturn("u-" + id.toString().substring(0,4));
-        lenient().when(u.getInventory()).thenReturn(inv);
         return u;
     }
 
@@ -68,8 +63,8 @@ class ParticipantReconnectListenerTest {
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User u1 = mockUser(UUID.randomUUID());
         User u2 = mockUser(UUID.randomUUID());
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
         return game;
     }
 
@@ -78,8 +73,8 @@ class ParticipantReconnectListenerTest {
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User u1 = mockUser(UUID.randomUUID());
         User u2 = mockUser(UUID.randomUUID());
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
         Board board = BoardGenerator.generate(List.of("alpha","bravo","charlie","delta","echo"), GameMode.NORMAL);
         game.start(board);
         return game;
@@ -96,12 +91,10 @@ class ParticipantReconnectListenerTest {
         // create new game with desired userId as participant
         RoomSettings settings = new RoomSettings(true, false);
         Game specificGame = Game.create("CODEW", "roomW", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
-        Inventory inv = mock(Inventory.class);
-        when(inv.getItems()).thenReturn(Collections.emptyList());
         User uHost = mockUser(userId);
         User uOther = mockUser(UUID.randomUUID());
-        specificGame.join(uHost, "oldSocket");
-        specificGame.join(uOther, "otherSocket");
+        specificGame.join(uHost, "oldSocket", List.of());
+        specificGame.join(uOther, "otherSocket", List.of());
 
         Map<String, Object> attrs = new HashMap<>();
         attrs.put("userId", userId.toString());
@@ -122,8 +115,8 @@ class ParticipantReconnectListenerTest {
         Game game = Game.create("CODER", "roomR", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User uHost = mockUser(userId);
         User uOther = mockUser(UUID.randomUUID());
-        game.join(uHost, "oldSocket");
-        game.join(uOther, "otherSocket");
+        game.join(uHost, "oldSocket", List.of());
+        game.join(uOther, "otherSocket", List.of());
         Board board = BoardGenerator.generate(List.of("alpha","bravo","charlie","delta","echo"), GameMode.NORMAL);
         game.start(board);
 
@@ -206,8 +199,8 @@ class ParticipantReconnectListenerTest {
         Game game = Game.create("CODEINV", "roomInv", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User uHost = mockUser(userId);
         User uOther = mockUser(UUID.randomUUID());
-        game.join(uHost, "oldSocket");
-        game.join(uOther, "otherSocket");
+        game.join(uHost, "oldSocket", List.of());
+        game.join(uOther, "otherSocket", List.of());
         game.setGameStatus(GameStatus.RUNNING);
         // gameState remains null -> invariant violation
 

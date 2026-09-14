@@ -29,15 +29,19 @@ public class GetFriendListMapper {
     }
 
     public static PageResponse<FriendResponse> toResponse(GetFriendListOutput output) {
-        return toResponse(output, null);
+        return toResponse(output, null, null);
     }
 
     public static PageResponse<FriendResponse> toResponse(GetFriendListOutput output, UUID viewerId) {
+        return toResponse(output, viewerId, null);
+    }
+
+    public static PageResponse<FriendResponse> toResponse(GetFriendListOutput output, UUID viewerId, java.util.Map<UUID, java.util.List<com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse>> equippedByUser) {
         Page<Friend> page = output.friends();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users()))
+                        .map(friend -> FriendResponseMapper.toResponse(friend, viewerId, output.users(), equippedByUser))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

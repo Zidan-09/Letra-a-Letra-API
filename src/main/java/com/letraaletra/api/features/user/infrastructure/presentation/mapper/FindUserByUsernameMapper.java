@@ -3,6 +3,7 @@ package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.user.application.input.FindUserByUsernameInput;
 import com.letraaletra.api.features.user.application.output.FindUserByUsernameOutput;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
@@ -28,12 +29,12 @@ public class FindUserByUsernameMapper {
         );
     }
 
-    public static PageResponse<UserResponse> toResponse(FindUserByUsernameOutput output) {
+    public static PageResponse<UserResponse> toResponse(FindUserByUsernameOutput output, java.util.Map<java.util.UUID, java.util.List<InventoryItemResponse>> equippedByUser) {
         Page<User> page = output.users();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(UserResponseMapper::toResponse)
+                        .map(user -> UserResponseMapper.toResponse(user, equippedByUser == null ? java.util.List.of() : equippedByUser.getOrDefault(user.getUserId(), java.util.List.of())))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

@@ -12,7 +12,6 @@ public enum UserMessages implements MessageCode {
     NICKNAME_ALREADY_IN_USE("the nickname is already in use"),
     USER_CANNOT_CHANGE_NICKNAME("the user cannot change their nickname at this time"),
 
-    INVALID_COSMETIC("the selected cosmetic is invalid"),
     INSUFFICIENT_BALANCE("the user does not have enough balance"),
 
     INVALID_CREDENTIALS("the provided credentials are invalid"),

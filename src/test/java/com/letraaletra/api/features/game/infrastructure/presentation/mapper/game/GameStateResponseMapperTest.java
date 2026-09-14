@@ -9,11 +9,9 @@ import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.domain.state.GameMode;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.game.GameStateResponse;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,22 +21,17 @@ import static org.mockito.Mockito.*;
 class GameStateResponseMapperTest {
 
     private User mockUser(UUID userId) {
-        Inventory inv = mock(Inventory.class);
-
-        lenient().when(inv.getItems()).thenReturn(Collections.emptyList());
-
         User user = mock(User.class);
         lenient().when(user.getUserId()).thenReturn(userId);
         lenient().when(user.getUsername()).thenReturn("u-" + userId.toString().substring(0, 4));
-        lenient().when(user.getInventory()).thenReturn(inv);
         return user;
     }
 
     private Game createWaitingGame() {
         RoomSettings settings = new RoomSettings(true, false);
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
-        game.join(mockUser(UUID.randomUUID()), "s1");
-        game.join(mockUser(UUID.randomUUID()), "s2");
+        game.join(mockUser(UUID.randomUUID()), "s1", List.of());
+        game.join(mockUser(UUID.randomUUID()), "s2", List.of());
         return game;
     }
 
@@ -47,8 +40,8 @@ class GameStateResponseMapperTest {
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User u1 = mockUser(UUID.randomUUID());
         User u2 = mockUser(UUID.randomUUID());
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
         Board board = BoardGenerator.generate(List.of("alpha", "bravo", "charlie", "delta", "echo"), GameMode.NORMAL);
         game.start(board);
         return game;
@@ -109,8 +102,8 @@ class GameStateResponseMapperTest {
         Game game = Game.create("CODE", "room", settings, com.letraaletra.api.features.game.domain.GameType.CUSTOM);
         User u1 = mockUser(UUID.randomUUID());
         User u2 = mockUser(UUID.randomUUID());
-        game.join(u1, "s1");
-        game.join(u2, "s2");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
         game.setGameStatus(GameStatus.RUNNING);
 
         assertNull(game.getGameState());

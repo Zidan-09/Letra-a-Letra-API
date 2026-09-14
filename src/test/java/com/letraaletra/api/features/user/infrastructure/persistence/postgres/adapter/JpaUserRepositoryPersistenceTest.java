@@ -1,15 +1,9 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
-import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.jpa.SpringDataCosmeticRepository;
-import com.letraaletra.api.features.cosmetic.infrastructure.persistence.postgres.mapper.CosmeticMapper;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
-import com.letraaletra.api.features.user.domain.inventory.InventoryItem;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +28,7 @@ class JpaUserRepositoryPersistenceTest {
     private JpaUserRepository jpaUserRepository;
 
     @Autowired
-    private SpringDataCosmeticRepository cosmeticRepository;
-
-    @Autowired
     private EntityManager entityManager;
-
-    private Cosmetic avatar;
-
-    @BeforeEach
-    void setUp() {
-        avatar = Cosmetic.create("avatar-test", CosmeticTypes.AVATAR, "assets/avatar.png");
-        cosmeticRepository.save(CosmeticMapper.toEntity(avatar));
-        entityManager.flush();
-        entityManager.clear();
-    }
 
     private User createUserAfterMatch(String nickname, boolean winner) {
         User user = UserFactory.createLocal(nickname, nickname + "@test.com", "hash");
@@ -55,14 +36,13 @@ class JpaUserRepositoryPersistenceTest {
         user.registerMatchResult(winner);
         user.getWallet().add(CoinType.SOFT, 300);
         user.getWallet().add(CoinType.HARD, 25);
-        user.getInventory().unlock(avatar);
 
         return user;
     }
 
     @Test
-    @DisplayName("saveAll deve persistir stats, wallet e inventário e mantê-los corretos após reload do banco")
-    void saveAllShouldPersistFullAggregateAndSurviveDatabaseReload() {
+    @DisplayName("saveAll deve persistir stats e wallet e mantê-los corretos após reload do banco")
+    void saveAllShouldPersistCoreAggregateAndSurviveDatabaseReload() {
         User winner = createUserAfterMatch("winner", true);
         User loser = createUserAfterMatch("loser", false);
 
@@ -83,10 +63,6 @@ class JpaUserRepositoryPersistenceTest {
         assertEquals(300, persistedWinner.getWallet().getBalance().coins());
         assertEquals(25, persistedWinner.getWallet().getBalance().gems());
 
-        List<InventoryItem> winnerItems = persistedWinner.getInventory().getItems();
-        assertEquals(1, winnerItems.size());
-        assertEquals(avatar.getId(), winnerItems.getFirst().cosmeticId());
-
         User persistedLoser = reloadedLoser.get();
         assertEquals(1, persistedLoser.getStats().getTotalMatches());
         assertEquals(0, persistedLoser.getStats().getTotalWins());
@@ -98,20 +74,16 @@ class JpaUserRepositoryPersistenceTest {
     }
 
     @Test
-    @DisplayName("regravar o agregado deve atualizar dados sem duplicar inventário")
-    void resavingAggregateShouldUpdateDataWithoutDuplicatingInventory() {
+    @DisplayName("regravar o agregado deve atualizar dados do núcleo sem depender de inventário")
+    void resavingAggregateShouldUpdateCoreData() {
         User user = createUserAfterMatch("player", false);
 
         jpaUserRepository.saveAll(List.of(user));
         entityManager.flush();
         entityManager.clear();
 
-        Cosmetic banner = Cosmetic.create("banner-test", CosmeticTypes.BANNER, "assets/banner.png");
-        cosmeticRepository.save(CosmeticMapper.toEntity(banner));
-
         user.registerMatchResult(true);
         user.getWallet().add(CoinType.SOFT, 700);
-        user.getInventory().unlock(banner);
         user.leaveGame();
 
         jpaUserRepository.saveAll(List.of(user));
@@ -125,11 +97,5 @@ class JpaUserRepositoryPersistenceTest {
 
         assertEquals(2, persisted.getStats().getTotalMatches());
         assertEquals(1000, persisted.getWallet().getBalance().coins());
-        assertEquals(2, persisted.getInventory().getItems().size());
-
-        long duplicatedCosmetics = persisted.getInventory().getItems().stream()
-                .filter(item -> item.cosmeticId().equals(avatar.getId()))
-                .count();
-        assertEquals(1, duplicatedCosmetics);
     }
 }

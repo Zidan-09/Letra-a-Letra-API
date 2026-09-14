@@ -1,5 +1,4 @@
 import { http } from "../core/http.js";
-import { multipart } from "../core/multipart.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected)
@@ -11,23 +10,6 @@ function ensureStatus(response, expected, operation) {
             `${operation}: expected ${expectedStatus.join(" or ")}, received ${response.status} =-=-= ${JSON.stringify(response.body)}`
         );
     }
-}
-
-// PNG 1x1 válido: o backend converte o asset para WebP via ImageIO,
-// então o upload precisa de bytes de imagem decodificáveis (não texto).
-const PNG_1X1_BASE64 =
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
-
-function imageAsset(filename) {
-    return {
-        blob: new Blob(
-            [Buffer.from(PNG_1X1_BASE64, "base64")],
-            {
-                type: "image/png"
-            }
-        ),
-        filename
-    };
 }
 
 function assertAllMatch(content, fields, operation) {
@@ -69,35 +51,36 @@ export async function runFlow(adminContext, playerContext) {
         "Grant coin reward"
     );
 
-    // Fluxo 2: Cadastrar cosmético e concedê-lo ao usuário (gera COSMETIC_ACQUIRED)
+    // Fluxo 2: Cadastrar definição de item e concedê-la ao usuário (gera ITEM_ACQUIRED)
 
-    const asset = imageAsset("avatar.png");
-    const cosmeticName = `integration-audit-${stamp}`;
+    const itemName = `integration-audit-${stamp}`;
 
-    const form = new FormData();
-
-    form.append("name", cosmeticName);
-    form.append("cosmeticType", "AVATAR");
-    form.append("asset", asset.blob, asset.filename);
-
-    res = await multipart(
+    res = await http(
         "POST",
-        "/cosmetic",
-        form,
+        "/admin/items",
+        {
+            name: itemName,
+            kind: "COSMETIC",
+            category: "AVATAR",
+            applicability: ["PROFILE"],
+            stackable: false,
+            consumable: false,
+            assetPath: `assets/${itemName}.png`
+        },
         admin.token
     );
 
     ensureStatus(
         res,
         200,
-        "Register cosmetic"
+        "Register item definition"
     );
 
-    const cosmeticId = res.body?.data?.cosmetic?.id;
+    const itemId = res.body?.data?.itemId;
 
-    if (!cosmeticId) {
+    if (!itemId) {
         throw new Error(
-            `Register cosmetic: missing id in response body=${JSON.stringify(res.body)}`
+            `Register item definition: missing id in response body=${JSON.stringify(res.body)}`
         );
     }
 
@@ -105,9 +88,9 @@ export async function runFlow(adminContext, playerContext) {
         "PATCH",
         `/user/${user.id}/grant-reward`,
         {
-            rewardType: "COSMETIC",
+            rewardType: "ITEM",
             quantity: 1,
-            rewardReference: cosmeticId
+            rewardReference: itemId
         },
         admin.token
     );
@@ -115,7 +98,7 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         204,
-        "Grant cosmetic reward"
+        "Grant item reward"
     );
 
     // Fluxo 3: Listar eventos de auditoria sem filtros
@@ -307,7 +290,7 @@ export async function runFlow(adminContext, playerContext) {
 
     res = await http(
         "GET",
-        `/admin/audit/user/${user.id}?eventType=COSMETIC_ACQUIRED&page=0&size=20`,
+        `/admin/audit/user/${user.id}?eventType=ITEM_ACQUIRED&page=0&size=20`,
         undefined,
         admin.token
     );
@@ -318,15 +301,15 @@ export async function runFlow(adminContext, playerContext) {
         "Get user audit history filtered"
     );
 
-    if (!res.body.data.content.some(item => item.eventType === "COSMETIC_ACQUIRED" && item.targetUserId === user.id)) {
+    if (!res.body.data.content.some(item => item.eventType === "ITEM_ACQUIRED" && item.targetUserId === user.id)) {
         throw new Error(
-            "Get user audit history filtered: COSMETIC_ACQUIRED event not found"
+            "Get user audit history filtered: ITEM_ACQUIRED event not found"
         );
     }
 
     assertAllMatch(
         res.body.data.content,
-        { eventType: "COSMETIC_ACQUIRED" },
+        { eventType: "ITEM_ACQUIRED" },
         "Get user audit history filtered"
     );
 
@@ -381,7 +364,7 @@ export async function runFlow(adminContext, playerContext) {
 
     res = await http(
         "GET",
-        `/admin/audit/resource/INVENTORY_ITEM/${cosmeticId}?page=0&size=20`,
+        `/admin/audit/resource/INVENTORY_ITEM/${itemId}?page=0&size=20`,
         undefined,
         admin.token
     );
@@ -389,12 +372,12 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         200,
-        "Get cosmetic audit history"
+        "Get item audit history"
     );
 
-    if (!res.body.data.content.some(item => item.eventType === "COSMETIC_ACQUIRED" && item.resourceId === cosmeticId)) {
+    if (!res.body.data.content.some(item => item.eventType === "ITEM_ACQUIRED" && item.resourceId === itemId)) {
         throw new Error(
-            "Get cosmetic audit history: COSMETIC_ACQUIRED event not found"
+            "Get item audit history: ITEM_ACQUIRED event not found"
         );
     }
 
@@ -402,8 +385,8 @@ export async function runFlow(adminContext, playerContext) {
         res.body.data.content,
         {
             resourceType: "INVENTORY_ITEM",
-            resourceId: cosmeticId
+            resourceId: itemId
         },
-        "Get cosmetic audit history"
+        "Get item audit history"
     );
 }

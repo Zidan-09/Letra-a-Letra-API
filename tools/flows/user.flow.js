@@ -1,5 +1,4 @@
 import { http } from "../core/http.js";
-import { multipart } from "../core/multipart.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected)
@@ -11,23 +10,6 @@ function ensureStatus(response, expected, operation) {
             `${operation}: expected ${expectedStatus.join(" or ")}, received ${response.status} =-=-= ${JSON.stringify(response.body)}`
         );
     }
-}
-
-// PNG 1x1 válido: o backend converte o asset para WebP via ImageIO,
-// então o upload precisa de bytes de imagem decodificáveis (não texto).
-const PNG_1X1_BASE64 =
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
-
-function imageAsset(filename) {
-    return {
-        blob: new Blob(
-            [Buffer.from(PNG_1X1_BASE64, "base64")],
-            {
-                type: "image/png"
-            }
-        ),
-        filename
-    };
 }
 
 // O perfil `test` fixa o código em `LocalPasswordResetCodeService`
@@ -279,35 +261,36 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
-    // Fluxo 8: Cadastrar cosmético, conceder ao usuário e ver inventário próprio
+    // Fluxo 8: Cadastrar definição de item, conceder ao usuário e ver itens próprios
 
-    const asset = imageAsset("avatar.png");
-    const cosmeticName = `integration-user-${stamp}`;
+    const itemName = `integration-user-${stamp}`;
 
-    const form = new FormData();
-
-    form.append("name", cosmeticName);
-    form.append("cosmeticType", "AVATAR");
-    form.append("asset", asset.blob, asset.filename);
-
-    res = await multipart(
+    res = await http(
         "POST",
-        "/cosmetic",
-        form,
+        "/admin/items",
+        {
+            name: itemName,
+            kind: "COSMETIC",
+            category: "AVATAR",
+            applicability: ["PROFILE"],
+            stackable: false,
+            consumable: false,
+            assetPath: `assets/${itemName}.png`
+        },
         admin.token
     );
 
     ensureStatus(
         res,
         200,
-        "Register cosmetic"
+        "Register item definition"
     );
 
-    const cosmeticId = res.body?.data?.cosmetic?.id;
+    const itemId = res.body?.data?.itemId;
 
-    if (!cosmeticId) {
+    if (!itemId) {
         throw new Error(
-            `Register cosmetic: missing id in response body=${JSON.stringify(res.body)}`
+            `Register item definition: missing id in response body=${JSON.stringify(res.body)}`
         );
     }
 
@@ -315,9 +298,9 @@ export async function runFlow(adminContext, playerContext) {
         "PATCH",
         `/user/${mainUser.id}/grant-reward`,
         {
-            rewardType: "COSMETIC",
+            rewardType: "ITEM",
             quantity: 1,
-            rewardReference: cosmeticId
+            rewardReference: itemId
         },
         admin.token
     );
@@ -325,12 +308,12 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         204,
-        "Grant cosmetic reward"
+        "Grant item reward"
     );
 
     res = await http(
         "GET",
-        "/user/inventory",
+        "/user/items",
         undefined,
         mainUser.token
     );
@@ -338,20 +321,20 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         200,
-        "Get my inventory"
+        "Get my items"
     );
 
-    if (!res.body.data.inventory.some(item => item.cosmeticId === cosmeticId)) {
+    if (!res.body.data.items.some(item => item.itemId === itemId)) {
         throw new Error(
-            "Get my inventory: granted cosmetic not found"
+            "Get my items: granted item not found"
         );
     }
 
-    // Fluxo 9: Inventário de outro usuário (visão admin)
+    // Fluxo 9: Perfil público ainda sem equipados (visão por username)
 
     res = await http(
         "GET",
-        `/user/${mainUser.id}/inventory?page=0&size=10`,
+        `/user/username/${mainNickname}`,
         undefined,
         admin.token
     );
@@ -359,12 +342,12 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         200,
-        "Get user inventory"
+        "Get user profile"
     );
 
-    if (!res.body.data.content.some(item => item.cosmeticId === cosmeticId)) {
+    if (res.body.data.content.some(user => (user.equipped ?? []).some(item => item.itemId === itemId))) {
         throw new Error(
-            "Get user inventory: granted cosmetic not found"
+            "Get user profile: item should not be equipped yet"
         );
     }
 
@@ -501,45 +484,64 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
-    // Fluxo 12: Equipar cosmético possuído e não possuído
+    // Fluxo 12: Equipar item possuído e não possuído
 
     res = await http(
-        "PATCH",
-        `/user/cosmetic/${cosmeticId}`,
-        undefined,
+        "POST",
+        `/user/items/${itemId}/equip`,
+        { context: "PROFILE" },
         mainUser.token
     );
 
     ensureStatus(
         res,
         200,
-        "Equip owned cosmetic"
+        "Equip owned item"
     );
 
-    const equipped = res.body.data.inventoryItems.find(item => item.cosmeticId === cosmeticId);
+    const equipped = res.body.data.movements.find(item => item.itemId === itemId);
 
-    if (!equipped || equipped.equipped !== true) {
+    if (!equipped || equipped.equippedAfter !== true) {
         throw new Error(
-            "Equip owned cosmetic: cosmetic was not equipped"
+            "Equip owned item: item was not equipped"
         );
     }
 
     res = await http(
-        "PATCH",
-        "/user/cosmetic/00000000-0000-0000-0000-000000000000",
+        "GET",
+        `/user/username/${mainNickname}`,
         undefined,
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get user profile after equip"
+    );
+
+    if (!res.body.data.content.some(user => (user.equipped ?? []).some(item => item.itemId === itemId))) {
+        throw new Error(
+            "Get user profile after equip: equipped item not found"
+        );
+    }
+
+    res = await http(
+        "POST",
+        "/user/items/00000000-0000-0000-0000-000000000000/equip",
+        { context: "PROFILE" },
         mainUser.token
     );
 
     ensureStatus(
         res,
         400,
-        "Equip unowned cosmetic"
+        "Equip unowned item"
     );
 
-    if (res.body?.code !== "INVALID_COSMETIC") {
+    if (res.body?.code !== "ITEM_NOT_OWNED") {
         throw new Error(
-            `Equip unowned cosmetic: expected INVALID_COSMETIC, received ${JSON.stringify(res.body)}`
+            `Equip unowned item: expected ITEM_NOT_OWNED, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -745,24 +747,24 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
-    // Fluxo 17: Revogar cosmético e conferir inventário
+    // Fluxo 17: Revogar item e conferir itens
 
     res = await http(
         "DELETE",
-        `/user/${mainUser.id}/inventory/${cosmeticId}`,
+        `/user/items/${itemId}`,
         undefined,
-        admin.token
+        mainUser.token
     );
 
     ensureStatus(
         res,
         204,
-        "Revoke cosmetic"
+        "Revoke item"
     );
 
     res = await http(
         "GET",
-        "/user/inventory",
+        "/user/items",
         undefined,
         mainUser.token
     );
@@ -770,12 +772,12 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         200,
-        "Get inventory after revoke"
+        "Get items after revoke"
     );
 
-    if (res.body.data.inventory.some(item => item.cosmeticId === cosmeticId)) {
+    if (res.body.data.items.some(item => item.itemId === itemId)) {
         throw new Error(
-            "Get inventory after revoke: revoked cosmetic still present"
+            "Get items after revoke: revoked item still present"
         );
     }
 }

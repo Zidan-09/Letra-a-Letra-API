@@ -9,7 +9,6 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
-import com.letraaletra.api.features.user.domain.inventory.Inventory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.game.application.port.ActorManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,11 +68,6 @@ class CreateGameUseCaseTest {
     @DisplayName("Deve criar uma partida com sucesso quando o usuário existe")
     void shouldCreateGameSuccessfully() {
         User user = mock(User.class);
-        Inventory inventory = mock(Inventory.class);
-
-        // Evita NullPointerException em Participant.create(user, session)
-        when(user.getInventory()).thenReturn(inventory);
-        when(inventory.getItems()).thenReturn(Collections.emptyList());
 
         when(userRepository.find(userId)).thenReturn(Optional.of(user));
         when(roomCodeService.generate()).thenReturn(generatedCode);

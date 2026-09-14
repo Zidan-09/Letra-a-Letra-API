@@ -3,6 +3,7 @@ package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.Set;
 
 public class GetUsersMapper {
@@ -27,12 +29,12 @@ public class GetUsersMapper {
         );
     }
 
-    public static PageResponse<UserResponse> toResponse(GetUsersOutput output) {
+    public static PageResponse<UserResponse> toResponse(GetUsersOutput output, java.util.Map<java.util.UUID, java.util.List<InventoryItemResponse>> equippedByUser) {
         Page<User> page = output.users();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(UserResponseMapper::toResponse)
+                        .map(user -> UserResponseMapper.toResponse(user, equippedByUser == null ? List.of() : equippedByUser.getOrDefault(user.getUserId(), List.of())))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

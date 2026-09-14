@@ -37,9 +37,9 @@ class JpaGameRepositoryProcedureTest {
         User u1 = UserFactory.createLocal("host1", "host1@test.com", "h");
         User u2 = UserFactory.createLocal("player2", "p2@test.com", "h");
         User s1 = UserFactory.createLocal("spec1", "spec1@test.com", "h");
-        game.join(u1, "s1");
-        game.join(u2, "s2");
-        game.join(s1, "s3");
+        game.join(u1, "s1", List.of());
+        game.join(u2, "s2", List.of());
+        game.join(s1, "s3", List.of());
         Board board = BoardGenerator.generate(List.of("a","b","c","d","e","f","g","h"), GameMode.NORMAL);
         game.start(board);
 
@@ -79,7 +79,7 @@ class JpaGameRepositoryProcedureTest {
         User u1 = UserFactory.createLocal("h", "h@test.com", "hh");
         User u2 = UserFactory.createLocal("p", "p@test.com", "hh");
         User s1 = UserFactory.createLocal("s", "s@test.com", "hh");
-        game.join(u1, "s1"); game.join(u2, "s2"); game.join(s1, "s3");
+        game.join(u1, "s1", List.of()); game.join(u2, "s2", List.of()); game.join(s1, "s3", List.of());
         Board board = BoardGenerator.generate(List.of("a","b","c","d","e","f","g","h"), GameMode.NORMAL);
         game.start(board);
 
@@ -104,7 +104,7 @@ class JpaGameRepositoryProcedureTest {
 
         Game game = Game.create("CODEW", "rw", new RoomSettings(true,false), GameType.CUSTOM);
         User host = UserFactory.createLocal("hostW", "hw@test.com","h");
-        game.join(host, "s-w");
+        game.join(host, "s-w", List.of());
 
         sut.save(game);
 

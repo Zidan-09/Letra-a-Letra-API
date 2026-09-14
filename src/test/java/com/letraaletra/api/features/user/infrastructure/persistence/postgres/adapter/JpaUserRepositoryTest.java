@@ -1,15 +1,11 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.cosmetic.domain.Cosmetic;
-import com.letraaletra.api.features.cosmetic.domain.CosmeticTypes;
 import com.letraaletra.api.features.offers.domain.CoinType;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserInventoryJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserStatsJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserWalletJpaEntity;
-import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserInventoryRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
@@ -22,11 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -34,7 +28,6 @@ import static org.mockito.Mockito.verify;
 class JpaUserRepositoryTest {
 
     @Mock private SpringDataUserRepository baseRepository;
-    @Mock private SpringDataUserInventoryRepository inventoryRepository;
     @Mock private SpringDataUserWalletRepository walletRepository;
     @Mock private SpringDataUserStatsRepository statsRepository;
 
@@ -44,7 +37,6 @@ class JpaUserRepositoryTest {
     void setUp() {
         jpaUserRepository = new JpaUserRepository(
                 baseRepository,
-                inventoryRepository,
                 walletRepository,
                 statsRepository
         );
@@ -57,15 +49,12 @@ class JpaUserRepositoryTest {
         user.getWallet().add(CoinType.SOFT, 250);
         user.getWallet().add(CoinType.HARD, 10);
 
-        Cosmetic cosmetic = Cosmetic.create("skin-" + nickname, CosmeticTypes.AVATAR, "assets/avatar.png");
-        user.getInventory().unlock(cosmetic);
-
         return user;
     }
 
     @Test
-    @DisplayName("saveAll deve persistir stats, wallet e inventário de cada usuário do agregado")
-    void saveAllShouldPersistStatsWalletAndInventoryForEachUser() {
+    @DisplayName("saveAll deve persistir stats e wallet de cada usuário sem tocar no inventário legado")
+    void saveAllShouldPersistStatsAndWalletForEachUser() {
         User winner = createUserWithMatchData("winner");
         User loser = createUserWithMatchData("loser");
 
@@ -85,26 +74,15 @@ class JpaUserRepositoryTest {
         assertEquals(250, walletCaptor.getAllValues().get(0).getSoftCoins());
         assertEquals(10, walletCaptor.getAllValues().get(0).getHardGems());
         assertEquals(250, walletCaptor.getAllValues().get(1).getSoftCoins());
-
-        verify(inventoryRepository, times(2)).deleteAllByUserId(any(UUID.class));
-        verify(inventoryRepository, times(2)).saveAll(anyList());
     }
 
     @Test
-    @DisplayName("save deve persistir o inventário do usuário")
-    void saveShouldPersistUserInventory() {
+    @DisplayName("save deve persistir o usuário sem escrever no inventário legado")
+    void saveShouldPersistUserWithoutLegacyInventory() {
         User user = createUserWithMatchData("player");
 
         jpaUserRepository.save(user);
 
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<UserInventoryJpaEntity>> inventoryCaptor =
-                ArgumentCaptor.forClass((Class) List.class);
-
-        verify(inventoryRepository).deleteAllByUserId(user.getUserId());
-        verify(inventoryRepository).saveAll(inventoryCaptor.capture());
-
-        assertEquals(1, inventoryCaptor.getValue().size());
-        assertEquals(user.getUserId(), inventoryCaptor.getValue().getFirst().getUserInventoryId().getUserId());
+        verify(baseRepository, times(1)).save(any(UserJpaEntity.class));
     }
 }
