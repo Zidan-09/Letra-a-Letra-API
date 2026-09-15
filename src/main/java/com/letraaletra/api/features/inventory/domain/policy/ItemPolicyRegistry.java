@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.inventory.domain.ItemKind;
-import com.letraaletra.api.features.inventory.domain.exception.InvalidItemException;
+import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 
 import java.util.EnumMap;
 import java.util.Map;

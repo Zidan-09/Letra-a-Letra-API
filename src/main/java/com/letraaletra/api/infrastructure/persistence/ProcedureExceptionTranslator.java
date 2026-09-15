@@ -5,7 +5,7 @@ import com.letraaletra.api.features.inventory.domain.exception.InapplicableConte
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;
 import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.exception.MaxStackExceededException;
 import com.letraaletra.api.features.inventory.domain.exception.NonConsumableItemException;

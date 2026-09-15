@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user;
 
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemKind;
 
 import java.util.UUID;
 

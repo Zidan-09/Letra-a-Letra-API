@@ -11,10 +11,10 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
 import com.letraaletra.api.features.inventory.domain.Inventory;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;

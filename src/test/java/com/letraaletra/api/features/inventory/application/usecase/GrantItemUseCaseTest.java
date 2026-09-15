@@ -3,14 +3,14 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.GrantItemInput;
 import com.letraaletra.api.features.inventory.application.output.GrantItemOutput;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.exception.DuplicateUniqueItemException;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
@@ -24,7 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.when;
 class GrantItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemDefinitionLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -78,7 +77,7 @@ class GrantItemUseCaseTest {
     @Test
     @DisplayName("grant deve checar admin, persistir e retornar ACQUIRED")
     void grantShouldCheckAdminPersistAndReturnAcquired() {
-        when(itemDefinitionRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
+        when(itemLookup.getById(avatar.getId())).thenReturn(avatar);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of());
 
         GrantItemOutput output = useCase.execute(new GrantItemInput(principal, userId, avatar.getId(), 1));
@@ -96,7 +95,7 @@ class GrantItemUseCaseTest {
     @DisplayName("definição inexistente deve falhar sem persistir")
     void missingDefinitionShouldFailWithoutPersisting() {
         UUID itemId = UUID.randomUUID();
-        when(itemDefinitionRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemLookup.getById(itemId)).thenThrow(new ItemNotFoundException());
 
         assertThrows(ItemNotFoundException.class,
                 () -> useCase.execute(new GrantItemInput(principal, userId, itemId, 1)));
@@ -106,7 +105,7 @@ class GrantItemUseCaseTest {
     @Test
     @DisplayName("duplicata de item único deve falhar sem persistir")
     void duplicateUniqueShouldFailWithoutPersisting() {
-        when(itemDefinitionRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
+        when(itemLookup.getById(avatar.getId())).thenReturn(avatar);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
                 com.letraaletra.api.features.inventory.domain.UserItem.restore(
                         userId, avatar.getId(), 1, false, java.time.LocalDateTime.now(), null)

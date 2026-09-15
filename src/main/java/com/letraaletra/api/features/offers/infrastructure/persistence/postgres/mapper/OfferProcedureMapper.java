@@ -68,7 +68,7 @@ public final class OfferProcedureMapper {
                     case GEMS -> reward = new HardGemsReward(quantity);
                     case ITEM -> {
                         if (ref == null) {
-                            throw new com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException();
+                            continue;
                         }
                         reward = new ItemGrantReward(ref, quantity);
                     }

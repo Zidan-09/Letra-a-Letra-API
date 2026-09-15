@@ -8,10 +8,10 @@ import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
@@ -104,7 +104,7 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
         return EquippedCosmetic.fromProfileItems(
                 items,
                 definitionId -> itemDefinitionRepository.findById(definitionId)
-                        .orElseThrow(com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException::new),
+                        .orElseThrow(com.letraaletra.api.features.items.domain.exception.ItemNotFoundException::new),
                 ItemContext.PROFILE
         );
     }

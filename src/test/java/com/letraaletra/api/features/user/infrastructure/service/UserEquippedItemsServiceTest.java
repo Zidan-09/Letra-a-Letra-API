@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.user.infrastructure.service;
 
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.user.application.output.EquippedItem;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

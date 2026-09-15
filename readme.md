@@ -149,7 +149,7 @@ A especificação OpenAPI é gerada pelo springdoc: JSON em `/docs` e Swagger UI
 | Usuário | `POST /user` · `POST /user/auth` · `POST /user/auth/google` · `GET /user/me` · `PATCH /user/nickname` · `GET /user` · `GET /user/username/{username}` · `GET /user/transactions` · `POST /user/auth/forgot-password` · `POST /user/auth/verify-reset-code` · `POST /user/auth/reset-password` |
 | Usuário (admin) | `PATCH /user/{userId}/ban` · `PATCH /user/{userId}/unban` · `PATCH /user/{userId}/grant-reward` · `PATCH /user/{userId}/wallet/revoke` |
 | Inventário | `GET /user/items` · `POST /user/items/{itemId}/consume` · `POST /user/items/{itemId}/equip` · `DELETE /user/items/{itemId}` |
-| Inventário (admin) | `POST /admin/items` · `PUT /admin/items/{itemId}` |
+| Itens (admin) | `POST /admin/items` · `PUT /admin/items/{itemId}` · `GET /admin/items` · `GET /admin/items/{itemId}` · `DELETE /admin/items/{itemId}` |
 | Jogo | `GET /game` · `GET /game/public` · `GET /game/active` · `GET /game/code/{code}` |
 | Níveis | `GET /level` · `GET /level/{levelId}` · `GET /level/value/{value}` · `POST /level` · `PUT /level/{levelId}` |
 | Ofertas | `GET /offer` · `GET /offer/{offerId}` · `POST /offer` · `DELETE /offer/{offerId}` · `PATCH /offer/enable/{id}` · `PATCH /offer/disable/{id}` |

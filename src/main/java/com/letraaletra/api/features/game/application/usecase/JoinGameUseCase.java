@@ -12,10 +12,10 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemContext;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +53,7 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
         List<EquippedCosmetic> equipped = EquippedCosmetic.fromProfileItems(
                 items,
                 definitionId -> itemDefinitionRepository.findById(definitionId)
-                        .orElseThrow(com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException::new),
+                        .orElseThrow(com.letraaletra.api.features.items.domain.exception.ItemNotFoundException::new),
                 ItemContext.PROFILE
         );
 

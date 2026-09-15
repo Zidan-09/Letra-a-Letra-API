@@ -3,31 +3,30 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.GetUserItemsInput;
 import com.letraaletra.api.features.inventory.application.output.GetUserItemsOutput;
 import com.letraaletra.api.features.inventory.application.output.UserItemDetails;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.UserItem;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.List;
 
 public class GetUserItemsUseCase implements UseCase<GetUserItemsInput, GetUserItemsOutput> {
     private final InventoryRepository inventoryRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemDefinitionLookup itemLookup;
 
     public GetUserItemsUseCase(
             InventoryRepository inventoryRepository,
-            ItemDefinitionRepository itemDefinitionRepository
+            ItemDefinitionLookup itemLookup
     ) {
         this.inventoryRepository = inventoryRepository;
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemLookup = itemLookup;
     }
 
     @Override
     public GetUserItemsOutput execute(GetUserItemsInput input) {
         List<UserItemDetails> items = inventoryRepository.findItemsByOwner(input.userId()).stream()
-                .map(item -> toDetails(item))
+                .map(this::toDetails)
                 .filter(details -> matches(details, input))
                 .toList();
 
@@ -35,8 +34,7 @@ public class GetUserItemsUseCase implements UseCase<GetUserItemsInput, GetUserIt
     }
 
     private UserItemDetails toDetails(UserItem item) {
-        ItemDefinition definition = itemDefinitionRepository.findById(item.getDefinitionId())
-                .orElseThrow(ItemNotFoundException::new);
+        ItemDefinition definition = itemLookup.getById(item.getDefinitionId());
 
         return new UserItemDetails(item, definition);
     }

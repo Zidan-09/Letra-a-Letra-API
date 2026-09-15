@@ -2,10 +2,10 @@ package com.letraaletra.api.features.inventory.infrastructure.presentation.mappe
 
 import com.letraaletra.api.features.inventory.application.input.GetUserItemsInput;
 import com.letraaletra.api.features.inventory.application.output.GetUserItemsOutput;
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
-import com.letraaletra.api.features.inventory.domain.exception.InvalidItemException;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.inventory.infrastructure.presentation.dto.response.GetUserItemsResponse;
 
 import java.util.UUID;

@@ -1,14 +1,14 @@
 package com.letraaletra.api.features.reward.infrastructure.service;
 
-import com.letraaletra.api.features.inventory.domain.EffectType;
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.ItemEffect;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.EffectType;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.RewardType;

@@ -16,10 +16,33 @@ a versão e a data reais.
 - Testes do handler global de exceções, fixando os payloads de erro HTTP.
 
 ### Fixed
+- `GET /offer` (e `GET /level`) com 500 `function sp_*_find_page(integer, integer)
+  is not unique`: removidos os overloads obsoletos de 2 args em
+  `docker/postgres/03_functions.sql` (conflitavam com as versões de 4 args com
+  defaults); callers passam sort explicitamente (`created_at`/`level` default,
+  `expires_at` incluído na whitelist da offer) — sort do painel passa a valer
+  no banco em vez de ser ignorado.
+- `GET /offer` (e leitura de níveis) com 500 quando uma recompensa `ITEM` ficava órfã
+  (`reward_reference` nulo via `ON DELETE SET NULL` após `DELETE /admin/items/{id}`):
+  `OfferProcedureMapper`/`LevelProcedureMapper` e os loaders JPA passam a ignorar a
+  recompensa órfã em vez de lançar `ItemNotFoundException`/`RuntimeException`;
+  a linha órfã é limpa no próximo save (`sp_*_save`/`legacySave` fazem delete+reinsert).
 - Corrigidos os percentuais de raridade dos poderes no modo Cataclysm.
 - Corrigida a seleção do arquivo `.env` incorreta no script de start.
 
 ### Refactored
+- Separação de `items` e `inventory` (ver `docs/refactor.md`): o catálogo de definições
+  (`ItemDefinition`, vocabulário `ItemKind`/`ItemCategory`/`ItemContext`, `ItemEffect`,
+  storage de assets R2, conversor WebP, `POST /admin/items`, `PUT /admin/items/{itemId}`)
+  passa a viver em `features/items/`; a posse e utilização (`Inventory`, `UserItem`,
+  policies, grant/revoke/consume/equip/consultas) permanece em `features/inventory/`,
+  consumindo o catálogo via `ItemDefinitionLookup` (direção única `inventory → items`).
+  Contrato HTTP inalterado; sem mudança de schema (tabelas `item_definition`/`user_item`).
+- CRUD completo do catálogo em `features/items/`: `GET /admin/items/{itemId}` (item
+  específico), `GET /admin/items` (paginado com filtros `kind`/`category`/`available`,
+  resposta `PageResponse`), `DELETE /admin/items/{itemId}` (remove definição e asset
+  R2; `user_item` removidos em cascata pela FK) — permissões `ITEMS:VIEW`/`DELETE`,
+  sem novos padrões (mesmos UseCase/ports/adapters/paginação `Pageables`).
 - Concluída a reorganização arquitetural do núcleo `shared`: componentes específicos de features
   (bootstrap de admin, verificação de permissões, exceções e DTOs de reward) foram movidos para suas
   features proprietárias, ports invertidos para as camadas de aplicação corretas e o filtro de

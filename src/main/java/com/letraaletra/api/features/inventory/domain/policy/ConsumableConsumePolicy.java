@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InapplicableContextException;
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;

@@ -14,6 +14,7 @@ import com.letraaletra.api.features.levels.infrastructure.persistence.postgres.m
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.HardGemsReward;
 import com.letraaletra.api.features.reward.domain.Reward;
+import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.infrastructure.persistence.ProcedureExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,13 +66,13 @@ public class JpaLevelRepository implements LevelRepository {
             int limit = page.size();
             int offset = page.page() * page.size();
             List<LevelPageRow> rows = jdbcTemplate.query(
-                    "SELECT * FROM sp_level_find_page(?, ?)",
+                    "SELECT * FROM sp_level_find_page(?, ?, ?, ?)",
                     (rs, rowNum) -> {
                         Level l = LevelProcedureMapper.toDomain(rs);
                         long total = rs.getLong("total_count");
                         return new LevelPageRow(l, total);
                     },
-                    limit, offset
+                    limit, offset, sortField(page.sort()), sortDir(page.sort())
             );
             if (rows.isEmpty()) {
                 Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort().and(Sort.by("level")));
@@ -233,7 +234,10 @@ public class JpaLevelRepository implements LevelRepository {
     }
 
     private List<LevelReward> loadRewards(UUID levelId) {
-        return levelRewardRepository.findByLevelId(levelId).stream().map(entity -> {
+        return levelRewardRepository.findByLevelId(levelId).stream()
+                .filter(entity -> entity.getRewardType() != RewardType.ITEM
+                        || entity.getRewardReference() != null)
+                .map(entity -> {
             Reward reward = switch (entity.getRewardType()) {
                 case COIN -> new SoftCoinsReward(entity.getQuantity());
                 case GEMS -> new HardGemsReward(entity.getQuantity());
@@ -241,6 +245,17 @@ public class JpaLevelRepository implements LevelRepository {
             };
             return LevelRewardMapper.toDomain(entity, reward);
         }).toList();
+    }
+
+    private static String sortField(Sort sort) {
+        return "level";
+    }
+
+    private static String sortDir(Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return "ASC";
+        }
+        return sort.iterator().next().isDescending() ? "DESC" : "ASC";
     }
 
     private record LevelPageRow(Level level, long total) {}

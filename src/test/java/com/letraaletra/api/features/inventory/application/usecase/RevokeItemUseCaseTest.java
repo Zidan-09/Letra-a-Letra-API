@@ -3,14 +3,14 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.RevokeItemInput;
 import com.letraaletra.api.features.inventory.application.output.RevokeItemOutput;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
@@ -25,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 class RevokeItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemDefinitionLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -79,7 +78,7 @@ class RevokeItemUseCaseTest {
     @Test
     @DisplayName("revoke deve checar admin, persistir e retornar REMOVED")
     void revokeShouldCheckAdminPersistAndReturnRemoved() {
-        when(itemDefinitionRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
+        when(itemLookup.getById(avatar.getId())).thenReturn(avatar);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
                 UserItem.restore(userId, avatar.getId(), 1, false, LocalDateTime.now(), null)
         ));
@@ -97,7 +96,7 @@ class RevokeItemUseCaseTest {
     @Test
     @DisplayName("revoke de item não possuído deve falhar sem persistir")
     void revokeNotOwnedShouldFailWithoutPersisting() {
-        when(itemDefinitionRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
+        when(itemLookup.getById(avatar.getId())).thenReturn(avatar);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of());
 
         assertThrows(ItemNotOwnedException.class,

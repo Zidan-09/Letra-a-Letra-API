@@ -2,17 +2,17 @@ package com.letraaletra.api.features.inventory.application.usecase;
 
 import com.letraaletra.api.features.inventory.application.input.ConsumeItemInput;
 import com.letraaletra.api.features.inventory.application.output.ConsumeItemOutput;
-import com.letraaletra.api.features.inventory.domain.EffectType;
+import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.inventory.domain.ItemCategory;
-import com.letraaletra.api.features.inventory.domain.ItemContext;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.ItemEffect;
-import com.letraaletra.api.features.inventory.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,7 +38,7 @@ import static org.mockito.Mockito.when;
 class ConsumeItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemDefinitionLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -72,7 +71,7 @@ class ConsumeItemUseCaseTest {
     @Test
     @DisplayName("consumo deve persistir e retornar CONSUMED")
     void consumeShouldPersistAndReturnConsumed() {
-        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        when(itemLookup.getById(boost.getId())).thenReturn(boost);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
                 UserItem.restore(userId, boost.getId(), 3, false, LocalDateTime.now(), null)
         ));
@@ -90,7 +89,7 @@ class ConsumeItemUseCaseTest {
     @Test
     @DisplayName("consumo sem saldo deve falhar sem persistir")
     void consumeWithoutBalanceShouldFailWithoutPersisting() {
-        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        when(itemLookup.getById(boost.getId())).thenReturn(boost);
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
                 UserItem.restore(userId, boost.getId(), 1, false, LocalDateTime.now(), null)
         ));

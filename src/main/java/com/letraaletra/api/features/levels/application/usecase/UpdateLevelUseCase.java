@@ -2,9 +2,9 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
 import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;

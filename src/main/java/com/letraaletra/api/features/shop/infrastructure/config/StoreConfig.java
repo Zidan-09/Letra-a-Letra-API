@@ -7,7 +7,7 @@ import com.letraaletra.api.features.shop.application.port.ShopPurchasePort;
 import com.letraaletra.api.features.shop.application.usecase.BuyOfferUseCase;
 import com.letraaletra.api.features.shop.application.usecase.GetActiveOffersUseCase;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;

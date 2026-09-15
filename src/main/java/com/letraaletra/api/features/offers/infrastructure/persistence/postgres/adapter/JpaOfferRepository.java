@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,13 +112,13 @@ public class JpaOfferRepository implements OfferRepository {
             int limit = page.size();
             int offset = page.page() * page.size();
             List<OfferPageRow> rows = jdbcTemplate.query(
-                    "SELECT * FROM sp_offer_find_page(?, ?)",
+                    "SELECT * FROM sp_offer_find_page(?, ?, ?, ?)",
                     (rs, rowNum) -> {
                         Offer o = OfferProcedureMapper.toDomain(rs);
                         long total = rs.getLong("total_count");
                         return new OfferPageRow(o, total);
                     },
-                    limit, offset
+                    limit, offset, sortField(page.sort()), sortDir(page.sort())
             );
             if (rows.isEmpty()) {
                 Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
@@ -224,13 +225,16 @@ public class JpaOfferRepository implements OfferRepository {
 
         List<OfferRewardJpaEntity> entities = offerRewardRepository.findByOfferIdIn(offerIds);
 
-        return entities.stream().collect(Collectors.groupingBy(
-                OfferRewardJpaEntity::getOfferId,
-                Collectors.mapping(
-                        JpaOfferRepository::toReward,
-                        Collectors.toList()
-                )
-        ));
+        return entities.stream()
+                .filter(entity -> entity.getRewardType() != RewardType.ITEM
+                        || entity.getRewardReference() != null)
+                .collect(Collectors.groupingBy(
+                        OfferRewardJpaEntity::getOfferId,
+                        Collectors.mapping(
+                                JpaOfferRepository::toReward,
+                                Collectors.toList()
+                        )
+                ));
     }
 
     private static OfferReward toReward(OfferRewardJpaEntity entity) {
@@ -259,6 +263,27 @@ public class JpaOfferRepository implements OfferRepository {
     @Transactional(readOnly = true)
     public List<UUID> findActiveExpiredIds() {
         return repository.findActiveExpiredIds(LocalDateTime.now());
+    }
+
+    private static String sortField(Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return "created_at";
+        }
+        return switch (sort.iterator().next().getProperty()) {
+            case "title" -> "title";
+            case "price" -> "price";
+            case "createdAt" -> "created_at";
+            case "expiresAt" -> "expires_at";
+            case "active" -> "active";
+            default -> "created_at";
+        };
+    }
+
+    private static String sortDir(Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return "ASC";
+        }
+        return sort.iterator().next().isDescending() ? "DESC" : "ASC";
     }
 
     private record OfferPageRow(Offer offer, long total) {}

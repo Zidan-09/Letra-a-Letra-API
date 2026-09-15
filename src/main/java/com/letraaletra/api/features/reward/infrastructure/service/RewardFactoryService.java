@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.reward.infrastructure.service;
 
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;

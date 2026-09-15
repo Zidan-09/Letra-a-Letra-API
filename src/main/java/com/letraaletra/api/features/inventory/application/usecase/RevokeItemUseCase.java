@@ -9,10 +9,9 @@ import com.letraaletra.api.features.inventory.application.input.RevokeItemInput;
 import com.letraaletra.api.features.inventory.application.output.RevokeItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.inventory.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.exception.ItemNotFoundException;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
@@ -23,18 +22,18 @@ import java.util.List;
 public class RevokeItemUseCase implements UseCase<RevokeItemInput, RevokeItemOutput> {
     private static final String SOURCE_DETAIL = "REVOKE_ITEM";
 
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemDefinitionLookup itemLookup;
     private final InventoryRepository inventoryRepository;
     private final AdminChecker adminChecker;
     private final BusinessAuditRecorder auditRecorder;
 
     public RevokeItemUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemDefinitionLookup itemLookup,
             InventoryRepository inventoryRepository,
             AdminChecker adminChecker,
             BusinessAuditRecorder auditRecorder
     ) {
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemLookup = itemLookup;
         this.inventoryRepository = inventoryRepository;
         this.adminChecker = adminChecker;
         this.auditRecorder = auditRecorder;
@@ -44,8 +43,7 @@ public class RevokeItemUseCase implements UseCase<RevokeItemInput, RevokeItemOut
     public RevokeItemOutput execute(RevokeItemInput input) {
         adminChecker.check(input.principal(), PermissionKey.USER, PermissionAction.EDIT);
 
-        ItemDefinition definition = itemDefinitionRepository.findById(input.itemId())
-                .orElseThrow(ItemNotFoundException::new);
+        ItemDefinition definition = itemLookup.getById(input.itemId());
 
         Inventory inventory = Inventory.restore(
                 input.userId(),
@@ -54,7 +52,7 @@ public class RevokeItemUseCase implements UseCase<RevokeItemInput, RevokeItemOut
 
         List<InventoryMovement> movements = inventory.revoke(
                 definition,
-                itemId -> itemDefinitionRepository.findById(itemId).orElseThrow(ItemNotFoundException::new)
+                itemLookup::getById
         );
 
         InventoryPersistence.save(inventoryRepository, input.userId(), inventory);

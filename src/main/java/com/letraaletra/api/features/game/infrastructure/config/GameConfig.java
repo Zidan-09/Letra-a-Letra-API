@@ -36,7 +36,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssemblerService;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -148,7 +148,7 @@ public class GameConfig {
             UserRepository userRepository,
             WsConnectionRegistry connectionRegistry,
             com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
-            com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository itemDefinitionRepository
+            com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository itemDefinitionRepository
     ) {
         return new GameResponseAssemblerService(
                 userRepository,

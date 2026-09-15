@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.levels.infrastructure.config;
 
-import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.FindLevelByValueInput;
 import com.letraaletra.api.features.levels.application.input.FindLevelInput;

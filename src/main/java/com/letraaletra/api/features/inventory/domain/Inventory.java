@@ -4,6 +4,9 @@ import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityEx
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.policy.ItemPolicyRegistry;
+import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +56,7 @@ public class Inventory {
         List<UserItem> equipped = new ArrayList<>();
 
         for (UserItem item : items) {
-            if (item.isEquipped() && lookup.findById(item.getDefinitionId()).isApplicableTo(context)) {
+            if (item.isEquipped() && lookup.getById(item.getDefinitionId()).isApplicableTo(context)) {
                 equipped.add(item);
             }
         }
@@ -151,7 +154,7 @@ public class Inventory {
                 continue;
             }
 
-            ItemDefinition other = lookup.findById(item.getDefinitionId());
+            ItemDefinition other = lookup.getById(item.getDefinitionId());
 
             if (other.getCategory() == definition.getCategory() && other.isApplicableTo(context)) {
                 item.markUnequipped();
@@ -223,7 +226,7 @@ public class Inventory {
     private Optional<UserItem> findFallback(ItemDefinition revoked, ItemDefinitionLookup lookup) {
         return items.stream()
                 .filter(candidate -> {
-                    ItemDefinition candidateDefinition = lookup.findById(candidate.getDefinitionId());
+                    ItemDefinition candidateDefinition = lookup.getById(candidate.getDefinitionId());
 
                     return candidateDefinition.getKind() == revoked.getKind()
                             && candidateDefinition.getCategory() == revoked.getCategory()
