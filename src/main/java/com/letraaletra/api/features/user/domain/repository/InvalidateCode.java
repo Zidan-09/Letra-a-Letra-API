@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.user.application.port;
+package com.letraaletra.api.features.user.domain.repository;
 
 import java.util.UUID;
 
