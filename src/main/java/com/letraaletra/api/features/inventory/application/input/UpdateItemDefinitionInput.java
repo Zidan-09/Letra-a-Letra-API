@@ -8,7 +8,8 @@ public record UpdateItemDefinitionInput(
         AuthenticatedUser principal,
         UUID itemId,
         String name,
-        String assetPath,
-        Boolean available
+        Boolean available,
+        ItemAssetUpload asset,
+        boolean isNewAsset
 ) {
 }

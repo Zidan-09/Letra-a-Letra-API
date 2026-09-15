@@ -16,6 +16,7 @@ import com.letraaletra.api.features.inventory.application.output.GetUserItemsOut
 import com.letraaletra.api.features.inventory.application.output.GrantItemOutput;
 import com.letraaletra.api.features.inventory.application.output.RevokeItemOutput;
 import com.letraaletra.api.features.inventory.application.output.UpdateItemDefinitionOutput;
+import com.letraaletra.api.features.inventory.application.port.ItemImageConverter;
 import com.letraaletra.api.features.inventory.application.usecase.ConsumeItemUseCase;
 import com.letraaletra.api.features.inventory.application.usecase.CreateItemDefinitionUseCase;
 import com.letraaletra.api.features.inventory.application.usecase.EquipItemUseCase;
@@ -25,6 +26,7 @@ import com.letraaletra.api.features.inventory.application.usecase.GrantItemUseCa
 import com.letraaletra.api.features.inventory.application.usecase.RevokeItemUseCase;
 import com.letraaletra.api.features.inventory.application.usecase.UpdateItemDefinitionUseCase;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.inventory.domain.repository.ItemAssetStorage;
 import com.letraaletra.api.features.inventory.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -67,12 +69,16 @@ public class InventoryConfig {
     @Bean
     public UseCase<CreateItemDefinitionInput, CreateItemDefinitionOutput> createItemDefinitionUseCase(
             ItemDefinitionRepository itemDefinitionRepository,
+            ItemAssetStorage assetStorage,
+            ItemImageConverter imageConverter,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new CreateItemDefinitionUseCase(
                         itemDefinitionRepository,
+                        assetStorage,
+                        imageConverter,
                         adminChecker
                 ),
                 transactions
@@ -82,12 +88,16 @@ public class InventoryConfig {
     @Bean
     public UseCase<UpdateItemDefinitionInput, UpdateItemDefinitionOutput> updateItemDefinitionUseCase(
             ItemDefinitionRepository itemDefinitionRepository,
+            ItemAssetStorage assetStorage,
+            ItemImageConverter imageConverter,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new UpdateItemDefinitionUseCase(
                         itemDefinitionRepository,
+                        assetStorage,
+                        imageConverter,
                         adminChecker
                 ),
                 transactions

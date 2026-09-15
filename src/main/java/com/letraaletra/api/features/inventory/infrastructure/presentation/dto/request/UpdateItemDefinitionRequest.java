@@ -2,7 +2,7 @@ package com.letraaletra.api.features.inventory.infrastructure.presentation.dto.r
 
 public record UpdateItemDefinitionRequest(
         String name,
-        String assetPath,
-        Boolean available
+        Boolean available,
+        boolean isNewAsset
 ) {
 }

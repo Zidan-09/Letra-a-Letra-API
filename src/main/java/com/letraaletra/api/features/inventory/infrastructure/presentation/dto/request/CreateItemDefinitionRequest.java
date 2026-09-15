@@ -19,8 +19,7 @@ public record CreateItemDefinitionRequest(
         boolean stackable,
         @Min(1) Integer maxStack,
         boolean consumable,
-        @Valid ItemEffectRequest effect,
-        String assetPath
+        @Valid ItemEffectRequest effect
 ) {
     public record ItemEffectRequest(
             @NotNull EffectType type,

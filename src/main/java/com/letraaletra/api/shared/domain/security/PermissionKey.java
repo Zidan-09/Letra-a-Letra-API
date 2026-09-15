@@ -4,7 +4,7 @@ public enum PermissionKey {
     USER,
     LOGS,
     ADMIN,
-    COSMETIC,
+    ITEMS,
     GAME,
     LEVELS,
     OFFERS,

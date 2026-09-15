@@ -14,7 +14,10 @@ public enum ItemMessages implements MessageCode {
     NON_CONSUMABLE_ITEM("this item cannot be consumed"),
     NON_EQUIPABLE_ITEM("this item cannot be equipped"),
     INSUFFICIENT_QUANTITY("there is not enough quantity"),
-    INAPPLICABLE_CONTEXT("this item cannot be used in this context");
+    INAPPLICABLE_CONTEXT("this item cannot be used in this context"),
+    IMAGE_TOO_LARGE("the image exceeds the maximum allowed size of 5 MB"),
+    INVALID_IMAGE_TYPE("the provided file is not a valid image"),
+    IMAGE_CONVERSION_FAILED("failed to convert the image");
 
     private final String message;
 

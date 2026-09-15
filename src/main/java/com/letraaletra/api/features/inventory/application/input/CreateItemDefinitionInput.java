@@ -18,6 +18,6 @@ public record CreateItemDefinitionInput(
         Integer maxStack,
         boolean consumable,
         ItemEffect effect,
-        String assetPath
+        ItemAssetUpload asset
 ) {
 }

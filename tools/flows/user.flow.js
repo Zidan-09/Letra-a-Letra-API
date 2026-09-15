@@ -1,4 +1,5 @@
 import { http } from "../core/http.js";
+import { registerItem } from "../core/item.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected)
@@ -265,8 +266,7 @@ export async function runFlow(adminContext, playerContext) {
 
     const itemName = `integration-user-${stamp}`;
 
-    res = await http(
-        "POST",
+    res = await registerItem(
         "/admin/items",
         {
             name: itemName,
@@ -274,8 +274,7 @@ export async function runFlow(adminContext, playerContext) {
             category: "AVATAR",
             applicability: ["PROFILE"],
             stackable: false,
-            consumable: false,
-            assetPath: `assets/${itemName}.png`
+            consumable: false
         },
         admin.token
     );
@@ -533,8 +532,7 @@ export async function runFlow(adminContext, playerContext) {
 
     const unownedItemName = `integration-unowned-${stamp}`;
 
-    res = await http(
-        "POST",
+    res = await registerItem(
         "/admin/items",
         {
             name: unownedItemName,
@@ -542,8 +540,7 @@ export async function runFlow(adminContext, playerContext) {
             category: "FRAME",
             applicability: ["PROFILE"],
             stackable: false,
-            consumable: false,
-            assetPath: `assets/${unownedItemName}.png`
+            consumable: false
         },
         admin.token
     );
@@ -794,8 +791,7 @@ export async function runFlow(adminContext, playerContext) {
 
     const revokeItemName = `integration-revoke-${stamp}`;
 
-    res = await http(
-        "POST",
+    res = await registerItem(
         "/admin/items",
         {
             name: revokeItemName,
@@ -803,8 +799,7 @@ export async function runFlow(adminContext, playerContext) {
             category: "BANNER",
             applicability: ["PROFILE"],
             stackable: false,
-            consumable: false,
-            assetPath: `assets/${revokeItemName}.png`
+            consumable: false
         },
         admin.token
     );

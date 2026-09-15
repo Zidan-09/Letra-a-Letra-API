@@ -1,4 +1,5 @@
 import { http } from "../core/http.js";
+import { registerItem } from "../core/item.js";
 
 function ensureStatus(response, expected, operation) {
     const expectedStatus = Array.isArray(expected)
@@ -55,8 +56,7 @@ export async function runFlow(adminContext, playerContext) {
 
     const itemName = `integration-audit-${stamp}`;
 
-    res = await http(
-        "POST",
+    res = await registerItem(
         "/admin/items",
         {
             name: itemName,
@@ -64,8 +64,7 @@ export async function runFlow(adminContext, playerContext) {
             category: "AVATAR",
             applicability: ["PROFILE"],
             stackable: false,
-            consumable: false,
-            assetPath: `assets/${itemName}.png`
+            consumable: false
         },
         admin.token
     );
@@ -77,10 +76,17 @@ export async function runFlow(adminContext, playerContext) {
     );
 
     const itemId = res.body?.data?.itemId;
+    const assetPath = res.body?.data?.assetPath;
 
     if (!itemId) {
         throw new Error(
             `Register item definition: missing id in response body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    if (assetPath !== `AVATAR/${itemName}.webp`) {
+        throw new Error(
+            `Register item definition: expected assetPath from upload, received body=${JSON.stringify(res.body)}`
         );
     }
 

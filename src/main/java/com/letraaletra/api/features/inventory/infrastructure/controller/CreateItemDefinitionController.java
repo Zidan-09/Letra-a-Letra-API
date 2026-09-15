@@ -12,12 +12,14 @@ import com.letraaletra.api.shared.infrastructure.presentation.dto.response.Succe
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,12 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class CreateItemDefinitionController {
     private final UseCase<CreateItemDefinitionInput, CreateItemDefinitionOutput> useCase;
 
-    @PostMapping(path = "/items")
+    @PostMapping(path = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<ItemDefinitionResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestBody CreateItemDefinitionRequest request
+            @Valid @RequestPart("item") CreateItemDefinitionRequest request,
+            @RequestPart(value = "asset", required = false) MultipartFile asset
     ) {
-        CreateItemDefinitionInput input = CreateItemDefinitionMapper.toInput(principal, request);
+        CreateItemDefinitionInput input = CreateItemDefinitionMapper.toInput(principal, request, asset);
 
         CreateItemDefinitionOutput output = useCase.execute(input);
 
