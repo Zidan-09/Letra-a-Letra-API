@@ -12,6 +12,7 @@ public class AdminResponseMapper {
                 admin.getId(),
                 admin.getName(),
                 admin.getEmail(),
+                admin.isSuper(),
                 admin.getPermissions()
                         .getAll()
                         .stream()

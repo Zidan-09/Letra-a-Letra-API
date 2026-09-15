@@ -7,6 +7,7 @@ public record AdminResponse(
         UUID id,
         String username,
         String email,
+        boolean isSuper,
         Set<PermissionResponse> permissions
 ) {
 }
