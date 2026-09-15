@@ -121,11 +121,13 @@ public class UserConfig {
     @Bean
     public UseCase<GetMyProfileInput, GetMyProfileOutput> getMyProfileUseCase(
             UserRepository userRepository,
+            com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetMyProfileUseCase(
-                        userRepository
+                        userRepository,
+                        equippedItemsProvider
                 ),
                 transactions
         );
@@ -149,11 +151,13 @@ public class UserConfig {
     @Bean
     public UseCase<GetUsersInput, GetUsersOutput> getUsersUseCase(
             UserRepository userRepository,
+            com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetUsersUseCase(
-                        userRepository
+                        userRepository,
+                        equippedItemsProvider
                 ),
                 transactions
         );
@@ -162,11 +166,13 @@ public class UserConfig {
     @Bean
     public UseCase<FindUserByUsernameInput, FindUserByUsernameOutput> findUserByUsernameUseCase(
             UserRepository userRepository,
+            com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new FindUserByUsernameUseCase(
-                        userRepository
+                        userRepository,
+                        equippedItemsProvider
                 ),
                 transactions
         );

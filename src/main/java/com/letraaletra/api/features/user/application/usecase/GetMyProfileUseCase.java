@@ -2,6 +2,7 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.GetMyProfileInput;
 import com.letraaletra.api.features.user.application.output.GetMyProfileOutput;
+import com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -9,11 +10,14 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 
 public class GetMyProfileUseCase implements UseCase<GetMyProfileInput, GetMyProfileOutput> {
     private final UserRepository userRepository;
+    private final UserEquippedItemsProvider equippedItemsProvider;
 
     public GetMyProfileUseCase(
-            UserRepository userRepository
+            UserRepository userRepository,
+            UserEquippedItemsProvider equippedItemsProvider
     ) {
         this.userRepository = userRepository;
+        this.equippedItemsProvider = equippedItemsProvider;
     }
 
     @Override
@@ -21,6 +25,6 @@ public class GetMyProfileUseCase implements UseCase<GetMyProfileInput, GetMyProf
         User user = userRepository.find(input.id())
                 .orElseThrow(UserNotFoundException::new);
 
-        return new GetMyProfileOutput(user);
+        return new GetMyProfileOutput(user, equippedItemsProvider.equipped(user.getUserId()));
     }
 }

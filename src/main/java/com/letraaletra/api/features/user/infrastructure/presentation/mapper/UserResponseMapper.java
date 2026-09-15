@@ -18,4 +18,8 @@ public class UserResponseMapper {
                 WalletResponseMapper.toResponse(user.getWallet())
         );
     }
+
+    public static UserResponse toResponseWithEquipped(User user, List<com.letraaletra.api.features.user.application.output.EquippedItem> equipped) {
+        return toResponse(user, InventoryItemResponseMapper.toResponses(equipped));
+    }
 }

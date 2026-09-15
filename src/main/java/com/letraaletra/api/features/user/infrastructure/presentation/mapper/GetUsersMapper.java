@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
+import com.letraaletra.api.features.user.application.output.EquippedItem;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
 import com.letraaletra.api.features.user.domain.User;
-import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.UserResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.infrastructure.presentation.Pageables;
@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class GetUsersMapper {
     private static final Set<String> ALLOWED_SORTS = Set.of("username", "email", "createdAt");
@@ -29,12 +31,13 @@ public class GetUsersMapper {
         );
     }
 
-    public static PageResponse<UserResponse> toResponse(GetUsersOutput output, java.util.Map<java.util.UUID, java.util.List<InventoryItemResponse>> equippedByUser) {
+    public static PageResponse<UserResponse> toResponse(GetUsersOutput output) {
         Page<User> page = output.users();
+        Map<UUID, List<EquippedItem>> equippedByUser = output.equippedByUser();
 
         return new PageResponse<>(
                 page.getContent().stream()
-                        .map(user -> UserResponseMapper.toResponse(user, equippedByUser == null ? List.of() : equippedByUser.getOrDefault(user.getUserId(), List.of())))
+                        .map(user -> UserResponseMapper.toResponseWithEquipped(user, equippedByUser == null ? List.of() : equippedByUser.getOrDefault(user.getUserId(), List.of())))
                         .toList(),
                 page.getNumber(),
                 page.getSize(),

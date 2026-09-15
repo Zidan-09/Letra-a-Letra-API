@@ -22,6 +22,17 @@ public class InventoryItemResponseMapper {
         );
     }
 
+    public static InventoryItemResponse toResponse(com.letraaletra.api.features.user.application.output.EquippedItem equipped) {
+        return toResponse(equipped.item(), equipped.definition());
+    }
+
+    public static List<InventoryItemResponse> toResponses(List<com.letraaletra.api.features.user.application.output.EquippedItem> equipped) {
+        if (equipped == null) {
+            return List.of();
+        }
+        return equipped.stream().map(InventoryItemResponseMapper::toResponse).toList();
+    }
+
     public static List<InventoryItemResponse> toEquippedResponses(List<UserItem> items, java.util.function.Function<UUID, ItemDefinition> lookup) {
         return items.stream()
                 .filter(UserItem::isEquipped)

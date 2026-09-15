@@ -4,7 +4,6 @@ import com.letraaletra.api.features.user.application.input.GetMyProfileInput;
 import com.letraaletra.api.features.user.application.output.GetMyProfileOutput;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.GetMyProfileResponse;
 import com.letraaletra.api.features.user.infrastructure.presentation.mapper.GetMyProfileMapper;
-import com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User", description = "Rotas relacionadas a funcionalidade de usuários (jogadores)")
 public class GetMyProfileController {
     private final UseCase<GetMyProfileInput, GetMyProfileOutput> useCase;
-    private final UserEquippedItemsService equippedItemsService;
 
     @GetMapping(path = "/me")
     public ResponseEntity<SuccessResponse<GetMyProfileResponse>> handle(
@@ -33,7 +31,7 @@ public class GetMyProfileController {
 
         GetMyProfileOutput output = useCase.execute(input);
 
-        GetMyProfileResponse dto = GetMyProfileMapper.toResponse(output, equippedItemsService.equippedResponses(output.user().getUserId()));
+        GetMyProfileResponse dto = GetMyProfileMapper.toResponse(output);
 
         return ApiResponseHandler.success(dto);
     }

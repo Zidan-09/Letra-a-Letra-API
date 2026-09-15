@@ -4,6 +4,7 @@ import com.letraaletra.api.features.friend.application.input.GetFriendPendingReq
 import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -17,20 +18,25 @@ import java.util.stream.Collectors;
 public class GetFriendPendingRequestsUseCase implements UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final UserEquippedItemsProvider equippedItemsProvider;
 
     public GetFriendPendingRequestsUseCase(
             FriendRepository friendRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            UserEquippedItemsProvider equippedItemsProvider
     ) {
         this.friendRepository = friendRepository;
         this.userRepository = userRepository;
+        this.equippedItemsProvider = equippedItemsProvider;
     }
 
     @Override
     public GetFriendPendingRequestsOutput execute(GetFriendPendingRequestsInput input) {
         List<Friend> requests = friendRepository.getPendingRequests(input.userId());
 
-        return new GetFriendPendingRequestsOutput(requests, loadUsers(input.userId(), requests));
+        Map<UUID, User> users = loadUsers(input.userId(), requests);
+
+        return new GetFriendPendingRequestsOutput(requests, users, equippedItemsProvider.equippedFor(users.keySet()));
     }
 
     private Map<UUID, User> loadUsers(UUID viewerId, List<Friend> requests) {

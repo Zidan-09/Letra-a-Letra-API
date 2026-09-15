@@ -34,9 +34,6 @@ class GetFriendListControllerTest {
     @Mock
     private UseCase<GetFriendListInput, GetFriendListOutput> useCase;
 
-    @Mock
-    private com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService equippedItemsService;
-
     @InjectMocks
     private GetFriendListController controller;
 
@@ -57,7 +54,6 @@ class GetFriendListControllerTest {
         mockOutput = mock(GetFriendListOutput.class);
         mockResponseDto = mock(PageResponse.class);
         mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
-        lenient().when(equippedItemsService.equippedResponsesFor(any())).thenReturn(java.util.Map.of());
         lenient().when(mockOutput.users()).thenReturn(java.util.Map.of());
     }
 
@@ -69,7 +65,7 @@ class GetFriendListControllerTest {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId, pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendListMapper.toResponse(eq(mockOutput), eq(mockAuthId), any())).thenReturn(mockResponseDto);
+            mapperMock.when(() -> GetFriendListMapper.toResponse(eq(mockOutput), eq(mockAuthId))).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
@@ -121,7 +117,7 @@ class GetFriendListControllerTest {
 
             mapperMock.when(() -> GetFriendListMapper.toInput(mockAuthId, pageable)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendListMapper.toResponse(eq(mockOutput), eq(mockAuthId), any())).thenReturn(null);
+            mapperMock.when(() -> GetFriendListMapper.toResponse(eq(mockOutput), eq(mockAuthId))).thenReturn(null);
 
             ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> expectedResponseEntity =
                     ResponseEntity.noContent().build();

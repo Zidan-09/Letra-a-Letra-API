@@ -4,7 +4,6 @@ import com.letraaletra.api.features.friend.application.input.GetFriendListInput;
 import com.letraaletra.api.features.friend.application.output.GetFriendListOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendListMapper;
-import com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class GetFriendListController {
     private final UseCase<GetFriendListInput, GetFriendListOutput> useCase;
-    private final UserEquippedItemsService equippedItemsService;
 
     @GetMapping
     public ResponseEntity<SuccessResponse<PageResponse<FriendResponse>>> handle(
@@ -36,7 +34,7 @@ public class GetFriendListController {
 
         GetFriendListOutput output = useCase.execute(input);
 
-        PageResponse<FriendResponse> dto = GetFriendListMapper.toResponse(output, principal.auth(), equippedItemsService.equippedResponsesFor(output.users().keySet()));
+        PageResponse<FriendResponse> dto = GetFriendListMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

@@ -30,9 +30,6 @@ class GetFriendPendingRequestsControllerTest {
     @Mock
     private UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> useCase;
 
-    @Mock
-    private com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService equippedItemsService;
-
     @InjectMocks
     private GetFriendPendingRequestsController controller;
 
@@ -51,7 +48,6 @@ class GetFriendPendingRequestsControllerTest {
         mockOutput = mock(GetFriendPendingRequestsOutput.class);
         mockResponseDto = mock(GetFriendPendingRequestsResponse.class);
         mockSuccessResponse = new SuccessResponse<>(true, mockResponseDto);
-        lenient().when(equippedItemsService.equippedResponsesFor(any())).thenReturn(java.util.Map.of());
         lenient().when(mockOutput.users()).thenReturn(java.util.Map.of());
     }
 
@@ -63,7 +59,7 @@ class GetFriendPendingRequestsControllerTest {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(eq(mockOutput), eq(mockAuthId), any())).thenReturn(mockResponseDto);
+            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(eq(mockOutput), eq(mockAuthId))).thenReturn(mockResponseDto);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.ok(mockSuccessResponse);
@@ -115,7 +111,7 @@ class GetFriendPendingRequestsControllerTest {
 
             mapperMock.when(() -> GetFriendPendingRequestsMapper.toInput(mockAuthId)).thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
-            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(eq(mockOutput), eq(mockAuthId), any())).thenReturn(null);
+            mapperMock.when(() -> GetFriendPendingRequestsMapper.toResponse(eq(mockOutput), eq(mockAuthId))).thenReturn(null);
 
             ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> expectedResponseEntity =
                     ResponseEntity.noContent().build();

@@ -40,6 +40,9 @@ class FindUserByUsernameUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider;
+
     @InjectMocks
     private FindUserByUsernameUseCase useCase;
 
@@ -52,6 +55,7 @@ class FindUserByUsernameUseCaseTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "Usuario Teste", false, false);
+        org.mockito.Mockito.lenient().when(equippedItemsProvider.equippedFor(any())).thenReturn(java.util.Map.of());
     }
 
     @Nested
@@ -65,6 +69,7 @@ class FindUserByUsernameUseCaseTest {
             String username = "joaosilva";
             FindUserByUsernameInput input = new FindUserByUsernameInput(principal, username, 0, 20, Sort.unsorted());
             Page<User> mockPage = mock(Page.class);
+            org.mockito.Mockito.lenient().when(mockPage.getContent()).thenReturn(java.util.List.of());
 
             when(userRepository.search(eq(username), any(UsersPage.class))).thenReturn(mockPage);
 
@@ -88,6 +93,7 @@ class FindUserByUsernameUseCaseTest {
             Sort sort = Sort.by(Sort.Direction.ASC, "username");
             FindUserByUsernameInput input = new FindUserByUsernameInput(principal, username, 1, 10, sort);
             Page<User> mockPage = mock(Page.class);
+            org.mockito.Mockito.lenient().when(mockPage.getContent()).thenReturn(java.util.List.of());
 
             when(userRepository.search(eq(username), any(UsersPage.class))).thenReturn(mockPage);
 
@@ -154,6 +160,7 @@ class FindUserByUsernameUseCaseTest {
             String username = "joaosilva";
             FindUserByUsernameInput inputWithNullPrincipal = new FindUserByUsernameInput(null, username, 0, 20, Sort.unsorted());
             Page<User> mockPage = mock(Page.class);
+            org.mockito.Mockito.lenient().when(mockPage.getContent()).thenReturn(java.util.List.of());
 
             when(userRepository.search(eq(username), any(UsersPage.class))).thenReturn(mockPage);
 
@@ -171,6 +178,7 @@ class FindUserByUsernameUseCaseTest {
             String rawUsername = "  UserTest  ";
             FindUserByUsernameInput input = new FindUserByUsernameInput(principal, rawUsername, 0, 20, Sort.unsorted());
             Page<User> mockPage = mock(Page.class);
+            org.mockito.Mockito.lenient().when(mockPage.getContent()).thenReturn(java.util.List.of());
 
             when(userRepository.search(eq(rawUsername), any(UsersPage.class))).thenReturn(mockPage);
 

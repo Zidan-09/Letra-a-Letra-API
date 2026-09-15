@@ -75,12 +75,14 @@ public class FriendConfig {
     public UseCase<GetFriendListInput, GetFriendListOutput> getFriendListUseCase(
             FriendRepository friendRepository,
             UserRepository userRepository,
+            com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetFriendListUseCase(
                         friendRepository,
-                        userRepository
+                        userRepository,
+                        equippedItemsProvider
                 ),
                 transactions
         );
@@ -120,12 +122,14 @@ public class FriendConfig {
     public UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> getFriendPendingRequestsUseCase(
             FriendRepository friendRepository,
             UserRepository userRepository,
+            com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetFriendPendingRequestsUseCase(
                         friendRepository,
-                        userRepository
+                        userRepository,
+                        equippedItemsProvider
                 ),
                 transactions
         );

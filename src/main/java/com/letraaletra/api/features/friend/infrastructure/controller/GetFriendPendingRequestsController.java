@@ -4,7 +4,6 @@ import com.letraaletra.api.features.friend.application.input.GetFriendPendingReq
 import com.letraaletra.api.features.friend.application.output.GetFriendPendingRequestsOutput;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.GetFriendPendingRequestsResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.mapper.GetFriendPendingRequestsMapper;
-import com.letraaletra.api.features.user.infrastructure.service.UserEquippedItemsService;
 import com.letraaletra.api.shared.infrastructure.presentation.dto.handlers.ApiResponseHandler;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Friend", description = "Rotas relacionadas a funcionalidade de amizades")
 public class GetFriendPendingRequestsController {
     private final UseCase<GetFriendPendingRequestsInput, GetFriendPendingRequestsOutput> useCase;
-    private final UserEquippedItemsService equippedItemsService;
 
     @GetMapping("/pending")
     public ResponseEntity<SuccessResponse<GetFriendPendingRequestsResponse>> handle(
@@ -33,7 +31,7 @@ public class GetFriendPendingRequestsController {
 
         GetFriendPendingRequestsOutput output = useCase.execute(input);
 
-        GetFriendPendingRequestsResponse dto = GetFriendPendingRequestsMapper.toResponse(output, principal.auth(), equippedItemsService.equippedResponsesFor(output.users().keySet()));
+        GetFriendPendingRequestsResponse dto = GetFriendPendingRequestsMapper.toResponse(output, principal.auth());
 
         return ApiResponseHandler.success(dto);
     }

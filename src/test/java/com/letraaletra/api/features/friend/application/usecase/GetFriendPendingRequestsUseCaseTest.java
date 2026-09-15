@@ -29,11 +29,15 @@ class GetFriendPendingRequestsUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider;
+
     private GetFriendPendingRequestsUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        useCase = new GetFriendPendingRequestsUseCase(friendRepository, userRepository);
+        useCase = new GetFriendPendingRequestsUseCase(friendRepository, userRepository, equippedItemsProvider);
+        lenient().when(equippedItemsProvider.equippedFor(any())).thenReturn(java.util.Map.of());
     }
 
     @Test

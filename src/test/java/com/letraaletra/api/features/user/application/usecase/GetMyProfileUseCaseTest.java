@@ -20,6 +20,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +34,9 @@ class GetMyProfileUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider;
+
     @InjectMocks
     private GetMyProfileUseCase useCase;
 
@@ -42,6 +47,8 @@ class GetMyProfileUseCaseTest {
     void setUp() {
         userId = UUID.randomUUID();
         user = mock(User.class);
+        lenient().when(user.getUserId()).thenReturn(userId);
+        lenient().when(equippedItemsProvider.equipped(any())).thenReturn(java.util.List.of());
     }
 
     @Nested

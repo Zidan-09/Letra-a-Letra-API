@@ -41,6 +41,9 @@ class GetFriendListUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider;
+
     @InjectMocks
     private GetFriendListUseCase useCase;
 
@@ -54,6 +57,7 @@ class GetFriendListUseCaseTest {
     void setup() {
         userId = UUID.randomUUID();
         input = new GetFriendListInput(userId, 1, 10, Sort.by("requestDate"));
+        org.mockito.Mockito.lenient().when(equippedItemsProvider.equippedFor(any())).thenReturn(java.util.Map.of());
     }
 
     @Test

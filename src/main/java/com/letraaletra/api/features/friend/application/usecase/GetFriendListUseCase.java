@@ -5,6 +5,7 @@ import com.letraaletra.api.features.friend.application.output.GetFriendListOutpu
 import com.letraaletra.api.features.friend.domain.Friend;
 import com.letraaletra.api.features.friend.domain.FriendsPage;
 import com.letraaletra.api.features.friend.domain.repository.FriendRepository;
+import com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -19,13 +20,16 @@ import java.util.stream.Collectors;
 public class GetFriendListUseCase implements UseCase<GetFriendListInput, GetFriendListOutput> {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final UserEquippedItemsProvider equippedItemsProvider;
 
     public GetFriendListUseCase(
             FriendRepository friendRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            UserEquippedItemsProvider equippedItemsProvider
     ) {
         this.friendRepository = friendRepository;
         this.userRepository = userRepository;
+        this.equippedItemsProvider = equippedItemsProvider;
     }
 
     @Override
@@ -35,7 +39,9 @@ public class GetFriendListUseCase implements UseCase<GetFriendListInput, GetFrie
                 new FriendsPage(input.page(), input.size(), input.sort())
         );
 
-        return new GetFriendListOutput(friendList, loadUsers(input.userId(), friendList.getContent()));
+        Map<UUID, User> users = loadUsers(input.userId(), friendList.getContent());
+
+        return new GetFriendListOutput(friendList, users, equippedItemsProvider.equippedFor(users.keySet()));
     }
 
     private Map<UUID, User> loadUsers(UUID viewerId, List<Friend> friends) {

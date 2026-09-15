@@ -37,6 +37,9 @@ class GetUsersUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider equippedItemsProvider;
+
     @InjectMocks
     private GetUsersUseCase useCase;
 
@@ -53,6 +56,8 @@ class GetUsersUseCaseTest {
         adminPrincipal = new AuthenticatedUser(UUID.randomUUID(), "AdminUser", true, false);
         commonPrincipal = new AuthenticatedUser(UUID.randomUUID(), "CommonUser", false, false);
         mockPage = mock(Page.class);
+        org.mockito.Mockito.lenient().when(mockPage.getContent()).thenReturn(java.util.List.of());
+        org.mockito.Mockito.lenient().when(equippedItemsProvider.equippedFor(any())).thenReturn(java.util.Map.of());
     }
 
     @Nested
