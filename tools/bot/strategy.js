@@ -80,11 +80,40 @@ function isAvailableCell(cell) {
     return Boolean(cell) && !cell.revealed && !cell.effect;
 }
 
+export const BLOCK_UNLOCK_CLICKS = 3;
+
+export function blockedRemainingClicks(cell) {
+    const effect = cell?.effect;
+    if (!effect || typeof effect !== "object") return null;
+    if (effect.effect === "BLOCK") {
+        if (Number.isFinite(effect.remainingClicks)) return effect.remainingClicks;
+        if (Number.isFinite(effect.remainingAttempts)) return effect.remainingAttempts;
+        return BLOCK_UNLOCK_CLICKS;
+    }
+    if (effect.effect) return null;
+    if (Number.isFinite(effect.remainingClicks)) return effect.remainingClicks;
+    if (Number.isFinite(effect.remainingAttempts)) return effect.remainingAttempts;
+    return null;
+}
+
+export function cellCost(cell) {
+    if (!cell || cell.revealed) return 0;
+    const blocked = blockedRemainingClicks(cell);
+    if (blocked !== null) return Math.max(1, blocked);
+    return 1;
+}
+
+export function remainingCost(cells) {
+    if (!Array.isArray(cells)) return 0;
+    return cells.reduce((total, entry) => total + cellCost(entry?.cell ?? entry), 0);
+}
+
 function findPatternForWord(word, board, x, y, dx, dy) {
     const target = normalizeWord(word?.word);
     if (!target) return null;
 
     const missingCells = [];
+    const cells = [];
     for (let i = 0; i < target.length; i++) {
         const cell = getCell(board, x + dx * i, y + dy * i);
         if (!cell) return null;
@@ -94,8 +123,9 @@ function findPatternForWord(word, board, x, y, dx, dy) {
             continue;
         }
 
-        if (!isAvailableCell(cell)) return null;
+        if (blockedRemainingClicks(cell) === null && !isAvailableCell(cell)) return null;
         missingCells.push({ x: x + dx * i, y: y + dy * i });
+        cells.push(cell);
     }
 
     if (missingCells.length === 0 || missingCells.length === target.length) return null;
@@ -103,6 +133,7 @@ function findPatternForWord(word, board, x, y, dx, dy) {
     return {
         word: target,
         missingCells,
+        remainingCost: remainingCost(cells),
         position: missingCells[0]
     };
 }
@@ -115,10 +146,9 @@ function addBestCandidate(candidates, pattern) {
     }
 }
 
-function findBestPattern(gameData, rng) {
+function findWordCandidates(gameData) {
     const board = gameData?.board;
     const words = Array.isArray(gameData?.words) ? gameData.words : [];
-    let best = null;
     const candidates = [];
 
     for (const word of words) {
@@ -132,21 +162,43 @@ function findBestPattern(gameData, rng) {
                 for (const [dx, dy] of DIRECTIONS) {
                     const pattern = findPatternForWord(word, board, x, y, dx, dy);
                     if (!pattern) continue;
-
-                    if (!best || pattern.missingCells.length < best.missingCells.length) {
-                        best = pattern;
-                        candidates.length = 0;
-                        candidates.push(pattern);
-                    } else if (pattern.missingCells.length === best.missingCells.length) {
-                        addBestCandidate(candidates, pattern);
-                    }
+                    addBestCandidate(candidates, pattern);
                 }
             }
         }
     }
 
-    if (candidates.length === 0) return null;
-    return pickRandom(rng ?? Math.random, candidates);
+    return candidates;
+}
+
+function pickBestOddPattern(candidates, rng) {
+    const playable = candidates.filter(candidate => candidate.remainingCost % 2 === 1);
+    if (playable.length === 0) return null;
+
+    let best = null;
+    const tied = [];
+    for (const pattern of playable) {
+        if (!best || pattern.missingCells.length < best.missingCells.length) {
+            best = pattern;
+            tied.length = 0;
+            tied.push(pattern);
+        } else if (pattern.missingCells.length === best.missingCells.length) {
+            addBestCandidate(tied, pattern);
+        }
+    }
+
+    return pickRandom(rng ?? Math.random, tied);
+}
+
+function deferredCells(candidates) {
+    const deferred = new Set();
+    for (const candidate of candidates) {
+        if (candidate.remainingCost % 2 === 1) continue;
+        for (const cell of candidate.missingCells) {
+            deferred.add(`${cell.x},${cell.y}`);
+        }
+    }
+    return deferred;
 }
 
 export function scanBoard(board) {
@@ -325,16 +377,25 @@ export function chooseAction({ gameData, myId, memory, rng, powerChance = 0.4 })
         return usePowerAction("BLOCK", block, { position: { x: cell.x, y: cell.y } });
     }
 
-    const pattern = findBestPattern(gameData, roll);
+    const candidates = findWordCandidates(gameData);
+    const pattern = pickBestOddPattern(candidates, roll);
     if (pattern) {
         return { type: "REVEAL", position: pattern.position };
     }
 
+    const deferred = deferredCells(candidates);
+
     if (mem.spied) {
         const stillThere = unrevealed.find(c => c.x === mem.spied.x && c.y === mem.spied.y && !c.effectKind);
-        if (stillThere) {
+        if (stillThere && !deferred.has(`${stillThere.x},${stillThere.y}`)) {
             return { type: "REVEAL", position: { x: stillThere.x, y: stillThere.y } };
         }
+    }
+
+    const freshCells = freeCells.filter(c => !deferred.has(`${c.x},${c.y}`));
+    if (freshCells.length > 0) {
+        const cell = pickRandom(roll, freshCells);
+        return { type: "REVEAL", position: { x: cell.x, y: cell.y } };
     }
 
     if (freeCells.length > 0) {

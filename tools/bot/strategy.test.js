@@ -1,12 +1,16 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+    BLOCK_UNLOCK_CLICKS,
+    blockedRemainingClicks,
+    cellCost,
     chooseAction,
     createAfflictions,
     createMemory,
     createRng,
     getInventory,
     observeResult,
+    remainingCost,
     scanBoard,
     takePower,
     toPayload,
@@ -44,7 +48,7 @@ function word(value, found = false) {
     return { word: value, found, foundById: null };
 }
 
-function gameData({ inventory = [], board = null, myEffects = [], oppEffects = [] } = {}) {
+function gameData({ inventory = [], board = null, words = [], myEffects = [], oppEffects = [] } = {}) {
     return {
         currentTurnPlayerId: BOT,
         players: [
@@ -52,12 +56,24 @@ function gameData({ inventory = [], board = null, myEffects = [], oppEffects = [
             { id: OPP, nickname: "opp", score: 0, inventory: [], effects: oppEffects }
         ],
         board: board ?? board2x2([cell(), cell(), cell(), cell()]),
-        words: []
+        words
     };
 }
 
 function withPower(name, id = `${name}-1`) {
     return [{ id, name }];
+}
+
+function blockedCell(remainingClicks, ownerId = OPP) {
+    return cell(false, { effect: "BLOCK", ownerId, remainingClicks });
+}
+
+function fillerBoard() {
+    return Array.from({ length: 16 }, () => cell(true, null, "X"));
+}
+
+function emptyWordBoard() {
+    return patternBoard(fillerBoard());
 }
 
 const always = () => 0;
@@ -108,17 +124,62 @@ describe("updateAfflictions", () => {
     });
 });
 
+describe("remainingCost", () => {
+    it("custo 0 para célula já resolvida", () => {
+        assert.equal(cellCost(cell(true, null, "C")), 0);
+    });
+
+    it("custo 1 para célula normal", () => {
+        assert.equal(cellCost(cell()), 1);
+    });
+
+    it("custo da bloqueada reflete os cliques restantes (3º clique já revela)", () => {
+        assert.equal(cellCost(blockedCell(3)), 3);
+        assert.equal(cellCost(blockedCell(2)), 2);
+        assert.equal(cellCost(blockedCell(1)), 1);
+    });
+
+    it("lê remainingAttempts quando remainingClicks está ausente", () => {
+        assert.equal(blockedRemainingClicks(cell(false, { effect: "BLOCK", ownerId: OPP, remainingAttempts: 2 })), 2);
+    });
+
+    it(`assume ${BLOCK_UNLOCK_CLICKS} cliques quando o efeito não informa o restante`, () => {
+        assert.equal(blockedRemainingClicks(cell(false, { effect: "BLOCK", ownerId: OPP })), BLOCK_UNLOCK_CLICKS);
+    });
+
+    it("3 letras restantes => custo 3 (ímpar)", () => {
+        assert.equal(remainingCost([cell(), cell(), cell()]), 3);
+    });
+
+    it("2 letras restantes => custo 2 (par)", () => {
+        assert.equal(remainingCost([cell(), cell()]), 2);
+    });
+
+    it("1 normal + 1 bloqueada => custo 4 (par)", () => {
+        assert.equal(remainingCost([cell(), blockedCell(3)]), 4);
+    });
+
+    it("cada bloqueada conta individualmente", () => {
+        assert.equal(remainingCost([blockedCell(3), blockedCell(2)]), 5);
+    });
+
+    it("só células ainda necessárias entram no cálculo", () => {
+        assert.equal(remainingCost([cell(true, null, "C"), cell(), cell(true, null, "A")]), 1);
+    });
+
+    it("palavra completa => custo 0", () => {
+        assert.equal(remainingCost([]), 0);
+        assert.equal(remainingCost([cell(true, null, "C"), cell(true, null, "A")]), 0);
+    });
+});
+
 describe("chooseAction", () => {
     it("escolhe a célula faltante em um padrão horizontal de CASA", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA")] }),
             myId: BOT,
@@ -126,19 +187,15 @@ describe("chooseAction", () => {
             rng: createRng(42)
         });
 
-        assert.deepEqual(action, { type: "REVEAL", position: { x: 1, y: 0 } });
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
     });
 
     it("escolhe a célula faltante quando a palavra começa oculta", () => {
-        const board = patternBoard([
-            cell(),
-            cell(true, null, "A"),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
+        const board = emptyWordBoard();
+        board[0][0] = cell();
+        board[0][1] = cell(true, null, "A");
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA")] }),
             myId: BOT,
@@ -150,15 +207,11 @@ describe("chooseAction", () => {
     });
 
     it("ignora palavras já encontradas", () => {
-        const board = patternBoard([
-            cell(),
-            cell(true, null, "A"),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
+        const board = emptyWordBoard();
+        board[0][0] = cell();
+        board[0][1] = cell(true, null, "A");
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA", true)] }),
             myId: BOT,
@@ -170,15 +223,27 @@ describe("chooseAction", () => {
     });
 
     it("procura padrões horizontais", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
+        const board = emptyWordBoard();
+        board[2][0] = cell(true, null, "C");
+        board[2][1] = cell();
+        board[2][2] = cell(true, null, "S");
+        board[2][3] = cell(true, null, "A");
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: createRng(42)
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 2, y: 1 } });
+    });
+
+    it("procura padrões verticais", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[1][0] = cell();
+        board[2][0] = cell(true, null, "S");
+        board[3][0] = cell(true, null, "A");
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA")] }),
             myId: BOT,
@@ -189,45 +254,9 @@ describe("chooseAction", () => {
         assert.deepEqual(action, { type: "REVEAL", position: { x: 1, y: 0 } });
     });
 
-    it("procura padrões verticais", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
-        const action = chooseAction({
-            gameData: gameData({ board, words: [word("CASA")] }),
-            myId: BOT,
-            memory: createMemory(),
-            rng: createRng(42)
-        });
-
-        assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
-    });
-
     it("procura padrões diagonais", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell(),
-            cell()
-        ]);
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
         board[1][1] = cell();
         board[2][2] = cell(true, null, "S");
         board[3][3] = cell(true, null, "A");
@@ -242,15 +271,11 @@ describe("chooseAction", () => {
     });
 
     it("descarta padrões com uma letra revelada diferente", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(true, null, "X"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell(true, null, "X");
+        board[0][3] = cell(true, null, "A");
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA")] }),
             myId: BOT,
@@ -258,7 +283,7 @@ describe("chooseAction", () => {
             rng: always
         });
 
-        assert.deepEqual(action, { type: "REVEAL", position: { x: 1, y: 0 } });
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
     });
 
     it("usa fallback aleatório quando não existe nenhum padrão", () => {
@@ -272,48 +297,12 @@ describe("chooseAction", () => {
         assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 0 } });
     });
 
-    it("prioriza o padrão com menos células faltantes", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(),
-            cell(true, null, "A"),
-            cell(true, null, "C"),
-            cell(),
-            cell(true, null, "S"),
-            cell(true, null, "A"),
-            cell(), cell(), cell(), cell(),
-            cell(), cell(), cell(), cell()
-        ]);
-        const action = chooseAction({
-            gameData: gameData({ board, words: [word("CASA")] }),
-            myId: BOT,
-            memory: createMemory(),
-            rng: createRng(42)
-        });
-
-        assert.deepEqual(action, { type: "REVEAL", position: { x: 5, y: 1 } });
-    });
-
-    it("não considera células bloqueadas como candidatas de padrão", () => {
-        const board = patternBoard([
-            cell(true, null, "C"),
-            cell(),
-            cell(false, { effect: "BLOCK", ownerId: OPP, remainingClicks: 2 }),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "S"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "A"),
-            cell(true, null, "X"),
-            cell(true, null, "X"),
-            cell(true, null, "X")
-        ]);
+    it("joga quando o custo restante é ímpar (3 letras)", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell();
+        board[0][3] = cell();
         const action = chooseAction({
             gameData: gameData({ board, words: [word("CASA")] }),
             myId: BOT,
@@ -322,6 +311,112 @@ describe("chooseAction", () => {
         });
 
         assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
+    });
+
+    it("adia a jogada quando o custo restante é par (2 letras)", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell();
+        board[0][3] = cell(true, null, "A");
+        board[3][3] = cell();
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: always
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 3, y: 3 } });
+    });
+
+    it("prioriza o padrão com menos células faltantes", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell();
+        board[0][3] = cell(true, null, "A");
+        board[1][0] = cell(true, null, "C");
+        board[1][1] = cell();
+        board[1][2] = cell(true, null, "S");
+        board[1][3] = cell(true, null, "A");
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: createRng(42)
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 1, y: 1 } });
+    });
+
+    it("entre candidatos ímpares, prioriza menos células faltantes", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
+        board[2][0] = cell(true, null, "C");
+        board[2][1] = cell();
+        board[2][2] = cell();
+        board[2][3] = cell();
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: always
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
+    });
+
+    it("não descarta palavra com célula bloqueada (custo ímpar, sem poder)", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = blockedCell(3);
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: always
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 0, y: 1 } });
+    });
+
+    it("adia palavra com célula bloqueada quando o custo é par", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell();
+        board[0][2] = blockedCell(3);
+        board[0][3] = cell(true, null, "A");
+        board[3][3] = cell();
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: always
+        });
+
+        assert.deepEqual(action, { type: "REVEAL", position: { x: 3, y: 3 } });
+    });
+
+    it("não tenta jogar palavra completamente preenchida", () => {
+        const board = emptyWordBoard();
+        board[0][0] = cell(true, null, "C");
+        board[0][1] = cell(true, null, "A");
+        board[0][2] = cell(true, null, "S");
+        board[0][3] = cell(true, null, "A");
+        const action = chooseAction({
+            gameData: gameData({ board, words: [word("CASA")] }),
+            myId: BOT,
+            memory: createMemory(),
+            rng: always
+        });
+
+        assert.deepEqual(action, { type: "PASS", reason: "BOARD_EXHAUSTED" });
     });
 
     it("usa REVEAL com posição válida quando não há poderes", () => {
