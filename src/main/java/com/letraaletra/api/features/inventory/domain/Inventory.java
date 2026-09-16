@@ -100,6 +100,10 @@ public class Inventory {
         ));
     }
 
+    public List<InventoryMovement> consume(ItemDefinition definition, int quantity) {
+        return consume(definition, quantity, ItemContext.PROFILE);
+    }
+
     public List<InventoryMovement> consume(ItemDefinition definition, int quantity, ItemContext context) {
         UserItem owned = findItem(definition.getId()).orElse(null);
 
@@ -236,6 +240,6 @@ public class Inventory {
     }
 
     private boolean sharesContext(ItemDefinition candidate, ItemDefinition revoked) {
-        return revoked.getApplicability().stream().anyMatch(candidate::isApplicableTo);
+        return candidate.getContext() == revoked.getContext();
     }
 }

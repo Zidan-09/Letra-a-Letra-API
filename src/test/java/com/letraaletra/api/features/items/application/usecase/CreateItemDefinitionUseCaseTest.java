@@ -4,10 +4,12 @@ import com.letraaletra.api.features.items.application.input.CreateItemDefinition
 import com.letraaletra.api.features.items.application.input.ItemAssetUpload;
 import com.letraaletra.api.features.items.application.output.CreateItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
+import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.domain.exception.ItemAlreadyExistsException;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
@@ -27,7 +29,6 @@ import static org.mockito.Mockito.mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +65,7 @@ class CreateItemDefinitionUseCaseTest {
     private CreateItemDefinitionInput input(String name) {
         return new CreateItemDefinitionInput(
                 principal, name, ItemKind.COSMETIC, ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE), false, null, false, null,
+                ItemContext.PROFILE, false, null,
                 new ItemAssetUpload(new byte[]{1, 2, 3}, "image/png")
         );
     }
@@ -72,7 +73,7 @@ class CreateItemDefinitionUseCaseTest {
     private CreateItemDefinitionInput consumableInput(String name) {
         return new CreateItemDefinitionInput(
                 principal, name, ItemKind.CONSUMABLE, ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE), true, 10, true, null, null
+                ItemContext.PROFILE, true, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), null
         );
     }
 
@@ -90,18 +91,20 @@ class CreateItemDefinitionUseCaseTest {
         verify(adminChecker).check(principal, PermissionKey.ITEMS, PermissionAction.CREATE);
         assertEquals("Blue Avatar", output.definition().getName());
         assertEquals("AVATAR/Blue Avatar.webp", output.definition().getAssetPath());
-        assertEquals(Set.of(ItemContext.PROFILE), output.definition().getApplicability());
+        assertEquals(ItemContext.PROFILE, output.definition().getContext());
         verify(itemDefinitionRepository).save(output.definition());
     }
 
     @Test
-    @DisplayName("consumable sem asset deve salvar sem upload")
+    @DisplayName("consumable sem asset deve salvar sem upload e derivar stack 1000")
     void consumableWithoutAssetShouldSaveWithoutUpload() {
         when(itemDefinitionRepository.findByName("Boost")).thenReturn(Optional.empty());
 
         CreateItemDefinitionOutput output = useCase.execute(consumableInput("Boost"));
 
         assertNull(output.definition().getAssetPath());
+        assertTrue(output.definition().isStackable());
+        assertEquals(1000, output.definition().getMaxStack());
         verify(imageConverter, never()).convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(assetStorage, never()).upload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(itemDefinitionRepository).save(output.definition());
@@ -112,7 +115,7 @@ class CreateItemDefinitionUseCaseTest {
     void cosmeticWithoutAssetShouldFail() {
         CreateItemDefinitionInput withoutAsset = new CreateItemDefinitionInput(
                 principal, "Avatar", ItemKind.COSMETIC, ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE), false, null, false, null, null
+                ItemContext.PROFILE, false, null, null
         );
         when(itemDefinitionRepository.findByName("Avatar")).thenReturn(Optional.empty());
 
@@ -150,21 +153,16 @@ class CreateItemDefinitionUseCaseTest {
     }
 
     @Test
-    @DisplayName("applicability ausente deve defaultar para PROFILE")
-    void missingApplicabilityShouldDefaultToProfile() {
+    @DisplayName("context ausente deve falhar (exigido)")
+    void missingContextShouldFail() {
         when(itemDefinitionRepository.findByName("Emote")).thenReturn(Optional.empty());
-        when(imageConverter.convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(new byte[]{4, 5, 6});
-        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn("EMOTE/Emote.webp");
-        CreateItemDefinitionInput withoutApplicability = new CreateItemDefinitionInput(
+        CreateItemDefinitionInput withoutContext = new CreateItemDefinitionInput(
                 principal, "Emote", ItemKind.COSMETIC, ItemCategory.EMOTE,
-                null, false, null, false, null, new ItemAssetUpload(new byte[]{1}, "image/png")
+                null, false, null, new ItemAssetUpload(new byte[]{1}, "image/png")
         );
 
-        CreateItemDefinitionOutput output = useCase.execute(withoutApplicability);
-
-        assertEquals(Set.of(ItemContext.PROFILE), output.definition().getApplicability());
+        assertThrows(InvalidItemException.class, () -> useCase.execute(withoutContext));
+        verify(itemDefinitionRepository, never()).save(ArgumentMatchers.any());
     }
 
     @Test

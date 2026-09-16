@@ -1,23 +1,12 @@
 package com.letraaletra.api.features.items.domain;
 
-import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public record ItemEffect(
-        EffectType type,
-        int magnitude,
-        int durationMinutes
-) {
-    public ItemEffect {
-        if (type == null) {
-            throw new InvalidItemException();
-        }
-
-        if (magnitude <= 0) {
-            throw new InvalidItemException();
-        }
-
-        if (durationMinutes <= 0) {
-            throw new InvalidItemException();
-        }
-    }
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "kind", defaultImpl = PercentageTimedEffect.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PercentageTimedEffect.class, name = "PERCENTAGE_TIMED"),
+        @JsonSubTypes.Type(value = NicknameChangeEffect.class, name = "NICKNAME_CHANGE")
+})
+public sealed interface ItemEffect permits PercentageTimedEffect, NicknameChangeEffect {
 }

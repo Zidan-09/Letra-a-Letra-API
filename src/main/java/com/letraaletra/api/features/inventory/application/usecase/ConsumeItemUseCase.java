@@ -9,6 +9,7 @@ import com.letraaletra.api.features.inventory.application.input.ConsumeItemInput
 import com.letraaletra.api.features.inventory.application.output.ConsumeItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
+import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
@@ -47,7 +48,7 @@ public class ConsumeItemUseCase implements UseCase<ConsumeItemInput, ConsumeItem
                 inventoryRepository.findItemsByOwner(input.userId())
         );
 
-        List<InventoryMovement> movements = inventory.consume(definition, input.quantity(), input.context());
+        List<InventoryMovement> movements = inventory.consume(definition, input.quantity(), ItemContext.PROFILE);
 
         InventoryPersistence.save(inventoryRepository, input.userId(), inventory);
 

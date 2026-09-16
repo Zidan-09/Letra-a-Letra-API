@@ -10,7 +10,7 @@ public class UserItemResponseMapper {
                 details.definition().getName(),
                 details.definition().getKind(),
                 details.definition().getCategory(),
-                details.definition().getApplicability(),
+                details.definition().getContext(),
                 details.item().getQuantity(),
                 details.item().isEquipped(),
                 details.item().getAcquiredAt(),

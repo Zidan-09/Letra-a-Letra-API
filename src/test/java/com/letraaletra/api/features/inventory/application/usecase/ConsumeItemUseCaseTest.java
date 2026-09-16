@@ -8,6 +8,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;
@@ -59,11 +60,11 @@ class ConsumeItemUseCaseTest {
                 "XP Boost 50%",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                null,
+                1000,
                 true,
-                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
     }
@@ -77,7 +78,7 @@ class ConsumeItemUseCaseTest {
         ));
 
         ConsumeItemOutput output = useCase.execute(
-                new ConsumeItemInput(userId, boost.getId(), 2, ItemContext.PROFILE));
+                new ConsumeItemInput(userId, boost.getId(), 2));
 
         assertEquals(InventoryChangeKind.CONSUMED, output.movements().get(0).kind());
         verify(inventoryRepository).deleteItemsByOwner(userId);
@@ -95,7 +96,7 @@ class ConsumeItemUseCaseTest {
         ));
 
         assertThrows(InsufficientQuantityException.class, () -> useCase.execute(
-                new ConsumeItemInput(userId, boost.getId(), 2, ItemContext.PROFILE)));
+                new ConsumeItemInput(userId, boost.getId(), 2)));
         verify(inventoryRepository, never()).deleteItemsByOwner(any());
     }
 }

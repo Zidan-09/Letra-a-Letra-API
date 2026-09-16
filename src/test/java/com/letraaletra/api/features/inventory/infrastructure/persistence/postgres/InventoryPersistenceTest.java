@@ -6,6 +6,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
@@ -72,7 +73,7 @@ class InventoryPersistenceTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -83,11 +84,11 @@ class InventoryPersistenceTest {
                 "XP Boost 50%",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                10,
+                1000,
                 true,
-                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
         definitions.save(ItemDefinitionJpaMapper.toEntity(avatar));
@@ -107,7 +108,7 @@ class InventoryPersistenceTest {
         assertEquals(avatar.getId(), reloadedAvatar.getId());
         assertEquals(ItemKind.COSMETIC, reloadedAvatar.getKind());
         assertEquals(ItemCategory.AVATAR, reloadedAvatar.getCategory());
-        assertEquals(Set.of(ItemContext.PROFILE), reloadedAvatar.getApplicability());
+        assertEquals(ItemContext.PROFILE, reloadedAvatar.getContext());
         assertEquals("/assets/avatar/blue.png", reloadedAvatar.getAssetPath());
         assertEquals(1, reloadedAvatar.getVersion());
         assertTrue(reloadedAvatar.isAvailable());
@@ -116,8 +117,8 @@ class InventoryPersistenceTest {
                 .map(ItemDefinitionJpaMapper::toDomain)
                 .orElseThrow();
 
-        assertEquals(new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60), reloadedBoost.getEffect());
-        assertEquals(10, reloadedBoost.getMaxStack());
+        assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), reloadedBoost.getEffect());
+        assertEquals(1000, reloadedBoost.getMaxStack());
         assertTrue(reloadedBoost.canStack());
     }
 
@@ -187,20 +188,11 @@ class InventoryPersistenceTest {
     }
 
     @Test
-    @DisplayName("mapper deve rejeitar applicability multi-valor e dados corrompidos")
+    @DisplayName("mapper deve rejeitar dados persistidos invalidos e preservar efeito polimorfico")
     void mapperShouldRejectInvalidPersistedData() {
-        ItemDefinition multiContext = ItemDefinition.create(
-                "Hybrid",
-                ItemKind.COSMETIC,
-                ItemCategory.EMOTE,
-                Set.of(ItemContext.PROFILE, ItemContext.MATCH),
-                false,
-                null,
-                false,
-                null,
-                "/assets/emote/hybrid.png"
-        );
-        assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toEntity(multiContext));
+        ItemDefinitionJpaEntity invalidApplicability = ItemDefinitionJpaMapper.toEntity(avatar);
+        invalidApplicability.setApplicability("PROFILE,MATCH");
+        assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toDomain(invalidApplicability));
 
         ItemDefinitionJpaEntity unknownContext = ItemDefinitionJpaMapper.toEntity(avatar);
         unknownContext.setApplicability("UNKNOWN");
@@ -209,5 +201,19 @@ class InventoryPersistenceTest {
         ItemDefinitionJpaEntity corruptEffect = ItemDefinitionJpaMapper.toEntity(boost);
         corruptEffect.setEffect("{broken");
         assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toDomain(corruptEffect));
+
+        ItemDefinition nickname = ItemDefinition.create(
+                "Nickname Change",
+                ItemKind.CONSUMABLE,
+                ItemCategory.CHANGE_NICKNAME,
+                ItemContext.PROFILE,
+                true,
+                1000,
+                true,
+                new com.letraaletra.api.features.items.domain.NicknameChangeEffect(),
+                null
+        );
+        ItemDefinition reloadedNickname = ItemDefinitionJpaMapper.toDomain(ItemDefinitionJpaMapper.toEntity(nickname));
+        assertTrue(reloadedNickname.getEffect() instanceof com.letraaletra.api.features.items.domain.NicknameChangeEffect);
     }
 }

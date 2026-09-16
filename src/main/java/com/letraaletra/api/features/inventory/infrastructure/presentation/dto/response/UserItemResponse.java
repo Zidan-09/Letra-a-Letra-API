@@ -5,7 +5,6 @@ import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 public record UserItemResponse(
@@ -13,7 +12,7 @@ public record UserItemResponse(
         String name,
         ItemKind kind,
         ItemCategory category,
-        Set<ItemContext> contexts,
+        ItemContext context,
         int quantity,
         boolean equipped,
         LocalDateTime acquiredAt,

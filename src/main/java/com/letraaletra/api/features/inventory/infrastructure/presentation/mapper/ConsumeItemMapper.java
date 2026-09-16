@@ -14,8 +14,7 @@ public class ConsumeItemMapper {
         return new ConsumeItemInput(
                 ownerId,
                 itemId,
-                request.quantity(),
-                request.context()
+                request.quantity()
         );
     }
 

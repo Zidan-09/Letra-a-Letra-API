@@ -3,6 +3,7 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.GetUserItemsInput;
 import com.letraaletra.api.features.inventory.application.output.GetUserItemsOutput;
 import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemKind;
@@ -51,7 +52,7 @@ class GetUserItemsUseCaseTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -62,11 +63,11 @@ class GetUserItemsUseCaseTest {
                 "XP Boost",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                null,
+                1000,
                 true,
-                new com.letraaletra.api.features.items.domain.ItemEffect(
+                new com.letraaletra.api.features.items.domain.PercentageTimedEffect(
                         com.letraaletra.api.features.items.domain.EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );

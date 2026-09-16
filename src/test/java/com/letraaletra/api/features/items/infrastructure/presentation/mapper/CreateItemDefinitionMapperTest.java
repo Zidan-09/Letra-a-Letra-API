@@ -24,9 +24,7 @@ class CreateItemDefinitionMapperTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
-                false,
-                null,
+                ItemContext.PROFILE,
                 false,
                 null
         );

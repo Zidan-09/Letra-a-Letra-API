@@ -42,6 +42,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
@@ -200,11 +201,11 @@ class BuyOfferUseCaseTest {
                 "XP Boost 50%",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                null,
+                1000,
                 true,
-                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
         OfferReward itemOfferReward = mock(OfferReward.class);

@@ -251,7 +251,7 @@ class JpaAuditEventRepositoryTest {
                 "audit-avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                java.util.EnumSet.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,

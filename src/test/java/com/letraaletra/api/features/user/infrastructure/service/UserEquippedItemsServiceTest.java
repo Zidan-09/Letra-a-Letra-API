@@ -58,8 +58,8 @@ class UserEquippedItemsServiceTest {
                 UserItem.restore(ownerId, unequippedId, 1, false, LocalDateTime.now(), null),
                 UserItem.restore(ownerId, matchOnlyId, 1, true, LocalDateTime.now(), null)));
 
-        when(itemDefinitionRepository.findById(equippedId)).thenReturn(Optional.of(definition(equippedId, EnumSet.of(ItemContext.PROFILE))));
-        when(itemDefinitionRepository.findById(matchOnlyId)).thenReturn(Optional.of(definition(matchOnlyId, EnumSet.of(ItemContext.MATCH))));
+        when(itemDefinitionRepository.findById(equippedId)).thenReturn(Optional.of(definition(equippedId, ItemContext.PROFILE)));
+        when(itemDefinitionRepository.findById(matchOnlyId)).thenReturn(Optional.of(definition(matchOnlyId, ItemContext.MATCH)));
 
         List<EquippedItem> result = service.equipped(ownerId);
 
@@ -77,7 +77,7 @@ class UserEquippedItemsServiceTest {
         when(inventoryRepository.findItemsByOwner(first)).thenReturn(List.of(
                 UserItem.restore(first, definitionId, 1, true, LocalDateTime.now(), null)));
         when(inventoryRepository.findItemsByOwner(second)).thenReturn(List.of());
-        when(itemDefinitionRepository.findById(definitionId)).thenReturn(Optional.of(definition(definitionId, EnumSet.of(ItemContext.PROFILE))));
+        when(itemDefinitionRepository.findById(definitionId)).thenReturn(Optional.of(definition(definitionId, ItemContext.PROFILE)));
 
         Map<UUID, List<EquippedItem>> result = service.equippedFor(List.of(first, second));
 
@@ -85,7 +85,7 @@ class UserEquippedItemsServiceTest {
         assertTrue(result.get(second).isEmpty());
     }
 
-    private ItemDefinition definition(UUID id, EnumSet<ItemContext> applicability) {
-        return ItemDefinition.restore(id, "Avatar", ItemKind.COSMETIC, ItemCategory.AVATAR, applicability, false, null, false, null, "asset.webp", 1, true);
+    private ItemDefinition definition(UUID id, ItemContext context) {
+        return ItemDefinition.restore(id, "Avatar", ItemKind.COSMETIC, ItemCategory.AVATAR, context, false, null, false, null, "asset.webp", 1, true);
     }
 }

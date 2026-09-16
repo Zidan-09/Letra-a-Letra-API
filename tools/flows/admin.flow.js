@@ -86,7 +86,7 @@ export async function runFlow(context) {
                 actions
             },
             {
-                key: "COSMETIC",
+                key: "ITEMS",
                 actions
             },
             {

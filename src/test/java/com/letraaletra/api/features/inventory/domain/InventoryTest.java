@@ -21,6 +21,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +49,7 @@ class InventoryTest {
                 name,
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -62,7 +63,7 @@ class InventoryTest {
                 "Gold Frame",
                 ItemKind.COSMETIC,
                 ItemCategory.FRAME,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -76,7 +77,7 @@ class InventoryTest {
                 "Dark Board",
                 ItemKind.COSMETIC,
                 ItemCategory.BOARD_SKIN,
-                Set.of(ItemContext.MATCH),
+                ItemContext.MATCH,
                 false,
                 null,
                 false,
@@ -90,7 +91,7 @@ class InventoryTest {
                 "Neon Cells",
                 ItemKind.COSMETIC,
                 ItemCategory.CELL_SKIN,
-                Set.of(ItemContext.MATCH),
+                ItemContext.MATCH,
                 false,
                 null,
                 false,
@@ -99,16 +100,16 @@ class InventoryTest {
         );
     }
 
-    private ItemDefinition boost(Integer maxStack) {
+    private ItemDefinition boost() {
         return ItemDefinition.create(
                 "XP Boost 50%",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                maxStack,
+                1000,
                 true,
-                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
     }
@@ -181,7 +182,7 @@ class InventoryTest {
         @DisplayName("grant stackavel deve acumular e gerar QUANTITY_CHANGED")
         void stackableGrantShouldAccumulate() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(10);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 1);
 
             InventoryMovement movement = single(inventory.grant(boost, 2));
@@ -196,11 +197,11 @@ class InventoryTest {
         @DisplayName("grant acima do maxStack deve falhar sem alterar o saldo")
         void grantAboveMaxStackShouldFail() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(10);
-            inventory.grant(boost, 8);
+            ItemDefinition boost = boost();
+            inventory.grant(boost, 999);
 
-            assertThrows(MaxStackExceededException.class, () -> inventory.grant(boost, 3));
-            assertEquals(8, inventory.getItems().get(0).getQuantity());
+            assertThrows(MaxStackExceededException.class, () -> inventory.grant(boost, 2));
+            assertEquals(999, inventory.getItems().get(0).getQuantity());
         }
 
         @Test
@@ -219,7 +220,7 @@ class InventoryTest {
         void zeroQuantityGrantShouldFail() {
             Inventory inventory = Inventory.create(ownerId);
 
-            assertThrows(InvalidQuantityException.class, () -> inventory.grant(boost(null), 0));
+            assertThrows(InvalidQuantityException.class, () -> inventory.grant(boost(), 0));
         }
     }
 
@@ -231,7 +232,7 @@ class InventoryTest {
         @DisplayName("consumo parcial deve gerar CONSUMED e QUANTITY_CHANGED")
         void partialConsumeShouldGenerateConsumedAndQuantityChanged() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(null);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 3);
 
             List<InventoryMovement> movements = inventory.consume(boost, 2, ItemContext.PROFILE);
@@ -248,7 +249,7 @@ class InventoryTest {
         @DisplayName("consumo total deve gerar CONSUMED e REMOVED e remover a linha")
         void fullConsumeShouldRemoveLine() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(null);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 2);
 
             List<InventoryMovement> movements = inventory.consume(boost, 2, ItemContext.PROFILE);
@@ -263,7 +264,7 @@ class InventoryTest {
         @DisplayName("consumo sem saldo deve falhar sem alterar os dados")
         void consumeWithoutBalanceShouldFail() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(null);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 1);
 
             assertThrows(InsufficientQuantityException.class,
@@ -287,7 +288,7 @@ class InventoryTest {
         @DisplayName("consumo em contexto invalido deve falhar")
         void consumeInWrongContextShouldFail() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(null);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 1);
 
             assertThrows(InapplicableContextException.class,
@@ -301,7 +302,7 @@ class InventoryTest {
             Inventory inventory = Inventory.create(ownerId);
 
             assertThrows(ItemNotOwnedException.class,
-                    () -> inventory.consume(boost(null), 1, ItemContext.PROFILE));
+                    () -> inventory.consume(boost(), 1, ItemContext.PROFILE));
         }
     }
 
@@ -413,7 +414,7 @@ class InventoryTest {
         @DisplayName("equipar consumivel deve falhar")
         void equipConsumableShouldFail() {
             Inventory inventory = Inventory.create(ownerId);
-            ItemDefinition boost = boost(null);
+            ItemDefinition boost = boost();
             inventory.grant(boost, 1);
 
             assertThrows(NonEquipableItemException.class,
@@ -564,7 +565,7 @@ class InventoryTest {
             );
 
             Inventory inventory = Inventory.create(ownerId, custom);
-            ItemDefinition unlimited = boost(null);
+            ItemDefinition unlimited = boost();
 
             assertThrows(MaxStackExceededException.class, () -> inventory.grant(unlimited, 6));
             single(inventory.grant(unlimited, 5));

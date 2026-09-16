@@ -8,8 +8,6 @@ import com.letraaletra.api.features.items.domain.ItemEffect;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemDefinitionJpaEntity;
 
-import java.util.Set;
-
 public class ItemDefinitionJpaMapper {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -20,7 +18,7 @@ public class ItemDefinitionJpaMapper {
         entity.setName(domain.getName());
         entity.setKind(domain.getKind());
         entity.setCategory(domain.getCategory());
-        entity.setApplicability(toApplicabilityValue(domain.getApplicability()));
+        entity.setApplicability(toApplicabilityValue(domain.getContext()));
         entity.setStackable(domain.isStackable());
         entity.setMaxStack(domain.getMaxStack());
         entity.setConsumable(domain.isConsumable());
@@ -49,17 +47,17 @@ public class ItemDefinitionJpaMapper {
         );
     }
 
-    private static String toApplicabilityValue(Set<ItemContext> applicability) {
-        if (applicability == null || applicability.size() != 1) {
+    private static String toApplicabilityValue(ItemContext context) {
+        if (context == null) {
             throw new InvalidItemException();
         }
 
-        return applicability.iterator().next().name();
+        return context.name();
     }
 
-    private static Set<ItemContext> toApplicability(String raw) {
+    private static ItemContext toApplicability(String raw) {
         try {
-            return Set.of(ItemContext.valueOf(raw));
+            return ItemContext.valueOf(raw);
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new InvalidItemException();
         }

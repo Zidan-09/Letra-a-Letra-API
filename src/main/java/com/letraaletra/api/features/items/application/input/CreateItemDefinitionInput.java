@@ -6,16 +6,12 @@ import com.letraaletra.api.features.items.domain.ItemEffect;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
-import java.util.Set;
-
 public record CreateItemDefinitionInput(
         AuthenticatedUser principal,
         String name,
         ItemKind kind,
         ItemCategory category,
-        Set<ItemContext> applicability,
-        boolean stackable,
-        Integer maxStack,
+        ItemContext context,
         boolean consumable,
         ItemEffect effect,
         ItemAssetUpload asset

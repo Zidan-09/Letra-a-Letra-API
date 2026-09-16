@@ -1,6 +1,5 @@
 package com.letraaletra.api.features.user.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.response.user.InventoryItemResponse;
@@ -15,7 +14,7 @@ public class InventoryItemResponseMapper {
                 definition.getName(),
                 definition.getKind(),
                 definition.getCategory(),
-                definition.getApplicability().stream().findFirst().orElse(ItemContext.PROFILE),
+                definition.getContext(),
                 item.getQuantity(),
                 item.isEquipped(),
                 definition.getAssetPath()

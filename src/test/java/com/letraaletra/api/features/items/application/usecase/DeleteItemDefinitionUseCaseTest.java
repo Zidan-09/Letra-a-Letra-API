@@ -59,7 +59,7 @@ class DeleteItemDefinitionUseCaseTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -73,11 +73,12 @@ class DeleteItemDefinitionUseCaseTest {
                 "Boost",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                10,
+                1000,
                 true,
-                null,
+                new com.letraaletra.api.features.items.domain.PercentageTimedEffect(
+                        com.letraaletra.api.features.items.domain.EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
     }

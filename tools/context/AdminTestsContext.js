@@ -47,7 +47,7 @@ export class AdminTestContext {
                     { key: "USER", actions: actions },
                     { key: "LOGS", actions: actions },
                     { key: "ADMIN", actions: actions },
-                    { key: "COSMETIC", actions: actions },
+                    { key: "ITEMS", actions: actions },
                     { key: "GAME", actions: actions },
                     { key: "LEVELS", actions: actions },
                     { key: "OFFERS", actions: actions },

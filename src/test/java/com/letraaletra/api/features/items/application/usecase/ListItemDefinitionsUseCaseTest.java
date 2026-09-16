@@ -58,7 +58,7 @@ class ListItemDefinitionsUseCaseTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,

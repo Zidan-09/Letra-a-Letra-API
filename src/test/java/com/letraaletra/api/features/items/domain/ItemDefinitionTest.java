@@ -5,8 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +17,7 @@ class ItemDefinitionTest {
                 "Blue Avatar",
                 ItemKind.COSMETIC,
                 ItemCategory.AVATAR,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 false,
                 null,
                 false,
@@ -33,11 +31,11 @@ class ItemDefinitionTest {
                 "XP Boost 50%",
                 ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                Set.of(ItemContext.PROFILE),
+                ItemContext.PROFILE,
                 true,
-                10,
+                1000,
                 true,
-                new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                 null
         );
     }
@@ -74,8 +72,8 @@ class ItemDefinitionTest {
 
         assertTrue(definition.canStack());
         assertTrue(definition.isConsumable());
-        assertEquals(10, definition.getMaxStack());
-        assertEquals(new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60), definition.getEffect());
+        assertEquals(1000, definition.getMaxStack());
+        assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), definition.getEffect());
         assertTrue(definition.isApplicableTo(ItemContext.PROFILE));
     }
 
@@ -83,14 +81,14 @@ class ItemDefinitionTest {
     @DisplayName("restore deve preservar todos os campos")
     void restoreShouldPreserveAllFields() {
         UUID id = UUID.randomUUID();
-        Set<ItemContext> applicability = EnumSet.of(ItemContext.MATCH);
+        ItemContext context = ItemContext.MATCH;
 
         ItemDefinition definition = ItemDefinition.restore(
                 id,
                 "Board Skin",
                 ItemKind.COSMETIC,
                 ItemCategory.BOARD_SKIN,
-                applicability,
+                context,
                 false,
                 null,
                 false,
@@ -104,7 +102,7 @@ class ItemDefinitionTest {
         assertEquals("Board Skin", definition.getName());
         assertEquals(ItemKind.COSMETIC, definition.getKind());
         assertEquals(ItemCategory.BOARD_SKIN, definition.getCategory());
-        assertEquals(applicability, definition.getApplicability());
+        assertEquals(context, definition.getContext());
         assertEquals(3, definition.getVersion());
         assertFalse(definition.isAvailable());
         assertTrue(definition.isApplicableTo(ItemContext.MATCH));
@@ -112,26 +110,11 @@ class ItemDefinitionTest {
     }
 
     @Test
-    @DisplayName("applicability deve ser copiada defensivamente")
-    void applicabilityShouldBeDefensivelyCopied() {
-        Set<ItemContext> applicability = EnumSet.of(ItemContext.PROFILE);
+    @DisplayName("contexto unico deve ser exposto via getContext")
+    void singleContextShouldBeExposed() {
+        ItemDefinition definition = cosmeticAvatar();
 
-        ItemDefinition definition = ItemDefinition.create(
-                "Emote",
-                ItemKind.COSMETIC,
-                ItemCategory.EMOTE,
-                applicability,
-                false,
-                null,
-                false,
-                null,
-                "/assets/emote/wave.png"
-        );
-
-        applicability.add(ItemContext.MATCH);
-        definition.getApplicability().add(ItemContext.MATCH);
-
-        assertEquals(Set.of(ItemContext.PROFILE), definition.getApplicability());
+        assertEquals(ItemContext.PROFILE, definition.getContext());
     }
 
     @Test
@@ -157,7 +140,7 @@ class ItemDefinitionTest {
                     "  ",
                     ItemKind.COSMETIC,
                     ItemCategory.AVATAR,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     null,
                     false,
@@ -173,7 +156,7 @@ class ItemDefinitionTest {
                     "Avatar",
                     null,
                     ItemCategory.AVATAR,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     null,
                     false,
@@ -185,7 +168,7 @@ class ItemDefinitionTest {
                     "Avatar",
                     ItemKind.COSMETIC,
                     null,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     null,
                     false,
@@ -195,18 +178,34 @@ class ItemDefinitionTest {
         }
 
         @Test
-        @DisplayName("applicability vazia deve falhar")
-        void emptyApplicabilityShouldFail() {
+        @DisplayName("contexto nulo deve falhar (R1)")
+        void nullContextShouldFail() {
             assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
                     "Avatar",
                     ItemKind.COSMETIC,
                     ItemCategory.AVATAR,
-                    Set.of(),
+                    null,
                     false,
                     null,
                     false,
                     null,
                     "/assets/avatar/blue.png"
+            ));
+        }
+
+        @Test
+        @DisplayName("consumivel MATCH deve falhar (R2)")
+        void consumableMatchShouldFail() {
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.MATCH,
+                    true,
+                    1000,
+                    true,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
             ));
         }
 
@@ -217,11 +216,11 @@ class ItemDefinitionTest {
                     "Avatar",
                     ItemKind.COSMETIC,
                     ItemCategory.AVATAR,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     null,
                     true,
-                    new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                     "/assets/avatar/blue.png"
             ));
 
@@ -229,9 +228,9 @@ class ItemDefinitionTest {
                     "Boost",
                     ItemKind.CONSUMABLE,
                     ItemCategory.XP_BOOST,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     true,
-                    null,
+                    1000,
                     false,
                     null,
                     null
@@ -239,11 +238,28 @@ class ItemDefinitionTest {
         }
 
         @Test
+        @DisplayName("efeito invalido deve falhar")
+        void invalidEffectShouldFail() {
+            assertThrows(InvalidItemException.class, () -> new PercentageTimedEffect(null, 50, 60));
+            assertThrows(InvalidItemException.class, () -> new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 0, 60));
+            assertThrows(InvalidItemException.class, () -> new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 0));
+            assertThrows(InvalidItemException.class, () -> new PercentageTimedEffect(EffectType.NICKNAME_CHANGE_GRANT, 1, 1));
+        }
+
+        @Test
         @DisplayName("efeito em item nao consumivel deve falhar")
         void effectOnNonConsumableShouldFail() {
-            assertThrows(InvalidItemException.class, () -> new ItemEffect(null, 50, 60));
-            assertThrows(InvalidItemException.class, () -> new ItemEffect(EffectType.XP_BOOST_PCT, 0, 60));
-            assertThrows(InvalidItemException.class, () -> new ItemEffect(EffectType.XP_BOOST_PCT, 50, 0));
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Avatar",
+                    ItemKind.COSMETIC,
+                    ItemCategory.AVATAR,
+                    ItemContext.PROFILE,
+                    false,
+                    null,
+                    false,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    "/assets/avatar/blue.png"
+            ));
         }
 
         @Test
@@ -253,7 +269,7 @@ class ItemDefinitionTest {
                     "Avatar",
                     ItemKind.COSMETIC,
                     ItemCategory.AVATAR,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     null,
                     false,
@@ -269,7 +285,7 @@ class ItemDefinitionTest {
                     "Avatar",
                     ItemKind.COSMETIC,
                     ItemCategory.AVATAR,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     false,
                     5,
                     false,
@@ -281,13 +297,151 @@ class ItemDefinitionTest {
                     "Boost",
                     ItemKind.CONSUMABLE,
                     ItemCategory.XP_BOOST,
-                    Set.of(ItemContext.PROFILE),
+                    ItemContext.PROFILE,
                     true,
                     0,
                     true,
-                    new ItemEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
                     null
             ));
+        }
+
+        @Test
+        @DisplayName("consumivel exige stackable=true e maxStack=1000 (R6)")
+        void consumableRequiresFixedStack() {
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    true,
+                    10,
+                    true,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            ));
+
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    false,
+                    null,
+                    true,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            ));
+        }
+
+        @Test
+        @DisplayName("categoria incompativel com kind deve falhar (R3/R4)")
+        void incompatibleCategoryShouldFail() {
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.AVATAR,
+                    ItemContext.PROFILE,
+                    true,
+                    1000,
+                    true,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
+                    null
+            ));
+
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Avatar",
+                    ItemKind.COSMETIC,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    false,
+                    null,
+                    false,
+                    null,
+                    "/assets/avatar/blue.png"
+            ));
+        }
+
+        @Test
+        @DisplayName("categoria x efeito incompativel deve falhar (R5)")
+        void incompatibleCategoryEffectShouldFail() {
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "XP Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    true,
+                    1000,
+                    true,
+                    new PercentageTimedEffect(EffectType.RANKING_POINTS_BOOST_PCT, 50, 60),
+                    null
+            ));
+
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "XP Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    true,
+                    1000,
+                    true,
+                    new NicknameChangeEffect(),
+                    null
+            ));
+        }
+
+        @Test
+        @DisplayName("consumivel sem efeito deve falhar (R5)")
+        void consumableWithoutEffectShouldFail() {
+            assertThrows(InvalidItemException.class, () -> ItemDefinition.create(
+                    "Boost",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.XP_BOOST,
+                    ItemContext.PROFILE,
+                    true,
+                    1000,
+                    true,
+                    null,
+                    null
+            ));
+        }
+
+        @Test
+        @DisplayName("CHANGE_NICKNAME cadastra sem magnitude/duration (R5)")
+        void nicknameChangeShouldSucceedWithoutMagnitude() {
+            ItemDefinition definition = ItemDefinition.create(
+                    "Nickname Change",
+                    ItemKind.CONSUMABLE,
+                    ItemCategory.CHANGE_NICKNAME,
+                    ItemContext.PROFILE,
+                    true,
+                    1000,
+                    true,
+                    new NicknameChangeEffect(),
+                    null
+            );
+
+            assertTrue(definition.getEffect() instanceof NicknameChangeEffect);
+        }
+
+        @Test
+        @DisplayName("vinculo categoria x efeito para as 5 categorias consumiveis")
+        void allConsumableCategoriesShouldBindCorrectEffect() {
+            assertDoesNotThrow(() -> ItemDefinition.create(
+                    "XP", ItemKind.CONSUMABLE, ItemCategory.XP_BOOST, ItemContext.PROFILE,
+                    true, 1000, true, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 10, 30), null));
+            assertDoesNotThrow(() -> ItemDefinition.create(
+                    "Ranking", ItemKind.CONSUMABLE, ItemCategory.RANKING_POINTS_BOOST, ItemContext.PROFILE,
+                    true, 1000, true, new PercentageTimedEffect(EffectType.RANKING_POINTS_BOOST_PCT, 10, 30), null));
+            assertDoesNotThrow(() -> ItemDefinition.create(
+                    "Coins", ItemKind.CONSUMABLE, ItemCategory.COIN_BOOST, ItemContext.PROFILE,
+                    true, 1000, true, new PercentageTimedEffect(EffectType.COIN_BOOST_PCT, 10, 30), null));
+            assertDoesNotThrow(() -> ItemDefinition.create(
+                    "Shield", ItemKind.CONSUMABLE, ItemCategory.RANKING_POINTS_PROTECTION, ItemContext.PROFILE,
+                    true, 1000, true, new PercentageTimedEffect(EffectType.RANKING_POINTS_SHIELD, 10, 30), null));
+            assertDoesNotThrow(() -> ItemDefinition.create(
+                    "Nick", ItemKind.CONSUMABLE, ItemCategory.CHANGE_NICKNAME, ItemContext.PROFILE,
+                    true, 1000, true, new NicknameChangeEffect(), null));
         }
     }
 }

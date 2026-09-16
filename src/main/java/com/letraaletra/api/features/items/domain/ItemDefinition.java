@@ -2,8 +2,6 @@ package com.letraaletra.api.features.items.domain;
 
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.UUID;
 
 public class ItemDefinition {
@@ -11,7 +9,7 @@ public class ItemDefinition {
     private String name;
     private final ItemKind kind;
     private final ItemCategory category;
-    private final Set<ItemContext> applicability;
+    private final ItemContext context;
     private final boolean stackable;
     private final Integer maxStack;
     private final boolean consumable;
@@ -25,7 +23,7 @@ public class ItemDefinition {
             String name,
             ItemKind kind,
             ItemCategory category,
-            Set<ItemContext> applicability,
+            ItemContext context,
             boolean stackable,
             Integer maxStack,
             boolean consumable,
@@ -38,7 +36,7 @@ public class ItemDefinition {
         this.name = name;
         this.kind = kind;
         this.category = category;
-        this.applicability = applicability;
+        this.context = context;
         this.stackable = stackable;
         this.maxStack = maxStack;
         this.consumable = consumable;
@@ -52,21 +50,21 @@ public class ItemDefinition {
             String name,
             ItemKind kind,
             ItemCategory category,
-            Set<ItemContext> applicability,
+            ItemContext context,
             boolean stackable,
             Integer maxStack,
             boolean consumable,
             ItemEffect effect,
             String assetPath
     ) {
-        validate(name, kind, category, applicability, stackable, maxStack, consumable, effect, assetPath);
+        validate(name, kind, category, context, stackable, maxStack, consumable, effect, assetPath);
 
         return new ItemDefinition(
                 UUID.randomUUID(),
                 name,
                 kind,
                 category,
-                copyApplicability(applicability),
+                context,
                 stackable,
                 maxStack,
                 consumable,
@@ -82,7 +80,7 @@ public class ItemDefinition {
             String name,
             ItemKind kind,
             ItemCategory category,
-            Set<ItemContext> applicability,
+            ItemContext context,
             boolean stackable,
             Integer maxStack,
             boolean consumable,
@@ -96,7 +94,7 @@ public class ItemDefinition {
                 name,
                 kind,
                 category,
-                copyApplicability(applicability),
+                context,
                 stackable,
                 maxStack,
                 consumable,
@@ -111,7 +109,7 @@ public class ItemDefinition {
             String name,
             ItemKind kind,
             ItemCategory category,
-            Set<ItemContext> applicability,
+            ItemContext context,
             boolean stackable,
             Integer maxStack,
             boolean consumable,
@@ -126,7 +124,7 @@ public class ItemDefinition {
             throw new InvalidItemException();
         }
 
-        if (applicability == null || applicability.isEmpty()) {
+        if (context == null) {
             throw new InvalidItemException();
         }
 
@@ -134,29 +132,55 @@ public class ItemDefinition {
             throw new InvalidItemException();
         }
 
-        if (effect != null && !consumable) {
-            throw new InvalidItemException();
-        }
+        if (kind == ItemKind.CONSUMABLE) {
+            if (context != ItemContext.PROFILE) {
+                throw new InvalidItemException();
+            }
 
-        if (!stackable && maxStack != null) {
-            throw new InvalidItemException();
-        }
+            if (!category.isConsumableCategory()) {
+                throw new InvalidItemException();
+            }
 
-        if (maxStack != null && maxStack < 1) {
-            throw new InvalidItemException();
-        }
+            if (!stackable || maxStack == null || maxStack != 1000) {
+                throw new InvalidItemException();
+            }
 
-        if (kind == ItemKind.COSMETIC && (assetPath == null || assetPath.isBlank())) {
-            throw new InvalidItemException();
+            if (effect == null) {
+                throw new InvalidItemException();
+            }
+
+            validateEffectCompatibility(category, effect);
+        } else {
+            if (category.isConsumableCategory()) {
+                throw new InvalidItemException();
+            }
+
+            if (effect != null) {
+                throw new InvalidItemException();
+            }
+
+            if (stackable || maxStack != null) {
+                throw new InvalidItemException();
+            }
+
+            if (assetPath == null || assetPath.isBlank()) {
+                throw new InvalidItemException();
+            }
         }
     }
 
-    private static Set<ItemContext> copyApplicability(Set<ItemContext> applicability) {
-        if (applicability == null || applicability.isEmpty()) {
-            return EnumSet.noneOf(ItemContext.class);
+    private static void validateEffectCompatibility(ItemCategory category, ItemEffect effect) {
+        if (effect instanceof PercentageTimedEffect timed) {
+            if (!category.allowedEffectTypes().contains(timed.type())) {
+                throw new InvalidItemException();
+            }
+        } else if (effect instanceof NicknameChangeEffect) {
+            if (category != ItemCategory.CHANGE_NICKNAME) {
+                throw new InvalidItemException();
+            }
+        } else {
+            throw new InvalidItemException();
         }
-
-        return EnumSet.copyOf(applicability);
     }
 
     public boolean canStack() {
@@ -168,7 +192,7 @@ public class ItemDefinition {
     }
 
     public boolean isApplicableTo(ItemContext context) {
-        return context != null && applicability.contains(context);
+        return context != null && this.context == context;
     }
 
     public UUID getId() {
@@ -187,8 +211,8 @@ public class ItemDefinition {
         return category;
     }
 
-    public Set<ItemContext> getApplicability() {
-        return EnumSet.copyOf(applicability);
+    public ItemContext getContext() {
+        return context;
     }
 
     public boolean isStackable() {

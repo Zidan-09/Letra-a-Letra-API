@@ -3,7 +3,6 @@ package com.letraaletra.api.features.items.application.usecase;
 import com.letraaletra.api.features.items.application.input.CreateItemDefinitionInput;
 import com.letraaletra.api.features.items.application.output.CreateItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
-import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
@@ -15,9 +14,9 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
 
-import java.util.Set;
-
 public class CreateItemDefinitionUseCase implements UseCase<CreateItemDefinitionInput, CreateItemDefinitionOutput> {
+    private static final int CONSUMABLE_MAX_STACK = 1000;
+
     private final ItemDefinitionRepository itemDefinitionRepository;
     private final ItemAssetStorage assetStorage;
     private final ItemImageConverter imageConverter;
@@ -43,6 +42,10 @@ public class CreateItemDefinitionUseCase implements UseCase<CreateItemDefinition
             throw new ItemAlreadyExistsException();
         }
 
+        if (input.context() == null) {
+            throw new InvalidItemException();
+        }
+
         String assetPath = null;
 
         if (input.kind() == ItemKind.COSMETIC) {
@@ -54,16 +57,17 @@ public class CreateItemDefinitionUseCase implements UseCase<CreateItemDefinition
             assetPath = assetStorage.upload(image, input.name(), input.category());
         }
 
+        boolean stackable = input.kind() == ItemKind.CONSUMABLE;
+        Integer maxStack = input.kind() == ItemKind.CONSUMABLE ? CONSUMABLE_MAX_STACK : null;
+
         try {
             ItemDefinition definition = ItemDefinition.create(
                     input.name(),
                     input.kind(),
                     input.category(),
-                    input.applicability() == null || input.applicability().isEmpty()
-                            ? Set.of(ItemContext.PROFILE)
-                            : input.applicability(),
-                    input.stackable(),
-                    input.maxStack(),
+                    input.context(),
+                    stackable,
+                    maxStack,
                     input.consumable(),
                     input.effect(),
                     assetPath

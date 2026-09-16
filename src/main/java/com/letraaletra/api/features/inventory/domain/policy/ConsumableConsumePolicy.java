@@ -17,7 +17,11 @@ public class ConsumableConsumePolicy implements ConsumePolicy {
             throw new NonConsumableItemException();
         }
 
-        if (!definition.isApplicableTo(context)) {
+        if (context != ItemContext.PROFILE) {
+            throw new InapplicableContextException();
+        }
+
+        if (!definition.isApplicableTo(ItemContext.PROFILE)) {
             throw new InapplicableContextException();
         }
 
