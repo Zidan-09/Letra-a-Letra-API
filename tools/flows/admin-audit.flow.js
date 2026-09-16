@@ -62,8 +62,7 @@ export async function runFlow(adminContext, playerContext) {
             name: itemName,
             kind: "COSMETIC",
             category: "AVATAR",
-            applicability: ["PROFILE"],
-            stackable: false,
+            context: "PROFILE",
             consumable: false
         },
         admin.token

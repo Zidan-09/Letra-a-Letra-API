@@ -272,8 +272,7 @@ export async function runFlow(adminContext, playerContext) {
             name: itemName,
             kind: "COSMETIC",
             category: "AVATAR",
-            applicability: ["PROFILE"],
-            stackable: false,
+            context: "PROFILE",
             consumable: false
         },
         admin.token
@@ -538,8 +537,7 @@ export async function runFlow(adminContext, playerContext) {
             name: unownedItemName,
             kind: "COSMETIC",
             category: "FRAME",
-            applicability: ["PROFILE"],
-            stackable: false,
+            context: "PROFILE",
             consumable: false
         },
         admin.token
@@ -797,8 +795,7 @@ export async function runFlow(adminContext, playerContext) {
             name: revokeItemName,
             kind: "COSMETIC",
             category: "BANNER",
-            applicability: ["PROFILE"],
-            stackable: false,
+            context: "PROFILE",
             consumable: false
         },
         admin.token
