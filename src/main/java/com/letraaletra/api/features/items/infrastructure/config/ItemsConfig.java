@@ -4,17 +4,20 @@ import com.letraaletra.api.features.items.application.input.CreateItemDefinition
 import com.letraaletra.api.features.items.application.input.DeleteItemDefinitionInput;
 import com.letraaletra.api.features.items.application.input.GetItemDefinitionInput;
 import com.letraaletra.api.features.items.application.input.ListItemDefinitionsInput;
+import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
 import com.letraaletra.api.features.items.application.input.UpdateItemDefinitionInput;
 import com.letraaletra.api.features.items.application.output.CreateItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.output.DeleteItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.output.GetItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.output.ListItemDefinitionsOutput;
+import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
 import com.letraaletra.api.features.items.application.output.UpdateItemDefinitionOutput;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
 import com.letraaletra.api.features.items.application.usecase.CreateItemDefinitionUseCase;
 import com.letraaletra.api.features.items.application.usecase.DeleteItemDefinitionUseCase;
 import com.letraaletra.api.features.items.application.usecase.GetItemDefinitionUseCase;
 import com.letraaletra.api.features.items.application.usecase.ListItemDefinitionsUseCase;
+import com.letraaletra.api.features.items.application.usecase.ToggleItemAvailabilityUseCase;
 import com.letraaletra.api.features.items.application.usecase.UpdateItemDefinitionUseCase;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
@@ -106,6 +109,21 @@ public class ItemsConfig {
                 new DeleteItemDefinitionUseCase(
                         itemDefinitionRepository,
                         assetStorage,
+                        adminChecker
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<ToggleItemAvailabilityInput, ToggleItemAvailabilityOutput> toggleItemAvailabilityUseCase(
+            ItemDefinitionRepository itemDefinitionRepository,
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new ToggleItemAvailabilityUseCase(
+                        itemDefinitionRepository,
                         adminChecker
                 ),
                 transactions
