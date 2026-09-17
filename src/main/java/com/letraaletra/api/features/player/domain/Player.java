@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.player.domain;
 
-import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
-import com.letraaletra.api.features.player.domain.effect.PlayerEffect;
+import com.letraaletra.api.features.player.domain.effect.PlayerActiveEffects;
 import com.letraaletra.api.features.player.domain.inventory.PlayerInventory;
 
 import java.util.*;
@@ -11,13 +10,19 @@ public class Player {
     private final String nickname;
     private final PlayerInventory inventory;
     private int score = 0;
-    private final List<PlayerEffect> effects = new ArrayList<>();
+    private final PlayerActiveEffects activeEffects;
     private int passedTurn = 0;
 
-    public Player(UUID userId, String nickname, PlayerInventory inventory) {
+    public Player(
+            UUID userId,
+            String nickname,
+            PlayerInventory inventory,
+            PlayerActiveEffects activeEffects
+    ) {
         this.userId = Objects.requireNonNull(userId);
         this.nickname = Objects.requireNonNull(nickname);
         this.inventory = Objects.requireNonNull(inventory);
+        this.activeEffects = Objects.requireNonNull(activeEffects);
     }
 
     public static Player create(
@@ -27,12 +32,13 @@ public class Player {
         return new Player(
                 userId,
                 nickname,
-                PlayerInventory.create()
+                PlayerInventory.create(),
+                PlayerActiveEffects.create()
         );
     }
 
-    public boolean isFrozen() {
-        return effects.stream().anyMatch(effect -> effect instanceof FreezeEffect);
+    public PlayerActiveEffects getActiveEffects() {
+        return activeEffects;
     }
 
     public UUID getUserId() {
@@ -47,10 +53,6 @@ public class Player {
         return inventory;
     }
 
-    public List<PlayerEffect> getEffects() {
-        return List.copyOf(effects);
-    }
-
     public int getPassedTurn() {
         return passedTurn;
     }
@@ -63,21 +65,8 @@ public class Player {
         this.score++;
     }
 
-    public void applyEffect(PlayerEffect effect) {
-        effects.add(effect);
-    }
-
-    public void decrementEffectDuration() {
-        effects.forEach(PlayerEffect::onTurnPassed);
-        effects.removeIf(PlayerEffect::canRemove);
-    }
-
-    public void removeEffect(Class<? extends PlayerEffect> type) {
-        effects.removeIf(type::isInstance);
-    }
-
     public boolean canNotPlay() {
-        return isFrozen() && !inventory.hasFreezeDefense();
+        return activeEffects.isFrozen() && !inventory.hasFreezeDefense();
     }
 
     public void passedTurn() {

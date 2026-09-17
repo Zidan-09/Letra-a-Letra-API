@@ -8,6 +8,7 @@ import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.BlindEffect;
 import com.letraaletra.api.features.player.domain.effect.DetectTrapsEffect;
+import com.letraaletra.api.features.player.domain.effect.PlayerEffect;
 import com.letraaletra.api.features.player.domain.effect.SpyEffect;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.BoardView;
 import com.letraaletra.api.features.game.infrastructure.presentation.dto.response.board.cell.BlockView;
@@ -34,13 +35,15 @@ public class BoardViewBuilder {
     private static List<List<CellView>> getBoardView(Cell[][] grid, Player player) {
         List<List<CellView>> view = new ArrayList<>();
 
-        boolean isBlind = player.getEffects()
+        List<PlayerEffect> effects = player.getActiveEffects().getEffects();
+
+        boolean isBlind = effects
                 .stream().anyMatch(effect -> effect instanceof BlindEffect);
 
-        boolean isDetectingTraps = player.getEffects()
+        boolean isDetectingTraps = effects
                 .stream().anyMatch(effect -> effect instanceof DetectTrapsEffect);
 
-        List<SpyEffect> spies = player.getEffects()
+        List<SpyEffect> spies = effects
                 .stream()
                 .flatMap(effect -> effect instanceof SpyEffect spy ? Stream.of(spy) : Stream.empty())
                 .toList();

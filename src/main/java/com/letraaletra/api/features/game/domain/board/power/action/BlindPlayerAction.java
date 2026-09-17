@@ -45,7 +45,7 @@ public class BlindPlayerAction implements GameAction {
             )));
         }
 
-        opponent.applyEffect(new BlindEffect());
+        opponent.getActiveEffects().applyEffect(new BlindEffect());
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_BLINDED,
@@ -68,7 +68,7 @@ public class BlindPlayerAction implements GameAction {
     }
 
     private boolean isImmune(Player player) {
-        return player.getEffects().stream()
+        return player.getActiveEffects().getEffects().stream()
                 .anyMatch(effect -> effect instanceof ImmunityEffect);
     }
 }

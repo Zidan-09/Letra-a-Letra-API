@@ -31,7 +31,7 @@ public class LanternAction implements GameAction {
 
         player.getInventory().removeFromInventoryOrThrow(powerId);
 
-        player.removeEffect(BlindEffect.class);
+        player.getActiveEffects().removeEffect(BlindEffect.class);
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_USE_LANTERN,

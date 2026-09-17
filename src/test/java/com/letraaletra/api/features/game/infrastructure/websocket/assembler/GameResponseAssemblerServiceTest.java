@@ -58,6 +58,8 @@ class GameResponseAssemblerServiceTest {
         when(loserPlayer.getScore()).thenReturn(2);
         when(winnerPlayer.getInventory()).thenReturn(com.letraaletra.api.features.player.domain.inventory.PlayerInventory.create());
         when(loserPlayer.getInventory()).thenReturn(com.letraaletra.api.features.player.domain.inventory.PlayerInventory.create());
+        when(winnerPlayer.getActiveEffects()).thenReturn(com.letraaletra.api.features.player.domain.effect.PlayerActiveEffects.create());
+        when(loserPlayer.getActiveEffects()).thenReturn(com.letraaletra.api.features.player.domain.effect.PlayerActiveEffects.create());
 
         return new GameOver(GameOverReasons.SCORE, winnerPlayer, loserPlayer);
     }

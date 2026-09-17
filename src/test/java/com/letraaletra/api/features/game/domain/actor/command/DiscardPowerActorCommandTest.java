@@ -79,7 +79,7 @@ class DiscardPowerActorCommandTest {
     @DisplayName("Deve permitir descarte mesmo quando congelado")
     void shouldAllowDiscardWhenFrozen() {
         initGame();
-        playerOnTurn.applyEffect(new FreezeEffect());
+        playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
         String id = addPower(playerOnTurn, PowerType.BLOCK);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, id, turnTimeoutManager);
         assertDoesNotThrow(() -> cmd.execute(game));
@@ -90,14 +90,14 @@ class DiscardPowerActorCommandTest {
     @DisplayName("Deve passar turno quando congelado descarta última defesa (UNFREEZE) estando em sua vez")
     void shouldPassTurnWhenFrozenDiscardsLastDefenseOnTurn() {
         initGame();
-        playerOnTurn.applyEffect(new FreezeEffect());
+        playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
         String unfreezeId = addPower(playerOnTurn, PowerType.UNFREEZE);
         // ensure it's the only defense
         assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, unfreezeId, turnTimeoutManager);
         var result = cmd.execute(game);
         assertFalse(playerOnTurn.getInventory().hasFreezeDefense());
-        assertTrue(playerOnTurn.isFrozen());
+        assertTrue(playerOnTurn.getActiveEffects().isFrozen());
         assertTrue(playerOnTurn.canNotPlay());
         // turno deve ter passado para o outro jogador
         assertEquals(otherPlayerId, state.currentPlayerTurn());
@@ -109,7 +109,7 @@ class DiscardPowerActorCommandTest {
     @DisplayName("Não deve passar turno se ainda resta outra defesa após descarte")
     void shouldNotPassIfStillHasDefense() {
         initGame();
-        playerOnTurn.applyEffect(new FreezeEffect());
+        playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
         String unfreezeId = addPower(playerOnTurn, PowerType.UNFREEZE);
         addPower(playerOnTurn, PowerType.IMMUNITY);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, unfreezeId, turnTimeoutManager);
@@ -126,7 +126,7 @@ class DiscardPowerActorCommandTest {
     void shouldNotPassIfNotOnTurn() {
         initGame();
         // otherPlayer is frozen, but it's playerOnTurn's turn; otherPlayer discards
-        otherPlayer.applyEffect(new FreezeEffect());
+        otherPlayer.getActiveEffects().applyEffect(new FreezeEffect());
         String id = addPower(otherPlayer, PowerType.UNFREEZE);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(otherPlayerId, id, turnTimeoutManager);
         var result = cmd.execute(game);
@@ -139,7 +139,7 @@ class DiscardPowerActorCommandTest {
     @DisplayName("Deve permitir descarte de poder não defensivo quando congelado sem passar turno se ainda tem defesa")
     void shouldAllowDiscardNonDefenseWhenFrozenWithDefense() {
         initGame();
-        playerOnTurn.applyEffect(new FreezeEffect());
+        playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
         addPower(playerOnTurn, PowerType.UNFREEZE);
         String blockId = addPower(playerOnTurn, PowerType.BLOCK);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, blockId, turnTimeoutManager);

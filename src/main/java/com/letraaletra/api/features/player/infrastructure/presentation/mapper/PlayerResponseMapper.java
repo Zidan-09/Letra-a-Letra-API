@@ -16,7 +16,7 @@ public class PlayerResponseMapper {
                 powers.keySet().stream()
                         .map(key -> InventoryResponseMapper.toResponse(key, powers.get(key)))
                         .toList(),
-                player.getEffects()
+                player.getActiveEffects().getEffects()
         );
     }
 }

@@ -39,7 +39,7 @@ public class SpyCellAction implements GameAction {
 
         player.getInventory().removeFromInventoryOrThrow(powerId);
 
-        player.applyEffect(new SpyEffect(position));
+        player.getActiveEffects().applyEffect(new SpyEffect(position));
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_SPIED,

@@ -31,6 +31,8 @@ class GameStateTest {
     @Mock private Board mockBoard;
     @Mock private Player mockPlayer1;
     @Mock private Player mockPlayer2;
+    @Mock private com.letraaletra.api.features.player.domain.effect.PlayerActiveEffects mockEffects1;
+    @Mock private com.letraaletra.api.features.player.domain.effect.PlayerActiveEffects mockEffects2;
 
     private UUID userId1;
     private UUID userId2;
@@ -45,6 +47,9 @@ class GameStateTest {
 
         when(mockPlayer1.getUserId()).thenReturn(userId1);
         when(mockPlayer2.getUserId()).thenReturn(userId2);
+
+        lenient().when(mockPlayer1.getActiveEffects()).thenReturn(mockEffects1);
+        lenient().when(mockPlayer2.getActiveEffects()).thenReturn(mockEffects2);
 
         Map<UUID, Player> playersMap = new LinkedHashMap<>();
         playersMap.put(userId1, mockPlayer1);
@@ -82,8 +87,8 @@ class GameStateTest {
             assertEquals(nextTurnEnds, gameState.getCurrentTurnEnds(), "O tempo limite deve ser atualizado");
             assertNotEquals(firstPlayer, gameState.currentPlayerTurn(), "O turno deve passar para o próximo jogador");
 
-            verify(mockPlayer1, times(1)).decrementEffectDuration();
-            verify(mockPlayer2, times(1)).decrementEffectDuration();
+            verify(mockEffects1, times(1)).decrementEffectDuration();
+            verify(mockEffects2, times(1)).decrementEffectDuration();
         }
 
         @Test

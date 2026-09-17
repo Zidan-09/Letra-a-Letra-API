@@ -112,7 +112,7 @@ public class PlayerActionActorCommand implements ActorCommand<PlayerActionResult
 
     private void validateFreeze(GameState state, UUID userId, GameAction action) {
         Player player = state.getPlayerOrThrow(userId);
-        if (player.isFrozen() && !(action instanceof UnfreezeAction) && !(action instanceof ImmunityPlayerAction)) {
+        if (player.getActiveEffects().isFrozen() && !(action instanceof UnfreezeAction) && !(action instanceof ImmunityPlayerAction)) {
             throw new PlayerIsFrozenException();
         }
     }

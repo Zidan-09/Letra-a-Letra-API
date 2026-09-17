@@ -33,10 +33,10 @@ public class ImmunityPlayerAction implements GameAction {
 
         player.getInventory().removeFromInventoryOrThrow(powerId);
 
-        player.removeEffect(BlindEffect.class);
-        player.removeEffect(FreezeEffect.class);
+        player.getActiveEffects().removeEffect(BlindEffect.class);
+        player.getActiveEffects().removeEffect(FreezeEffect.class);
 
-        player.applyEffect(new ImmunityEffect());
+        player.getActiveEffects().applyEffect(new ImmunityEffect());
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_USE_IMMUNITY,

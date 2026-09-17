@@ -55,24 +55,24 @@ class PlayerTest {
     @DisplayName("Deve diminuir a duração dos efeitos e removê-los quando expirarem")
     void shouldDecrementEffectDurationAndRemoveWhenExpired() {
         BlindEffect blindEffect = new BlindEffect();
-        player.applyEffect(blindEffect);
+        player.getActiveEffects().applyEffect(blindEffect);
 
-        assertEquals(1, player.getEffects().size());
+        assertEquals(1, player.getActiveEffects().getEffects().size());
 
         for (int i = 0; i < 5; i++) {
-            player.decrementEffectDuration();
+            player.getActiveEffects().decrementEffectDuration();
         }
-        assertEquals(1, player.getEffects().size(), "Ainda deve restar 1 turno de efeito");
-        assertEquals(1, player.getEffects().getFirst().getDuration());
+        assertEquals(1, player.getActiveEffects().getEffects().size(), "Ainda deve restar 1 turno de efeito");
+        assertEquals(1, player.getActiveEffects().getEffects().getFirst().getDuration());
 
-        player.decrementEffectDuration();
-        assertTrue(player.getEffects().isEmpty(), "O efeito expirado deveria ter sido removido");
+        player.getActiveEffects().decrementEffectDuration();
+        assertTrue(player.getActiveEffects().getEffects().isEmpty(), "O efeito expirado deveria ter sido removido");
     }
 
     @Test
     @DisplayName("canNotPlay: Deve retornar TRUE se congelado e SEM poderes de fuga")
     void shouldNotBeAbleToPlayWhenFrozenWithoutCounters() {
-        player.applyEffect(new FreezeEffect());
+        player.getActiveEffects().applyEffect(new FreezeEffect());
 
         assertTrue(player.canNotPlay(), "Jogador congelado e sem itens de contra-ataque não deveria jogar");
     }
@@ -80,13 +80,13 @@ class PlayerTest {
     @Test
     @DisplayName("canNotPlay: Deve retornar FALSE se congelado mas Possui UNFREEZE ou IMMUNITY")
     void shouldBeAbleToPlayWhenFrozenButHasCounterPower() {
-        player.applyEffect(new FreezeEffect());
+        player.getActiveEffects().applyEffect(new FreezeEffect());
 
         player.getInventory().addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay(), "Deveria conseguir jogar pois possui UNFREEZE");
 
         Player anotherPlayer = Player.create(UUID.randomUUID(), "player");
-        anotherPlayer.applyEffect(new FreezeEffect());
+        anotherPlayer.getActiveEffects().applyEffect(new FreezeEffect());
         anotherPlayer.getInventory().addToInventory(PowerType.IMMUNITY);
         assertFalse(anotherPlayer.canNotPlay(), "Deveria conseguir jogar pois possui IMMUNITY");
     }
@@ -94,18 +94,18 @@ class PlayerTest {
     @Test
     @DisplayName("isFrozen: Deve retornar TRUE quando FreezeEffect aplicado")
     void shouldBeFrozenWhenFreezeApplied() {
-        assertFalse(player.isFrozen());
-        player.applyEffect(new FreezeEffect());
-        assertTrue(player.isFrozen());
+        assertFalse(player.getActiveEffects().isFrozen());
+        player.getActiveEffects().applyEffect(new FreezeEffect());
+        assertTrue(player.getActiveEffects().isFrozen());
     }
 
     @Test
     @DisplayName("isFrozen: Deve retornar FALSE após remover FreezeEffect")
     void shouldNotBeFrozenAfterRemove() {
-        player.applyEffect(new FreezeEffect());
-        assertTrue(player.isFrozen());
-        player.removeEffect(FreezeEffect.class);
-        assertFalse(player.isFrozen());
+        player.getActiveEffects().applyEffect(new FreezeEffect());
+        assertTrue(player.getActiveEffects().isFrozen());
+        player.getActiveEffects().removeEffect(FreezeEffect.class);
+        assertFalse(player.getActiveEffects().isFrozen());
     }
 
     @Test
@@ -147,11 +147,11 @@ class PlayerTest {
     @DisplayName("canNotPlay deve usar isFrozen e hasFreezeDefense")
     void shouldCanNotPlayReflectIsFrozenAndHasDefense() {
         assertFalse(player.canNotPlay());
-        player.applyEffect(new FreezeEffect());
+        player.getActiveEffects().applyEffect(new FreezeEffect());
         assertTrue(player.canNotPlay());
         player.getInventory().addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay());
-        player.removeEffect(FreezeEffect.class);
+        player.getActiveEffects().removeEffect(FreezeEffect.class);
         assertFalse(player.canNotPlay());
     }
 }

@@ -34,7 +34,7 @@ public class DetectTrapsAction implements GameAction {
         DetectTrapsEffect effect = new DetectTrapsEffect();
         effect.setTraps(state.getBoard().getOpponentTraps(userId));
 
-        player.applyEffect(effect);
+        player.getActiveEffects().applyEffect(effect);
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.TRAPS_DETECTED,

@@ -52,7 +52,7 @@ public class DiscardPowerActorCommand implements ActorCommand<DiscardPowerResult
 
         List<Event> events = new ArrayList<>();
 
-        if (player.isFrozen() && !player.getInventory().hasFreezeDefense() && state.currentPlayerTurn().equals(userId)) {
+        if (player.getActiveEffects().isFrozen() && !player.getInventory().hasFreezeDefense() && state.currentPlayerTurn().equals(userId)) {
             events.add(new Event(
                     StateEvent.TURN_PASSED,
                     new TurnPassedEvent(userId.toString())

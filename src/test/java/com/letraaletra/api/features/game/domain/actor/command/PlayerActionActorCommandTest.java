@@ -15,6 +15,7 @@ import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.player.domain.Player;
 import com.letraaletra.api.features.player.domain.effect.FreezeEffect;
+import com.letraaletra.api.features.player.domain.effect.ImmunityEffect;
 import com.letraaletra.api.features.player.domain.exception.PlayerIsFrozenException;
 import com.letraaletra.api.features.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,7 +107,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve permitir revelar célula quando NÃO está congelado")
         void shouldAllowRevealWhenNotFrozen() {
             initGameWithTwoPlayers();
-            assertFalse(playerOnTurn.isFrozen());
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             assertDoesNotThrow(() -> cmd.execute(game));
@@ -116,9 +117,9 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve BLOQUEAR revelar célula quando congelado mesmo COM UNFREEZE")
         void shouldBlockRevealWhenFrozenEvenWithUnfreeze() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
-            assertTrue(playerOnTurn.isFrozen());
+            assertTrue(playerOnTurn.getActiveEffects().isFrozen());
             assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
@@ -129,7 +130,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve BLOQUEAR revelar célula quando congelado com IMMUNITY")
         void shouldBlockRevealWhenFrozenWithImmunity() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.IMMUNITY);
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
@@ -140,7 +141,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve BLOQUEAR BlockCellAction quando congelado com defesa")
         void shouldBlockBlockWhenFrozen() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             String blockId = addPowerToPlayer(playerOnTurn, PowerType.BLOCK);
             BlockCellAction action = new BlockCellAction(blockId, new Position(0, 0));
@@ -154,7 +155,7 @@ class PlayerActionActorCommandTest {
             // Testado de forma parametrizada nos demais testes; este garante que a lista completa é bloqueada
             // Verifica um exemplo representativo (TRAP) além dos já cobertos em outros testes
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             String trapId = addPowerToPlayer(playerOnTurn, PowerType.TRAP);
             TrapCellAction trap = new TrapCellAction(trapId, new Position(0, 0));
@@ -166,7 +167,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve BLOQUEAR qualquer ação quando congelado SEM defesa")
         void shouldBlockAnyWhenFrozenWithoutDefense() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             assertTrue(playerOnTurn.canNotPlay());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
@@ -177,12 +178,12 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve PERMITIR UnfreezeAction quando congelado")
         void shouldAllowUnfreezeWhenFrozen() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             String id = addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             UnfreezeAction action = new UnfreezeAction(id);
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             var result = assertDoesNotThrow(() -> cmd.execute(game));
-            assertFalse(playerOnTurn.isFrozen(), "Freeze deve ser removido");
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen(), "Freeze deve ser removido");
             assertTrue(result.events().stream().anyMatch(e -> e.event() == StateEvent.PLAYER_UNFREEZE));
         }
 
@@ -190,12 +191,12 @@ class PlayerActionActorCommandTest {
         @DisplayName("Deve PERMITIR ImmunityPlayerAction quando congelado")
         void shouldAllowImmunityWhenFrozen() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             String id = addPowerToPlayer(playerOnTurn, PowerType.IMMUNITY);
             ImmunityPlayerAction action = new ImmunityPlayerAction(id);
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             var result = assertDoesNotThrow(() -> cmd.execute(game));
-            assertFalse(playerOnTurn.isFrozen());
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen());
             assertTrue(result.events().stream().anyMatch(e -> e.event() == StateEvent.PLAYER_USE_IMMUNITY));
         }
 
@@ -203,7 +204,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Regressão: possuir UNFREEZE não deve liberar Reveal")
         void regressionUnfreezeDoesNotAllowReveal() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             addPowerToPlayer(playerOnTurn, PowerType.BLOCK);
             // Try reveal - must fail
@@ -228,7 +229,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Regressão: possuir IMMUNITY não deve liberar outro poder")
         void regressionImmunityDoesNotAllowOther() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.IMMUNITY);
             String trapId = addPowerToPlayer(playerOnTurn, PowerType.TRAP);
             TrapCellAction trap = new TrapCellAction(trapId, new Position(0, 0));
@@ -246,7 +247,7 @@ class PlayerActionActorCommandTest {
         void shouldSkipFrozenWithoutDefenseAndEmitTurnPassed() {
             initGameWithTwoPlayers();
             // otherPlayer will be the one to be skipped; make him frozen without defense
-            otherPlayer.applyEffect(new FreezeEffect());
+            otherPlayer.getActiveEffects().applyEffect(new FreezeEffect());
             assertTrue(otherPlayer.canNotPlay());
             // playerOnTurn does a valid reveal
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
@@ -263,7 +264,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("NÃO deve pular jogador congelado COM defesa")
         void shouldNotSkipFrozenWithDefense() {
             initGameWithTwoPlayers();
-            otherPlayer.applyEffect(new FreezeEffect());
+            otherPlayer.getActiveEffects().applyEffect(new FreezeEffect());
             otherPlayer.getInventory().addToInventory(PowerType.UNFREEZE);
             assertFalse(otherPlayer.canNotPlay());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
@@ -278,13 +279,13 @@ class PlayerActionActorCommandTest {
         @DisplayName("Após Unfreeze, turno deve avançar normalmente")
         void shouldAdvanceTurnAfterUnfreeze() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             String id = addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             UnfreezeAction action = new UnfreezeAction(id);
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             var result = cmd.execute(game);
             // After unfreeze, player is no longer frozen, next turn should be otherPlayer (unless other is frozen without defense)
-            assertFalse(playerOnTurn.isFrozen());
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen());
             assertEquals(otherPlayerId, state.currentPlayerTurn());
         }
 
@@ -292,13 +293,13 @@ class PlayerActionActorCommandTest {
         @DisplayName("Após Immunity, deve remover Freeze e aplicar ImmunityEffect")
         void shouldRemoveFreezeAndApplyImmunity() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             String id = addPowerToPlayer(playerOnTurn, PowerType.IMMUNITY);
             ImmunityPlayerAction action = new ImmunityPlayerAction(id);
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             cmd.execute(game);
-            assertFalse(playerOnTurn.isFrozen());
-            boolean hasImmunity = playerOnTurn.getEffects().stream().anyMatch(e -> e instanceof com.letraaletra.api.features.player.domain.effect.ImmunityEffect);
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen());
+            boolean hasImmunity = playerOnTurn.getActiveEffects().getEffects().stream().anyMatch(e -> e instanceof ImmunityEffect);
             assertTrue(hasImmunity);
         }
     }
@@ -310,7 +311,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Jogador não congelado pode fazer qualquer ação")
         void shouldAllowAnyWhenNotFrozen() {
             initGameWithTwoPlayers();
-            assertFalse(playerOnTurn.isFrozen());
+            assertFalse(playerOnTurn.getActiveEffects().isFrozen());
             RevealCellAction reveal = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, reveal, turnTimeoutManager);
             assertDoesNotThrow(() -> cmd.execute(game));
@@ -320,7 +321,7 @@ class PlayerActionActorCommandTest {
         @DisplayName("Bloqueia FreezePlayerAction quando congelado")
         void shouldBlockFreezeWhenFrozen() {
             initGameWithTwoPlayers();
-            playerOnTurn.applyEffect(new FreezeEffect());
+            playerOnTurn.getActiveEffects().applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             String fid = addPowerToPlayer(playerOnTurn, PowerType.FREEZE);
             FreezePlayerAction action = new FreezePlayerAction(fid, otherPlayerId);

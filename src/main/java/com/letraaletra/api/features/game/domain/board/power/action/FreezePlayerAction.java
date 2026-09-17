@@ -45,7 +45,7 @@ public class FreezePlayerAction implements GameAction {
             )));
         }
 
-        opponent.applyEffect(new FreezeEffect());
+        opponent.getActiveEffects().applyEffect(new FreezeEffect());
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_FROZEN,
@@ -68,7 +68,7 @@ public class FreezePlayerAction implements GameAction {
     }
 
     private boolean isImmune(Player player) {
-        return player.getEffects().stream()
+        return player.getActiveEffects().getEffects().stream()
                 .anyMatch(effect -> effect instanceof ImmunityEffect);
     }
 }

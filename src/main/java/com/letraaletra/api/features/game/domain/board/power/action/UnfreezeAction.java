@@ -32,7 +32,7 @@ public class UnfreezeAction implements GameAction {
 
         player.getInventory().removeFromInventoryOrThrow(powerId);
 
-        player.removeEffect(FreezeEffect.class);
+        player.getActiveEffects().removeEffect(FreezeEffect.class);
 
         return new ArrayList<>(List.of(new Event(
                 StateEvent.PLAYER_UNFREEZE,
