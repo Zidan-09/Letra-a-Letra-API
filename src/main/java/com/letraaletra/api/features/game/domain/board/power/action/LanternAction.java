@@ -29,7 +29,7 @@ public class LanternAction implements GameAction {
 
         player.resetPassedTurn();
 
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         player.removeEffect(BlindEffect.class);
 
@@ -40,7 +40,7 @@ public class LanternAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.LANTERN) {
             throw new InvalidPlayerActionException();

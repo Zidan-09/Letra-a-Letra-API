@@ -20,34 +20,34 @@ class PlayerTest {
     @BeforeEach
     void setUp() {
         UUID userId = UUID.randomUUID();
-        player = new Player(userId, "player");
+        player = Player.create(userId, "player");
     }
 
     @Test
     @DisplayName("Deve adicionar itens ao inventário até o limite máximo de 5")
     void shouldAddPowersToInventoryUpToLimit() {
         for (int i = 0; i < 5; i++) {
-            player.addToInventory(PowerType.FREEZE);
+            player.getInventory().addToInventory(PowerType.FREEZE);
         }
-        assertEquals(5, player.getInventory().size());
+        assertEquals(5, player.getInventory().getPowers().size());
 
-        player.addToInventory(PowerType.BLIND);
-        assertEquals(5, player.getInventory().size());
+        player.getInventory().addToInventory(PowerType.BLIND);
+        assertEquals(5, player.getInventory().getPowers().size());
     }
 
     @Test
     @DisplayName("Deve remover item do inventário ou lançar exceção caso não exista")
     void shouldRemoveFromInventoryOrThrow() {
-        player.addToInventory(PowerType.FREEZE);
+        player.getInventory().addToInventory(PowerType.FREEZE);
 
-        Map<String, PowerType> inventory = player.getInventory();
+        Map<String, PowerType> inventory = player.getInventory().getPowers();
         String generatedId = inventory.keySet().iterator().next();
 
-        assertDoesNotThrow(() -> player.removeFromInventoryOrThrow(generatedId));
-        assertTrue(player.getInventory().isEmpty());
+        assertDoesNotThrow(() -> player.getInventory().removeFromInventoryOrThrow(generatedId));
+        assertTrue(player.getInventory().getPowers().isEmpty());
 
         assertThrows(InvalidPlayerActionException.class, () ->
-                player.removeFromInventoryOrThrow("id-inexistente")
+                player.getInventory().removeFromInventoryOrThrow("id-inexistente")
         );
     }
 
@@ -78,16 +78,16 @@ class PlayerTest {
     }
 
     @Test
-    @DisplayName("canNotPlay: Deve retornar FALSE se congelado mas POSSUI UNFREEZE ou IMMUNITY")
+    @DisplayName("canNotPlay: Deve retornar FALSE se congelado mas Possui UNFREEZE ou IMMUNITY")
     void shouldBeAbleToPlayWhenFrozenButHasCounterPower() {
         player.applyEffect(new FreezeEffect());
 
-        player.addToInventory(PowerType.UNFREEZE);
+        player.getInventory().addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay(), "Deveria conseguir jogar pois possui UNFREEZE");
 
-        Player anotherPlayer = new Player(UUID.randomUUID(), "player");
+        Player anotherPlayer = Player.create(UUID.randomUUID(), "player");
         anotherPlayer.applyEffect(new FreezeEffect());
-        anotherPlayer.addToInventory(PowerType.IMMUNITY);
+        anotherPlayer.getInventory().addToInventory(PowerType.IMMUNITY);
         assertFalse(anotherPlayer.canNotPlay(), "Deveria conseguir jogar pois possui IMMUNITY");
     }
 
@@ -111,36 +111,36 @@ class PlayerTest {
     @Test
     @DisplayName("hasFreezeDefense: Deve retornar TRUE quando possui UNFREEZE")
     void shouldHaveDefenseWhenUnfreeze() {
-        assertFalse(player.hasFreezeDefense());
-        player.addToInventory(PowerType.UNFREEZE);
-        assertTrue(player.hasFreezeDefense());
+        assertFalse(player.getInventory().hasFreezeDefense());
+        player.getInventory().addToInventory(PowerType.UNFREEZE);
+        assertTrue(player.getInventory().hasFreezeDefense());
     }
 
     @Test
     @DisplayName("hasFreezeDefense: Deve retornar TRUE quando possui IMMUNITY")
     void shouldHaveDefenseWhenImmunity() {
-        player.addToInventory(PowerType.IMMUNITY);
-        assertTrue(player.hasFreezeDefense());
+        player.getInventory().addToInventory(PowerType.IMMUNITY);
+        assertTrue(player.getInventory().hasFreezeDefense());
     }
 
     @Test
     @DisplayName("hasFreezeDefense: Deve retornar FALSE quando inventário vazio ou sem defesa")
     void shouldNotHaveDefenseWhenEmptyOrOther() {
-        assertFalse(player.hasFreezeDefense());
-        player.addToInventory(PowerType.BLOCK);
-        player.addToInventory(PowerType.FREEZE);
-        player.addToInventory(PowerType.BLIND);
-        assertFalse(player.hasFreezeDefense());
+        assertFalse(player.getInventory().hasFreezeDefense());
+        player.getInventory().addToInventory(PowerType.BLOCK);
+        player.getInventory().addToInventory(PowerType.FREEZE);
+        player.getInventory().addToInventory(PowerType.BLIND);
+        assertFalse(player.getInventory().hasFreezeDefense());
     }
 
     @Test
     @DisplayName("hasFreezeDefense: Deve retornar FALSE após descartar defesa")
     void shouldNotHaveDefenseAfterDiscard() {
-        player.addToInventory(PowerType.UNFREEZE);
-        assertTrue(player.hasFreezeDefense());
-        String id = player.getInventory().keySet().iterator().next();
-        player.removeFromInventoryOrThrow(id);
-        assertFalse(player.hasFreezeDefense());
+        player.getInventory().addToInventory(PowerType.UNFREEZE);
+        assertTrue(player.getInventory().hasFreezeDefense());
+        String id = player.getInventory().getPowers().keySet().iterator().next();
+        player.getInventory().removeFromInventoryOrThrow(id);
+        assertFalse(player.getInventory().hasFreezeDefense());
     }
 
     @Test
@@ -149,7 +149,7 @@ class PlayerTest {
         assertFalse(player.canNotPlay());
         player.applyEffect(new FreezeEffect());
         assertTrue(player.canNotPlay());
-        player.addToInventory(PowerType.UNFREEZE);
+        player.getInventory().addToInventory(PowerType.UNFREEZE);
         assertFalse(player.canNotPlay());
         player.removeEffect(FreezeEffect.class);
         assertFalse(player.canNotPlay());

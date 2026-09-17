@@ -29,7 +29,7 @@ public class DetectTrapsAction implements GameAction {
         player.resetPassedTurn();
 
         validatePower(player);
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         DetectTrapsEffect effect = new DetectTrapsEffect();
         effect.setTraps(state.getBoard().getOpponentTraps(userId));
@@ -43,7 +43,7 @@ public class DetectTrapsAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.DETECT_TRAPS) {
             throw new InvalidPlayerActionException();

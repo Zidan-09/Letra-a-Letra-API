@@ -37,7 +37,7 @@ public class SpyCellAction implements GameAction {
         Cell cell = state.getBoard().getCell(position);
         validateCell(cell);
 
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         player.applyEffect(new SpyEffect(position));
 
@@ -60,7 +60,7 @@ public class SpyCellAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.SPY) {
             throw new InvalidPlayerActionException();

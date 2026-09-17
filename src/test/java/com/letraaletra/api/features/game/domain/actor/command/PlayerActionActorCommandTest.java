@@ -4,7 +4,6 @@ import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameStatus;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.domain.board.Board;
-import com.letraaletra.api.features.game.domain.board.cell.Cell;
 import com.letraaletra.api.features.game.domain.board.cell.CellFactory;
 import com.letraaletra.api.features.game.domain.board.position.Position;
 import com.letraaletra.api.features.game.domain.board.power.PowerType;
@@ -76,7 +75,7 @@ class PlayerActionActorCommandTest {
         Map<UUID, Player> realPlayers = new LinkedHashMap<>();
         for (Participant p : game.getParticipants().getParticipants()) {
             if (p.isPlayer()) {
-                realPlayers.put(p.getUserId(), new Player(p.getUserId(), p.getNickname()));
+                realPlayers.put(p.getUserId(), Player.create(p.getUserId(), p.getNickname()));
             }
         }
         state = new GameState(UUID.randomUUID(), realPlayers, mockBoard, Instant.now().plusSeconds(45));
@@ -91,8 +90,8 @@ class PlayerActionActorCommandTest {
     }
 
     private String addPowerToPlayer(Player player, PowerType type) {
-        player.addToInventory(type);
-        return player.getInventory().entrySet().stream()
+        player.getInventory().addToInventory(type);
+        return player.getInventory().getPowers().entrySet().stream()
                 .filter(e -> e.getValue() == type)
                 .map(Map.Entry::getKey)
                 .findFirst()
@@ -120,7 +119,7 @@ class PlayerActionActorCommandTest {
             playerOnTurn.applyEffect(new FreezeEffect());
             addPowerToPlayer(playerOnTurn, PowerType.UNFREEZE);
             assertTrue(playerOnTurn.isFrozen());
-            assertTrue(playerOnTurn.hasFreezeDefense());
+            assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);
             assertThrows(PlayerIsFrozenException.class, () -> cmd.execute(game));
@@ -212,13 +211,13 @@ class PlayerActionActorCommandTest {
             PlayerActionActorCommand cmd1 = new PlayerActionActorCommand(playerOnTurnId, reveal, turnTimeoutManager);
             assertThrows(PlayerIsFrozenException.class, () -> cmd1.execute(game));
             // Try block - must also fail, proving UNFREEZE doesn't allow other powers
-            String blockId = playerOnTurn.getInventory().entrySet().stream()
+            String blockId = playerOnTurn.getInventory().getPowers().entrySet().stream()
                     .filter(e -> e.getValue() == PowerType.BLOCK).findFirst().orElseThrow().getKey();
             BlockCellAction block = new BlockCellAction(blockId, new Position(1, 1));
             PlayerActionActorCommand cmd2 = new PlayerActionActorCommand(playerOnTurnId, block, turnTimeoutManager);
             assertThrows(PlayerIsFrozenException.class, () -> cmd2.execute(game));
             // Only unfreeze should succeed
-            String unfreezeId = playerOnTurn.getInventory().entrySet().stream()
+            String unfreezeId = playerOnTurn.getInventory().getPowers().entrySet().stream()
                     .filter(e -> e.getValue() == PowerType.UNFREEZE).findFirst().orElseThrow().getKey();
             UnfreezeAction unfreeze = new UnfreezeAction(unfreezeId);
             PlayerActionActorCommand cmd3 = new PlayerActionActorCommand(playerOnTurnId, unfreeze, turnTimeoutManager);
@@ -265,7 +264,7 @@ class PlayerActionActorCommandTest {
         void shouldNotSkipFrozenWithDefense() {
             initGameWithTwoPlayers();
             otherPlayer.applyEffect(new FreezeEffect());
-            otherPlayer.addToInventory(PowerType.UNFREEZE);
+            otherPlayer.getInventory().addToInventory(PowerType.UNFREEZE);
             assertFalse(otherPlayer.canNotPlay());
             RevealCellAction action = new RevealCellAction(new Position(0, 0));
             PlayerActionActorCommand cmd = new PlayerActionActorCommand(playerOnTurnId, action, turnTimeoutManager);

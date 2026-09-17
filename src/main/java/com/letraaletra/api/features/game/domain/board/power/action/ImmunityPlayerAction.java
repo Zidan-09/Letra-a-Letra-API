@@ -31,7 +31,7 @@ public class ImmunityPlayerAction implements GameAction {
 
         player.resetPassedTurn();
 
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         player.removeEffect(BlindEffect.class);
         player.removeEffect(FreezeEffect.class);
@@ -45,7 +45,7 @@ public class ImmunityPlayerAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.IMMUNITY) {
             throw new InvalidPlayerActionException();

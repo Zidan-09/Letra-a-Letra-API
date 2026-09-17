@@ -56,6 +56,8 @@ class GameResponseAssemblerServiceTest {
         when(loserPlayer.getUserId()).thenReturn(loserUser.getUserId());
         when(winnerPlayer.getScore()).thenReturn(3);
         when(loserPlayer.getScore()).thenReturn(2);
+        when(winnerPlayer.getInventory()).thenReturn(com.letraaletra.api.features.player.domain.inventory.PlayerInventory.create());
+        when(loserPlayer.getInventory()).thenReturn(com.letraaletra.api.features.player.domain.inventory.PlayerInventory.create());
 
         return new GameOver(GameOverReasons.SCORE, winnerPlayer, loserPlayer);
     }

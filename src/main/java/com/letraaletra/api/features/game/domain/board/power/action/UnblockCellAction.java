@@ -34,7 +34,7 @@ public class UnblockCellAction implements GameAction {
 
         player.resetPassedTurn();
 
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         cell.clearEffect();
 
@@ -48,7 +48,7 @@ public class UnblockCellAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.UNBLOCK) {
             throw new InvalidPlayerActionException();

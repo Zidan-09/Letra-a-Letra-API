@@ -57,7 +57,7 @@ class DiscardPowerActorCommandTest {
         game.join(u2, "s2", List.of());
         Map<UUID, Player> players = new LinkedHashMap<>();
         for (Participant p : game.getParticipants().getParticipants()) {
-            if (p.isPlayer()) players.put(p.getUserId(), new Player(p.getUserId(), p.getNickname()));
+            if (p.isPlayer()) players.put(p.getUserId(), Player.create(p.getUserId(), p.getNickname()));
         }
         state = new GameState(UUID.randomUUID(), players, mockBoard, Instant.now().plusSeconds(45));
         game.updateGameState(state);
@@ -70,8 +70,9 @@ class DiscardPowerActorCommandTest {
     }
 
     private String addPower(Player p, PowerType t) {
-        p.addToInventory(t);
-        return p.getInventory().entrySet().stream().filter(e -> e.getValue() == t).map(Map.Entry::getKey).findFirst().orElseThrow();
+
+        p.getInventory().addToInventory(t);
+        return p.getInventory().getPowers().entrySet().stream().filter(e -> e.getValue() == t).map(Map.Entry::getKey).findFirst().orElseThrow();
     }
 
     @Test
@@ -82,7 +83,7 @@ class DiscardPowerActorCommandTest {
         String id = addPower(playerOnTurn, PowerType.BLOCK);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, id, turnTimeoutManager);
         assertDoesNotThrow(() -> cmd.execute(game));
-        assertFalse(playerOnTurn.getInventory().containsKey(id));
+        assertFalse(playerOnTurn.getInventory().getPowers().containsKey(id));
     }
 
     @Test
@@ -92,10 +93,10 @@ class DiscardPowerActorCommandTest {
         playerOnTurn.applyEffect(new FreezeEffect());
         String unfreezeId = addPower(playerOnTurn, PowerType.UNFREEZE);
         // ensure it's the only defense
-        assertTrue(playerOnTurn.hasFreezeDefense());
+        assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, unfreezeId, turnTimeoutManager);
         var result = cmd.execute(game);
-        assertFalse(playerOnTurn.hasFreezeDefense());
+        assertFalse(playerOnTurn.getInventory().hasFreezeDefense());
         assertTrue(playerOnTurn.isFrozen());
         assertTrue(playerOnTurn.canNotPlay());
         // turno deve ter passado para o outro jogador
@@ -113,7 +114,7 @@ class DiscardPowerActorCommandTest {
         addPower(playerOnTurn, PowerType.IMMUNITY);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, unfreezeId, turnTimeoutManager);
         var result = cmd.execute(game);
-        assertTrue(playerOnTurn.hasFreezeDefense());
+        assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
         assertFalse(playerOnTurn.canNotPlay());
         assertEquals(playerOnTurnId, state.currentPlayerTurn(), "Turno não deve passar pois ainda tem IMMUNITY");
         assertTrue(result.events().isEmpty());
@@ -129,7 +130,7 @@ class DiscardPowerActorCommandTest {
         String id = addPower(otherPlayer, PowerType.UNFREEZE);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(otherPlayerId, id, turnTimeoutManager);
         var result = cmd.execute(game);
-        // otherPlayer now frozen without defense but it's not his turn, so no immediate pass
+        // otherPlayer now frozen without defense, but it's not his turn, so no immediate pass
         assertEquals(playerOnTurnId, state.currentPlayerTurn());
         assertTrue(result.events().isEmpty());
     }
@@ -143,7 +144,7 @@ class DiscardPowerActorCommandTest {
         String blockId = addPower(playerOnTurn, PowerType.BLOCK);
         DiscardPowerActorCommand cmd = new DiscardPowerActorCommand(playerOnTurnId, blockId, turnTimeoutManager);
         var result = cmd.execute(game);
-        assertTrue(playerOnTurn.hasFreezeDefense());
+        assertTrue(playerOnTurn.getInventory().hasFreezeDefense());
         assertEquals(playerOnTurnId, state.currentPlayerTurn());
         assertTrue(result.events().isEmpty());
     }

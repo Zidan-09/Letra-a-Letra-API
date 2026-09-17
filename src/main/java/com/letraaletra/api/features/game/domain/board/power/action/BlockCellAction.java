@@ -55,13 +55,13 @@ public class BlockCellAction implements GameAction {
                 )
         ));
 
-        state.getPlayerOrThrow(userId).removeFromInventoryOrThrow(powerId);
+        state.getPlayerOrThrow(userId).getInventory().removeFromInventoryOrThrow(powerId);
 
         return events;
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.BLOCK) {
             throw new InvalidPlayerActionException();

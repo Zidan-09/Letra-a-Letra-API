@@ -36,7 +36,7 @@ public class FreezePlayerAction implements GameAction {
         Player opponent = state.getPlayerOrThrow(target);
         validatePlayer(opponent);
 
-        player.removeFromInventoryOrThrow(powerId);
+        player.getInventory().removeFromInventoryOrThrow(powerId);
 
         if (isImmune(opponent)) {
             return new ArrayList<>(List.of(new Event(
@@ -54,7 +54,7 @@ public class FreezePlayerAction implements GameAction {
     }
 
     private void validatePower(Player player) {
-        PowerType power = player.getInventory().get(powerId);
+        PowerType power = player.getInventory().getPowers().get(powerId);
 
         if (power != PowerType.FREEZE) {
             throw new InvalidPlayerActionException();

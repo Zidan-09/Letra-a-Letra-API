@@ -17,7 +17,7 @@ public class GameStateFactory {
         participants
                 .stream().filter(Participant::isPlayer)
                 .forEach(p -> {
-                    Player player = new Player(
+                    Player player = Player.create(
                             p.getUserId(),
                             p.getNickname()
                     );

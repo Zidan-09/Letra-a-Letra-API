@@ -88,7 +88,7 @@ public class RevealCellAction implements GameAction {
     private void addPower(PowerType drop, Player player) {
         if (drop == null) return;
 
-        player.addToInventory(drop);
+        player.getInventory().addToInventory(drop);
     }
 
     private boolean activateEffect(Cell cell, UUID player, List<Event> events) {
