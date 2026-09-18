@@ -57,18 +57,18 @@ class CreateItemUseCaseTest {
         principal = new AuthenticatedUser(UUID.randomUUID(), "admin", true, false);
     }
 
-    private CreateItemInput input(String name) {
+    private CreateItemInput input() {
         return new CreateItemInput(
-                principal, name, ItemKind.EQUIPPABLE, ItemCategory.AVATAR,
-                EquippableContext.PROFILE, false, null,
+                principal, "Blue Avatar", ItemKind.EQUIPPABLE, ItemCategory.AVATAR,
+                EquippableContext.PROFILE, null,
                 new ItemAssetUpload(new byte[]{1, 2, 3}, "image/png")
         );
     }
 
-    private CreateItemInput consumableInput(String name) {
+    private CreateItemInput consumableInput() {
         return new CreateItemInput(
-                principal, name, ItemKind.CONSUMABLE, ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE, true, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), null
+                principal, "Boost", ItemKind.CONSUMABLE, ItemCategory.XP_BOOST,
+                EquippableContext.PROFILE, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), null
         );
     }
 
@@ -81,11 +81,11 @@ class CreateItemUseCaseTest {
         when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Blue Avatar"), ArgumentMatchers.eq(ItemCategory.AVATAR)))
                 .thenReturn("AVATAR/Blue Avatar.webp");
 
-        CreateItemOutput output = useCase.execute(input("Blue Avatar"));
+        CreateItemOutput output = useCase.execute(input());
 
         verify(adminChecker).check(principal, PermissionKey.ITEMS, PermissionAction.CREATE);
         assertEquals("Blue Avatar", output.item().getName());
-        assertTrue(output.item() instanceof EquippableItem);
+        assertInstanceOf(EquippableItem.class, output.item());
         EquippableItem equippable = (EquippableItem) output.item();
         assertEquals("AVATAR/Blue Avatar.webp", equippable.getAssetPath());
         assertEquals(EquippableContext.PROFILE, equippable.getContext());
@@ -97,9 +97,9 @@ class CreateItemUseCaseTest {
     void consumableWithoutAssetShouldSaveWithoutUpload() {
         when(itemRepository.findByName("Boost")).thenReturn(Optional.empty());
 
-        CreateItemOutput output = useCase.execute(consumableInput("Boost"));
+        CreateItemOutput output = useCase.execute(consumableInput());
 
-        assertTrue(output.item() instanceof ConsumableItem);
+        assertInstanceOf(ConsumableItem.class, output.item());
         ConsumableItem consumable = (ConsumableItem) output.item();
         assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), consumable.getEffect());
         verify(imageConverter, never()).convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -112,7 +112,7 @@ class CreateItemUseCaseTest {
     void cosmeticWithoutAssetShouldFail() {
         CreateItemInput withoutAsset = new CreateItemInput(
                 principal, "Avatar", ItemKind.EQUIPPABLE, ItemCategory.AVATAR,
-                EquippableContext.PROFILE, false, null, null
+                EquippableContext.PROFILE, null, null
         );
         when(itemRepository.findByName("Avatar")).thenReturn(Optional.empty());
 
@@ -130,7 +130,7 @@ class CreateItemUseCaseTest {
         when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenThrow(new RuntimeException("Storage unavailable"));
 
-        assertThrows(RuntimeException.class, () -> useCase.execute(input("Blue Avatar")));
+        assertThrows(RuntimeException.class, () -> useCase.execute(input()));
         verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 
@@ -145,7 +145,7 @@ class CreateItemUseCaseTest {
         org.mockito.Mockito.doThrow(new RuntimeException("Database error"))
                 .when(itemRepository).save(ArgumentMatchers.any());
 
-        assertThrows(RuntimeException.class, () -> useCase.execute(input("Blue Avatar")));
+        assertThrows(RuntimeException.class, () -> useCase.execute(input()));
         verify(assetStorage).delete("AVATAR/Blue Avatar.webp");
     }
 
@@ -155,7 +155,7 @@ class CreateItemUseCaseTest {
         when(itemRepository.findByName("Emote")).thenReturn(Optional.empty());
         CreateItemInput withoutContext = new CreateItemInput(
                 principal, "Emote", ItemKind.EQUIPPABLE, ItemCategory.EMOTE,
-                null, false, null, new ItemAssetUpload(new byte[]{1}, "image/png")
+                null, null, new ItemAssetUpload(new byte[]{1}, "image/png")
         );
 
         assertThrows(InvalidItemException.class, () -> useCase.execute(withoutContext));
@@ -168,7 +168,7 @@ class CreateItemUseCaseTest {
         when(itemRepository.findByName("Blue Avatar"))
                 .thenReturn(Optional.of(mock(Item.class)));
 
-        assertThrows(ItemAlreadyExistsException.class, () -> useCase.execute(input("Blue Avatar")));
+        assertThrows(ItemAlreadyExistsException.class, () -> useCase.execute(input()));
         verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 }

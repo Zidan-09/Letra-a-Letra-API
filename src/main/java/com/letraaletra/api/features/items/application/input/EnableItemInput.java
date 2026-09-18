@@ -4,9 +4,8 @@ import com.letraaletra.api.shared.domain.AuthenticatedUser;
 
 import java.util.UUID;
 
-public record ToggleItemAvailabilityInput(
+public record EnableItemInput(
         AuthenticatedUser principal,
-        UUID itemId,
-        Boolean available
+        UUID itemId
 ) {
 }

@@ -24,7 +24,6 @@ class CreateItemMapperTest {
                 ItemKind.EQUIPPABLE,
                 ItemCategory.AVATAR,
                 EquippableContext.PROFILE,
-                false,
                 null
         );
     }

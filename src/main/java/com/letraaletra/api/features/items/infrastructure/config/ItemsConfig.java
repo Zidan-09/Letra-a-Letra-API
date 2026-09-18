@@ -1,24 +1,9 @@
 package com.letraaletra.api.features.items.infrastructure.config;
 
-import com.letraaletra.api.features.items.application.input.CreateItemInput;
-import com.letraaletra.api.features.items.application.input.DeleteItemInput;
-import com.letraaletra.api.features.items.application.input.GetItemInput;
-import com.letraaletra.api.features.items.application.input.ListItemsInput;
-import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
-import com.letraaletra.api.features.items.application.input.UpdateItemInput;
-import com.letraaletra.api.features.items.application.output.CreateItemOutput;
-import com.letraaletra.api.features.items.application.output.DeleteItemOutput;
-import com.letraaletra.api.features.items.application.output.GetItemOutput;
-import com.letraaletra.api.features.items.application.output.ListItemsOutput;
-import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
-import com.letraaletra.api.features.items.application.output.UpdateItemOutput;
+import com.letraaletra.api.features.items.application.input.*;
+import com.letraaletra.api.features.items.application.output.*;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
-import com.letraaletra.api.features.items.application.usecase.CreateItemUseCase;
-import com.letraaletra.api.features.items.application.usecase.DeleteItemUseCase;
-import com.letraaletra.api.features.items.application.usecase.GetItemUseCase;
-import com.letraaletra.api.features.items.application.usecase.ListItemsUseCase;
-import com.letraaletra.api.features.items.application.usecase.ToggleItemAvailabilityUseCase;
-import com.letraaletra.api.features.items.application.usecase.UpdateItemUseCase;
+import com.letraaletra.api.features.items.application.usecase.*;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -116,15 +101,30 @@ public class ItemsConfig {
     }
 
     @Bean
-    public UseCase<ToggleItemAvailabilityInput, ToggleItemAvailabilityOutput> toggleItemAvailabilityUseCase(
+    public UseCase<EnableItemInput, EnableItemOutput> enableItemUseCase(
             ItemRepository itemRepository,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new ToggleItemAvailabilityUseCase(
-                        itemRepository,
-                        adminChecker
+                new EnableItemUseCase(
+                        adminChecker,
+                        itemRepository
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<DisableItemInput, DisableItemOutput> disableItemUseCase(
+            ItemRepository itemRepository,
+            AdminChecker adminChecker,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new DisableItemUseCase(
+                        adminChecker,
+                        itemRepository
                 ),
                 transactions
         );
