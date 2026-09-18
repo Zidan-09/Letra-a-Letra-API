@@ -19,8 +19,7 @@ public class UpdateItemMapper {
     public static UpdateItemInput toInput(
             AuthenticatedUser principal,
             UUID itemId,
-            UpdateItemRequest request,
-            MultipartFile asset
+            UpdateItemRequest request
     ) {
         return new UpdateItemInput(
                 principal,
@@ -29,8 +28,8 @@ public class UpdateItemMapper {
                 request.available(),
                 request.category(),
                 request.context(),
-                toEffect(request.effect()),
-                toAsset(asset),
+                toEffect(request),
+                toAsset(request.asset()),
                 request.isNewAsset()
         );
     }
@@ -39,17 +38,17 @@ public class UpdateItemMapper {
         return ItemResponseMapper.toResponse(output.item());
     }
 
-    private static ItemEffect toEffect(UpdateItemRequest.ItemEffectRequest request) {
-        if (request == null) {
+    private static ItemEffect toEffect(UpdateItemRequest request) {
+        if (request.effectKind() == null || request.effectKind().isBlank()) {
             return null;
         }
 
-        if (request instanceof UpdateItemRequest.NicknameChangeEffectRequest) {
+        if ("NICKNAME_CHANGE".equals(request.effectKind())) {
             return new NicknameChangeEffect();
         }
 
-        if (request instanceof UpdateItemRequest.PercentageTimedEffectRequest timed) {
-            return new PercentageTimedEffect(timed.type(), timed.magnitude(), timed.durationMinutes());
+        if ("PERCENTAGE_TIMED".equals(request.effectKind())) {
+            return new PercentageTimedEffect(request.effectType(), request.magnitude(), request.durationMinutes());
         }
 
         return null;

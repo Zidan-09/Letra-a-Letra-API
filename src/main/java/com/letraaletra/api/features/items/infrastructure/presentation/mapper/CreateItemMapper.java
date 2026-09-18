@@ -17,8 +17,7 @@ import java.io.UncheckedIOException;
 public class CreateItemMapper {
     public static CreateItemInput toInput(
             AuthenticatedUser principal,
-            CreateItemRequest request,
-            MultipartFile asset
+            CreateItemRequest request
     ) {
         return new CreateItemInput(
                 principal,
@@ -26,8 +25,8 @@ public class CreateItemMapper {
                 request.kind(),
                 request.category(),
                 request.context(),
-                toEffect(request.effect()),
-                toAsset(asset)
+                toEffect(request),
+                toAsset(request.asset())
         );
     }
 
@@ -35,17 +34,17 @@ public class CreateItemMapper {
         return ItemResponseMapper.toResponse(output.item());
     }
 
-    private static ItemEffect toEffect(CreateItemRequest.ItemEffectRequest request) {
-        if (request == null) {
+    private static ItemEffect toEffect(CreateItemRequest request) {
+        if (request.effectKind() == null || request.effectKind().isBlank()) {
             return null;
         }
 
-        if (request instanceof CreateItemRequest.NicknameChangeEffectRequest) {
+        if ("NICKNAME_CHANGE".equals(request.effectKind())) {
             return new NicknameChangeEffect();
         }
 
-        if (request instanceof CreateItemRequest.PercentageTimedEffectRequest timed) {
-            return new PercentageTimedEffect(timed.type(), timed.magnitude(), timed.durationMinutes());
+        if ("PERCENTAGE_TIMED".equals(request.effectKind())) {
+            return new PercentageTimedEffect(request.effectType(), request.magnitude(), request.durationMinutes());
         }
 
         return null;

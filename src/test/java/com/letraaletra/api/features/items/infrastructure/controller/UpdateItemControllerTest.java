@@ -61,14 +61,14 @@ class UpdateItemControllerTest {
         try (MockedStatic<UpdateItemMapper> mapperMock = mockStatic(UpdateItemMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> UpdateItemMapper.toInput(principal, itemId, request, null))
+            mapperMock.when(() -> UpdateItemMapper.toInput(principal, itemId, request))
                     .thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> UpdateItemMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<ItemResponse>> response =
-                    controller.handle(principal, itemId, request, null);
+                    controller.handle(principal, itemId, request);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);

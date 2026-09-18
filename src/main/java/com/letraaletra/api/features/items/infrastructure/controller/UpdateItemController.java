@@ -15,12 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -35,10 +34,9 @@ public class UpdateItemController {
     public ResponseEntity<SuccessResponse<ItemResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
             @PathVariable UUID itemId,
-            @Valid @RequestPart("item") UpdateItemRequest request,
-            @RequestPart(value = "asset", required = false) MultipartFile asset
+            @Valid @ModelAttribute UpdateItemRequest request
     ) {
-        UpdateItemInput input = UpdateItemMapper.toInput(principal, itemId, request, asset);
+        UpdateItemInput input = UpdateItemMapper.toInput(principal, itemId, request);
 
         UpdateItemOutput output = useCase.execute(input);
 

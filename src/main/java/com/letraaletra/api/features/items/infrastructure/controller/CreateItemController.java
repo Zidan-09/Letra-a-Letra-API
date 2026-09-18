@@ -15,11 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,10 +30,9 @@ public class CreateItemController {
     @PostMapping(path = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<ItemResponse>> handle(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestPart("item") CreateItemRequest request,
-            @RequestPart(value = "asset", required = false) MultipartFile asset
+            @Valid @ModelAttribute CreateItemRequest request
     ) {
-        CreateItemInput input = CreateItemMapper.toInput(principal, request, asset);
+        CreateItemInput input = CreateItemMapper.toInput(principal, request);
 
         CreateItemOutput output = useCase.execute(input);
 
