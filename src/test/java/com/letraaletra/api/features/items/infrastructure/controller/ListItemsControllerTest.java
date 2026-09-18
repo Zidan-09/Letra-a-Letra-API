@@ -56,13 +56,13 @@ class ListItemsControllerTest {
         Pageable pageable = PageRequest.of(0, 20);
         try (MockedStatic<ListItemsMapper> mapperMock = mockStatic(ListItemsMapper.class);
                 MockedStatic<ApiResponseHandler> handlerMock = mockStatic(ApiResponseHandler.class)) {
-            when(ListItemsMapper.toInput(principal, "COSMETIC", null, null, pageable))
+            when(ListItemsMapper.toInput(principal, "EQUIPPABLE", null, null, pageable))
                     .thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             when(ListItemsMapper.toResponse(mockOutput)).thenReturn(mockPageDto);
             when(ApiResponseHandler.success(mockPageDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity result = controller.handle(principal, "COSMETIC", null, null, pageable);
+            ResponseEntity result = controller.handle(principal, "EQUIPPABLE", null, null, pageable);
 
             assertSame(mockResponseEntity, result);
             verify(useCase, times(1)).execute(mockInput);

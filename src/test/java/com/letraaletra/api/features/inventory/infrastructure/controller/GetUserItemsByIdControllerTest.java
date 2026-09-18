@@ -60,14 +60,14 @@ class GetUserItemsByIdControllerTest {
         try (MockedStatic<GetUserItemsMapper> mapperMock = mockStatic(GetUserItemsMapper.class);
              MockedStatic<ApiResponseHandler> apiResponseMock = mockStatic(ApiResponseHandler.class)) {
 
-            mapperMock.when(() -> GetUserItemsMapper.toInput(targetUserId, "COSMETIC", null, null, null))
+            mapperMock.when(() -> GetUserItemsMapper.toInput(targetUserId, "EQUIPPABLE", null, null, null))
                     .thenReturn(mockInput);
             when(useCase.execute(mockInput)).thenReturn(mockOutput);
             mapperMock.when(() -> GetUserItemsMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
             ResponseEntity<SuccessResponse<GetUserItemsResponse>> response =
-                    controller.handle(targetUserId, "COSMETIC", null, null, null);
+                    controller.handle(targetUserId, "EQUIPPABLE", null, null, null);
 
             assertEquals(mockResponseEntity, response);
             verify(useCase, times(1)).execute(mockInput);
