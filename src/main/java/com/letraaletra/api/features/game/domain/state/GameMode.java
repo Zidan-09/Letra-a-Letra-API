@@ -49,10 +49,10 @@ public enum GameMode {
             new int[][]{{0, 1}, {1, 0}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}},
             1,
             Map.of(
-                    PowerRarity.COMMON, 0.0375,
-                    PowerRarity.RARE, 0.5875,
-                    PowerRarity.EPIC, 0.375,
-                    PowerRarity.LEGENDARY, 0.0
+                    PowerRarity.COMMON, 0.25,
+                    PowerRarity.RARE, 0.25,
+                    PowerRarity.EPIC, 0.25,
+                    PowerRarity.LEGENDARY, 0.25
             )
     );
 
