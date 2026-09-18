@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.equippable;
 
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import org.junit.jupiter.api.DisplayName;

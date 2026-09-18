@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.equippable;
 
 import java.util.EnumSet;
 import java.util.Set;

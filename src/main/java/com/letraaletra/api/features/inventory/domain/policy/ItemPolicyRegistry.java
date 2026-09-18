@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.items.domain.ConsumableItem;
-import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 
 import java.util.EnumMap;

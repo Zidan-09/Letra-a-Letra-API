@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.items.infrastructure.presentation.dto.request;
 
-import com.letraaletra.api.features.items.domain.EffectType;
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.effect.EffectType;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import org.springframework.web.multipart.MultipartFile;
 
 public record UpdateItemRequest(

@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.items.infrastructure.presentation.dto.request;
 
-import com.letraaletra.api.features.items.domain.EffectType;
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.effect.EffectType;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

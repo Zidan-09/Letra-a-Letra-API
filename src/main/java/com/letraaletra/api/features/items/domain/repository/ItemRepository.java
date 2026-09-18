@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.items.domain.repository;
 
-import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.ItemFilter;
-import com.letraaletra.api.features.items.domain.ItemsPage;
+import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
+import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;

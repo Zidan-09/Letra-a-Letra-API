@@ -2,10 +2,10 @@ package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.ConsumableItem;
-import com.letraaletra.api.features.items.domain.NicknameChangeEffect;
-import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.EffectType;
+import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
+import com.letraaletra.api.features.items.domain.effect.EffectType;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;

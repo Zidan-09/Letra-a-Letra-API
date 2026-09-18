@@ -1,5 +1,8 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.item;
 
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemStatusException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

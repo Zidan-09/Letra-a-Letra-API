@@ -1,14 +1,21 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.letraaletra.api.features.items.domain.*;
+import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.effect.ItemEffect;
+import com.letraaletra.api.features.items.domain.effect.EffectType;
+import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
+import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
+import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemJpaEntity;
 
 public class ItemJpaMapper {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     public static ItemJpaEntity toEntity(Item item) {
         ItemJpaEntity entity = new ItemJpaEntity();
 
@@ -22,7 +29,7 @@ public class ItemJpaMapper {
             entity.setStackable(true);
             entity.setMaxStack(1000);
             entity.setConsumable(true);
-            entity.setEffect(toEffectJson(consumable.getEffect()));
+            entity.setEffect(ItemEffectCodec.encode(consumable.getEffect()));
             entity.setAssetPath(null);
         } else if (item instanceof EquippableItem equippable) {
             entity.setKind(ItemKind.EQUIPPABLE);
@@ -50,7 +57,7 @@ public class ItemJpaMapper {
                     entity.getName(),
                     entity.getVersion(),
                     entity.isAvailable(),
-                    toEffect(entity.getEffect())
+                    ItemEffectCodec.decode(entity.getEffect())
             );
         }
 
@@ -77,30 +84,6 @@ public class ItemJpaMapper {
         try {
             return EquippableContext.valueOf(raw);
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidItemException();
-        }
-    }
-
-    private static String toEffectJson(ItemEffect effect) {
-        if (effect == null) {
-            return null;
-        }
-
-        try {
-            return MAPPER.writeValueAsString(effect);
-        } catch (JsonProcessingException e) {
-            throw new InvalidItemException();
-        }
-    }
-
-    private static ItemEffect toEffect(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return null;
-        }
-
-        try {
-            return MAPPER.readValue(raw, ItemEffect.class);
-        } catch (JsonProcessingException e) {
             throw new InvalidItemException();
         }
     }

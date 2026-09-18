@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.storage;
 
-import com.letraaletra.api.features.items.domain.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.effect;
 
 public enum EffectType {
     XP_BOOST_PCT,

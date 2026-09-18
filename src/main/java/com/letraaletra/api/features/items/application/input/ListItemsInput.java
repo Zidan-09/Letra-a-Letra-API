@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.items.application.input;
 
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.springframework.data.domain.Sort;
 

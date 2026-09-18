@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.user.infrastructure.service;
 
-import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.Item;
+import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.item.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;

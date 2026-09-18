@@ -2,9 +2,9 @@ package com.letraaletra.api.features.inventory.infrastructure.presentation.mappe
 
 import com.letraaletra.api.features.inventory.application.input.GetUserItemsInput;
 import com.letraaletra.api.features.inventory.application.output.GetUserItemsOutput;
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.inventory.infrastructure.presentation.dto.response.GetUserItemsResponse;
 

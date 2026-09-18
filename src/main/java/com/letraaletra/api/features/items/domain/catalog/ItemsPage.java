@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.catalog;
 
 import org.springframework.data.domain.Sort;
 

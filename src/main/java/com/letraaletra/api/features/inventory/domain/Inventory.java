@@ -4,7 +4,18 @@ import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityEx
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.policy.ItemPolicyRegistry;
-import com.letraaletra.api.features.items.domain.*;
+import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.effect.ItemEffect;
+import com.letraaletra.api.features.items.domain.effect.EffectType;
+import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
+import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
+import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 
 import java.util.ArrayList;

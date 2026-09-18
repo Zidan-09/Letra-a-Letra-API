@@ -8,7 +8,7 @@ import com.letraaletra.api.features.audit.domain.AuditActorType;
 import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
 import com.letraaletra.api.features.inventory.domain.Inventory;
-import com.letraaletra.api.features.items.domain.Item;
+import com.letraaletra.api.features.items.domain.item.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;

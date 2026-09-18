@@ -1,9 +1,7 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.effect;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 
-@JsonTypeName("PERCENTAGE_TIMED")
 public record PercentageTimedEffect(
         EffectType type,
         int magnitude,

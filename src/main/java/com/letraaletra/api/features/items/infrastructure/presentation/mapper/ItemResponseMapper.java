@@ -1,13 +1,13 @@
 package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 
-import com.letraaletra.api.features.items.domain.ConsumableItem;
-import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.EquippableCategory;
-import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.ItemKind;
-import com.letraaletra.api.features.items.domain.NicknameChangeEffect;
-import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
+import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
+import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
+import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.response.ItemResponse;
 
 public class ItemResponseMapper {

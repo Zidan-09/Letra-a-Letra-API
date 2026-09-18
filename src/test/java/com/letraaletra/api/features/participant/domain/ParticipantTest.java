@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
-import com.letraaletra.api.features.items.domain.EquippableCategory;
+import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import org.junit.jupiter.api.BeforeEach;

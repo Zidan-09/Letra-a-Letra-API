@@ -2,7 +2,7 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.items.domain.Item;
+import com.letraaletra.api.features.items.domain.item.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;

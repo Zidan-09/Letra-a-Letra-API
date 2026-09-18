@@ -15,7 +15,7 @@ import com.letraaletra.api.features.inventory.domain.repository.InventoryReposit
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
-import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

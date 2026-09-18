@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.item;
 
 import com.letraaletra.api.features.items.domain.exception.InvalidItemStatusException;
 

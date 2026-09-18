@@ -1,5 +1,8 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.consumable;
 
+import com.letraaletra.api.features.items.domain.effect.EffectType;
+import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

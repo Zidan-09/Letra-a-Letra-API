@@ -3,7 +3,7 @@ package com.letraaletra.api.features.game.infrastructure.websocket.assembler;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
-import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;

@@ -1,4 +1,7 @@
-package com.letraaletra.api.features.items.domain;
+package com.letraaletra.api.features.items.domain.consumable;
+
+import com.letraaletra.api.features.items.domain.effect.ItemEffect;
+import com.letraaletra.api.features.items.domain.item.Item;
 
 import java.util.UUID;
 
