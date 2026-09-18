@@ -15,6 +15,7 @@ import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.effect.effects.CoinBonusEffect;
 import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
@@ -73,6 +74,29 @@ public class UpdateStatsService implements UserStatsService {
                 .orElse(experience);
     }
 
+    private Reward applyCoinBonus(User user, Reward reward) {
+        int bonus = user.getActiveEffects().find(CoinBonusEffect.class)
+                .filter(effect -> effect.isValid(Instant.now()))
+                .map(CoinBonusEffect::getBonusPercentage)
+                .orElse(0);
+
+        if (bonus <= 0) {
+            return reward;
+        }
+
+        if (reward instanceof com.letraaletra.api.features.reward.domain.SoftCoinsReward soft) {
+            return new com.letraaletra.api.features.reward.domain.SoftCoinsReward(
+                    soft.amount() + soft.amount() * bonus / 100);
+        }
+
+        if (reward instanceof com.letraaletra.api.features.reward.domain.HardGemsReward hard) {
+            return new com.letraaletra.api.features.reward.domain.HardGemsReward(
+                    hard.amount() + hard.amount() * bonus / 100);
+        }
+
+        return reward;
+    }
+
     private void applyReward(User user, Level level, Reward reward) {
         UUID operationId = operationContext.currentOperationId().orElseGet(UUID::randomUUID);
 
@@ -81,7 +105,9 @@ public class UpdateStatsService implements UserStatsService {
             return;
         }
 
-        Optional<WalletMovement> movement = reward.apply(user);
+        Reward boosted = applyCoinBonus(user, reward);
+
+        Optional<WalletMovement> movement = boosted.apply(user);
 
         movement.ifPresent(walletMovement -> {
             Transaction saved = walletTransactionRepository.save(

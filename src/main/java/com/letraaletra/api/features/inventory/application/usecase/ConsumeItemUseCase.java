@@ -13,8 +13,10 @@ import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.features.user.domain.effect.UserEffect;
+import com.letraaletra.api.features.user.domain.effect.effects.CoinBonusEffect;
 import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
 import com.letraaletra.api.features.user.domain.effect.effects.RankProtectionEffect;
+import com.letraaletra.api.features.user.domain.effect.effects.RankingPointsBonusEffect;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
@@ -90,7 +92,11 @@ public class ConsumeItemUseCase implements UseCase<ConsumeItemInput, ConsumeItem
                     timed.magnitude(), Instant.now().plusSeconds(timed.durationMinutes() * 60L)));
             case RANKING_POINTS_SHIELD -> Optional.of(new RankProtectionEffect(
                     Math.max(1, timed.durationMinutes())));
-            case RANKING_POINTS_BOOST_PCT, COIN_BOOST_PCT, NICKNAME_CHANGE_GRANT -> Optional.empty();
+            case RANKING_POINTS_BOOST_PCT -> Optional.of(new RankingPointsBonusEffect(
+                    timed.magnitude(), Instant.now().plusSeconds(timed.durationMinutes() * 60L)));
+            case COIN_BOOST_PCT -> Optional.of(new CoinBonusEffect(
+                    timed.magnitude(), Instant.now().plusSeconds(timed.durationMinutes() * 60L)));
+            case NICKNAME_CHANGE_GRANT -> Optional.empty();
         };
     }
 }

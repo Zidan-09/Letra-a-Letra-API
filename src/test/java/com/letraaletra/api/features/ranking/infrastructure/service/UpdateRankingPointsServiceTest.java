@@ -4,8 +4,11 @@ import com.letraaletra.api.features.ranking.domain.UpdateRankingPoints;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.effect.effects.RankProtectionEffect;
+import com.letraaletra.api.features.user.domain.effect.effects.RankingPointsBonusEffect;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,5 +73,29 @@ class UpdateRankingPointsServiceTest {
 
         assertTrue(result.changed() < 0);
         assertEquals(before + result.changed(), user.getStats().getRankingPoints());
+    }
+
+    @Test
+    @DisplayName("Bonus de ranking deve ampliar ganho positivo")
+    void shouldAmplifyPositiveGainWithBonus() {
+        User user = userWithPoints();
+        user.getActiveEffects().add(new RankingPointsBonusEffect(50, Instant.now().plusSeconds(3600)));
+
+        UpdateRankingPoints withoutBonus = service.handle(
+                userWithPoints(), 3, 0);
+        UpdateRankingPoints withBonus = service.handle(user, 3, 0);
+
+        assertTrue(withBonus.changed() > withoutBonus.changed());
+    }
+
+    @Test
+    @DisplayName("Bonus de ranking nao deve ampliar perda")
+    void shouldNotAmplifyLossWithBonus() {
+        User user = userWithPoints();
+        user.getActiveEffects().add(new RankingPointsBonusEffect(50, Instant.now().plusSeconds(3600)));
+
+        UpdateRankingPoints result = service.handle(user, 0, 3);
+
+        assertTrue(result.changed() < 0);
     }
 }
