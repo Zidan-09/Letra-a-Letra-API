@@ -15,7 +15,7 @@ class  ItemTest {
         return EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "avatars/blue.png"
         );
     }
@@ -42,7 +42,7 @@ class  ItemTest {
                 3,
                 false,
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "avatars/blue.png"
         );
 

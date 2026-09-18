@@ -241,11 +241,6 @@ public class Inventory {
                     && equippable.getContext() == target.getContext();
         }
 
-        if (candidate instanceof ConsumableItem consumable && revoked instanceof ConsumableItem target) {
-            return consumable.getCategory() == target.getCategory()
-                    && consumable.getContext() == target.getContext();
-        }
-
         return false;
     }
 }

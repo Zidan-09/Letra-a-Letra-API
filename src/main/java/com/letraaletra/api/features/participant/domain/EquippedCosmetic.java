@@ -10,7 +10,7 @@ import java.util.function.Function;
 public record EquippedCosmetic(
         UUID itemId,
         String name,
-        ItemCategory category,
+        EquippableCategory category,
         boolean equipped,
         String assetPath
 ) {
@@ -40,10 +40,10 @@ public record EquippedCosmetic(
                 .toList();
     }
 
-    private static boolean isProfileCategory(ItemCategory category) {
-        return category == ItemCategory.AVATAR
-                || category == ItemCategory.BANNER
-                || category == ItemCategory.FRAME
-                || category == ItemCategory.EMOTE;
+    private static boolean isProfileCategory(EquippableCategory category) {
+        return category == EquippableCategory.AVATAR
+                || category == EquippableCategory.BANNER
+                || category == EquippableCategory.FRAME
+                || category == EquippableCategory.EMOTE;
     }
 }

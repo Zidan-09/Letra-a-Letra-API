@@ -58,7 +58,7 @@ class UpdateItemUseCaseTest {
         item = EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "AVATAR/Blue Avatar.webp"
         );
     }
@@ -68,7 +68,7 @@ class UpdateItemUseCaseTest {
     void updateShouldCheckAdminApplyPartialVersionAndSave() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(itemRepository.findByName("Navy Avatar")).thenReturn(Optional.empty());
-        when(assetStorage.copy("AVATAR/Blue Avatar.webp", "Navy Avatar", ItemCategory.AVATAR))
+        when(assetStorage.copy("AVATAR/Blue Avatar.webp", "Navy Avatar", EquippableCategory.AVATAR))
                 .thenReturn("AVATAR/Navy Avatar.webp");
 
         UpdateItemOutput output = useCase.execute(new UpdateItemInput(
@@ -90,7 +90,7 @@ class UpdateItemUseCaseTest {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(imageConverter.convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.eq("image/png")))
                 .thenReturn(new byte[]{4, 5, 6});
-        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Blue Avatar"), ArgumentMatchers.eq(ItemCategory.AVATAR)))
+        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Blue Avatar"), ArgumentMatchers.eq(EquippableCategory.AVATAR)))
                 .thenReturn("AVATAR/Blue Avatar.webp");
 
         UpdateItemOutput output = useCase.execute(new UpdateItemInput(
@@ -138,7 +138,7 @@ class UpdateItemUseCaseTest {
         Item other = EquippableItem.create(
                 "Navy Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "AVATAR/Navy Avatar.webp"
         );
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));

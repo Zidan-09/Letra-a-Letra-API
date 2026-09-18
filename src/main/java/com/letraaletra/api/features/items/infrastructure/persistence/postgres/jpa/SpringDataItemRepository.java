@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.jpa;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemJpaEntity;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,7 @@ public interface SpringDataItemRepository extends JpaRepository<ItemJpaEntity, U
             "AND (:available IS NULL OR e.available = :available)")
     Page<ItemJpaEntity> search(
             @Param("kind") ItemKind kind,
-            @Param("category") ItemCategory category,
+            @Param("category") EquippableCategory category,
             @Param("available") Boolean available,
             Pageable pageable
     );

@@ -17,10 +17,10 @@ public class UserItemResponseMapper {
                 item instanceof ConsumableItem ? ItemKind.CONSUMABLE : ItemKind.EQUIPPABLE,
                 item instanceof EquippableItem equippable
                         ? equippable.getCategory()
-                        : ((ConsumableItem) item).getCategory(),
+                        : null,
                 item instanceof EquippableItem equipped
                         ? equipped.getContext()
-                        : ((ConsumableItem) item).getContext(),
+                        : null,
                 details.owned().getQuantity(),
                 details.owned().isEquipped(),
                 details.owned().getAcquiredAt(),

@@ -6,7 +6,7 @@ import com.letraaletra.api.features.inventory.application.output.UserItemDetails
 import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
@@ -68,12 +68,12 @@ public class GetUserItemsUseCase implements UseCase<GetUserItemsInput, GetUserIt
         return item instanceof ConsumableItem ? ItemKind.CONSUMABLE : ItemKind.EQUIPPABLE;
     }
 
-    private ItemCategory categoryOf(Item item) {
+    private EquippableCategory categoryOf(Item item) {
         if (item instanceof EquippableItem equippable) {
             return equippable.getCategory();
         }
 
-        return ((ConsumableItem) item).getCategory();
+        return null;
     }
 
     private EquippableContext contextOf(Item item) {
@@ -81,6 +81,6 @@ public class GetUserItemsUseCase implements UseCase<GetUserItemsInput, GetUserIt
             return equippable.getContext();
         }
 
-        return ((ConsumableItem) item).getContext();
+        return null;
     }
 }

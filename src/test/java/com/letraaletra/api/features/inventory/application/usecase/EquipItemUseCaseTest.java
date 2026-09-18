@@ -5,7 +5,7 @@ import com.letraaletra.api.features.inventory.application.output.EquipItemOutput
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InapplicableContextException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
@@ -54,7 +54,7 @@ class EquipItemUseCaseTest {
         avatar = EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
     }

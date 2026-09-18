@@ -64,13 +64,12 @@ class InventoryPersistenceTest {
         avatar = EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
         boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
         definitions.save(ItemJpaMapper.toEntity(avatar));
@@ -90,7 +89,7 @@ class InventoryPersistenceTest {
         assertTrue(reloadedAvatar instanceof EquippableItem);
         EquippableItem reloaded = (EquippableItem) reloadedAvatar;
         assertEquals(avatar.getId(), reloaded.getId());
-        assertEquals(ItemCategory.AVATAR, reloaded.getCategory());
+        assertEquals(EquippableCategory.AVATAR, reloaded.getCategory());
         assertEquals(EquippableContext.PROFILE, reloaded.getContext());
         assertEquals("/assets/avatar/blue.png", reloaded.getAssetPath());
         assertEquals(1, reloaded.getVersion());
@@ -187,8 +186,7 @@ class InventoryPersistenceTest {
 
         ConsumableItem nickname = ConsumableItem.create(
                 "Nickname Change",
-                ItemCategory.CHANGE_NICKNAME,
-                EquippableContext.PROFILE,
+                
                 new com.letraaletra.api.features.items.domain.NicknameChangeEffect()
         );
         Item reloadedNickname = ItemJpaMapper.toDomain(ItemJpaMapper.toEntity(nickname));

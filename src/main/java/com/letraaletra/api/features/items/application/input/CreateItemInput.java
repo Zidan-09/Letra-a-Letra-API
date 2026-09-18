@@ -7,7 +7,7 @@ public record CreateItemInput(
         AuthenticatedUser principal,
         String name,
         ItemKind kind,
-        ItemCategory category,
+        EquippableCategory category,
         EquippableContext context,
         ItemEffect effect,
         ItemAssetUpload asset

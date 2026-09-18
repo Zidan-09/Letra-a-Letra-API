@@ -6,7 +6,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendProfileResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 class FriendProfileMapperTest {
 
-    private InventoryItemResponse equippedResponse(UUID id, String name, ItemCategory category, String assetPath) {
+    private InventoryItemResponse equippedResponse(UUID id, String name, EquippableCategory category, String assetPath) {
         return new InventoryItemResponse(
                 id, name, ItemKind.EQUIPPABLE, category, EquippableContext.PROFILE, 1, true, assetPath
         );
@@ -45,7 +45,7 @@ class FriendProfileMapperTest {
 
         UUID avatarId = UUID.randomUUID();
         List<InventoryItemResponse> equipped = List.of(
-                equippedResponse(avatarId, "Dragão", ItemCategory.AVATAR, "https://cdn/avatar.webp")
+                equippedResponse(avatarId, "Dragão", EquippableCategory.AVATAR, "https://cdn/avatar.webp")
         );
 
         FriendProfileResponse response = FriendProfileMapper.toResponse(user, equipped);

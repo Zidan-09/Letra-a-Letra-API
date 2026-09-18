@@ -41,7 +41,7 @@ class InventoryTest {
         return EquippableItem.create(
                 name,
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/" + name + ".png"
         );
     }
@@ -50,7 +50,7 @@ class InventoryTest {
         return EquippableItem.create(
                 "Gold Frame",
                 EquippableContext.PROFILE,
-                ItemCategory.FRAME,
+                EquippableCategory.FRAME,
                 "/assets/frame/gold.png"
         );
     }
@@ -59,7 +59,7 @@ class InventoryTest {
         return EquippableItem.create(
                 "Dark Board",
                 EquippableContext.MATCH,
-                ItemCategory.BOARD_SKIN,
+                EquippableCategory.BOARD,
                 "/assets/board/dark.png"
         );
     }
@@ -68,7 +68,7 @@ class InventoryTest {
         return EquippableItem.create(
                 "Neon Cells",
                 EquippableContext.MATCH,
-                ItemCategory.CELL_SKIN,
+                EquippableCategory.CELL,
                 "/assets/cell/neon.png"
         );
     }
@@ -76,8 +76,7 @@ class InventoryTest {
     private ConsumableItem boost() {
         return ConsumableItem.create(
                 "XP Boost 50%",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }

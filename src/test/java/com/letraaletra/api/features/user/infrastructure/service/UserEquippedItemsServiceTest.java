@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.service;
 
 import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
@@ -57,8 +57,8 @@ class UserEquippedItemsServiceTest {
                 UserItem.restore(ownerId, unequippedId, 1, false, LocalDateTime.now(), null),
                 UserItem.restore(ownerId, matchOnlyId, 1, true, LocalDateTime.now(), null)));
 
-        when(itemRepository.findById(equippedId)).thenReturn(Optional.of(item(equippedId, ItemCategory.AVATAR, EquippableContext.PROFILE)));
-        when(itemRepository.findById(matchOnlyId)).thenReturn(Optional.of(item(matchOnlyId, ItemCategory.BOARD_SKIN, EquippableContext.MATCH)));
+        when(itemRepository.findById(equippedId)).thenReturn(Optional.of(item(equippedId, EquippableCategory.AVATAR, EquippableContext.PROFILE)));
+        when(itemRepository.findById(matchOnlyId)).thenReturn(Optional.of(item(matchOnlyId, EquippableCategory.BOARD, EquippableContext.MATCH)));
 
         List<EquippedItem> result = service.equipped(ownerId);
 
@@ -76,7 +76,7 @@ class UserEquippedItemsServiceTest {
         when(inventoryRepository.findItemsByOwner(first)).thenReturn(List.of(
                 UserItem.restore(first, definitionId, 1, true, LocalDateTime.now(), null)));
         when(inventoryRepository.findItemsByOwner(second)).thenReturn(List.of());
-        when(itemRepository.findById(definitionId)).thenReturn(Optional.of(item(definitionId, ItemCategory.AVATAR, EquippableContext.PROFILE)));
+        when(itemRepository.findById(definitionId)).thenReturn(Optional.of(item(definitionId, EquippableCategory.AVATAR, EquippableContext.PROFILE)));
 
         Map<UUID, List<EquippedItem>> result = service.equippedFor(List.of(first, second));
 
@@ -84,7 +84,7 @@ class UserEquippedItemsServiceTest {
         assertTrue(result.get(second).isEmpty());
     }
 
-    private Item item(UUID id, ItemCategory category, EquippableContext context) {
+    private Item item(UUID id, EquippableCategory category, EquippableContext context) {
         return EquippableItem.restore(id, "Item", 1, true, context, category, "asset.webp");
     }
 }

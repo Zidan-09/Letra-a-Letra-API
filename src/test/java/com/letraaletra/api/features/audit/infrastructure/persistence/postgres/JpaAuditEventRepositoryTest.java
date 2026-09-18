@@ -15,7 +15,7 @@ import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,7 +249,7 @@ class JpaAuditEventRepositoryTest {
         EquippableItem item = EquippableItem.create(
                 "audit-avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "assets/audit-avatar.png"
         );
 

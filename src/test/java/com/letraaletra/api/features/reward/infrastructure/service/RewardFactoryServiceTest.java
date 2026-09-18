@@ -40,13 +40,12 @@ class RewardFactoryServiceTest {
         avatar = EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
         boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }

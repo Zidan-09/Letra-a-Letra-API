@@ -2,7 +2,7 @@ package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 
 import com.letraaletra.api.features.items.application.input.CreateItemInput;
 import com.letraaletra.api.features.items.domain.EquippableContext;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.request.CreateItemRequest;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -22,7 +22,7 @@ class CreateItemMapperTest {
         return new CreateItemRequest(
                 "Blue Avatar",
                 ItemKind.EQUIPPABLE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 EquippableContext.PROFILE,
                 null
         );

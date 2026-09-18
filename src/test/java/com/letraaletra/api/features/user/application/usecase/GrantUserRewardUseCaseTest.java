@@ -21,7 +21,7 @@ import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EffectType;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.inventory.domain.UserItem;
@@ -397,8 +397,7 @@ class GrantUserRewardUseCaseTest {
         void execute_WhenUserRepositorySaveFails_ShouldPropagateException() {
             ConsumableItem definition = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemCategory.XP_BOOST,
-                    EquippableContext.PROFILE,
+                    
                     new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
             GrantUserRewardInput input = new GrantUserRewardInput(
@@ -456,8 +455,7 @@ class GrantUserRewardUseCaseTest {
         void execute_WhenItemGrantReward_ShouldGrantViaNewInventory() {
             ConsumableItem boost = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemCategory.XP_BOOST,
-                    EquippableContext.PROFILE,
+                    
                     new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
             GrantUserRewardInput input = new GrantUserRewardInput(

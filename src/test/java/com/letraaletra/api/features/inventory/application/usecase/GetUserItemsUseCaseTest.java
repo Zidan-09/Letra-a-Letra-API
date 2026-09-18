@@ -46,13 +46,12 @@ class GetUserItemsUseCaseTest {
         avatar = EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
         boost = ConsumableItem.create(
                 "XP Boost",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new com.letraaletra.api.features.items.domain.PercentageTimedEffect(
                         com.letraaletra.api.features.items.domain.EffectType.XP_BOOST_PCT, 50, 60)
         );
@@ -83,10 +82,10 @@ class GetUserItemsUseCaseTest {
                 new GetUserItemsInput(userId, ItemKind.CONSUMABLE, null, null, null)).items().size());
 
         assertEquals(1, useCase.execute(
-                new GetUserItemsInput(userId, null, ItemCategory.AVATAR, null, null)).items().size());
+                new GetUserItemsInput(userId, null, EquippableCategory.AVATAR, null, null)).items().size());
 
         assertEquals(2, useCase.execute(
-                new GetUserItemsInput(userId, null, null, EquippableContext.PROFILE, null)).items().size());
+                new GetUserItemsInput(userId, null, null, null, null)).items().size());
 
         assertEquals(0, useCase.execute(
                 new GetUserItemsInput(userId, null, null, EquippableContext.MATCH, null)).items().size());

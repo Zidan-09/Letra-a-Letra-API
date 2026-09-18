@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,10 +25,10 @@ public class ItemJpaEntity {
     private ItemKind kind;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false)
-    private ItemCategory category;
+    @Column(name = "category", nullable = true)
+    private EquippableCategory category;
 
-    @Column(name = "applicability", nullable = false)
+    @Column(name = "applicability", nullable = true)
     private String applicability;
 
     @Column(name = "stackable")

@@ -59,7 +59,7 @@ class CreateItemUseCaseTest {
 
     private CreateItemInput input() {
         return new CreateItemInput(
-                principal, "Blue Avatar", ItemKind.EQUIPPABLE, ItemCategory.AVATAR,
+                principal, "Blue Avatar", ItemKind.EQUIPPABLE, EquippableCategory.AVATAR,
                 EquippableContext.PROFILE, null,
                 new ItemAssetUpload(new byte[]{1, 2, 3}, "image/png")
         );
@@ -67,8 +67,8 @@ class CreateItemUseCaseTest {
 
     private CreateItemInput consumableInput() {
         return new CreateItemInput(
-                principal, "Boost", ItemKind.CONSUMABLE, ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), null
+                principal, "Boost", ItemKind.CONSUMABLE, null,
+                null, new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), null
         );
     }
 
@@ -78,7 +78,7 @@ class CreateItemUseCaseTest {
         when(itemRepository.findByName("Blue Avatar")).thenReturn(Optional.empty());
         when(imageConverter.convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.eq("image/png")))
                 .thenReturn(new byte[]{4, 5, 6});
-        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Blue Avatar"), ArgumentMatchers.eq(ItemCategory.AVATAR)))
+        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Blue Avatar"), ArgumentMatchers.eq(EquippableCategory.AVATAR)))
                 .thenReturn("AVATAR/Blue Avatar.webp");
 
         CreateItemOutput output = useCase.execute(input());
@@ -111,7 +111,7 @@ class CreateItemUseCaseTest {
     @DisplayName("cosmetico sem asset deve falhar sem upload nem save")
     void cosmeticWithoutAssetShouldFail() {
         CreateItemInput withoutAsset = new CreateItemInput(
-                principal, "Avatar", ItemKind.EQUIPPABLE, ItemCategory.AVATAR,
+                principal, "Avatar", ItemKind.EQUIPPABLE, EquippableCategory.AVATAR,
                 EquippableContext.PROFILE, null, null
         );
         when(itemRepository.findByName("Avatar")).thenReturn(Optional.empty());
@@ -154,7 +154,7 @@ class CreateItemUseCaseTest {
     void missingContextShouldFail() {
         when(itemRepository.findByName("Emote")).thenReturn(Optional.empty());
         CreateItemInput withoutContext = new CreateItemInput(
-                principal, "Emote", ItemKind.EQUIPPABLE, ItemCategory.EMOTE,
+                principal, "Emote", ItemKind.EQUIPPABLE, EquippableCategory.EMOTE,
                 null, null, new ItemAssetUpload(new byte[]{1}, "image/png")
         );
 

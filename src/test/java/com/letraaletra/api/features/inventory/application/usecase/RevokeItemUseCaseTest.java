@@ -3,7 +3,7 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.RevokeItemInput;
 import com.letraaletra.api.features.inventory.application.output.RevokeItemOutput;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.inventory.domain.UserItem;
@@ -60,7 +60,7 @@ class RevokeItemUseCaseTest {
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "admin", true, false);
         userId = UUID.randomUUID();
-        avatar = EquippableItem.create("Blue Avatar", EquippableContext.PROFILE, ItemCategory.AVATAR, "/assets/avatar/blue.png");
+        avatar = EquippableItem.create("Blue Avatar", EquippableContext.PROFILE, EquippableCategory.AVATAR, "/assets/avatar/blue.png");
     }
 
     @Test

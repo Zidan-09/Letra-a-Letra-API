@@ -50,7 +50,7 @@ class GetItemUseCaseTest {
         return EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
     }

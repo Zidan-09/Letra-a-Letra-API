@@ -5,7 +5,7 @@ import com.letraaletra.api.features.items.application.output.DeleteItemOutput;
 import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.items.domain.EquippableItem;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
@@ -60,7 +60,7 @@ class DeleteItemUseCaseTest {
         return EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "AVATAR/Blue Avatar.webp"
         );
     }
@@ -68,8 +68,7 @@ class DeleteItemUseCaseTest {
     private Item consumableWithoutAsset() {
         return ConsumableItem.create(
                 "Boost",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }

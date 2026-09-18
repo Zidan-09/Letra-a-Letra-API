@@ -57,7 +57,7 @@ class GrantItemUseCaseTest {
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "admin", true, false);
         userId = UUID.randomUUID();
-        avatar = EquippableItem.create("Blue Avatar", EquippableContext.PROFILE, ItemCategory.AVATAR, "/assets/avatar/blue.png");
+        avatar = EquippableItem.create("Blue Avatar", EquippableContext.PROFILE, EquippableCategory.AVATAR, "/assets/avatar/blue.png");
     }
 
     @Test

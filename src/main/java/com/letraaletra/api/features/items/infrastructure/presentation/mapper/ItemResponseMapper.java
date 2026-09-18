@@ -3,7 +3,7 @@ package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.NicknameChangeEffect;
@@ -30,12 +30,12 @@ public class ItemResponseMapper {
         );
     }
 
-    private static ItemCategory categoryOf(Item item) {
+    private static EquippableCategory categoryOf(Item item) {
         if (item instanceof EquippableItem equippable) {
             return equippable.getCategory();
         }
 
-        return ((ConsumableItem) item).getCategory();
+        return null;
     }
 
     private static EquippableContext contextOf(Item item) {
@@ -43,7 +43,7 @@ public class ItemResponseMapper {
             return equippable.getContext();
         }
 
-        return ((ConsumableItem) item).getContext();
+        return null;
     }
 
     private static ItemResponse.ItemEffectResponse toEffectResponse(Item item) {

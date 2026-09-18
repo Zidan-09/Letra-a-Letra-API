@@ -18,7 +18,7 @@ import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EffectType;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
@@ -286,8 +286,7 @@ class UpdateStatsServiceTest {
 
             ConsumableItem boost = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemCategory.XP_BOOST,
-                    EquippableContext.PROFILE,
+                    
                     new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
 

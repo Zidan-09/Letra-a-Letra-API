@@ -53,14 +53,26 @@ public class CreateItemUseCase implements UseCase<CreateItemInput, CreateItemOut
                 throw new InvalidItemException();
             }
 
+            if (input.category() == null || input.context() == null) {
+                throw new InvalidItemException();
+            }
+
             byte[] image = imageConverter.convertToWebp(input.asset().content(), input.asset().contentType());
             assetPath = assetStorage.upload(image, input.name(), input.category());
+        } else {
+            if (input.asset() != null || input.effect() == null) {
+                throw new InvalidItemException();
+            }
+
+            if (input.category() != null || input.context() != null) {
+                throw new InvalidItemException();
+            }
         }
 
         try {
             Item item = input.kind() == ItemKind.EQUIPPABLE
                     ? EquippableItem.create(input.name(), input.context(), input.category(), assetPath)
-                    : ConsumableItem.create(input.name(), input.category(), input.context(), input.effect());
+                    : ConsumableItem.create(input.name(), input.effect());
 
             itemRepository.save(item);
 

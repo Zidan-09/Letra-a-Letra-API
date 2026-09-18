@@ -16,12 +16,12 @@ class EquippableItemTest {
             "PROFILE, AVATAR",
             "PROFILE, BANNER",
             "PROFILE, FRAME",
-            "MATCH, BOARD_SKIN",
-            "MATCH, CELL_SKIN",
+            "MATCH, BOARD",
+            "MATCH, CELL",
             "MATCH, EMOTE"
     })
     @DisplayName("combinacoes validas de contexto e categoria")
-    void validContextCategoryCombinations(EquippableContext context, ItemCategory category) {
+    void validContextCategoryCombinations(EquippableContext context, EquippableCategory category) {
         EquippableItem item = EquippableItem.create(
                 "Item",
                 context,
@@ -35,15 +35,15 @@ class EquippableItemTest {
 
     @ParameterizedTest(name = "{0} + {1} deve falhar")
     @CsvSource({
-            "PROFILE, BOARD_SKIN",
-            "PROFILE, CELL_SKIN",
+            "PROFILE, BOARD",
+            "PROFILE, CELL",
             "PROFILE, EMOTE",
             "MATCH, AVATAR",
             "MATCH, BANNER",
             "MATCH, FRAME"
     })
     @DisplayName("combinacoes cruzadas de contexto e categoria devem falhar")
-    void crossedContextCategoryCombinationsShouldFail(EquippableContext context, ItemCategory category) {
+    void crossedContextCategoryCombinationsShouldFail(EquippableContext context, EquippableCategory category) {
         assertThrows(InvalidItemException.class, () -> EquippableItem.create(
                 "Item",
                 context,
@@ -53,23 +53,12 @@ class EquippableItemTest {
     }
 
     @Test
-    @DisplayName("categoria consumivel deve falhar")
-    void consumableCategoryShouldFail() {
-        assertThrows(InvalidItemException.class, () -> EquippableItem.create(
-                "Boost",
-                EquippableContext.PROFILE,
-                ItemCategory.XP_BOOST,
-                null
-        ));
-    }
-
-    @Test
     @DisplayName("contexto ou categoria nulos devem falhar")
     void nullContextOrCategoryShouldFail() {
         assertThrows(InvalidItemException.class, () -> EquippableItem.create(
                 "Item",
                 null,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "avatars/item.png"
         ));
 
@@ -87,14 +76,14 @@ class EquippableItemTest {
         assertThrows(InvalidItemException.class, () -> EquippableItem.create(
                 "Item",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 null
         ));
 
         assertThrows(InvalidItemException.class, () -> EquippableItem.create(
                 "Item",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "  "
         ));
     }
@@ -105,7 +94,7 @@ class EquippableItemTest {
         assertThrows(InvalidItemException.class, () -> EquippableItem.create(
                 "Item",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "https://cdn.example.com/avatars/item.png"
         ));
     }
@@ -116,7 +105,7 @@ class EquippableItemTest {
         EquippableItem item = EquippableItem.create(
                 "Item",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "avatars/item.png"
         );
 
@@ -132,7 +121,7 @@ class EquippableItemTest {
         EquippableItem item = EquippableItem.create(
                 "Item",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "avatars/item.png"
         );
 

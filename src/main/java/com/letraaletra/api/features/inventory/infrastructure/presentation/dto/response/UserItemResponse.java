@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.inventory.infrastructure.presentation.dto.response;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 
@@ -11,7 +11,7 @@ public record UserItemResponse(
         UUID itemId,
         String name,
         ItemKind kind,
-        ItemCategory category,
+        EquippableCategory category,
         EquippableContext context,
         int quantity,
         boolean equipped,

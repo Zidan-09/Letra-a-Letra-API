@@ -17,8 +17,8 @@ public class ItemJpaMapper {
 
         if (item instanceof ConsumableItem consumable) {
             entity.setKind(ItemKind.CONSUMABLE);
-            entity.setCategory(consumable.getCategory());
-            entity.setApplicability(EquippableContext.PROFILE.name());
+            entity.setCategory(null);
+            entity.setApplicability(null);
             entity.setStackable(true);
             entity.setMaxStack(1000);
             entity.setConsumable(true);
@@ -50,8 +50,6 @@ public class ItemJpaMapper {
                     entity.getName(),
                     entity.getVersion(),
                     entity.isAvailable(),
-                    entity.getCategory(),
-                    toApplicability(entity.getApplicability()),
                     toEffect(entity.getEffect())
             );
         }

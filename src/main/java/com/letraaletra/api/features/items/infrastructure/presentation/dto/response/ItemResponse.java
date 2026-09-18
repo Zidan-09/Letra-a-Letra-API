@@ -10,7 +10,7 @@ public record ItemResponse(
         UUID itemId,
         String name,
         ItemKind kind,
-        ItemCategory category,
+        EquippableCategory category,
         EquippableContext context,
         boolean stackable,
         Integer maxStack,

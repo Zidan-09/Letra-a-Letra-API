@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.items.domain.repository;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 
 public interface ItemAssetStorage {
-    String upload(byte[] content, String fileName, ItemCategory category);
-    String copy(String oldPath, String newName, ItemCategory newCategory);
+    String upload(byte[] content, String fileName, EquippableCategory category);
+    String copy(String oldPath, String newName, EquippableCategory newCategory);
     void delete(String assetPath);
 }

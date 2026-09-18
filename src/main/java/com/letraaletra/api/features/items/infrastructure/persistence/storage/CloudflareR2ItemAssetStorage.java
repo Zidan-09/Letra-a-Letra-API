@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.storage;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class CloudflareR2ItemAssetStorage implements ItemAssetStorage {
     }
 
     @Override
-    public String upload(byte[] file, String fileName, ItemCategory category) {
+    public String upload(byte[] file, String fileName, EquippableCategory category) {
         try {
             String nameSaved = category.name() + "/" + fileName + ".webp";
 
@@ -53,7 +53,7 @@ public class CloudflareR2ItemAssetStorage implements ItemAssetStorage {
     }
 
     @Override
-    public String copy(String oldPath, String newName, ItemCategory newCategory) {
+    public String copy(String oldPath, String newName, EquippableCategory newCategory) {
         try {
             String nameSaved = newCategory.name() + "/" + newName + ".webp";
 

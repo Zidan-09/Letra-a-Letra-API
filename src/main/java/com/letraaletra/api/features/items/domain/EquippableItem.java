@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class EquippableItem extends Item {
     private final EquippableContext context;
-    private final ItemCategory category;
+    private final EquippableCategory category;
     private String assetPath;
 
     private EquippableItem(
@@ -17,16 +17,12 @@ public class EquippableItem extends Item {
             int version,
             boolean available,
             EquippableContext context,
-            ItemCategory category,
+            EquippableCategory category,
             String assetPath
     ) {
         super(itemId, name, version, available);
 
         if (context == null || category == null) {
-            throw new InvalidItemException();
-        }
-
-        if (category.isConsumableCategory()) {
             throw new InvalidItemException();
         }
 
@@ -46,7 +42,7 @@ public class EquippableItem extends Item {
     public static EquippableItem create(
             String name,
             EquippableContext context,
-            ItemCategory category,
+            EquippableCategory category,
             String assetPath
     ) {
         return new EquippableItem(
@@ -66,7 +62,7 @@ public class EquippableItem extends Item {
             int version,
             boolean available,
             EquippableContext context,
-            ItemCategory category,
+            EquippableCategory category,
             String assetPath
     ) {
         return new EquippableItem(
@@ -96,7 +92,7 @@ public class EquippableItem extends Item {
         return context;
     }
 
-    public ItemCategory getCategory() {
+    public EquippableCategory getCategory() {
         return category;
     }
 

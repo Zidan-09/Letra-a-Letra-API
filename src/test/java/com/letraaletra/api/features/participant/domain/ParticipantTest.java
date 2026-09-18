@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ class ParticipantTest {
 
     @BeforeEach
     void setUp() {
-        EquippedCosmetic equippedBanner = new EquippedCosmetic(UUID.randomUUID(), "Banner Dev", ItemCategory.BANNER, true, null);
+        EquippedCosmetic equippedBanner = new EquippedCosmetic(UUID.randomUUID(), "Banner Dev", EquippableCategory.BANNER, true, null);
         mockCosmetics = List.of(equippedBanner);
 
         participant = new Participant(userId, initialSocketId, nickname, mockCosmetics);
@@ -80,8 +80,8 @@ class ParticipantTest {
     @DisplayName("create/restore devem expor os equipados informados")
     void createAndRestoreShouldExposeEquipped() {
         User user = UserFactory.createLocal("player", "player@test.com", "hash");
-        EquippedCosmetic avatar = new EquippedCosmetic(UUID.randomUUID(), "Avatar", ItemCategory.AVATAR, true, "assets/avatar.png");
-        EquippedCosmetic banner = new EquippedCosmetic(UUID.randomUUID(), "Banner", ItemCategory.BANNER, false, "assets/banner.png");
+        EquippedCosmetic avatar = new EquippedCosmetic(UUID.randomUUID(), "Avatar", EquippableCategory.AVATAR, true, "assets/avatar.png");
+        EquippedCosmetic banner = new EquippedCosmetic(UUID.randomUUID(), "Banner", EquippableCategory.BANNER, false, "assets/banner.png");
         List<EquippedCosmetic> equipped = List.of(avatar, banner);
 
         Participant created = Participant.create(user, initialSocketId, equipped);
@@ -99,7 +99,7 @@ class ParticipantTest {
     @DisplayName("lista de cosméticos deve ser copiada de forma defensiva")
     void cosmeticsListShouldBeDefensiveCopy() {
         User user = UserFactory.createLocal("player", "player@test.com", "hash");
-        EquippedCosmetic avatar = new EquippedCosmetic(UUID.randomUUID(), "Avatar", ItemCategory.AVATAR, true, "assets/avatar.png");
+        EquippedCosmetic avatar = new EquippedCosmetic(UUID.randomUUID(), "Avatar", EquippableCategory.AVATAR, true, "assets/avatar.png");
         List<EquippedCosmetic> mutable = new ArrayList<>(List.of(avatar));
 
         Participant created = Participant.create(user, initialSocketId, mutable);

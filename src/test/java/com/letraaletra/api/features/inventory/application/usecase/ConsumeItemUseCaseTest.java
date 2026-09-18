@@ -59,8 +59,7 @@ class ConsumeItemUseCaseTest {
         userId = UUID.randomUUID();
         boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemCategory.XP_BOOST,
-                EquippableContext.PROFILE,
+                
                 new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }

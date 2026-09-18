@@ -3,7 +3,7 @@ package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.items.application.input.ListItemsInput;
 import com.letraaletra.api.features.items.application.output.ListItemsOutput;
 import com.letraaletra.api.features.items.domain.Item;
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.response.ItemResponse;
@@ -67,13 +67,13 @@ public class ListItemsMapper {
         }
     }
 
-    private static ItemCategory parseCategory(String raw) {
+    private static EquippableCategory parseCategory(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
 
         try {
-            return ItemCategory.valueOf(raw);
+            return EquippableCategory.valueOf(raw);
         } catch (IllegalArgumentException e) {
             throw new InvalidItemException();
         }

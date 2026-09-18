@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.storage;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
+import com.letraaletra.api.features.items.domain.EquippableCategory;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ public class LocalItemAssetStorage implements ItemAssetStorage {
     private final Logger logger = LoggerFactory.getLogger(LocalItemAssetStorage.class);
 
     @Override
-    public String upload(byte[] file, String fileName, ItemCategory category) {
+    public String upload(byte[] file, String fileName, EquippableCategory category) {
         try {
             return category.name() + "/" + fileName + ".webp";
         } catch (Exception e) {
@@ -24,7 +24,7 @@ public class LocalItemAssetStorage implements ItemAssetStorage {
     }
 
     @Override
-    public String copy(String oldPath, String newName, ItemCategory newCategory) {
+    public String copy(String oldPath, String newName, EquippableCategory newCategory) {
         try {
             return newCategory.name() + "/" + newName + ".webp";
         } catch (Exception e) {

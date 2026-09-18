@@ -41,7 +41,7 @@ class JpaItemRepositoryTest {
         return EquippableItem.create(
                 "Blue Avatar",
                 EquippableContext.PROFILE,
-                ItemCategory.AVATAR,
+                EquippableCategory.AVATAR,
                 "/assets/avatar/blue.png"
         );
     }
@@ -73,7 +73,7 @@ class JpaItemRepositoryTest {
         assertTrue(found.isPresent());
         assertEquals(id, found.get().getId());
         assertTrue(found.get() instanceof EquippableItem);
-        assertEquals(ItemCategory.AVATAR, ((EquippableItem) found.get()).getCategory());
+        assertEquals(EquippableCategory.AVATAR, ((EquippableItem) found.get()).getCategory());
     }
 
     @Test
