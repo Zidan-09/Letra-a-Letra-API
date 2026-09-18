@@ -6,7 +6,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemDefinitionFilter;
-import com.letraaletra.api.features.items.domain.ItemDefinitionsPage;
+import com.letraaletra.api.features.items.domain.ItemsPage;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -25,7 +25,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,7 +74,7 @@ class ListItemDefinitionsUseCaseTest {
     @DisplayName("listar com filtro deve checar permissao, repassar filtro e retornar 1 item")
     void listWithFilterShouldCheckPermissionAndReturnOneItem() {
         ItemDefinition avatar = avatar();
-        when(itemDefinitionRepository.findAll(any(ItemDefinitionFilter.class), any(ItemDefinitionsPage.class)))
+        when(itemDefinitionRepository.findAll(any(ItemDefinitionFilter.class), any(ItemsPage.class)))
                 .thenReturn(new PageImpl<>(List.of(avatar)));
 
         ListItemDefinitionsOutput output = useCase.execute(input());
@@ -85,7 +84,7 @@ class ListItemDefinitionsUseCaseTest {
         assertSame(avatar, output.definitions().getContent().get(0));
 
         ArgumentCaptor<ItemDefinitionFilter> filterCaptor = ArgumentCaptor.forClass(ItemDefinitionFilter.class);
-        ArgumentCaptor<ItemDefinitionsPage> pageCaptor = ArgumentCaptor.forClass(ItemDefinitionsPage.class);
+        ArgumentCaptor<ItemsPage> pageCaptor = ArgumentCaptor.forClass(ItemsPage.class);
         verify(itemDefinitionRepository).findAll(filterCaptor.capture(), pageCaptor.capture());
         assertEquals(ItemKind.COSMETIC, filterCaptor.getValue().kind());
     }
@@ -93,7 +92,7 @@ class ListItemDefinitionsUseCaseTest {
     @Test
     @DisplayName("pagina vazia deve retornar 0 itens")
     void emptyPageShouldReturnZeroItems() {
-        when(itemDefinitionRepository.findAll(any(ItemDefinitionFilter.class), any(ItemDefinitionsPage.class)))
+        when(itemDefinitionRepository.findAll(any(ItemDefinitionFilter.class), any(ItemsPage.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
         ListItemDefinitionsOutput output = useCase.execute(input());

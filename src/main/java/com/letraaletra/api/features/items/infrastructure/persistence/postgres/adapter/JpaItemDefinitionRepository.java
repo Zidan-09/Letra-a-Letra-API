@@ -2,7 +2,7 @@ package com.letraaletra.api.features.items.infrastructure.persistence.postgres.a
 
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemDefinitionFilter;
-import com.letraaletra.api.features.items.domain.ItemDefinitionsPage;
+import com.letraaletra.api.features.items.domain.ItemsPage;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
@@ -40,7 +40,7 @@ public class JpaItemDefinitionRepository implements ItemDefinitionRepository, It
     }
 
     @Override
-    public Page<ItemDefinition> findAll(ItemDefinitionFilter filter, ItemDefinitionsPage page) {
+    public Page<ItemDefinition> findAll(ItemDefinitionFilter filter, ItemsPage page) {
         Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
 
         return repository.search(filter.kind(), filter.category(), filter.available(), pageable)

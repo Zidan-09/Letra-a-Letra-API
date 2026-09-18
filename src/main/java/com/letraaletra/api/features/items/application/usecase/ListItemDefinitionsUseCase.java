@@ -4,7 +4,7 @@ import com.letraaletra.api.features.items.application.input.ListItemDefinitionsI
 import com.letraaletra.api.features.items.application.output.ListItemDefinitionsOutput;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemDefinitionFilter;
-import com.letraaletra.api.features.items.domain.ItemDefinitionsPage;
+import com.letraaletra.api.features.items.domain.ItemsPage;
 import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -34,7 +34,7 @@ public class ListItemDefinitionsUseCase implements UseCase<ListItemDefinitionsIn
                         input.category(),
                         input.available()
                 ),
-                new ItemDefinitionsPage(
+                new ItemsPage(
                         input.page(),
                         input.size(),
                         input.sort()

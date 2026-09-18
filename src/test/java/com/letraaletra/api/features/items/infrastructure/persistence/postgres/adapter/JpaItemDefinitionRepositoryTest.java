@@ -4,7 +4,7 @@ import com.letraaletra.api.features.items.domain.ItemCategory;
 import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemDefinition;
 import com.letraaletra.api.features.items.domain.ItemDefinitionFilter;
-import com.letraaletra.api.features.items.domain.ItemDefinitionsPage;
+import com.letraaletra.api.features.items.domain.ItemsPage;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemDefinitionJpaEntity;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.jpa.SpringDataItemDefinitionRepository;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,7 +126,7 @@ class JpaItemDefinitionRepositoryTest {
 
         var page = adapter.findAll(
                 new ItemDefinitionFilter(ItemKind.COSMETIC, null, null),
-                new ItemDefinitionsPage(0, 20, Sort.unsorted()));
+                new ItemsPage(0, 20, Sort.unsorted()));
 
         assertEquals(1, page.getContent().size());
         assertEquals(definition.getId(), page.getContent().get(0).getId());

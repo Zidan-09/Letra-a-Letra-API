@@ -31,6 +31,8 @@ public enum UserMessages implements MessageCode {
     USER_ALREADY_BANNED("the user is already banned"),
     USER_DOES_NOT_HAVE_BAN("the user does not have an active ban"),
 
+    INVALID_USER_EFFECT("the user effect is invalid"),
+
     INVALID_ROOM_POSITION("the provided room position is invalid");
 
     private final String message;
