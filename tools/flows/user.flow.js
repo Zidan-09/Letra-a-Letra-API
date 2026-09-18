@@ -270,10 +270,9 @@ export async function runFlow(adminContext, playerContext) {
         "/admin/items",
         {
             name: itemName,
-            kind: "COSMETIC",
+            kind: "EQUIPPABLE",
             category: "AVATAR",
-            context: "PROFILE",
-            consumable: false
+            context: "PROFILE"
         },
         admin.token
     );
@@ -535,10 +534,9 @@ export async function runFlow(adminContext, playerContext) {
         "/admin/items",
         {
             name: unownedItemName,
-            kind: "COSMETIC",
+            kind: "EQUIPPABLE",
             category: "FRAME",
-            context: "PROFILE",
-            consumable: false
+            context: "PROFILE"
         },
         admin.token
     );
@@ -793,10 +791,9 @@ export async function runFlow(adminContext, playerContext) {
         "/admin/items",
         {
             name: revokeItemName,
-            kind: "COSMETIC",
+            kind: "EQUIPPABLE",
             category: "BANNER",
-            context: "PROFILE",
-            consumable: false
+            context: "PROFILE"
         },
         admin.token
     );

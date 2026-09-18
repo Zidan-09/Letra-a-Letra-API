@@ -60,10 +60,9 @@ export async function runFlow(adminContext, playerContext) {
         "/admin/items",
         {
             name: itemName,
-            kind: "COSMETIC",
+            kind: "EQUIPPABLE",
             category: "AVATAR",
-            context: "PROFILE",
-            consumable: false
+            context: "PROFILE"
         },
         admin.token
     );
