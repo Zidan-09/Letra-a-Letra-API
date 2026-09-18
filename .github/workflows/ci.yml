@@ -1,11 +1,9 @@
 name: CI pipeline
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
-      - main
-    types: [opened, synchronize, reopened]
 
 jobs:
   unit-tests:
@@ -13,20 +11,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Configure JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
           cache: maven
 
       - name: Unit Tests
-        env:
-          JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
-          CLIENT_ID: "google-client-id-ficticio-para-o-teste"
-        run: mvn clean test
+        run: |
+          chmod +x mvnw
+          ./mvnw test
 
   integration-tests:
     needs: unit-tests
@@ -41,38 +38,39 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Configure JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
           cache: maven
 
       - name: Configure Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
           cache: npm
           cache-dependency-path: tools/package-lock.json
 
       - name: Build API
-        run: mvn clean package -DskipTests
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
 
       - name: Start API
         env:
           SPRING_PROFILES_ACTIVE: test
-          JWT_SECRET: "chave_secreta_de_teste_com_mais_de_32_caracteres_para_o_ci"
-          CLIENT_ID: "google-client-id-ficticio-para-o-teste"
         run: |
-          nohup java -jar target/*.jar --spring.profiles.active=test > api.log 2>&1 &
+          JAR=$(ls target/*.jar | head -n 1)
+          nohup java -jar "$JAR" --spring.profiles.active=test > api.log 2>&1 &
           echo $! > api.pid
 
       - name: Wait API
         run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:8080/actuator/health; then
+          for i in {1..60}; do
+            if curl -sf http://localhost:8080/actuator/health; then
               exit 0
             fi
             sleep 2
@@ -84,7 +82,7 @@ jobs:
 
       - name: Install integration test dependencies
         working-directory: tools
-        run: npm install
+        run: npm ci
 
       - name: Run integration tests
         working-directory: tools
@@ -96,4 +94,7 @@ jobs:
 
       - name: Stop API
         if: always()
-        run: kill $(cat api.pid)
+        run: |
+          if [ -f api.pid ]; then
+            kill $(cat api.pid) || true
+          fi
