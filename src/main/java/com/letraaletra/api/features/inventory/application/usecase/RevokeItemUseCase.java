@@ -9,7 +9,7 @@ import com.letraaletra.api.features.inventory.application.input.RevokeItemInput;
 import com.letraaletra.api.features.inventory.application.output.RevokeItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.shared.application.port.AdminChecker;

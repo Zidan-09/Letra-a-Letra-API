@@ -7,7 +7,7 @@ import com.letraaletra.api.features.friend.infrastructure.presentation.dto.respo
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.stats.UserStats;

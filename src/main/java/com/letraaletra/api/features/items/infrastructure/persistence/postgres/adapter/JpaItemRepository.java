@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
 import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;

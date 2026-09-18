@@ -9,7 +9,7 @@ import com.letraaletra.api.features.inventory.application.input.ConsumeItemInput
 import com.letraaletra.api.features.inventory.application.output.ConsumeItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;

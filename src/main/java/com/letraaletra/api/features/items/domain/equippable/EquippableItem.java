@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.items.domain.equippable;
 
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -7,7 +7,7 @@ import com.letraaletra.api.features.items.domain.effect.EffectType;
 import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;

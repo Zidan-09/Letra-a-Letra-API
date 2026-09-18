@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;

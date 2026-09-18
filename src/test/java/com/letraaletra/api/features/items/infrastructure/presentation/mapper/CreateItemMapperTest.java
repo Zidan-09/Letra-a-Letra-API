@@ -3,7 +3,7 @@ package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.items.application.input.CreateItemInput;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.request.CreateItemRequest;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.DisplayName;

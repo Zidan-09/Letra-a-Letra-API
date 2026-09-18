@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.jpa;
 
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

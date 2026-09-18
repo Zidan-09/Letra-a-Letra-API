@@ -4,7 +4,7 @@ import com.letraaletra.api.features.inventory.application.input.GetUserItemsInpu
 import com.letraaletra.api.features.inventory.application.output.GetUserItemsOutput;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.inventory.infrastructure.presentation.dto.response.GetUserItemsResponse;
 

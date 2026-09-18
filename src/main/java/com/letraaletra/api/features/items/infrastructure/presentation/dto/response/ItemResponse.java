@@ -2,7 +2,7 @@ package com.letraaletra.api.features.items.infrastructure.presentation.dto.respo
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.effect.EffectType;

@@ -2,7 +2,7 @@ package com.letraaletra.api.features.items.application.usecase;
 
 import com.letraaletra.api.features.items.application.input.DisableItemInput;
 import com.letraaletra.api.features.items.application.output.DisableItemOutput;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;

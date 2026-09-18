@@ -11,7 +11,7 @@ import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundExcepti
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.shared.application.port.AdminChecker;

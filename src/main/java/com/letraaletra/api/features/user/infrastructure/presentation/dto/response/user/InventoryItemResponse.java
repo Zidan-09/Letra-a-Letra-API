@@ -2,7 +2,7 @@ package com.letraaletra.api.features.user.infrastructure.presentation.dto.respon
 
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
+import com.letraaletra.api.features.items.domain.ItemKind;
 
 import java.util.UUID;
 

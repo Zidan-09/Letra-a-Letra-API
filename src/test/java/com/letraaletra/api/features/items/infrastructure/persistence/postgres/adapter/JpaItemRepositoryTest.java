@@ -1,15 +1,10 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.postgres.adapter;
 
-import com.letraaletra.api.features.items.domain.item.Item;
-import com.letraaletra.api.features.items.domain.item.ItemKind;
-import com.letraaletra.api.features.items.domain.consumable.ConsumableItem;
+import com.letraaletra.api.features.items.domain.Item;
+import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
-import com.letraaletra.api.features.items.domain.effect.ItemEffect;
-import com.letraaletra.api.features.items.domain.effect.EffectType;
-import com.letraaletra.api.features.items.domain.effect.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.effect.NicknameChangeEffect;
 import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
 import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemJpaEntity;

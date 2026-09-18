@@ -2,7 +2,7 @@ package com.letraaletra.api.features.items.application.usecase;
 
 import com.letraaletra.api.features.items.application.input.ListItemsInput;
 import com.letraaletra.api.features.items.application.output.ListItemsOutput;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.catalog.ItemFilter;
 import com.letraaletra.api.features.items.domain.catalog.ItemsPage;
 import com.letraaletra.api.features.items.domain.repository.ItemRepository;

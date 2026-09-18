@@ -1,4 +1,4 @@
-package com.letraaletra.api.features.items.domain.item;
+package com.letraaletra.api.features.items.domain;
 
 import com.letraaletra.api.shared.domain.MessageCode;
 

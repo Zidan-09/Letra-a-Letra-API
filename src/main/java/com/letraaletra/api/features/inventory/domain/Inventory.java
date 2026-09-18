@@ -4,7 +4,7 @@ import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityEx
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.policy.ItemPolicyRegistry;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.equippable.EquippableItem;
 import com.letraaletra.api.features.items.domain.equippable.EquippableContext;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;

@@ -9,7 +9,7 @@ import com.letraaletra.api.features.inventory.application.input.GrantItemInput;
 import com.letraaletra.api.features.inventory.application.output.GrantItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.items.domain.item.Item;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
 import com.letraaletra.api.features.items.domain.repository.ItemLookup;
