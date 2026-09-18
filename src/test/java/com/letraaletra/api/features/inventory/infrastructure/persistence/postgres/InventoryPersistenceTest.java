@@ -197,12 +197,11 @@ class InventoryPersistenceTest {
 
         ConsumableItem nickname = ConsumableItem.create(
                 "Nickname Change",
-                
-                new com.letraaletra.api.features.items.domain.NicknameChangeEffect()
+                new NicknameChangeEffect()
         );
         Item reloadedNickname = ItemJpaMapper.toDomain(ItemJpaMapper.toEntity(nickname));
         assertTrue(reloadedNickname instanceof ConsumableItem);
         ConsumableItem reloaded = (ConsumableItem) reloadedNickname;
-        assertTrue(reloaded.getEffect() instanceof com.letraaletra.api.features.items.domain.NicknameChangeEffect);
+        assertTrue(reloaded.getEffect() instanceof NicknameChangeEffect);
     }
 }

@@ -62,9 +62,7 @@ class GetUserItemsUseCaseTest {
         );
         boost = ConsumableItem.create(
                 "XP Boost",
-                
-                new com.letraaletra.api.features.items.domain.PercentageTimedEffect(
-                        com.letraaletra.api.features.items.domain.EffectType.XP_BOOST_PCT, 50, 60)
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
 
         lenient().when(itemLookup.getById(avatar.getId())).thenReturn(avatar);
