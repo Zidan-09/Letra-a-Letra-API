@@ -179,7 +179,7 @@ export async function runFlow(adminContext, playerContext) {
 
     res = await http(
         "GET",
-        "/user?page=0&size=10",
+        "/user?page=0&size=50",
         undefined,
         admin.token
     );
@@ -386,13 +386,57 @@ export async function runFlow(adminContext, playerContext) {
         );
     }
 
-    // Fluxo 11: Troca de nickname válido, em uso e inválido
+    // Fluxo 11: Troca de nickname válido, em uso e inválido (consome item de troca de nome)
+
+    const nicknameItemName = `integration-nickname-${stamp}`;
+
+    res = await registerItem(
+        "/admin/items",
+        {
+            name: nicknameItemName,
+            kind: "CONSUMABLE",
+            effectKind: "NICKNAME_CHANGE"
+        },
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Register nickname item definition"
+    );
+
+    const nicknameItemId = res.body?.data?.itemId;
+
+    if (!nicknameItemId) {
+        throw new Error(
+            `Register nickname item definition: missing id in response body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "PATCH",
+        `/user/${mainUser.id}/grant-reward`,
+        {
+            rewardType: "ITEM",
+            quantity: 1,
+            rewardReference: nicknameItemId
+        },
+        admin.token
+    );
+
+    ensureStatus(
+        res,
+        204,
+        "Grant nickname item reward"
+    );
 
     res = await http(
         "PATCH",
         "/user/nickname",
         {
-            nickname: "ab"
+            nickname: "ab",
+            itemId: nicknameItemId
         },
         mainUser.token
     );
@@ -407,7 +451,8 @@ export async function runFlow(adminContext, playerContext) {
         "PATCH",
         "/user/nickname",
         {
-            nickname: secondNickname
+            nickname: secondNickname,
+            itemId: nicknameItemId
         },
         mainUser.token
     );
@@ -430,7 +475,8 @@ export async function runFlow(adminContext, playerContext) {
         "PATCH",
         "/user/nickname",
         {
-            nickname: renamedNickname
+            nickname: renamedNickname,
+            itemId: nicknameItemId
         },
         mainUser.token
     );
@@ -466,7 +512,8 @@ export async function runFlow(adminContext, playerContext) {
         "PATCH",
         "/user/nickname",
         {
-            nickname: `another${stamp % 100000}`
+            nickname: `another${stamp % 100000}`,
+            itemId: nicknameItemId
         },
         mainUser.token
     );
@@ -474,12 +521,12 @@ export async function runFlow(adminContext, playerContext) {
     ensureStatus(
         res,
         400,
-        "Change nickname twice"
+        "Change nickname without owning item"
     );
 
-    if (res.body?.code !== "USER_CANNOT_CHANGE_NICKNAME") {
+    if (res.body?.code !== "ITEM_NOT_OWNED") {
         throw new Error(
-            `Change nickname twice: expected USER_CANNOT_CHANGE_NICKNAME, received ${JSON.stringify(res.body)}`
+            `Change nickname without owning item: expected ITEM_NOT_OWNED, received ${JSON.stringify(res.body)}`
         );
     }
 

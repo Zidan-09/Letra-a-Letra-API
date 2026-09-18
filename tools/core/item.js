@@ -7,8 +7,14 @@ const PNG_1X1 = Buffer.from(
 
 export async function registerItem(path, item, token) {
     const form = new FormData();
-    form.append("item", new Blob([JSON.stringify(item)], { type: "application/json" }));
-    form.append("asset", new Blob([PNG_1X1], { type: "image/png" }), `${item.name}.png`);
+    for (const key of ["name", "kind", "category", "context", "effectKind", "effectType", "magnitude", "durationMinutes"]) {
+        if (item[key] !== undefined && item[key] !== null) {
+            form.append(key, String(item[key]));
+        }
+    }
+    if (item.kind !== "CONSUMABLE") {
+        form.append("asset", new Blob([PNG_1X1], { type: "image/png" }), `${item.name}.png`);
+    }
 
     return multipart("POST", path, form, token);
 }

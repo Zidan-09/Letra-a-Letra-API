@@ -208,7 +208,7 @@ export async function runFlow(adminContext, playerContext) {
 
     res = await http(
         "GET",
-        `/admin/audit?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&direction=ASC&page=0&size=20`,
+        `/admin/audit?eventType=WALLET_CREDITED&targetUserId=${user.id}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&direction=ASC&page=0&size=20`,
         undefined,
         admin.token
     );

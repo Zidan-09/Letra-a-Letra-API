@@ -13,6 +13,10 @@ function ensureStatus(response, expected, operation) {
 export async function runFlow(context) {
     const [admin] = context.admins;
 
+    const stamp = Date.now();
+    const createValue = 9000 + (stamp % 900);
+    const updateValue = createValue + 1;
+
     let res;
 
     // Fluxo 1: Criar level
@@ -21,7 +25,7 @@ export async function runFlow(context) {
         "POST",
         "/level",
         {
-            level: 99,
+            level: createValue,
             rewards: [
                 {
                     rewardType: "COIN",
@@ -44,7 +48,7 @@ export async function runFlow(context) {
 
     const levelId = level.levelId;
 
-    if (level.value !== 99) {
+    if (level.value !== createValue) {
         throw new Error("Create level: invalid level");
     }
 
@@ -73,7 +77,7 @@ export async function runFlow(context) {
         "PUT",
         `/level/${levelId}`,
         {
-            level: 100,
+            level: updateValue,
             rewards: [
                 {
                     rewardType: "COIN",
@@ -104,7 +108,7 @@ export async function runFlow(context) {
         throw new Error("Updated level not found");
     }
 
-    if (updated.value !== 100) {
+    if (updated.value !== updateValue) {
         throw new Error("Level was not updated");
     }
 
@@ -127,7 +131,7 @@ export async function runFlow(context) {
         throw new Error("Get level by id: id mismatch");
     }
 
-    if (res.body.data.level.value !== 100) {
+    if (res.body.data.level.value !== updateValue) {
         throw new Error("Get level by id: value mismatch");
     }
 
@@ -135,7 +139,7 @@ export async function runFlow(context) {
 
     res = await http(
         "GET",
-        "/level/value/100",
+        `/level/value/${updateValue}`,
         undefined,
         admin.token
     );
@@ -146,7 +150,7 @@ export async function runFlow(context) {
         throw new Error("Get level by value: id mismatch");
     }
 
-    if (res.body.data.level.value !== 100) {
+    if (res.body.data.level.value !== updateValue) {
         throw new Error("Get level by value: value mismatch");
     }
 

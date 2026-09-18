@@ -372,7 +372,7 @@ export async function runFlow(context) {
 
     res = await http(
         "GET",
-        "/admin?page=0&size=5&sort=email,asc",
+        "/admin?page=0&size=50&sort=email,asc",
         undefined,
         admin.token
     );
