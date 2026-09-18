@@ -3,6 +3,9 @@ package com.letraaletra.api.features.items.infrastructure.presentation.mapper;
 import com.letraaletra.api.features.items.application.input.ItemAssetUpload;
 import com.letraaletra.api.features.items.application.input.UpdateItemInput;
 import com.letraaletra.api.features.items.application.output.UpdateItemOutput;
+import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.request.UpdateItemRequest;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.response.ItemResponse;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -24,6 +27,9 @@ public class UpdateItemMapper {
                 itemId,
                 request.name(),
                 request.available(),
+                request.category(),
+                request.context(),
+                toEffect(request.effect()),
                 toAsset(asset),
                 request.isNewAsset()
         );
@@ -31,6 +37,22 @@ public class UpdateItemMapper {
 
     public static ItemResponse toResponse(UpdateItemOutput output) {
         return ItemResponseMapper.toResponse(output.item());
+    }
+
+    private static ItemEffect toEffect(UpdateItemRequest.ItemEffectRequest request) {
+        if (request == null) {
+            return null;
+        }
+
+        if (request instanceof UpdateItemRequest.NicknameChangeEffectRequest) {
+            return new NicknameChangeEffect();
+        }
+
+        if (request instanceof UpdateItemRequest.PercentageTimedEffectRequest timed) {
+            return new PercentageTimedEffect(timed.type(), timed.magnitude(), timed.durationMinutes());
+        }
+
+        return null;
     }
 
     private static ItemAssetUpload toAsset(MultipartFile asset) {

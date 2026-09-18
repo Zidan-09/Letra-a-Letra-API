@@ -5,6 +5,7 @@ import com.letraaletra.api.features.items.application.input.UpdateItemInput;
 import com.letraaletra.api.features.items.application.output.UpdateItemOutput;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
 import com.letraaletra.api.features.items.domain.*;
+import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 import com.letraaletra.api.features.items.domain.exception.ItemAlreadyExistsException;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
@@ -72,7 +73,7 @@ class UpdateItemUseCaseTest {
                 .thenReturn("AVATAR/Navy Avatar.webp");
 
         UpdateItemOutput output = useCase.execute(new UpdateItemInput(
-                principal, item.getId(), "Navy Avatar", false, null, false));
+                principal, item.getId(), "Navy Avatar", false, null, null, null, null, false));
 
         verify(adminChecker).check(principal, PermissionKey.ITEMS, PermissionAction.EDIT);
         assertEquals("Navy Avatar", output.item().getName());
@@ -81,7 +82,7 @@ class UpdateItemUseCaseTest {
         assertFalse(output.item().isAvailable());
         assertEquals(2, output.item().getVersion());
         verify(assetStorage).delete("AVATAR/Blue Avatar.webp");
-        verify(itemRepository).save(item);
+        verify(itemRepository).save(output.item());
     }
 
     @Test
@@ -94,13 +95,64 @@ class UpdateItemUseCaseTest {
                 .thenReturn("AVATAR/Blue Avatar.webp");
 
         UpdateItemOutput output = useCase.execute(new UpdateItemInput(
-                principal, item.getId(), null, null,
+                principal, item.getId(), null, null, null, null, null,
                 new ItemAssetUpload(new byte[]{1, 2, 3}, "image/png"), true));
 
         assertTrue(output.item() instanceof EquippableItem);
         assertEquals("AVATAR/Blue Avatar.webp", ((EquippableItem) output.item()).getAssetPath());
         verify(assetStorage).delete("AVATAR/Blue Avatar.webp");
-        verify(itemRepository).save(item);
+        verify(itemRepository).save(output.item());
+    }
+
+    @Test
+    @DisplayName("categoria e contexto devem ser editaveis")
+    void categoryAndContextShouldBeEditable() {
+        EquippableItem board = EquippableItem.create(
+                "Board",
+                EquippableContext.MATCH,
+                EquippableCategory.BOARD,
+                "BOARD/Board.webp"
+        );
+        when(itemRepository.findById(board.getId())).thenReturn(Optional.of(board));
+
+        UpdateItemOutput output = useCase.execute(new UpdateItemInput(
+                principal, board.getId(), null, null, EquippableCategory.CELL, EquippableContext.MATCH,
+                null, null, false));
+
+        assertTrue(output.item() instanceof EquippableItem);
+        assertEquals(EquippableCategory.CELL, ((EquippableItem) output.item()).getCategory());
+        assertEquals(EquippableContext.MATCH, ((EquippableItem) output.item()).getContext());
+        verify(itemRepository).save(output.item());
+    }
+
+    @Test
+    @DisplayName("efeito de consumivel deve ser editavel")
+    void consumableEffectShouldBeEditable() {
+        ConsumableItem boost = ConsumableItem.create(
+                "XP Boost",
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
+        );
+        when(itemRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+
+        UpdateItemOutput output = useCase.execute(new UpdateItemInput(
+                principal, boost.getId(), null, null, null, null,
+                new PercentageTimedEffect(EffectType.COIN_BOOST_PCT, 20, 30), null, false));
+
+        assertTrue(output.item() instanceof ConsumableItem);
+        assertEquals(new PercentageTimedEffect(EffectType.COIN_BOOST_PCT, 20, 30),
+                ((ConsumableItem) output.item()).getEffect());
+        verify(itemRepository).save(output.item());
+    }
+
+    @Test
+    @DisplayName("efeito em equipavel deve falhar")
+    void effectOnEquippableShouldFail() {
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+
+        assertThrows(InvalidItemException.class, () -> useCase.execute(new UpdateItemInput(
+                principal, item.getId(), null, null, null, null,
+                new NicknameChangeEffect(), null, false)));
+        verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 
     @Test
@@ -115,7 +167,7 @@ class UpdateItemUseCaseTest {
                 .when(itemRepository).save(ArgumentMatchers.any());
 
         assertThrows(RuntimeException.class, () -> useCase.execute(new UpdateItemInput(
-                principal, item.getId(), null, null,
+                principal, item.getId(), null, null, null, null, null,
                 new ItemAssetUpload(new byte[]{1}, "image/png"), true)));
 
         verify(assetStorage).delete("AVATAR/Blue Avatar.webp");
@@ -128,7 +180,7 @@ class UpdateItemUseCaseTest {
         when(itemRepository.findById(missing)).thenReturn(Optional.empty());
 
         assertThrows(ItemNotFoundException.class, () -> useCase.execute(
-                new UpdateItemInput(principal, missing, "X", null, null, false)));
+                new UpdateItemInput(principal, missing, "X", null, null, null, null, null, false)));
         verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 
@@ -145,7 +197,7 @@ class UpdateItemUseCaseTest {
         when(itemRepository.findByName("Navy Avatar")).thenReturn(Optional.of(other));
 
         assertThrows(ItemAlreadyExistsException.class, () -> useCase.execute(
-                new UpdateItemInput(principal, item.getId(), "Navy Avatar", null, null, false)));
+                new UpdateItemInput(principal, item.getId(), "Navy Avatar", null, null, null, null, null, false)));
         verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 }
