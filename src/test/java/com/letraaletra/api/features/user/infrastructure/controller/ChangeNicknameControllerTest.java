@@ -34,7 +34,7 @@ class ChangeNicknameControllerTest {
     @Test
     @DisplayName("should get the request to update the email and return an response correctly")
     void updateNickname() {
-        ChangeNicknameRequest request = new ChangeNicknameRequest("email-test-123");
+        ChangeNicknameRequest request = new ChangeNicknameRequest("email-test-123", UUID.randomUUID());
 
         ChangeNicknameOutput output = new ChangeNicknameOutput(mock(User.class));
 

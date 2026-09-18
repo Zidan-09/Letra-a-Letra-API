@@ -1,10 +1,17 @@
 package com.letraaletra.api.features.user.application.usecase;
 
+import com.letraaletra.api.features.inventory.domain.UserItem;
+import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
+import com.letraaletra.api.features.items.domain.NicknameChangeEffect;
+import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
+import com.letraaletra.api.features.items.domain.EffectType;
+import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.features.user.application.input.ChangeNicknameInput;
 import com.letraaletra.api.features.user.application.output.ChangeNicknameOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException;
-import com.letraaletra.api.features.user.domain.exception.UserCannotChangeNicknameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,56 +35,69 @@ class ChangeNicknameUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ItemLookup itemLookup;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
+
+    @Mock
+    private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
+
     @InjectMocks
     private ChangeNicknameUseCase changeNicknameUseCase;
 
     private UUID userId;
+    private UUID itemId;
     private ChangeNicknameInput input;
     private User user;
+    private ConsumableItem nicknameItem;
 
     @BeforeEach
     void setup() {
         userId = UUID.randomUUID();
+        nicknameItem = ConsumableItem.create("Nickname Change", new NicknameChangeEffect());
+        itemId = nicknameItem.getId();
 
         input = new ChangeNicknameInput(
                 userId,
-                "new-email"
+                "new-nick",
+                itemId
         );
 
         user = mock(User.class);
     }
 
     @Test
-    @DisplayName("should update email successfully")
+    @DisplayName("should consume nickname item and update nickname successfully")
     void shouldUpdateNicknameSuccessfully() {
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
-        when(user.canChangeNickname())
-                .thenReturn(true);
+        when(userRepository.existsByNickname("new-nick"))
+                .thenReturn(false);
+
+        when(itemLookup.getById(itemId)).thenReturn(nicknameItem);
+        when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
+                UserItem.restore(userId, itemId, 1, false, LocalDateTime.now(), null)
+        ));
 
         when(user.getUsername())
-                .thenReturn("new-email");
-
-        when(userRepository.existsByNickname("new-email"))
-                .thenReturn(false);
+                .thenReturn("new-nick");
 
         ChangeNicknameOutput output =
                 changeNicknameUseCase.execute(input);
 
-        assertEquals("new-email", output.user().getUsername());
+        assertEquals("new-nick", output.user().getUsername());
 
-        verify(user).setUsername("new-email");
-        verify(user).setCanChangeNickname(false);
-
+        verify(user).setUsername("new-nick");
         verify(userRepository).save(user);
+        verify(inventoryRepository).deleteItemsByOwner(userId);
     }
 
     @Test
     @DisplayName("should throw UserNotFoundException when user does not exist")
     void shouldThrowWhenUserDoesNotExist() {
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.empty());
 
@@ -92,16 +114,12 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw NicknameAlreadyInUseException when email already exists")
+    @DisplayName("should throw NicknameAlreadyInUseException when nickname already exists")
     void shouldThrowWhenNicknameAlreadyExists() {
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
-        when(user.canChangeNickname())
-                .thenReturn(true);
-
-        when(userRepository.existsByNickname("new-email"))
+        when(userRepository.existsByNickname("new-nick"))
                 .thenReturn(true);
 
         assertThrows(
@@ -117,17 +135,23 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should throw UserCannotChangeNicknameException when user cannot change email")
-    void shouldThrowWhenUserCannotChangeNickname() {
+    @DisplayName("should throw InvalidItemException when item is not a nickname item")
+    void shouldThrowWhenItemIsNotNicknameItem() {
+        ConsumableItem boost = ConsumableItem.create(
+                "XP Boost",
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
+        );
 
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
-        when(user.canChangeNickname())
+        when(userRepository.existsByNickname("new-nick"))
                 .thenReturn(false);
 
+        when(itemLookup.getById(itemId)).thenReturn(boost);
+
         assertThrows(
-                UserCannotChangeNicknameException.class,
+                InvalidItemException.class,
                 () -> changeNicknameUseCase.execute(input)
         );
 
@@ -139,19 +163,15 @@ class ChangeNicknameUseCaseTest {
     }
 
     @Test
-    @DisplayName("should propagate exception when email validation fails")
+    @DisplayName("should propagate exception when nickname validation fails")
     void shouldPropagateExceptionFromExistsNickname() {
-
         when(userRepository.find(userId))
                 .thenReturn(Optional.of(user));
 
         RuntimeException exception =
                 new RuntimeException("database error");
 
-        when(user.canChangeNickname())
-                .thenReturn(true);
-
-        when(userRepository.existsByNickname("new-email"))
+        when(userRepository.existsByNickname("new-nick"))
                 .thenThrow(exception);
 
         RuntimeException thrown = assertThrows(
@@ -163,33 +183,5 @@ class ChangeNicknameUseCaseTest {
 
         verify(userRepository, never())
                 .save(any());
-    }
-
-    @Test
-    @DisplayName("should propagate exception when save fails")
-    void shouldPropagateSaveException() {
-
-        when(userRepository.find(userId))
-                .thenReturn(Optional.of(user));
-
-        when(userRepository.existsByNickname("new-email"))
-                .thenReturn(false);
-
-        when(user.canChangeNickname())
-                .thenReturn(true);
-
-        RuntimeException exception =
-                new RuntimeException("save error");
-
-        doThrow(exception)
-                .when(userRepository)
-                .save(user);
-
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> changeNicknameUseCase.execute(input)
-        );
-
-        assertSame(exception, thrown);
     }
 }

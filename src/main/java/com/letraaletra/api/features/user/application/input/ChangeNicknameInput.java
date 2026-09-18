@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record ChangeNicknameInput(
         UUID user,
-        String nickname
+        String nickname,
+        UUID itemId
 ) {
 }

@@ -11,7 +11,8 @@ public class ChangeNicknameMapper {
     public static ChangeNicknameInput toInput(UUID auth, ChangeNicknameRequest request) {
         return new ChangeNicknameInput(
                 auth,
-                request.nickname()
+                request.nickname(),
+                request.itemId()
         );
     }
 

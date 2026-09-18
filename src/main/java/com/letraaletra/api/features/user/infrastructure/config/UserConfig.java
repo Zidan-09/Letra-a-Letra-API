@@ -91,11 +91,17 @@ public class UserConfig {
     @Bean
     public UseCase<ChangeNicknameInput, ChangeNicknameOutput> setNicknameUseCase(
             UserRepository userRepository,
+            com.letraaletra.api.features.items.domain.repository.ItemLookup itemLookup,
+            com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
+            BusinessAuditRecorder auditRecorder,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new ChangeNicknameUseCase(
-                        userRepository
+                        userRepository,
+                        itemLookup,
+                        inventoryRepository,
+                        auditRecorder
                 ),
                 transactions
         );
