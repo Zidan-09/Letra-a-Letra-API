@@ -13,7 +13,7 @@ public class UserItemJpaMapper {
         UserItemId id = new UserItemId();
 
         id.setUserId(ownerId);
-        id.setItemId(domain.getDefinitionId());
+        id.setItemId(domain.getItemId());
 
         entity.setUserItemId(id);
         entity.setQuantity(domain.getQuantity());

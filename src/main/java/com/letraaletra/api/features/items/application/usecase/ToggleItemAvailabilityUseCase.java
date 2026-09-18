@@ -2,24 +2,23 @@ package com.letraaletra.api.features.items.application.usecase;
 
 import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
 import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
 
 public class ToggleItemAvailabilityUseCase implements UseCase<ToggleItemAvailabilityInput, ToggleItemAvailabilityOutput> {
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
     private final AdminChecker adminChecker;
 
     public ToggleItemAvailabilityUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             AdminChecker adminChecker
     ) {
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemRepository = itemRepository;
         this.adminChecker = adminChecker;
     }
 
@@ -27,17 +26,17 @@ public class ToggleItemAvailabilityUseCase implements UseCase<ToggleItemAvailabi
     public ToggleItemAvailabilityOutput execute(ToggleItemAvailabilityInput input) {
         adminChecker.check(input.principal(), PermissionKey.ITEMS, PermissionAction.EDIT);
 
-        if (input.available() == null) {
-            throw new InvalidItemException();
-        }
-
-        ItemDefinition definition = itemDefinitionRepository.findById(input.itemId())
+        Item item = itemRepository.findById(input.itemId())
                 .orElseThrow(ItemNotFoundException::new);
 
-        definition.setAvailable(input.available());
+        if (input.available() && !item.isAvailable()) {
+            item.enable();
+        } else if (!input.available() && item.isAvailable()) {
+            item.disable();
+        }
 
-        itemDefinitionRepository.save(definition);
+        itemRepository.save(item);
 
-        return new ToggleItemAvailabilityOutput(definition);
+        return new ToggleItemAvailabilityOutput(item);
     }
 }

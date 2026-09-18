@@ -1,8 +1,6 @@
 package com.letraaletra.api.features.participant.domain;
 
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 
 import java.util.List;
@@ -18,24 +16,25 @@ public record EquippedCosmetic(
 ) {
     public static List<EquippedCosmetic> fromProfileItems(
             List<UserItem> items,
-            Function<UUID, ItemDefinition> lookup,
-            ItemContext context
+            Function<UUID, Item> lookup,
+            EquippableContext context
     ) {
         if (items == null || items.isEmpty()) {
             return List.of();
         }
         return items.stream()
                 .filter(UserItem::isEquipped)
-                .filter(item -> lookup.apply(item.getDefinitionId()).isApplicableTo(context))
-                .filter(item -> isProfileCategory(lookup.apply(item.getDefinitionId()).getCategory()))
+                .filter(item -> lookup.apply(item.getItemId()) instanceof EquippableItem equippable
+                        && equippable.getContext() == context
+                        && isProfileCategory(equippable.getCategory()))
                 .map(item -> {
-                    ItemDefinition definition = lookup.apply(item.getDefinitionId());
+                    EquippableItem equippable = (EquippableItem) lookup.apply(item.getItemId());
                     return new EquippedCosmetic(
-                            definition.getId(),
-                            definition.getName(),
-                            definition.getCategory(),
+                            equippable.getId(),
+                            equippable.getName(),
+                            equippable.getCategory(),
                             true,
-                            definition.getAssetPath()
+                            equippable.getAssetPath()
                     );
                 })
                 .toList();

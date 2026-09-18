@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper;
 
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
@@ -54,6 +55,7 @@ public class UserJpaMapper {
                         projection.getSoftCoins(),
                         projection.getHardGems()
                 ),
+                ActiveEffects.create(),
                 projection.getCreatedAt()
         );
     }

@@ -1,9 +1,10 @@
 package com.letraaletra.api.features.reward.infrastructure.service;
 
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class RewardFactoryService implements RewardFactory {
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
 
     public Reward create(RewardType type, Integer quantity, UUID referenceId) {
         return switch (type) {
@@ -29,20 +30,20 @@ public class RewardFactoryService implements RewardFactory {
                 if (referenceId == null) {
                     throw new ItemNotFoundException();
                 }
-                ItemDefinition definition = itemDefinitionRepository.findById(referenceId)
+                Item item = itemRepository.findById(referenceId)
                         .orElseThrow(ItemNotFoundException::new);
 
-                if (!definition.isAvailable()) {
+                if (!item.isAvailable()) {
                     throw new ItemNotAvailableException();
                 }
 
                 int amount = requirePositiveQuantity(quantity);
 
-                if (!definition.canStack() && amount != 1) {
+                if (!(item instanceof ConsumableItem) && amount != 1) {
                     throw new InvalidRewardQuantityException();
                 }
 
-                yield new ItemGrantReward(definition.getId(), amount);
+                yield new ItemGrantReward(item.getId(), amount);
             }
         };
     }

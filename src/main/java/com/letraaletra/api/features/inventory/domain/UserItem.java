@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class UserItem {
     private final UUID ownerId;
-    private final UUID definitionId;
+    private final UUID itemId;
     private int quantity;
     private boolean equipped;
     private final LocalDateTime acquiredAt;
@@ -16,14 +16,14 @@ public class UserItem {
 
     public UserItem(
             UUID ownerId,
-            UUID definitionId,
+            UUID itemId,
             int quantity,
             boolean equipped,
             LocalDateTime acquiredAt,
             LocalDateTime expiresAt
     ) {
         this.ownerId = ownerId;
-        this.definitionId = definitionId;
+        this.itemId = itemId;
         this.quantity = quantity;
         this.equipped = equipped;
         this.acquiredAt = acquiredAt;
@@ -32,10 +32,10 @@ public class UserItem {
 
     public static UserItem create(
             UUID ownerId,
-            UUID definitionId,
+            UUID itemId,
             int quantity
     ) {
-        if (ownerId == null || definitionId == null) {
+        if (ownerId == null || itemId == null) {
             throw new InvalidQuantityException();
         }
 
@@ -45,7 +45,7 @@ public class UserItem {
 
         return new UserItem(
                 ownerId,
-                definitionId,
+                itemId,
                 quantity,
                 false,
                 LocalDateTime.now(),
@@ -55,7 +55,7 @@ public class UserItem {
 
     public static UserItem restore(
             UUID ownerId,
-            UUID definitionId,
+            UUID itemId,
             int quantity,
             boolean equipped,
             LocalDateTime acquiredAt,
@@ -63,7 +63,7 @@ public class UserItem {
     ) {
         return new UserItem(
                 ownerId,
-                definitionId,
+                itemId,
                 quantity,
                 equipped,
                 acquiredAt,
@@ -103,8 +103,8 @@ public class UserItem {
         return ownerId;
     }
 
-    public UUID getDefinitionId() {
-        return definitionId;
+    public UUID getItemId() {
+        return itemId;
     }
 
     public int getQuantity() {

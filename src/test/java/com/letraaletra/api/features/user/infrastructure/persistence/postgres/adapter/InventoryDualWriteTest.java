@@ -59,10 +59,10 @@ class InventoryDualWriteTest {
         User user = UserFactory.createLocal("owner", "owner@test.com", "hash");
         jpaUserRepository.save(user);
 
-        UUID definitionId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
         userItemRepository.save(UserItemJpaMapper.toEntity(
                 user.getUserId(),
-                UserItem.restore(user.getUserId(), definitionId, 2, true, LocalDateTime.now(), null)
+                UserItem.restore(user.getUserId(), itemId, 2, true, LocalDateTime.now(), null)
         ));
         entityManager.flush();
         entityManager.clear();
@@ -75,7 +75,7 @@ class InventoryDualWriteTest {
                 .map(UserItemJpaMapper::toDomain)
                 .toList();
         assertEquals(1, items.size());
-        assertEquals(definitionId, items.get(0).getDefinitionId());
+        assertEquals(itemId, items.get(0).getItemId());
         assertEquals(2, items.get(0).getQuantity());
     }
 }

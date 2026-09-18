@@ -9,7 +9,7 @@ import com.letraaletra.api.features.game.domain.repository.GameRepository;
 import com.letraaletra.api.features.game.domain.room.RoomSettings;
 import com.letraaletra.api.features.game.domain.room.port.RoomTimeoutManager;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
@@ -50,7 +50,7 @@ class CreateGameUseCaseTest {
     private InventoryRepository inventoryRepository;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @InjectMocks
     private CreateGameUseCase useCase;

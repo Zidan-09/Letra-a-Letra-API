@@ -2,9 +2,9 @@ package com.letraaletra.api.features.levels.application.usecase;
 
 import com.letraaletra.api.shared.domain.security.PermissionAction;
 import com.letraaletra.api.shared.domain.security.PermissionKey;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelRewardInput;
 import com.letraaletra.api.features.levels.application.input.UpdateLevelInput;
 import com.letraaletra.api.features.levels.application.output.UpdateLevelOutput;
@@ -24,16 +24,16 @@ import java.util.UUID;
 
 public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevelOutput> {
     private final LevelRepository levelRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
     private final AdminChecker adminChecker;
 
     public UpdateLevelUseCase(
             LevelRepository levelRepository,
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             AdminChecker adminChecker
     ) {
         this.levelRepository = levelRepository;
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemRepository = itemRepository;
         this.adminChecker = adminChecker;
     }
 
@@ -78,12 +78,12 @@ public class UpdateLevelUseCase implements UseCase<UpdateLevelInput, UpdateLevel
             );
 
             case ITEM -> {
-                ItemDefinition definition = itemDefinitionRepository.findById(reward.rewardReference())
+                Item item = itemRepository.findById(reward.rewardReference())
                         .orElseThrow(ItemNotFoundException::new);
 
                 yield new LevelReward(
                         id,
-                        new ItemGrantReward(definition.getId(), reward.quantity())
+                        new ItemGrantReward(item.getId(), reward.quantity())
                 );
             }
         };

@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.inventory.infrastructure.presentation.dto.response;
 
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ public record UserItemResponse(
         String name,
         ItemKind kind,
         ItemCategory category,
-        ItemContext context,
+        EquippableContext context,
         int quantity,
         boolean equipped,
         LocalDateTime acquiredAt,

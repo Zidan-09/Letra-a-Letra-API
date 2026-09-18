@@ -5,8 +5,8 @@ import com.letraaletra.api.features.friend.domain.FriendStatus;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendDirection;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendProfileResponse;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.friend.FriendResponse;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
@@ -27,7 +27,7 @@ class FriendProfileMapperTest {
 
     private InventoryItemResponse equippedResponse(UUID id, String name, ItemCategory category, String assetPath) {
         return new InventoryItemResponse(
-                id, name, ItemKind.COSMETIC, category, ItemContext.PROFILE, 1, true, assetPath
+                id, name, ItemKind.EQUIPPABLE, category, EquippableContext.PROFILE, 1, true, assetPath
         );
     }
 

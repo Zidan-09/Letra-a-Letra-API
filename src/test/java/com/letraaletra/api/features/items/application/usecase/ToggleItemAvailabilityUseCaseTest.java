@@ -2,13 +2,9 @@ package com.letraaletra.api.features.items.application.usecase;
 
 import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
 import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
-import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
@@ -35,7 +31,7 @@ import static org.mockito.Mockito.when;
 class ToggleItemAvailabilityUseCaseTest {
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private AdminChecker adminChecker;
@@ -50,16 +46,11 @@ class ToggleItemAvailabilityUseCaseTest {
         principal = new AuthenticatedUser(UUID.randomUUID(), "admin", true, false);
     }
 
-    private ItemDefinition availableAvatar() {
-        return ItemDefinition.create(
+    private Item availableAvatar() {
+        return EquippableItem.create(
                 "Blue Avatar",
-                ItemKind.COSMETIC,
+                EquippableContext.PROFILE,
                 ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
                 "/assets/avatar/blue.png"
         );
     }
@@ -67,51 +58,41 @@ class ToggleItemAvailabilityUseCaseTest {
     @Test
     @DisplayName("desativar item disponivel deve salvar sem incrementar a versao")
     void disableAvailableItemShouldSaveWithoutVersionIncrement() {
-        ItemDefinition definition = availableAvatar();
-        when(itemDefinitionRepository.findById(definition.getId())).thenReturn(Optional.of(definition));
+        Item item = availableAvatar();
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
         ToggleItemAvailabilityOutput output = useCase.execute(
-                new ToggleItemAvailabilityInput(principal, definition.getId(), false));
+                new ToggleItemAvailabilityInput(principal, item.getId(), false));
 
         verify(adminChecker).check(principal, PermissionKey.ITEMS, PermissionAction.EDIT);
-        assertFalse(output.definition().isAvailable());
-        assertEquals(1, output.definition().getVersion());
-        verify(itemDefinitionRepository).save(definition);
+        assertFalse(output.item().isAvailable());
+        assertEquals(1, output.item().getVersion());
+        verify(itemRepository).save(item);
     }
 
     @Test
     @DisplayName("ativar item indisponivel deve salvar sem incrementar a versao")
     void enableUnavailableItemShouldSaveWithoutVersionIncrement() {
-        ItemDefinition definition = availableAvatar();
-        definition.setAvailable(false);
-        when(itemDefinitionRepository.findById(definition.getId())).thenReturn(Optional.of(definition));
+        Item item = availableAvatar();
+        item.disable();
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
         ToggleItemAvailabilityOutput output = useCase.execute(
-                new ToggleItemAvailabilityInput(principal, definition.getId(), true));
+                new ToggleItemAvailabilityInput(principal, item.getId(), true));
 
-        assertTrue(output.definition().isAvailable());
-        assertEquals(1, output.definition().getVersion());
-        verify(itemDefinitionRepository).save(definition);
+        assertTrue(output.item().isAvailable());
+        assertEquals(1, output.item().getVersion());
+        verify(itemRepository).save(item);
     }
 
     @Test
     @DisplayName("item inexistente deve falhar sem salvar")
     void unknownItemShouldFailWithoutSaving() {
         UUID itemId = UUID.randomUUID();
-        when(itemDefinitionRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(ItemNotFoundException.class, () -> useCase.execute(
                 new ToggleItemAvailabilityInput(principal, itemId, false)));
-        verify(itemDefinitionRepository, never()).save(ArgumentMatchers.any());
-    }
-
-    @Test
-    @DisplayName("available nulo deve falhar sem salvar")
-    void nullAvailableShouldFailWithoutSaving() {
-        ItemDefinition definition = availableAvatar();
-
-        assertThrows(InvalidItemException.class, () -> useCase.execute(
-                new ToggleItemAvailabilityInput(principal, definition.getId(), null)));
-        verify(itemDefinitionRepository, never()).save(ArgumentMatchers.any());
+        verify(itemRepository, never()).save(ArgumentMatchers.any());
     }
 }

@@ -5,6 +5,7 @@ import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
 import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
@@ -23,6 +24,7 @@ public class User {
     private boolean canChangeNickname;
     private final UserStats stats;
     private final Wallet wallet;
+    private final ActiveEffects activeEffects;
     private final LocalDateTime createdAt;
 
     private User(
@@ -37,6 +39,7 @@ public class User {
             boolean canChangeNickname,
             UserStats stats,
             Wallet wallet,
+            ActiveEffects activeEffects,
             LocalDateTime createdAt
     ) {
         this.userId = userId;
@@ -50,6 +53,7 @@ public class User {
         this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.wallet = wallet;
+        this.activeEffects = activeEffects;
         this.createdAt = createdAt;
     }
 
@@ -72,6 +76,7 @@ public class User {
                 canChangeNickname,
                 UserStats.create(),
                 Wallet.create(),
+                ActiveEffects.create(),
                 LocalDateTime.now()
         );
     }
@@ -88,6 +93,7 @@ public class User {
             BanInfo banInfo,
             UserStats stats,
             Wallet wallet,
+            ActiveEffects activeEffects,
             LocalDateTime createdAt
     ) {
         return new User(
@@ -102,6 +108,7 @@ public class User {
                 canChangeNickname,
                 stats,
                 wallet,
+                activeEffects,
                 createdAt
         );
     }
@@ -152,6 +159,10 @@ public class User {
 
     public Wallet getWallet() {
         return wallet;
+    }
+
+    public ActiveEffects getActiveEffects() {
+        return activeEffects;
     }
 
     public LocalDateTime getCreatedAt() {

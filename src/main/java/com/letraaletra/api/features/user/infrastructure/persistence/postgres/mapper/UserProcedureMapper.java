@@ -3,6 +3,7 @@ package com.letraaletra.api.features.user.infrastructure.persistence.postgres.ma
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
 import com.letraaletra.api.features.user.domain.ban.BanType;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 
@@ -60,6 +61,7 @@ public final class UserProcedureMapper {
                 banInfo,
                 UserStats.restore(totalMatches, totalWins, winStreak, level, experience, rankingPoints),
                 Wallet.restore(softCoins, hardGems),
+                ActiveEffects.create(),
                 createdAt
         );
     }

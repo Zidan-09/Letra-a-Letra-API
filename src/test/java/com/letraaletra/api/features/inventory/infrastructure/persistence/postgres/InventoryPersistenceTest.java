@@ -1,22 +1,15 @@
 package com.letraaletra.api.features.inventory.infrastructure.persistence.postgres;
 
-import com.letraaletra.api.features.items.domain.EffectType;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.Inventory;
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
-import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
-import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemDefinitionJpaEntity;
+import com.letraaletra.api.features.items.infrastructure.persistence.postgres.entity.ItemJpaEntity;
 import com.letraaletra.api.features.inventory.infrastructure.persistence.postgres.entity.UserItemJpaEntity;
-import com.letraaletra.api.features.items.infrastructure.persistence.postgres.jpa.SpringDataItemDefinitionRepository;
+import com.letraaletra.api.features.items.infrastructure.persistence.postgres.jpa.SpringDataItemRepository;
 import com.letraaletra.api.features.inventory.infrastructure.persistence.postgres.jpa.SpringDataUserItemRepository;
-import com.letraaletra.api.features.items.infrastructure.persistence.postgres.mapper.ItemDefinitionJpaMapper;
+import com.letraaletra.api.features.items.infrastructure.persistence.postgres.mapper.ItemJpaMapper;
 import com.letraaletra.api.features.inventory.infrastructure.persistence.postgres.mapper.UserItemJpaMapper;
-import com.letraaletra.api.features.inventory.infrastructure.persistence.postgres.projection.UserItemProjection;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserJpaEntity;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import jakarta.persistence.EntityManager;
@@ -30,7 +23,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InventoryPersistenceTest {
 
     @Autowired
-    private SpringDataItemDefinitionRepository definitions;
+    private SpringDataItemRepository definitions;
 
     @Autowired
     private SpringDataUserItemRepository items;
@@ -54,8 +46,8 @@ class InventoryPersistenceTest {
     private EntityManager entityManager;
 
     private UUID ownerId;
-    private ItemDefinition avatar;
-    private ItemDefinition boost;
+    private EquippableItem avatar;
+    private ConsumableItem boost;
 
     @BeforeEach
     void setUp() {
@@ -69,57 +61,48 @@ class InventoryPersistenceTest {
         user.setCanChangeNickname(true);
         users.save(user);
 
-        avatar = ItemDefinition.create(
+        avatar = EquippableItem.create(
                 "Blue Avatar",
-                ItemKind.COSMETIC,
+                EquippableContext.PROFILE,
                 ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
                 "/assets/avatar/blue.png"
         );
-        boost = ItemDefinition.create(
+        boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                ItemContext.PROFILE,
-                true,
-                1000,
-                true,
-                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                null
+                EquippableContext.PROFILE,
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
-        definitions.save(ItemDefinitionJpaMapper.toEntity(avatar));
-        definitions.save(ItemDefinitionJpaMapper.toEntity(boost));
+        definitions.save(ItemJpaMapper.toEntity(avatar));
+        definitions.save(ItemJpaMapper.toEntity(boost));
 
         entityManager.flush();
         entityManager.clear();
     }
 
     @Test
-    @DisplayName("definicao deve sobreviver ao reload com efeito e applicability preservados")
-    void definitionShouldSurviveReload() {
-        ItemDefinition reloadedAvatar = definitions.findByName("Blue Avatar")
-                .map(ItemDefinitionJpaMapper::toDomain)
+    @DisplayName("item deve sobreviver ao reload com efeito e contexto preservados")
+    void itemShouldSurviveReload() {
+        Item reloadedAvatar = definitions.findByName("Blue Avatar")
+                .map(ItemJpaMapper::toDomain)
                 .orElseThrow();
 
-        assertEquals(avatar.getId(), reloadedAvatar.getId());
-        assertEquals(ItemKind.COSMETIC, reloadedAvatar.getKind());
-        assertEquals(ItemCategory.AVATAR, reloadedAvatar.getCategory());
-        assertEquals(ItemContext.PROFILE, reloadedAvatar.getContext());
-        assertEquals("/assets/avatar/blue.png", reloadedAvatar.getAssetPath());
-        assertEquals(1, reloadedAvatar.getVersion());
-        assertTrue(reloadedAvatar.isAvailable());
+        assertTrue(reloadedAvatar instanceof EquippableItem);
+        EquippableItem reloaded = (EquippableItem) reloadedAvatar;
+        assertEquals(avatar.getId(), reloaded.getId());
+        assertEquals(ItemCategory.AVATAR, reloaded.getCategory());
+        assertEquals(EquippableContext.PROFILE, reloaded.getContext());
+        assertEquals("/assets/avatar/blue.png", reloaded.getAssetPath());
+        assertEquals(1, reloaded.getVersion());
+        assertTrue(reloaded.isAvailable());
 
-        ItemDefinition reloadedBoost = definitions.findById(boost.getId())
-                .map(ItemDefinitionJpaMapper::toDomain)
+        Item reloadedBoost = definitions.findById(boost.getId())
+                .map(ItemJpaMapper::toDomain)
                 .orElseThrow();
 
-        assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), reloadedBoost.getEffect());
-        assertEquals(1000, reloadedBoost.getMaxStack());
-        assertTrue(reloadedBoost.canStack());
+        assertTrue(reloadedBoost instanceof ConsumableItem);
+        ConsumableItem reloadedConsumable = (ConsumableItem) reloadedBoost;
+        assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), reloadedConsumable.getEffect());
     }
 
     @Test
@@ -144,7 +127,7 @@ class InventoryPersistenceTest {
         assertEquals(2, reloaded.size());
 
         UserItem reloadedAvatar = reloaded.stream()
-                .filter(item -> item.getDefinitionId().equals(avatar.getId()))
+                .filter(item -> item.getItemId().equals(avatar.getId()))
                 .findFirst()
                 .orElseThrow();
         assertEquals(1, reloadedAvatar.getQuantity());
@@ -153,7 +136,7 @@ class InventoryPersistenceTest {
         assertNull(reloadedAvatar.getExpiresAt());
 
         UserItem reloadedBoost = reloaded.stream()
-                .filter(item -> item.getDefinitionId().equals(boost.getId()))
+                .filter(item -> item.getItemId().equals(boost.getId()))
                 .findFirst()
                 .orElseThrow();
         assertEquals(3, reloadedBoost.getQuantity());
@@ -190,30 +173,27 @@ class InventoryPersistenceTest {
     @Test
     @DisplayName("mapper deve rejeitar dados persistidos invalidos e preservar efeito polimorfico")
     void mapperShouldRejectInvalidPersistedData() {
-        ItemDefinitionJpaEntity invalidApplicability = ItemDefinitionJpaMapper.toEntity(avatar);
+        ItemJpaEntity invalidApplicability = ItemJpaMapper.toEntity(avatar);
         invalidApplicability.setApplicability("PROFILE,MATCH");
-        assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toDomain(invalidApplicability));
+        assertThrows(InvalidItemException.class, () -> ItemJpaMapper.toDomain(invalidApplicability));
 
-        ItemDefinitionJpaEntity unknownContext = ItemDefinitionJpaMapper.toEntity(avatar);
+        ItemJpaEntity unknownContext = ItemJpaMapper.toEntity(avatar);
         unknownContext.setApplicability("UNKNOWN");
-        assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toDomain(unknownContext));
+        assertThrows(InvalidItemException.class, () -> ItemJpaMapper.toDomain(unknownContext));
 
-        ItemDefinitionJpaEntity corruptEffect = ItemDefinitionJpaMapper.toEntity(boost);
+        ItemJpaEntity corruptEffect = ItemJpaMapper.toEntity(boost);
         corruptEffect.setEffect("{broken");
-        assertThrows(InvalidItemException.class, () -> ItemDefinitionJpaMapper.toDomain(corruptEffect));
+        assertThrows(InvalidItemException.class, () -> ItemJpaMapper.toDomain(corruptEffect));
 
-        ItemDefinition nickname = ItemDefinition.create(
+        ConsumableItem nickname = ConsumableItem.create(
                 "Nickname Change",
-                ItemKind.CONSUMABLE,
                 ItemCategory.CHANGE_NICKNAME,
-                ItemContext.PROFILE,
-                true,
-                1000,
-                true,
-                new com.letraaletra.api.features.items.domain.NicknameChangeEffect(),
-                null
+                EquippableContext.PROFILE,
+                new com.letraaletra.api.features.items.domain.NicknameChangeEffect()
         );
-        ItemDefinition reloadedNickname = ItemDefinitionJpaMapper.toDomain(ItemDefinitionJpaMapper.toEntity(nickname));
-        assertTrue(reloadedNickname.getEffect() instanceof com.letraaletra.api.features.items.domain.NicknameChangeEffect);
+        Item reloadedNickname = ItemJpaMapper.toDomain(ItemJpaMapper.toEntity(nickname));
+        assertTrue(reloadedNickname instanceof ConsumableItem);
+        ConsumableItem reloaded = (ConsumableItem) reloadedNickname;
+        assertTrue(reloaded.getEffect() instanceof com.letraaletra.api.features.items.domain.NicknameChangeEffect);
     }
 }

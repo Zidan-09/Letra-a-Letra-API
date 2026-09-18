@@ -1,9 +1,9 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 
 public interface GrantPolicy {
 
-    void checkGrant(ItemDefinition definition, UserItem existingOwnership, int quantity);
+    void checkGrant(Item item, UserItem existingOwnership, int quantity);
 }

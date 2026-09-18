@@ -19,16 +19,14 @@ import com.letraaletra.api.features.reward.application.port.RewardFactory;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.domain.security.exceptions.UserIsNotAdminException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +42,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,7 +77,7 @@ class GrantUserRewardUseCaseTest {
     private RewardFactory rewardFactory;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -398,16 +395,11 @@ class GrantUserRewardUseCaseTest {
         @Test
         @DisplayName("Deve propagar exceção caso o UserRepository falhe ao salvar as alterações do usuário")
         void execute_WhenUserRepositorySaveFails_ShouldPropagateException() {
-            ItemDefinition definition = ItemDefinition.create(
+            ConsumableItem definition = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemKind.CONSUMABLE,
                     ItemCategory.XP_BOOST,
-                    ItemContext.PROFILE,
-                    true,
-                    1000,
-                    true,
-                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                    null
+                    EquippableContext.PROFILE,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
             GrantUserRewardInput input = new GrantUserRewardInput(
                     principal,
@@ -420,7 +412,7 @@ class GrantUserRewardUseCaseTest {
             ItemGrantReward reward = new ItemGrantReward(definition.getId(), 2);
 
             when(mockUser.getUserId()).thenReturn(targetUserId);
-            when(itemDefinitionRepository.findById(definition.getId()))
+            when(itemRepository.findById(definition.getId()))
                     .thenReturn(Optional.of(definition));
             when(inventoryRepository.findItemsByOwner(targetUserId))
                     .thenReturn(java.util.List.of());
@@ -462,16 +454,11 @@ class GrantUserRewardUseCaseTest {
         @Test
         @DisplayName("Deve conceder ItemGrantReward via agregado novo sem transação de wallet")
         void execute_WhenItemGrantReward_ShouldGrantViaNewInventory() {
-            ItemDefinition boost = ItemDefinition.create(
+            ConsumableItem boost = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemKind.CONSUMABLE,
                     ItemCategory.XP_BOOST,
-                    ItemContext.PROFILE,
-                    true,
-                    1000,
-                    true,
-                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                    null
+                    EquippableContext.PROFILE,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
             GrantUserRewardInput input = new GrantUserRewardInput(
                     principal,
@@ -486,7 +473,7 @@ class GrantUserRewardUseCaseTest {
             when(rewardFactory.create(RewardType.ITEM, 2, boost.getId()))
                     .thenReturn(new ItemGrantReward(boost.getId(), 2));
             when(mockUser.getUserId()).thenReturn(targetUserId);
-            when(itemDefinitionRepository.findById(boost.getId()))
+            when(itemRepository.findById(boost.getId()))
                     .thenReturn(Optional.of(boost));
             when(inventoryRepository.findItemsByOwner(targetUserId))
                     .thenReturn(java.util.List.of());

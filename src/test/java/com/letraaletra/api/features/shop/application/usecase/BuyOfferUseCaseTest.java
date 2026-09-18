@@ -3,7 +3,6 @@ package com.letraaletra.api.features.shop.application.usecase;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,14 +38,12 @@ import com.letraaletra.api.features.offers.domain.exception.OfferNotFoundExcepti
 import com.letraaletra.api.features.offers.domain.repository.OfferRepository;
 import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
 import com.letraaletra.api.features.shop.application.input.BuyOfferInput;
@@ -74,7 +71,7 @@ class BuyOfferUseCaseTest {
     private BusinessAuditRecorder auditRecorder;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -197,16 +194,11 @@ class BuyOfferUseCaseTest {
     @Test
     @DisplayName("should grant ITEM rewards through the new inventory")
     void shouldGrantItemRewardsThroughNewInventory() {
-        ItemDefinition boost = ItemDefinition.create(
+        ConsumableItem boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                ItemContext.PROFILE,
-                true,
-                1000,
-                true,
-                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                null
+                EquippableContext.PROFILE,
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
         OfferReward itemOfferReward = mock(OfferReward.class);
         when(itemOfferReward.reward()).thenReturn(new ItemGrantReward(boost.getId(), 2));
@@ -215,7 +207,7 @@ class BuyOfferUseCaseTest {
         when(purchasePort.purchase(input.auth(), input.offerId())).thenReturn(mockPurchaseResult);
         when(offerRepository.findById(input.offerId())).thenReturn(Optional.of(mockOffer));
         when(userRepository.find(input.auth())).thenReturn(Optional.of(mockUser));
-        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        when(itemRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
         when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of());
 
         BuyOfferOutput output = useCase.execute(input);

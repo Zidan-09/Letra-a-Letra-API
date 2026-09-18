@@ -1,7 +1,8 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InapplicableContextException;
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;
@@ -12,16 +13,12 @@ import com.letraaletra.api.features.inventory.domain.exception.NonConsumableItem
 public class ConsumableConsumePolicy implements ConsumePolicy {
 
     @Override
-    public void checkConsume(ItemDefinition definition, UserItem owned, int quantity, ItemContext context) {
-        if (!definition.isConsumable()) {
+    public void checkConsume(Item item, UserItem owned, int quantity, EquippableContext context) {
+        if (!(item instanceof ConsumableItem)) {
             throw new NonConsumableItemException();
         }
 
-        if (context != ItemContext.PROFILE) {
-            throw new InapplicableContextException();
-        }
-
-        if (!definition.isApplicableTo(ItemContext.PROFILE)) {
+        if (context != EquippableContext.PROFILE) {
             throw new InapplicableContextException();
         }
 

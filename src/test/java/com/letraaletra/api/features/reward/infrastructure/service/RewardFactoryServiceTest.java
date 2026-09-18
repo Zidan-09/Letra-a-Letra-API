@@ -1,15 +1,9 @@
 package com.letraaletra.api.features.reward.infrastructure.service;
 
-import com.letraaletra.api.features.items.domain.EffectType;
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
-import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.RewardType;
@@ -23,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,44 +27,34 @@ import static org.mockito.Mockito.when;
 class RewardFactoryServiceTest {
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @InjectMocks
     private RewardFactoryService factory;
 
-    private ItemDefinition avatar;
-    private ItemDefinition boost;
+    private EquippableItem avatar;
+    private ConsumableItem boost;
 
     @BeforeEach
     void setUp() {
-        avatar = ItemDefinition.create(
+        avatar = EquippableItem.create(
                 "Blue Avatar",
-                ItemKind.COSMETIC,
+                EquippableContext.PROFILE,
                 ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
                 "/assets/avatar/blue.png"
         );
-        boost = ItemDefinition.create(
+        boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                ItemContext.PROFILE,
-                true,
-                1000,
-                true,
-                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                null
+                EquippableContext.PROFILE,
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }
 
     @Test
     @DisplayName("ITEM stackável deve gerar ItemGrantReward com a quantidade")
     void stackableItemShouldGenerateItemGrantReward() {
-        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        when(itemRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
 
         Reward reward = factory.create(RewardType.ITEM, 3, boost.getId());
 
@@ -81,7 +64,7 @@ class RewardFactoryServiceTest {
     @Test
     @DisplayName("ITEM único deve exigir quantidade 1")
     void uniqueItemShouldRequireQuantityOne() {
-        when(itemDefinitionRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
+        when(itemRepository.findById(avatar.getId())).thenReturn(Optional.of(avatar));
 
         assertEquals(new ItemGrantReward(avatar.getId(), 1),
                 factory.create(RewardType.ITEM, 1, avatar.getId()));
@@ -96,7 +79,7 @@ class RewardFactoryServiceTest {
                 () -> factory.create(RewardType.ITEM, 1, null));
 
         UUID missing = UUID.randomUUID();
-        when(itemDefinitionRepository.findById(missing)).thenReturn(Optional.empty());
+        when(itemRepository.findById(missing)).thenReturn(Optional.empty());
         assertThrows(ItemNotFoundException.class,
                 () -> factory.create(RewardType.ITEM, 1, missing));
     }
@@ -104,8 +87,8 @@ class RewardFactoryServiceTest {
     @Test
     @DisplayName("ITEM indisponível deve falhar")
     void unavailableItemShouldFail() {
-        boost.setAvailable(false);
-        when(itemDefinitionRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
+        boost.disable();
+        when(itemRepository.findById(boost.getId())).thenReturn(Optional.of(boost));
 
         assertThrows(ItemNotAvailableException.class,
                 () -> factory.create(RewardType.ITEM, 1, boost.getId()));

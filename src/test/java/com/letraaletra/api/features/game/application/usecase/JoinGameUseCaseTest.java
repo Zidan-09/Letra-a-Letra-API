@@ -7,7 +7,7 @@ import com.letraaletra.api.features.game.application.port.ActorManager;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.actor.command.JoinGameActorCommand;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
@@ -41,7 +41,7 @@ class JoinGameUseCaseTest {
     private InventoryRepository inventoryRepository;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @InjectMocks
     private JoinGameUseCase useCase;

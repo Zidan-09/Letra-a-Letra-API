@@ -1,11 +1,15 @@
 package com.letraaletra.api.features.user.infrastructure.persistence.postgres.adapter;
 
 import com.letraaletra.api.features.user.domain.UsersPage;
+import com.letraaletra.api.features.user.domain.effect.UserEffect;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.entity.UserActiveEffectJpaEntity;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserActiveEffectRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserStatsRepository;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.jpa.SpringDataUserWalletRepository;
+import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserActiveEffectJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserJpaMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserProcedureMapper;
 import com.letraaletra.api.features.user.infrastructure.persistence.postgres.mapper.UserStatsJpaMapper;
@@ -23,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +39,7 @@ public class JpaUserRepository implements UserRepository {
     private final SpringDataUserRepository repository;
     private final SpringDataUserWalletRepository walletRepository;
     private final SpringDataUserStatsRepository statsRepository;
+    private final SpringDataUserActiveEffectRepository effectsRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -40,11 +47,13 @@ public class JpaUserRepository implements UserRepository {
             SpringDataUserRepository repository,
             SpringDataUserWalletRepository walletRepository,
             SpringDataUserStatsRepository statsRepository,
+            SpringDataUserActiveEffectRepository effectsRepository,
             @Autowired(required = false) JdbcTemplate jdbcTemplate
     ) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.statsRepository = statsRepository;
+        this.effectsRepository = effectsRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -54,13 +63,58 @@ public class JpaUserRepository implements UserRepository {
             SpringDataUserWalletRepository walletRepository,
             SpringDataUserStatsRepository statsRepository
     ) {
-        this(repository, walletRepository, statsRepository, null);
+        this(repository, walletRepository, statsRepository, null, null);
     }
 
     @Override
     @Transactional
     public void save(User user) {
         saveUser(user);
+        replaceEffects(user);
+    }
+
+    private void replaceEffects(User user) {
+        if (effectsRepository == null) {
+            return;
+        }
+
+        effectsRepository.deleteByUserId(user.getUserId());
+
+        List<UserActiveEffectJpaEntity> entities = user.getActiveEffects().getEffects().stream()
+                .map(effect -> UserActiveEffectJpaMapper.toEntity(user.getUserId(), effect))
+                .toList();
+
+        effectsRepository.saveAll(entities);
+    }
+
+    private User attachEffects(User user) {
+        if (effectsRepository == null) {
+            return user;
+        }
+
+        effectsRepository.findByUserId(user.getUserId()).stream()
+                .map(UserActiveEffectJpaMapper::toDomain)
+                .forEach(user.getActiveEffects()::add);
+
+        return user;
+    }
+
+    private List<User> attachEffects(List<User> users) {
+        if (effectsRepository == null || users.isEmpty()) {
+            return users;
+        }
+
+        Map<UUID, User> byId = new HashMap<>();
+        for (User user : users) {
+            byId.putIfAbsent(user.getUserId(), user);
+        }
+
+        for (UserActiveEffectJpaEntity entity : effectsRepository.findByUserIdIn(byId.keySet())) {
+            UserEffect effect = UserActiveEffectJpaMapper.toDomain(entity);
+            byId.get(entity.getUserId()).getActiveEffects().add(effect);
+        }
+
+        return users;
     }
 
     private void saveUser(User user) {
@@ -138,6 +192,12 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<User> find(UUID id) {
+        Optional<User> result = findInternal(id);
+        result.ifPresent(this::attachEffects);
+        return result;
+    }
+
+    private Optional<User> findInternal(UUID id) {
         if (jdbcTemplate == null) {
             return legacyFind(id);
         }
@@ -161,6 +221,10 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public List<User> findUsersById(List<UUID> ids) {
+        return attachEffects(findUsersByIdInternal(ids));
+    }
+
+    private List<User> findUsersByIdInternal(List<UUID> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         if (jdbcTemplate == null) {
             return legacyFindUsersById(ids);
@@ -189,6 +253,12 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUsername(String username) {
+        Optional<User> result = findByUsernameInternal(username);
+        result.ifPresent(this::attachEffects);
+        return result;
+    }
+
+    private Optional<User> findByUsernameInternal(String username) {
         if (jdbcTemplate == null) {
             return legacyFindByUsername(username);
         }
@@ -212,6 +282,12 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByEmail(String email) {
+        Optional<User> result = findByEmailInternal(email);
+        result.ifPresent(this::attachEffects);
+        return result;
+    }
+
+    private Optional<User> findByEmailInternal(String email) {
         if (jdbcTemplate == null) {
             return legacyFindByEmail(email);
         }
@@ -235,6 +311,12 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByGoogleId(String googleId) {
+        Optional<User> result = findByGoogleIdInternal(googleId);
+        result.ifPresent(this::attachEffects);
+        return result;
+    }
+
+    private Optional<User> findByGoogleIdInternal(String googleId) {
         if (jdbcTemplate == null) {
             return legacyFindByGoogleId(googleId);
         }
@@ -273,6 +355,12 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Page<User> get(UsersPage page) {
+        Page<User> result = getInternal(page);
+        attachEffects(result.getContent());
+        return result;
+    }
+
+    private Page<User> getInternal(UsersPage page) {
         if (jdbcTemplate == null) {
             return legacyGet(page);
         }
@@ -312,7 +400,9 @@ public class JpaUserRepository implements UserRepository {
     public Page<User> search(String search, UsersPage page) {
         Pageable pageable = PageRequest.of(page.page(), page.size(), page.sort());
         var users = repository.search(search, pageable);
-        return users.map(UserJpaMapper::toDomain);
+        Page<User> result = users.map(UserJpaMapper::toDomain);
+        attachEffects(result.getContent());
+        return result;
     }
 
     private User mapUser(ResultSet rs) throws SQLException {

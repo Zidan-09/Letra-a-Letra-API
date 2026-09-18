@@ -11,8 +11,8 @@ import com.letraaletra.api.features.levels.domain.exception.LevelNotFoundExcepti
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.reward.domain.RewardType;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.Item;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.levels.domain.LevelReward;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -40,7 +40,7 @@ class UpdateLevelUseCaseTest {
     private LevelRepository levelRepository;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private AdminChecker adminChecker;
@@ -85,15 +85,15 @@ class UpdateLevelUseCaseTest {
         verify(mockLevel, times(1)).setLevel(newTargetLevel);
         verify(mockLevel, times(1)).setRewards(anyList());
         verify(levelRepository, times(1)).save(mockLevel);
-        verifyNoInteractions(itemDefinitionRepository);
+        verifyNoInteractions(itemRepository);
     }
 
     @Test
-    @DisplayName("Should successfully update a level with ITEM reward type when the definition exists")
+    @DisplayName("Should successfully update a level with ITEM reward type when the item exists")
     void shouldUpdateLevelWithItemRewardSuccessfully() {
         UUID definitionId = UUID.randomUUID();
-        ItemDefinition definition = mock(ItemDefinition.class);
-        when(definition.getId()).thenReturn(definitionId);
+        Item item = mock(Item.class);
+        when(item.getId()).thenReturn(definitionId);
         CreateLevelRewardInput itemReward = new CreateLevelRewardInput(RewardType.ITEM, definitionId, 2);
         UpdateLevelInput input = new UpdateLevelInput(principal, levelId, newTargetLevel, List.of(itemReward));
 
@@ -101,12 +101,12 @@ class UpdateLevelUseCaseTest {
         when(levelRepository.find(levelId)).thenReturn(Optional.of(mockLevel));
         when(levelRepository.findByLevel(input.level()))
                 .thenReturn(Optional.empty());
-        when(itemDefinitionRepository.findById(definitionId)).thenReturn(Optional.of(definition));
+        when(itemRepository.findById(definitionId)).thenReturn(Optional.of(item));
 
         UpdateLevelOutput output = useCase.execute(input);
 
         assertNotNull(output);
-        verify(itemDefinitionRepository, times(1)).findById(definitionId);
+        verify(itemRepository, times(1)).findById(definitionId);
 
         ArgumentCaptor<List<LevelReward>> rewardsCaptor = ArgumentCaptor.forClass(List.class);
         verify(mockLevel, times(1)).setRewards(rewardsCaptor.capture());
@@ -142,7 +142,7 @@ class UpdateLevelUseCaseTest {
         assertThrows(SecurityException.class, () -> useCase.execute(input));
 
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(itemDefinitionRepository);
+        verifyNoInteractions(itemRepository);
     }
 
     @Test
@@ -156,7 +156,7 @@ class UpdateLevelUseCaseTest {
         assertThrows(LevelNotFoundException.class, () -> useCase.execute(input));
 
         verify(levelRepository, never()).save(any());
-        verifyNoInteractions(itemDefinitionRepository);
+        verifyNoInteractions(itemRepository);
     }
 
     @Test
@@ -166,7 +166,7 @@ class UpdateLevelUseCaseTest {
 
         verifyNoInteractions(adminChecker);
         verifyNoInteractions(levelRepository);
-        verifyNoInteractions(itemDefinitionRepository);
+        verifyNoInteractions(itemRepository);
     }
 
     @Test

@@ -19,7 +19,8 @@ import com.letraaletra.api.features.inventory.application.usecase.GetUserItemsUs
 import com.letraaletra.api.features.inventory.application.usecase.GrantItemUseCase;
 import com.letraaletra.api.features.inventory.application.usecase.RevokeItemUseCase;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
@@ -46,13 +47,13 @@ public class InventoryConfig {
     @Bean
     public UseCase<GetUserItemsInput, GetUserItemsOutput> getUserItemsUseCase(
             InventoryRepository inventoryRepository,
-            ItemDefinitionLookup itemDefinitionLookup,
+            ItemLookup ItemLookup,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new GetUserItemsUseCase(
                         inventoryRepository,
-                        itemDefinitionLookup
+                        ItemLookup
                 ),
                 transactions
         );
@@ -60,7 +61,7 @@ public class InventoryConfig {
 
     @Bean
     public UseCase<GrantItemInput, GrantItemOutput> grantItemUseCase(
-            ItemDefinitionLookup itemDefinitionLookup,
+            ItemLookup ItemLookup,
             InventoryRepository inventoryRepository,
             AdminChecker adminChecker,
             BusinessAuditRecorder auditRecorder,
@@ -68,7 +69,7 @@ public class InventoryConfig {
     ) {
         return new TransactionalUseCase<>(
                 new GrantItemUseCase(
-                        itemDefinitionLookup,
+                        ItemLookup,
                         inventoryRepository,
                         adminChecker,
                         auditRecorder
@@ -79,15 +80,17 @@ public class InventoryConfig {
 
     @Bean
     public UseCase<ConsumeItemInput, ConsumeItemOutput> consumeItemUseCase(
-            ItemDefinitionLookup itemDefinitionLookup,
+            ItemLookup itemLookup,
             InventoryRepository inventoryRepository,
+            UserRepository userRepository,
             BusinessAuditRecorder auditRecorder,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new ConsumeItemUseCase(
-                        itemDefinitionLookup,
+                        itemLookup,
                         inventoryRepository,
+                        userRepository,
                         auditRecorder
                 ),
                 transactions
@@ -96,14 +99,14 @@ public class InventoryConfig {
 
     @Bean
     public UseCase<EquipItemInput, EquipItemOutput> equipItemUseCase(
-            ItemDefinitionLookup itemDefinitionLookup,
+            ItemLookup ItemLookup,
             InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new EquipItemUseCase(
-                        itemDefinitionLookup,
+                        ItemLookup,
                         inventoryRepository,
                         auditRecorder
                 ),
@@ -113,7 +116,7 @@ public class InventoryConfig {
 
     @Bean
     public UseCase<RevokeItemInput, RevokeItemOutput> revokeItemUseCase(
-            ItemDefinitionLookup itemDefinitionLookup,
+            ItemLookup ItemLookup,
             InventoryRepository inventoryRepository,
             AdminChecker adminChecker,
             BusinessAuditRecorder auditRecorder,
@@ -121,7 +124,7 @@ public class InventoryConfig {
     ) {
         return new TransactionalUseCase<>(
                 new RevokeItemUseCase(
-                        itemDefinitionLookup,
+                        ItemLookup,
                         inventoryRepository,
                         adminChecker,
                         auditRecorder

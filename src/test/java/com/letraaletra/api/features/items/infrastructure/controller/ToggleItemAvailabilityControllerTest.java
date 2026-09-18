@@ -3,7 +3,7 @@ package com.letraaletra.api.features.items.infrastructure.controller;
 import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
 import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
 import com.letraaletra.api.features.items.infrastructure.presentation.dto.request.ToggleItemAvailabilityRequest;
-import com.letraaletra.api.features.items.infrastructure.presentation.dto.response.ItemDefinitionResponse;
+import com.letraaletra.api.features.items.infrastructure.presentation.dto.response.ItemResponse;
 import com.letraaletra.api.features.items.infrastructure.presentation.mapper.ToggleItemAvailabilityMapper;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
@@ -39,8 +39,8 @@ class ToggleItemAvailabilityControllerTest {
     private ToggleItemAvailabilityInput mockInput;
     private ToggleItemAvailabilityOutput mockOutput;
     private ToggleItemAvailabilityRequest request;
-    private ItemDefinitionResponse mockResponseDto;
-    private ResponseEntity<SuccessResponse<ItemDefinitionResponse>> mockResponseEntity;
+    private ItemResponse mockResponseDto;
+    private ResponseEntity<SuccessResponse<ItemResponse>> mockResponseEntity;
 
     @BeforeEach
     void setUp() {
@@ -49,9 +49,9 @@ class ToggleItemAvailabilityControllerTest {
         mockInput = mock(ToggleItemAvailabilityInput.class);
         mockOutput = mock(ToggleItemAvailabilityOutput.class);
         request = mock(ToggleItemAvailabilityRequest.class);
-        mockResponseDto = mock(ItemDefinitionResponse.class);
+        mockResponseDto = mock(ItemResponse.class);
 
-        SuccessResponse<ItemDefinitionResponse> successResponse = new SuccessResponse<>(true, mockResponseDto);
+        SuccessResponse<ItemResponse> successResponse = new SuccessResponse<>(true, mockResponseDto);
         mockResponseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
@@ -67,7 +67,7 @@ class ToggleItemAvailabilityControllerTest {
             mapperMock.when(() -> ToggleItemAvailabilityMapper.toResponse(mockOutput)).thenReturn(mockResponseDto);
             apiResponseMock.when(() -> ApiResponseHandler.success(mockResponseDto)).thenReturn(mockResponseEntity);
 
-            ResponseEntity<SuccessResponse<ItemDefinitionResponse>> response =
+            ResponseEntity<SuccessResponse<ItemResponse>> response =
                     controller.handle(principal, itemId, request);
 
             assertEquals(mockResponseEntity, response);

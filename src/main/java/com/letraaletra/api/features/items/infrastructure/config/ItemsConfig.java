@@ -1,26 +1,26 @@
 package com.letraaletra.api.features.items.infrastructure.config;
 
-import com.letraaletra.api.features.items.application.input.CreateItemDefinitionInput;
-import com.letraaletra.api.features.items.application.input.DeleteItemDefinitionInput;
-import com.letraaletra.api.features.items.application.input.GetItemDefinitionInput;
-import com.letraaletra.api.features.items.application.input.ListItemDefinitionsInput;
+import com.letraaletra.api.features.items.application.input.CreateItemInput;
+import com.letraaletra.api.features.items.application.input.DeleteItemInput;
+import com.letraaletra.api.features.items.application.input.GetItemInput;
+import com.letraaletra.api.features.items.application.input.ListItemsInput;
 import com.letraaletra.api.features.items.application.input.ToggleItemAvailabilityInput;
-import com.letraaletra.api.features.items.application.input.UpdateItemDefinitionInput;
-import com.letraaletra.api.features.items.application.output.CreateItemDefinitionOutput;
-import com.letraaletra.api.features.items.application.output.DeleteItemDefinitionOutput;
-import com.letraaletra.api.features.items.application.output.GetItemDefinitionOutput;
-import com.letraaletra.api.features.items.application.output.ListItemDefinitionsOutput;
+import com.letraaletra.api.features.items.application.input.UpdateItemInput;
+import com.letraaletra.api.features.items.application.output.CreateItemOutput;
+import com.letraaletra.api.features.items.application.output.DeleteItemOutput;
+import com.letraaletra.api.features.items.application.output.GetItemOutput;
+import com.letraaletra.api.features.items.application.output.ListItemsOutput;
 import com.letraaletra.api.features.items.application.output.ToggleItemAvailabilityOutput;
-import com.letraaletra.api.features.items.application.output.UpdateItemDefinitionOutput;
+import com.letraaletra.api.features.items.application.output.UpdateItemOutput;
 import com.letraaletra.api.features.items.application.port.ItemImageConverter;
-import com.letraaletra.api.features.items.application.usecase.CreateItemDefinitionUseCase;
-import com.letraaletra.api.features.items.application.usecase.DeleteItemDefinitionUseCase;
-import com.letraaletra.api.features.items.application.usecase.GetItemDefinitionUseCase;
-import com.letraaletra.api.features.items.application.usecase.ListItemDefinitionsUseCase;
+import com.letraaletra.api.features.items.application.usecase.CreateItemUseCase;
+import com.letraaletra.api.features.items.application.usecase.DeleteItemUseCase;
+import com.letraaletra.api.features.items.application.usecase.GetItemUseCase;
+import com.letraaletra.api.features.items.application.usecase.ListItemsUseCase;
 import com.letraaletra.api.features.items.application.usecase.ToggleItemAvailabilityUseCase;
-import com.letraaletra.api.features.items.application.usecase.UpdateItemDefinitionUseCase;
+import com.letraaletra.api.features.items.application.usecase.UpdateItemUseCase;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
 import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
@@ -31,16 +31,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ItemsConfig {
     @Bean
-    public UseCase<CreateItemDefinitionInput, CreateItemDefinitionOutput> createItemDefinitionUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+    public UseCase<CreateItemInput, CreateItemOutput> createItemUseCase(
+            ItemRepository itemRepository,
             ItemAssetStorage assetStorage,
             ItemImageConverter imageConverter,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new CreateItemDefinitionUseCase(
-                        itemDefinitionRepository,
+                new CreateItemUseCase(
+                        itemRepository,
                         assetStorage,
                         imageConverter,
                         adminChecker
@@ -50,16 +50,16 @@ public class ItemsConfig {
     }
 
     @Bean
-    public UseCase<UpdateItemDefinitionInput, UpdateItemDefinitionOutput> updateItemDefinitionUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+    public UseCase<UpdateItemInput, UpdateItemOutput> updateItemUseCase(
+            ItemRepository itemRepository,
             ItemAssetStorage assetStorage,
             ItemImageConverter imageConverter,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new UpdateItemDefinitionUseCase(
-                        itemDefinitionRepository,
+                new UpdateItemUseCase(
+                        itemRepository,
                         assetStorage,
                         imageConverter,
                         adminChecker
@@ -69,14 +69,14 @@ public class ItemsConfig {
     }
 
     @Bean
-    public UseCase<GetItemDefinitionInput, GetItemDefinitionOutput> getItemDefinitionUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+    public UseCase<GetItemInput, GetItemOutput> getItemUseCase(
+            ItemRepository itemRepository,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new GetItemDefinitionUseCase(
-                        itemDefinitionRepository,
+                new GetItemUseCase(
+                        itemRepository,
                         adminChecker
                 ),
                 transactions
@@ -84,14 +84,14 @@ public class ItemsConfig {
     }
 
     @Bean
-    public UseCase<ListItemDefinitionsInput, ListItemDefinitionsOutput> listItemDefinitionsUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+    public UseCase<ListItemsInput, ListItemsOutput> listItemsUseCase(
+            ItemRepository itemRepository,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new ListItemDefinitionsUseCase(
-                        itemDefinitionRepository,
+                new ListItemsUseCase(
+                        itemRepository,
                         adminChecker
                 ),
                 transactions
@@ -99,15 +99,15 @@ public class ItemsConfig {
     }
 
     @Bean
-    public UseCase<DeleteItemDefinitionInput, DeleteItemDefinitionOutput> deleteItemDefinitionUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+    public UseCase<DeleteItemInput, DeleteItemOutput> deleteItemUseCase(
+            ItemRepository itemRepository,
             ItemAssetStorage assetStorage,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new DeleteItemDefinitionUseCase(
-                        itemDefinitionRepository,
+                new DeleteItemUseCase(
+                        itemRepository,
                         assetStorage,
                         adminChecker
                 ),
@@ -117,13 +117,13 @@ public class ItemsConfig {
 
     @Bean
     public UseCase<ToggleItemAvailabilityInput, ToggleItemAvailabilityOutput> toggleItemAvailabilityUseCase(
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new ToggleItemAvailabilityUseCase(
-                        itemDefinitionRepository,
+                        itemRepository,
                         adminChecker
                 ),
                 transactions

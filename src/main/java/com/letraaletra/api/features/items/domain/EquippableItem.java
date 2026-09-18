@@ -1,10 +1,14 @@
 package com.letraaletra.api.features.items.domain;
 
+import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class EquippableItem extends Item {
-    private ItemContext context;
-    private EquippableCategory category;
+    private final EquippableContext context;
+    private final ItemCategory category;
     private String assetPath;
 
     private EquippableItem(
@@ -12,11 +16,28 @@ public class EquippableItem extends Item {
             String name,
             int version,
             boolean available,
-            ItemContext context,
-            EquippableCategory category,
+            EquippableContext context,
+            ItemCategory category,
             String assetPath
     ) {
         super(itemId, name, version, available);
+
+        if (context == null || category == null) {
+            throw new InvalidItemException();
+        }
+
+        if (category.isConsumableCategory()) {
+            throw new InvalidItemException();
+        }
+
+        if (!category.allowedContexts().contains(context)) {
+            throw new InvalidItemException();
+        }
+
+        if (!isRelativeAssetPath(assetPath)) {
+            throw new InvalidItemException();
+        }
+
         this.context = context;
         this.category = category;
         this.assetPath = assetPath;
@@ -24,8 +45,8 @@ public class EquippableItem extends Item {
 
     public static EquippableItem create(
             String name,
-            ItemContext context,
-            EquippableCategory category,
+            EquippableContext context,
+            ItemCategory category,
             String assetPath
     ) {
         return new EquippableItem(
@@ -44,8 +65,8 @@ public class EquippableItem extends Item {
             String name,
             int version,
             boolean available,
-            ItemContext context,
-            EquippableCategory category,
+            EquippableContext context,
+            ItemCategory category,
             String assetPath
     ) {
         return new EquippableItem(
@@ -59,11 +80,23 @@ public class EquippableItem extends Item {
         );
     }
 
-    public ItemContext getContext() {
+    private static boolean isRelativeAssetPath(String assetPath) {
+        if (assetPath == null || assetPath.isBlank()) {
+            return false;
+        }
+
+        try {
+            return new URI(assetPath).getScheme() == null;
+        } catch (URISyntaxException e) {
+            return true;
+        }
+    }
+
+    public EquippableContext getContext() {
         return context;
     }
 
-    public EquippableCategory getCategory() {
+    public ItemCategory getCategory() {
         return category;
     }
 
@@ -71,15 +104,11 @@ public class EquippableItem extends Item {
         return assetPath;
     }
 
-    public void setContext(ItemContext context) {
-        this.context = context;
-    }
-
-    public void setCategory(EquippableCategory category) {
-        this.category = category;
-    }
-
     public void setAssetPath(String assetPath) {
+        if (!isRelativeAssetPath(assetPath)) {
+            throw new InvalidItemException();
+        }
+
         this.assetPath = assetPath;
     }
 }

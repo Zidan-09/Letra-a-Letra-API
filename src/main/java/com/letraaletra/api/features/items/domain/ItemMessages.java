@@ -3,9 +3,8 @@ package com.letraaletra.api.features.items.domain;
 import com.letraaletra.api.shared.domain.MessageCode;
 
 public enum ItemMessages implements MessageCode {
-    INVALID_ITEM("the item definition is invalid"),
+    INVALID_ITEM("the item is invalid"),
     INVALID_ITEM_STATUS("the item status is invalid"),
-    INVALID_CONSUMABLE_ITEM_DURATION("the duration for the consumable item is invalid"),
     ITEM_ALREADY_EXISTS("an item with this name already exists"),
     ITEM_NOT_FOUND("the item was not found"),
     IMAGE_TOO_LARGE("the image exceeds the maximum allowed size of 5 MB"),

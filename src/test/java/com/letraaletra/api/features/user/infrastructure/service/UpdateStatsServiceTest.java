@@ -16,16 +16,16 @@ import com.letraaletra.api.features.user.domain.wallet.WalletMovement;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.reward.domain.SoftCoinsReward;
+import com.letraaletra.api.features.items.domain.ConsumableItem;
 import com.letraaletra.api.features.items.domain.EffectType;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
+import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,12 +39,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -72,7 +72,7 @@ class UpdateStatsServiceTest {
     private com.letraaletra.api.shared.application.port.OperationContext operationContext;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -96,6 +96,7 @@ class UpdateStatsServiceTest {
         lenient().when(operationContext.currentOperationId()).thenReturn(Optional.empty());
         lenient().when(walletTransactionRepository.save(any(Transaction.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(mockUser.getActiveEffects()).thenReturn(ActiveEffects.create());
     }
 
     @Nested
@@ -125,6 +126,45 @@ class UpdateStatsServiceTest {
                     .findByLevel(any(Integer.class));
 
             verifyNoInteractions(walletTransactionRepository);
+        }
+
+        @Test
+        @DisplayName("Deve aplicar bonus de XP com efeito temporal valido e remover o expirado")
+        void update_WhenValidXpBoost_ShouldApplyBonusAndPruneExpired() {
+            boolean isWinner = true;
+            int maxLevel = 10;
+
+            ActiveEffects effects = ActiveEffects.create();
+            effects.add(new ExperienceBonusEffect(50, java.time.Instant.now().plusSeconds(3600)));
+            effects.add(new ExperienceBonusEffect(50, java.time.Instant.now().minusSeconds(1)));
+            when(mockUser.getActiveEffects()).thenReturn(effects);
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
+            when(mockUserStats.getLevel()).thenReturn(2).thenReturn(2);
+
+            service.update(mockUser, isWinner);
+
+            verify(mockUserStats).incrementExperience(45, maxLevel);
+            assertEquals(1, effects.getEffects().size());
+        }
+
+        @Test
+        @DisplayName("Deve ignorar bonus de XP expirado")
+        void update_WhenExpiredXpBoost_ShouldIgnoreBonus() {
+            boolean isWinner = false;
+            int maxLevel = 10;
+
+            ActiveEffects effects = ActiveEffects.create();
+            effects.add(new ExperienceBonusEffect(50, java.time.Instant.now().minusSeconds(1)));
+            when(mockUser.getActiveEffects()).thenReturn(effects);
+            when(mockUser.getStats()).thenReturn(mockUserStats);
+            when(levelRepository.findBiggestLevel()).thenReturn(maxLevel);
+            when(mockUserStats.getLevel()).thenReturn(2).thenReturn(2);
+
+            service.update(mockUser, isWinner);
+
+            verify(mockUserStats).incrementExperience(10, maxLevel);
+            assertTrue(effects.isEmpty());
         }
 
         @Test
@@ -244,16 +284,11 @@ class UpdateStatsServiceTest {
             int afterLevel = 2;
             UUID levelId = UUID.randomUUID();
 
-            ItemDefinition boost = ItemDefinition.create(
+            ConsumableItem boost = ConsumableItem.create(
                     "XP Boost 50%",
-                    ItemKind.CONSUMABLE,
                     ItemCategory.XP_BOOST,
-                    ItemContext.PROFILE,
-                    true,
-                    1000,
-                    true,
-                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                    null
+                    EquippableContext.PROFILE,
+                    new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
             );
 
             when(mockUser.getUserId()).thenReturn(userId);
@@ -276,7 +311,7 @@ class UpdateStatsServiceTest {
 
             when(levelRepository.findByLevel(afterLevel))
                     .thenReturn(Optional.of(level));
-            when(itemDefinitionRepository.findById(boost.getId()))
+            when(itemRepository.findById(boost.getId()))
                     .thenReturn(Optional.of(boost));
             when(inventoryRepository.findItemsByOwner(userId))
                     .thenReturn(List.of());

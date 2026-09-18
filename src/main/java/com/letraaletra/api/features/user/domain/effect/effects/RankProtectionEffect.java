@@ -7,7 +7,15 @@ public class RankProtectionEffect implements UsageBasedEffect {
     private int remainingMatches;
 
     public RankProtectionEffect(int remainingMatches) {
-        if (remainingMatches <= 0) {
+        this(remainingMatches, true);
+    }
+
+    public static RankProtectionEffect restore(int remainingMatches) {
+        return new RankProtectionEffect(remainingMatches, false);
+    }
+
+    private RankProtectionEffect(int remainingMatches, boolean requirePositive) {
+        if (remainingMatches < 0 || (requirePositive && remainingMatches == 0)) {
             throw new InvalidUserEffectException();
         }
 

@@ -4,9 +4,8 @@ import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityEx
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotAvailableException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
 import com.letraaletra.api.features.inventory.domain.policy.ItemPolicyRegistry;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.*;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +51,13 @@ public class Inventory {
         return List.copyOf(items);
     }
 
-    public List<UserItem> getEquipped(ItemContext context, ItemDefinitionLookup lookup) {
+    public List<UserItem> getEquipped(EquippableContext context, ItemLookup lookup) {
         List<UserItem> equipped = new ArrayList<>();
 
         for (UserItem item : items) {
-            if (item.isEquipped() && lookup.getById(item.getDefinitionId()).isApplicableTo(context)) {
+            if (item.isEquipped()
+                    && lookup.getById(item.getItemId()) instanceof EquippableItem equippable
+                    && equippable.getContext() == context) {
                 equipped.add(item);
             }
         }
@@ -64,21 +65,21 @@ public class Inventory {
         return List.copyOf(equipped);
     }
 
-    public List<InventoryMovement> grant(ItemDefinition definition, int quantity) {
-        if (!definition.isAvailable()) {
+    public List<InventoryMovement> grant(Item item, int quantity) {
+        if (!item.isAvailable()) {
             throw new ItemNotAvailableException();
         }
 
-        UserItem existing = findItem(definition.getId()).orElse(null);
+        UserItem existing = findItem(item.getId()).orElse(null);
 
-        registry.grantPolicyFor(definition.getKind()).checkGrant(definition, existing, quantity);
+        registry.grantPolicyFor(item).checkGrant(item, existing, quantity);
 
         if (existing == null) {
-            UserItem item = UserItem.create(ownerId, definition.getId(), quantity);
-            items.add(item);
+            UserItem owned = UserItem.create(ownerId, item.getId(), quantity);
+            items.add(owned);
 
             return List.of(new InventoryMovement(
-                    definition.getId(),
+                    item.getId(),
                     InventoryChangeKind.ACQUIRED,
                     null,
                     false,
@@ -91,7 +92,7 @@ public class Inventory {
         existing.increase(quantity);
 
         return List.of(new InventoryMovement(
-                definition.getId(),
+                item.getId(),
                 InventoryChangeKind.QUANTITY_CHANGED,
                 existing.isEquipped(),
                 existing.isEquipped(),
@@ -100,21 +101,21 @@ public class Inventory {
         ));
     }
 
-    public List<InventoryMovement> consume(ItemDefinition definition, int quantity) {
-        return consume(definition, quantity, ItemContext.PROFILE);
+    public List<InventoryMovement> consume(Item item, int quantity) {
+        return consume(item, quantity, EquippableContext.PROFILE);
     }
 
-    public List<InventoryMovement> consume(ItemDefinition definition, int quantity, ItemContext context) {
-        UserItem owned = findItem(definition.getId()).orElse(null);
+    public List<InventoryMovement> consume(Item item, int quantity, EquippableContext context) {
+        UserItem owned = findItem(item.getId()).orElse(null);
 
-        registry.consumePolicyFor(definition.getKind()).checkConsume(definition, owned, quantity, context);
+        registry.consumePolicyFor(item).checkConsume(item, owned, quantity, context);
 
         int before = owned.getQuantity();
         owned.decrease(quantity);
 
         List<InventoryMovement> movements = new ArrayList<>();
         movements.add(new InventoryMovement(
-                definition.getId(),
+                item.getId(),
                 InventoryChangeKind.CONSUMED,
                 false,
                 false,
@@ -125,7 +126,7 @@ public class Inventory {
         if (owned.getQuantity() == 0) {
             items.remove(owned);
             movements.add(new InventoryMovement(
-                    definition.getId(),
+                    item.getId(),
                     InventoryChangeKind.REMOVED,
                     false,
                     false,
@@ -134,7 +135,7 @@ public class Inventory {
             ));
         } else {
             movements.add(new InventoryMovement(
-                    definition.getId(),
+                    item.getId(),
                     InventoryChangeKind.QUANTITY_CHANGED,
                     false,
                     false,
@@ -146,29 +147,30 @@ public class Inventory {
         return movements;
     }
 
-    public List<InventoryMovement> equip(ItemDefinition definition, ItemContext context, ItemDefinitionLookup lookup) {
-        UserItem owned = findItem(definition.getId()).orElse(null);
+    public List<InventoryMovement> equip(Item item, EquippableContext context, ItemLookup lookup) {
+        UserItem owned = findItem(item.getId()).orElse(null);
 
-        registry.equipPolicyFor(definition.getKind()).checkEquip(definition, owned, context);
+        registry.equipPolicyFor(item).checkEquip(item, owned, context);
 
         List<InventoryMovement> movements = new ArrayList<>();
 
-        for (UserItem item : items) {
-            if (item == owned || !item.isEquipped()) {
+        for (UserItem ownedItem : items) {
+            if (ownedItem == owned || !ownedItem.isEquipped()) {
                 continue;
             }
 
-            ItemDefinition other = lookup.getById(item.getDefinitionId());
-
-            if (other.getCategory() == definition.getCategory() && other.isApplicableTo(context)) {
-                item.markUnequipped();
+            if (lookup.getById(ownedItem.getItemId()) instanceof EquippableItem other
+                    && item instanceof EquippableItem equippable
+                    && other.getCategory() == equippable.getCategory()
+                    && other.getContext() == context) {
+                ownedItem.markUnequipped();
                 movements.add(new InventoryMovement(
-                        item.getDefinitionId(),
+                        ownedItem.getItemId(),
                         InventoryChangeKind.UNEQUIPPED,
                         true,
                         false,
-                        item.getQuantity(),
-                        item.getQuantity()
+                        ownedItem.getQuantity(),
+                        ownedItem.getQuantity()
                 ));
             }
         }
@@ -176,7 +178,7 @@ public class Inventory {
         if (!owned.isEquipped()) {
             owned.markEquipped();
             movements.add(new InventoryMovement(
-                    definition.getId(),
+                    item.getId(),
                     InventoryChangeKind.EQUIPPED,
                     false,
                     true,
@@ -188,15 +190,15 @@ public class Inventory {
         return movements;
     }
 
-    public List<InventoryMovement> revoke(ItemDefinition definition, ItemDefinitionLookup lookup) {
-        UserItem owned = findItem(definition.getId())
+    public List<InventoryMovement> revoke(Item item, ItemLookup lookup) {
+        UserItem owned = findItem(item.getId())
                 .orElseThrow(ItemNotOwnedException::new);
 
         items.remove(owned);
 
         List<InventoryMovement> movements = new ArrayList<>();
         movements.add(new InventoryMovement(
-                definition.getId(),
+                item.getId(),
                 InventoryChangeKind.REMOVED,
                 owned.isEquipped(),
                 false,
@@ -205,10 +207,10 @@ public class Inventory {
         ));
 
         if (owned.isEquipped()) {
-            findFallback(definition, lookup).ifPresent(fallback -> {
+            findFallback(item, lookup).ifPresent(fallback -> {
                 fallback.markEquipped();
                 movements.add(new InventoryMovement(
-                        fallback.getDefinitionId(),
+                        fallback.getItemId(),
                         InventoryChangeKind.EQUIPPED,
                         false,
                         true,
@@ -221,25 +223,29 @@ public class Inventory {
         return movements;
     }
 
-    private Optional<UserItem> findItem(UUID definitionId) {
+    private Optional<UserItem> findItem(UUID itemId) {
         return items.stream()
-                .filter(item -> item.getDefinitionId().equals(definitionId))
+                .filter(owned -> owned.getItemId().equals(itemId))
                 .findFirst();
     }
 
-    private Optional<UserItem> findFallback(ItemDefinition revoked, ItemDefinitionLookup lookup) {
+    private Optional<UserItem> findFallback(Item revoked, ItemLookup lookup) {
         return items.stream()
-                .filter(candidate -> {
-                    ItemDefinition candidateDefinition = lookup.getById(candidate.getDefinitionId());
-
-                    return candidateDefinition.getKind() == revoked.getKind()
-                            && candidateDefinition.getCategory() == revoked.getCategory()
-                            && sharesContext(candidateDefinition, revoked);
-                })
+                .filter(candidate -> sameSlot(lookup.getById(candidate.getItemId()), revoked))
                 .findFirst();
     }
 
-    private boolean sharesContext(ItemDefinition candidate, ItemDefinition revoked) {
-        return candidate.getContext() == revoked.getContext();
+    private boolean sameSlot(Item candidate, Item revoked) {
+        if (candidate instanceof EquippableItem equippable && revoked instanceof EquippableItem target) {
+            return equippable.getCategory() == target.getCategory()
+                    && equippable.getContext() == target.getContext();
+        }
+
+        if (candidate instanceof ConsumableItem consumable && revoked instanceof ConsumableItem target) {
+            return consumable.getCategory() == target.getCategory()
+                    && consumable.getContext() == target.getContext();
+        }
+
+        return false;
     }
 }

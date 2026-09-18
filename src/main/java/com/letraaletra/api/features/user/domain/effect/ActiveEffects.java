@@ -16,6 +16,10 @@ public class ActiveEffects {
         return new ActiveEffects(new ArrayList<>());
     }
 
+    public static ActiveEffects restore(List<UserEffect> effects) {
+        return new ActiveEffects(new ArrayList<>(Objects.requireNonNull(effects)));
+    }
+
     public void add(UserEffect effect) {
         effects.add(Objects.requireNonNull(effect));
     }

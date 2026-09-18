@@ -1,10 +1,11 @@
 package com.letraaletra.api.features.user.infrastructure.service;
 
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.EquippableItem;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.user.application.output.EquippedItem;
 import com.letraaletra.api.features.user.application.port.UserEquippedItemsProvider;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserEquippedItemsService implements UserEquippedItemsProvider {
     private final InventoryRepository inventoryRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
 
     @Override
     public List<EquippedItem> equipped(UUID ownerId) {
@@ -30,15 +31,15 @@ public class UserEquippedItemsService implements UserEquippedItemsProvider {
         }
         List<UserItem> items = inventoryRepository.findItemsByOwner(ownerId);
         List<EquippedItem> out = new ArrayList<>();
-        for (UserItem item : items) {
-            if (!item.isEquipped()) {
+        for (UserItem owned : items) {
+            if (!owned.isEquipped()) {
                 continue;
             }
-            ItemDefinition definition = itemDefinitionRepository.findById(item.getDefinitionId()).orElse(null);
-            if (definition == null || !definition.isApplicableTo(ItemContext.PROFILE)) {
+            Item item = itemRepository.findById(owned.getItemId()).orElse(null);
+            if (!(item instanceof EquippableItem equippable) || equippable.getContext() != EquippableContext.PROFILE) {
                 continue;
             }
-            out.add(new EquippedItem(item, definition));
+            out.add(new EquippedItem(owned, item));
         }
         return out;
     }

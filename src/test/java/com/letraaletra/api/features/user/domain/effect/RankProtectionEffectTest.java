@@ -50,5 +50,15 @@ class RankProtectionEffectTest {
     void shouldRejectInvalidInitialRemaining() {
         assertThrows(InvalidUserEffectException.class, () -> new RankProtectionEffect(0));
         assertThrows(InvalidUserEffectException.class, () -> new RankProtectionEffect(-1));
+        assertThrows(InvalidUserEffectException.class, () -> RankProtectionEffect.restore(-1));
+    }
+
+    @Test
+    @DisplayName("restore deve permitir zero usos para reidratar efeito consumido")
+    void restoreShouldAllowZeroUses() {
+        RankProtectionEffect effect = RankProtectionEffect.restore(0);
+
+        assertEquals(0, effect.getRemainingUses());
+        assertTrue(effect.canRemove());
     }
 }

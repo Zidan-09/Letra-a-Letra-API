@@ -7,14 +7,15 @@ import com.letraaletra.api.features.levels.domain.Level;
 import com.letraaletra.api.features.levels.domain.repository.LevelRepository;
 import com.letraaletra.api.features.inventory.application.usecase.InventoryPersistence;
 import com.letraaletra.api.features.inventory.domain.Inventory;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.reward.domain.ItemGrantReward;
 import com.letraaletra.api.features.reward.domain.Reward;
 import com.letraaletra.api.features.user.application.port.UserStatsService;
 import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
 import com.letraaletra.api.features.transaction.domain.Transaction;
 import com.letraaletra.api.features.transaction.domain.TransactionReason;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
@@ -24,10 +25,10 @@ import com.letraaletra.api.shared.application.port.OperationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class UpdateStatsService implements UserStatsService {
@@ -37,7 +38,7 @@ public class UpdateStatsService implements UserStatsService {
     private final TransactionRepository walletTransactionRepository;
     private final BusinessAuditRecorder auditRecorder;
     private final OperationContext operationContext;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
     private final InventoryRepository inventoryRepository;
 
     @Override
@@ -46,11 +47,13 @@ public class UpdateStatsService implements UserStatsService {
 
         int maxLevel = levelRepository.findBiggestLevel();
 
-        int experience = isWinner ? 10 * 3 : 10;
+        int experience = applyExperienceBonus(user, isWinner ? 10 * 3 : 10);
 
         int beforeLevel = user.getStats().getLevel();
 
         user.getStats().incrementExperience(experience, maxLevel == 0 ? 1 : maxLevel);
+
+        user.getActiveEffects().updateEffects();
 
         int afterLevel = user.getStats().getLevel();
 
@@ -61,6 +64,13 @@ public class UpdateStatsService implements UserStatsService {
                     applyReward(user, l, levelReward.reward())
             ));
         }
+    }
+
+    private int applyExperienceBonus(User user, int experience) {
+        return user.getActiveEffects().find(ExperienceBonusEffect.class)
+                .filter(effect -> effect.isValid(Instant.now()))
+                .map(effect -> experience + experience * effect.getBonusPercentage() / 100)
+                .orElse(experience);
     }
 
     private void applyReward(User user, Level level, Reward reward) {
@@ -103,20 +113,20 @@ public class UpdateStatsService implements UserStatsService {
     }
 
     private void grantItemReward(User user, ItemGrantReward reward, UUID operationId) {
-        ItemDefinition definition = itemDefinitionRepository.findById(reward.definitionId())
+        Item item = itemRepository.findById(reward.definitionId())
                 .orElseThrow(ItemNotFoundException::new);
 
-        grantDefinition(user, definition, reward.quantity(), operationId);
+        grantDefinition(user, item, reward.quantity(), operationId);
     }
 
-    private void grantDefinition(User user, ItemDefinition definition, int quantity, UUID operationId) {
+    private void grantDefinition(User user, Item item, int quantity, UUID operationId) {
         Inventory inventory = Inventory.restore(
                 user.getUserId(),
                 inventoryRepository.findItemsByOwner(user.getUserId())
         );
 
         List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements =
-                inventory.grant(definition, quantity);
+                inventory.grant(item, quantity);
 
         InventoryPersistence.save(inventoryRepository, user.getUserId(), inventory);
 

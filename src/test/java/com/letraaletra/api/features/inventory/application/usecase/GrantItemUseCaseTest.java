@@ -3,14 +3,11 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.GrantItemInput;
 import com.letraaletra.api.features.inventory.application.output.GrantItemOutput;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.exception.DuplicateUniqueItemException;
 import com.letraaletra.api.features.items.domain.exception.ItemNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import com.letraaletra.api.shared.domain.security.PermissionAction;
@@ -24,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +35,7 @@ import static org.mockito.Mockito.when;
 class GrantItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionLookup itemLookup;
+    private ItemLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -55,23 +51,13 @@ class GrantItemUseCaseTest {
 
     private AuthenticatedUser principal;
     private UUID userId;
-    private ItemDefinition avatar;
+    private EquippableItem avatar;
 
     @BeforeEach
     void setUp() {
         principal = new AuthenticatedUser(UUID.randomUUID(), "admin", true, false);
         userId = UUID.randomUUID();
-        avatar = ItemDefinition.create(
-                "Blue Avatar",
-                ItemKind.COSMETIC,
-                ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
-                "/assets/avatar/blue.png"
-        );
+        avatar = EquippableItem.create("Blue Avatar", EquippableContext.PROFILE, ItemCategory.AVATAR, "/assets/avatar/blue.png");
     }
 
     @Test

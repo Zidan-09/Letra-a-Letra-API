@@ -33,4 +33,11 @@ public enum ItemCategory {
             default -> EnumSet.noneOf(EffectType.class);
         };
     }
+
+    public Set<EquippableContext> allowedContexts() {
+        return switch (this) {
+            case BOARD_SKIN, CELL_SKIN, EMOTE -> EnumSet.of(EquippableContext.MATCH);
+            default -> EnumSet.of(EquippableContext.PROFILE);
+        };
+    }
 }

@@ -22,7 +22,7 @@ public abstract class Item {
         this.available = available;
     }
 
-    public UUID getItemId() {
+    public UUID getId() {
         return itemId;
     }
 

@@ -1,12 +1,12 @@
 package com.letraaletra.api.features.user.infrastructure.service;
 
+import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.user.application.output.EquippedItem;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +33,7 @@ class UserEquippedItemsServiceTest {
     private InventoryRepository inventoryRepository;
 
     @Mock
-    private ItemDefinitionRepository itemDefinitionRepository;
+    private ItemRepository itemRepository;
 
     @InjectMocks
     private UserEquippedItemsService service;
@@ -58,13 +57,13 @@ class UserEquippedItemsServiceTest {
                 UserItem.restore(ownerId, unequippedId, 1, false, LocalDateTime.now(), null),
                 UserItem.restore(ownerId, matchOnlyId, 1, true, LocalDateTime.now(), null)));
 
-        when(itemDefinitionRepository.findById(equippedId)).thenReturn(Optional.of(definition(equippedId, ItemContext.PROFILE)));
-        when(itemDefinitionRepository.findById(matchOnlyId)).thenReturn(Optional.of(definition(matchOnlyId, ItemContext.MATCH)));
+        when(itemRepository.findById(equippedId)).thenReturn(Optional.of(item(equippedId, ItemCategory.AVATAR, EquippableContext.PROFILE)));
+        when(itemRepository.findById(matchOnlyId)).thenReturn(Optional.of(item(matchOnlyId, ItemCategory.BOARD_SKIN, EquippableContext.MATCH)));
 
         List<EquippedItem> result = service.equipped(ownerId);
 
         assertEquals(1, result.size());
-        assertEquals(equippedId, result.getFirst().definition().getId());
+        assertEquals(equippedId, result.getFirst().item().getId());
     }
 
     @Test
@@ -77,7 +76,7 @@ class UserEquippedItemsServiceTest {
         when(inventoryRepository.findItemsByOwner(first)).thenReturn(List.of(
                 UserItem.restore(first, definitionId, 1, true, LocalDateTime.now(), null)));
         when(inventoryRepository.findItemsByOwner(second)).thenReturn(List.of());
-        when(itemDefinitionRepository.findById(definitionId)).thenReturn(Optional.of(definition(definitionId, ItemContext.PROFILE)));
+        when(itemRepository.findById(definitionId)).thenReturn(Optional.of(item(definitionId, ItemCategory.AVATAR, EquippableContext.PROFILE)));
 
         Map<UUID, List<EquippedItem>> result = service.equippedFor(List.of(first, second));
 
@@ -85,7 +84,7 @@ class UserEquippedItemsServiceTest {
         assertTrue(result.get(second).isEmpty());
     }
 
-    private ItemDefinition definition(UUID id, ItemContext context) {
-        return ItemDefinition.restore(id, "Avatar", ItemKind.COSMETIC, ItemCategory.AVATAR, context, false, null, false, null, "asset.webp", 1, true);
+    private Item item(UUID id, ItemCategory category, EquippableContext context) {
+        return EquippableItem.restore(id, "Item", 1, true, context, category, "asset.webp");
     }
 }

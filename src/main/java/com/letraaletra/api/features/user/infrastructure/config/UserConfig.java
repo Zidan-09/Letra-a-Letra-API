@@ -290,7 +290,7 @@ public class UserConfig {
             TransactionRepository transactionRepository,
             AdminChecker adminChecker,
             RewardFactory rewardFactory,
-            com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository itemDefinitionRepository,
+            com.letraaletra.api.features.items.domain.repository.ItemRepository itemRepository,
             com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder,
             TransactionalExecutorService transactions
@@ -301,7 +301,7 @@ public class UserConfig {
                         transactionRepository,
                         adminChecker,
                         rewardFactory,
-                        itemDefinitionRepository,
+                        itemRepository,
                         inventoryRepository,
                         auditRecorder
                 ),

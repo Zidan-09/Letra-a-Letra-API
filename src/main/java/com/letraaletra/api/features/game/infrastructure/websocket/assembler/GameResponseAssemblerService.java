@@ -3,17 +3,16 @@ package com.letraaletra.api.features.game.infrastructure.websocket.assembler;
 import com.letraaletra.api.features.game.application.output.HandledGameOver;
 import com.letraaletra.api.features.game.domain.GameType;
 import com.letraaletra.api.features.game.infrastructure.presentation.mapper.game.GameOverMapper;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
 import com.letraaletra.api.features.participant.domain.Participant;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.dto.response.RankedMatchResult;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingMatchResultMapper;
 import com.letraaletra.api.features.ranking.infrastructure.presentation.mapper.RankingOverResultMapper;
-import com.letraaletra.api.features.items.domain.ItemContext;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
-import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssembler;
 import com.letraaletra.api.features.game.domain.Game;
 import com.letraaletra.api.features.game.domain.GameOver;
 import com.letraaletra.api.features.user.domain.User;
@@ -29,7 +28,7 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
     private final UserRepository userRepository;
     private final WsConnectionRegistry connectionRegistry;
     private final InventoryRepository inventoryRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
 
     public GameResponseAssemblerService(
             UserRepository userRepository,
@@ -42,12 +41,12 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
             UserRepository userRepository,
             WsConnectionRegistry connectionRegistry,
             InventoryRepository inventoryRepository,
-            ItemDefinitionRepository itemDefinitionRepository
+            ItemRepository itemRepository
     ) {
         this.userRepository = userRepository;
         this.connectionRegistry = connectionRegistry;
         this.inventoryRepository = inventoryRepository;
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -97,15 +96,15 @@ public class GameResponseAssemblerService implements GameResponseAssembler {
     }
 
     private List<EquippedCosmetic> equippedItems(UUID userId) {
-        if (inventoryRepository == null || itemDefinitionRepository == null) {
+        if (inventoryRepository == null || itemRepository == null) {
             return List.of();
         }
         List<UserItem> items = inventoryRepository.findItemsByOwner(userId);
         return EquippedCosmetic.fromProfileItems(
                 items,
-                definitionId -> itemDefinitionRepository.findById(definitionId)
+                itemId -> itemRepository.findById(itemId)
                         .orElseThrow(com.letraaletra.api.features.items.domain.exception.ItemNotFoundException::new),
-                ItemContext.PROFILE
+                EquippableContext.PROFILE
         );
     }
 }

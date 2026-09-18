@@ -1,5 +1,7 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
+import com.letraaletra.api.features.items.domain.ConsumableItem;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.items.domain.exception.InvalidItemException;
 
@@ -24,22 +26,22 @@ public class ItemPolicyRegistry {
     public static ItemPolicyRegistry defaults() {
         return new ItemPolicyRegistry(
                 Map.of(
-                        ItemKind.COSMETIC, new UniqueGrantPolicy(),
+                        ItemKind.EQUIPPABLE, new UniqueGrantPolicy(),
                         ItemKind.CONSUMABLE, new StackableGrantPolicy()
                 ),
                 Map.of(
-                        ItemKind.COSMETIC, new ConsumableConsumePolicy(),
+                        ItemKind.EQUIPPABLE, new ConsumableConsumePolicy(),
                         ItemKind.CONSUMABLE, new ConsumableConsumePolicy()
                 ),
                 Map.of(
-                        ItemKind.COSMETIC, new CosmeticEquipPolicy(),
+                        ItemKind.EQUIPPABLE, new CosmeticEquipPolicy(),
                         ItemKind.CONSUMABLE, new CosmeticEquipPolicy()
                 )
         );
     }
 
-    public GrantPolicy grantPolicyFor(ItemKind kind) {
-        GrantPolicy policy = grantPolicies.get(kind);
+    public GrantPolicy grantPolicyFor(Item item) {
+        GrantPolicy policy = grantPolicies.get(kindOf(item));
 
         if (policy == null) {
             throw new InvalidItemException();
@@ -48,8 +50,8 @@ public class ItemPolicyRegistry {
         return policy;
     }
 
-    public ConsumePolicy consumePolicyFor(ItemKind kind) {
-        ConsumePolicy policy = consumePolicies.get(kind);
+    public ConsumePolicy consumePolicyFor(Item item) {
+        ConsumePolicy policy = consumePolicies.get(kindOf(item));
 
         if (policy == null) {
             throw new InvalidItemException();
@@ -58,13 +60,17 @@ public class ItemPolicyRegistry {
         return policy;
     }
 
-    public EquipPolicy equipPolicyFor(ItemKind kind) {
-        EquipPolicy policy = equipPolicies.get(kind);
+    public EquipPolicy equipPolicyFor(Item item) {
+        EquipPolicy policy = equipPolicies.get(kindOf(item));
 
         if (policy == null) {
             throw new InvalidItemException();
         }
 
         return policy;
+    }
+
+    private static ItemKind kindOf(Item item) {
+        return item instanceof ConsumableItem ? ItemKind.CONSUMABLE : ItemKind.EQUIPPABLE;
     }
 }

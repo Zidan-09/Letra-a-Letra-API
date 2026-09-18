@@ -9,48 +9,54 @@ import com.letraaletra.api.features.inventory.application.input.ConsumeItemInput
 import com.letraaletra.api.features.inventory.application.output.ConsumeItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.inventory.domain.exception.InvalidQuantityException;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
+import com.letraaletra.api.features.user.domain.effect.UserEffect;
+import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
+import com.letraaletra.api.features.user.domain.effect.effects.RankProtectionEffect;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ConsumeItemUseCase implements UseCase<ConsumeItemInput, ConsumeItemOutput> {
     private static final String SOURCE_DETAIL = "CONSUME_ITEM";
 
-    private final ItemDefinitionLookup itemLookup;
+    private final ItemLookup itemLookup;
     private final InventoryRepository inventoryRepository;
+    private final UserRepository userRepository;
     private final BusinessAuditRecorder auditRecorder;
 
     public ConsumeItemUseCase(
-            ItemDefinitionLookup itemLookup,
+            ItemLookup itemLookup,
             InventoryRepository inventoryRepository,
+            UserRepository userRepository,
             BusinessAuditRecorder auditRecorder
     ) {
         this.itemLookup = itemLookup;
         this.inventoryRepository = inventoryRepository;
+        this.userRepository = userRepository;
         this.auditRecorder = auditRecorder;
     }
 
     @Override
     public ConsumeItemOutput execute(ConsumeItemInput input) {
-        if (input.quantity() == null) {
-            throw new InvalidQuantityException();
-        }
-
-        ItemDefinition definition = itemLookup.getById(input.itemId());
+        Item item = itemLookup.getById(input.itemId());
 
         Inventory inventory = Inventory.restore(
                 input.userId(),
                 inventoryRepository.findItemsByOwner(input.userId())
         );
 
-        List<InventoryMovement> movements = inventory.consume(definition, input.quantity(), ItemContext.PROFILE);
+        List<InventoryMovement> movements = inventory.consume(item, input.quantity(), EquippableContext.PROFILE);
 
         InventoryPersistence.save(inventoryRepository, input.userId(), inventory);
+
+        grantEffect(input.userId(), item);
 
         AuditEventFactory.itemChanges(
                 movements,
@@ -63,5 +69,28 @@ public class ConsumeItemUseCase implements UseCase<ConsumeItemInput, ConsumeItem
         ).forEach(auditRecorder::record);
 
         return new ConsumeItemOutput(movements);
+    }
+
+    private void grantEffect(UUID userId, Item item) {
+        toActiveEffect(item).ifPresent(effect ->
+                userRepository.find(userId).ifPresent(user -> {
+                    user.getActiveEffects().add(effect);
+                    userRepository.save(user);
+                }));
+    }
+
+    private Optional<UserEffect> toActiveEffect(Item item) {
+        if (!(item instanceof ConsumableItem consumable)
+                || !(consumable.getEffect() instanceof PercentageTimedEffect timed)) {
+            return Optional.empty();
+        }
+
+        return switch (timed.type()) {
+            case XP_BOOST_PCT -> Optional.of(new ExperienceBonusEffect(
+                    timed.magnitude(), Instant.now().plusSeconds(timed.durationMinutes() * 60L)));
+            case RANKING_POINTS_SHIELD -> Optional.of(new RankProtectionEffect(
+                    Math.max(1, timed.durationMinutes())));
+            case RANKING_POINTS_BOOST_PCT, COIN_BOOST_PCT, NICKNAME_CHANGE_GRANT -> Optional.empty();
+        };
     }
 }

@@ -13,10 +13,10 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
-import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
     private final RoomTimeoutManager roomTimeoutManager;
     private final RoomCodeService roomCodeService;
     private final InventoryRepository inventoryRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
 
     public CreateGameUseCase(
             UserRepository userRepository,
@@ -36,7 +36,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
             RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService,
             InventoryRepository inventoryRepository,
-            ItemDefinitionRepository itemDefinitionRepository
+            ItemRepository itemRepository
     ) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
@@ -44,7 +44,7 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
         this.roomTimeoutManager = roomTimeoutManager;
         this.roomCodeService = roomCodeService;
         this.inventoryRepository = inventoryRepository;
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -56,9 +56,9 @@ public class CreateGameUseCase implements UseCase<CreateGameInput, CreateGameOut
 
         List<EquippedCosmetic> equipped = EquippedCosmetic.fromProfileItems(
                 items,
-                definitionId -> itemDefinitionRepository.findById(definitionId)
+                itemId -> itemRepository.findById(itemId)
                         .orElseThrow(com.letraaletra.api.features.items.domain.exception.ItemNotFoundException::new),
-                ItemContext.PROFILE
+                EquippableContext.PROFILE
         );
 
         String code = roomCodeService.generate();

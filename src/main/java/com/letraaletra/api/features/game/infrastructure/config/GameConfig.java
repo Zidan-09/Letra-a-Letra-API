@@ -36,7 +36,7 @@ import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.game.infrastructure.websocket.assembler.GameResponseAssemblerService;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -50,7 +50,7 @@ public class GameConfig {
             RoomTimeoutManager roomTimeoutManager,
             RoomCodeService roomCodeService,
             InventoryRepository inventoryRepository,
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -61,7 +61,7 @@ public class GameConfig {
                         roomTimeoutManager,
                         roomCodeService,
                         inventoryRepository,
-                        itemDefinitionRepository
+                        itemRepository
                 ),
                 transactions
         );
@@ -94,11 +94,11 @@ public class GameConfig {
             UserRepository userRepository,
             ActorManager<Game> actorManager,
             InventoryRepository inventoryRepository,
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
-                new JoinGameUseCase(userRepository, actorManager, inventoryRepository, itemDefinitionRepository),
+                new JoinGameUseCase(userRepository, actorManager, inventoryRepository, itemRepository),
                 transactions
         );
     }
@@ -148,13 +148,13 @@ public class GameConfig {
             UserRepository userRepository,
             WsConnectionRegistry connectionRegistry,
             com.letraaletra.api.features.inventory.domain.repository.InventoryRepository inventoryRepository,
-            com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository itemDefinitionRepository
+            com.letraaletra.api.features.items.domain.repository.ItemRepository itemRepository
     ) {
         return new GameResponseAssemblerService(
                 userRepository,
                 connectionRegistry,
                 inventoryRepository,
-                itemDefinitionRepository
+                itemRepository
         );
     }
 

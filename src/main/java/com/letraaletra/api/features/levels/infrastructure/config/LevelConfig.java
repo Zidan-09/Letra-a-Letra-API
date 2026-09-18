@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.levels.infrastructure.config;
 
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.levels.application.input.CreateLevelInput;
 import com.letraaletra.api.features.levels.application.input.FindLevelByValueInput;
 import com.letraaletra.api.features.levels.application.input.FindLevelInput;
@@ -69,14 +69,14 @@ public class LevelConfig {
     @Bean
     public UseCase<UpdateLevelInput, UpdateLevelOutput> updateLevelUseCase(
             LevelRepository levelRepository,
-            ItemDefinitionRepository itemDefinitionRepository,
+            ItemRepository itemRepository,
             AdminChecker adminChecker,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new UpdateLevelUseCase(
                         levelRepository,
-                        itemDefinitionRepository,
+                        itemRepository,
                         adminChecker
                 ),
                 transactions

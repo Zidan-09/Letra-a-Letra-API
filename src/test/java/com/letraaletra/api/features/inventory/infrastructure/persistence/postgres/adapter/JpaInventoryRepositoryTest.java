@@ -52,7 +52,7 @@ class JpaInventoryRepositoryTest {
         List<UserItem> items = adapter.findItemsByOwner(ownerId);
 
         assertEquals(1, items.size());
-        assertEquals(itemId, items.get(0).getDefinitionId());
+        assertEquals(itemId, items.get(0).getItemId());
         assertEquals(3, items.get(0).getQuantity());
         assertEquals(acquiredAt, items.get(0).getAcquiredAt());
     }

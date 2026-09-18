@@ -3,14 +3,13 @@ package com.letraaletra.api.features.inventory.application.usecase;
 import com.letraaletra.api.features.inventory.application.input.EquipItemInput;
 import com.letraaletra.api.features.inventory.application.output.EquipItemOutput;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InapplicableContextException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +34,7 @@ import static org.mockito.Mockito.when;
 class EquipItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionLookup itemLookup;
+    private ItemLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
@@ -48,20 +46,15 @@ class EquipItemUseCaseTest {
     private EquipItemUseCase useCase;
 
     private UUID userId;
-    private ItemDefinition avatar;
+    private EquippableItem avatar;
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
-        avatar = ItemDefinition.create(
+        avatar = EquippableItem.create(
                 "Blue Avatar",
-                ItemKind.COSMETIC,
+                EquippableContext.PROFILE,
                 ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
                 "/assets/avatar/blue.png"
         );
     }
@@ -75,7 +68,7 @@ class EquipItemUseCaseTest {
         ));
 
         EquipItemOutput output = useCase.execute(
-                new EquipItemInput(userId, avatar.getId(), ItemContext.PROFILE));
+                new EquipItemInput(userId, avatar.getId(), EquippableContext.PROFILE));
 
         assertEquals(1, output.movements().size());
         assertEquals(InventoryChangeKind.EQUIPPED, output.movements().get(0).kind());
@@ -94,7 +87,7 @@ class EquipItemUseCaseTest {
         ));
 
         assertThrows(InapplicableContextException.class, () -> useCase.execute(
-                new EquipItemInput(userId, avatar.getId(), ItemContext.MATCH)));
+                new EquipItemInput(userId, avatar.getId(), EquippableContext.MATCH)));
         verify(inventoryRepository, never()).deleteItemsByOwner(any());
     }
 }

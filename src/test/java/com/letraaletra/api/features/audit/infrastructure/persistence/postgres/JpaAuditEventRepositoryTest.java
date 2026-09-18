@@ -13,10 +13,9 @@ import com.letraaletra.api.features.audit.domain.AuditSourceType;
 import com.letraaletra.api.features.audit.infrastructure.persistence.postgres.adapter.JpaAuditEventRepository;
 import com.letraaletra.api.features.audit.application.support.AuditEventFactory;
 import com.letraaletra.api.features.inventory.domain.Inventory;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.EquippableItem;
 import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,21 +246,16 @@ class JpaAuditEventRepositoryTest {
         UUID userId = UUID.randomUUID();
         UUID operationId = UUID.randomUUID();
 
-        ItemDefinition definition = ItemDefinition.create(
+        EquippableItem item = EquippableItem.create(
                 "audit-avatar",
-                ItemKind.COSMETIC,
+                EquippableContext.PROFILE,
                 ItemCategory.AVATAR,
-                ItemContext.PROFILE,
-                false,
-                null,
-                false,
-                null,
                 "assets/audit-avatar.png"
         );
 
         Inventory inventory = Inventory.create(userId);
         List<com.letraaletra.api.features.inventory.domain.InventoryMovement> movements =
-                inventory.grant(definition, 1);
+                inventory.grant(item, 1);
 
         List<AuditEvent> events = AuditEventFactory.itemChanges(
                 movements,
@@ -286,7 +280,7 @@ class JpaAuditEventRepositoryTest {
         assertEquals(1, result.getTotalElements());
 
         AuditEventDetails loaded = result.getContent().get(0);
-        assertEquals(definition.getId().toString(), loaded.resourceId());
+        assertEquals(item.getId().toString(), loaded.resourceId());
         assertEquals(AuditResourceType.INVENTORY_ITEM, loaded.resourceType());
         assertEquals(1, ((Number) loaded.afterState().get("quantity")).intValue());
     }

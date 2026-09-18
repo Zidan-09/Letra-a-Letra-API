@@ -1,8 +1,8 @@
 package com.letraaletra.api.features.inventory.domain.policy;
 
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemKind;
+import com.letraaletra.api.features.items.domain.EquippableItem;
+import com.letraaletra.api.features.items.domain.EquippableContext;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InapplicableContextException;
 import com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException;
@@ -11,12 +11,12 @@ import com.letraaletra.api.features.inventory.domain.exception.NonEquipableItemE
 public class CosmeticEquipPolicy implements EquipPolicy {
 
     @Override
-    public void checkEquip(ItemDefinition definition, UserItem owned, ItemContext context) {
-        if (definition.getKind() != ItemKind.COSMETIC) {
+    public void checkEquip(Item item, UserItem owned, EquippableContext context) {
+        if (!(item instanceof EquippableItem equippable)) {
             throw new NonEquipableItemException();
         }
 
-        if (!definition.isApplicableTo(context)) {
+        if (equippable.getContext() != context) {
             throw new InapplicableContextException();
         }
 

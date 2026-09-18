@@ -22,7 +22,7 @@ class UserItemTest {
         UserItem item = UserItem.create(ownerId, definitionId, 2);
 
         assertEquals(ownerId, item.getOwnerId());
-        assertEquals(definitionId, item.getDefinitionId());
+        assertEquals(definitionId, item.getItemId());
         assertEquals(2, item.getQuantity());
         assertFalse(item.isEquipped());
         assertNotNull(item.getAcquiredAt());

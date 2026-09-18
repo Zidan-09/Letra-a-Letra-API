@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +20,18 @@ class ActiveEffectsTest {
 
         assertTrue(effects.isEmpty());
         assertTrue(effects.getEffects().isEmpty());
+    }
+
+    @Test
+    @DisplayName("restore deve copiar a lista sem compartilhar referencia")
+    void restoreShouldCopyWithoutSharingReference() {
+        List<UserEffect> source = new ArrayList<>(List.of(new RankProtectionEffect(2)));
+
+        ActiveEffects effects = ActiveEffects.restore(source);
+        source.clear();
+
+        assertFalse(effects.isEmpty());
+        assertEquals(2, effects.find(RankProtectionEffect.class).orElseThrow().getRemainingUses());
     }
 
     @Test

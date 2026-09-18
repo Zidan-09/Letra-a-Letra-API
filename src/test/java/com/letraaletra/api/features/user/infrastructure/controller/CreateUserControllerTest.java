@@ -5,6 +5,7 @@ import com.letraaletra.api.features.user.application.output.CreateUserOutput;
 import com.letraaletra.api.features.user.application.usecase.CreateUserUseCase;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.ban.BanInfo;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
 import com.letraaletra.api.features.user.domain.stats.UserStats;
 import com.letraaletra.api.features.user.domain.wallet.Wallet;
 import com.letraaletra.api.features.user.infrastructure.presentation.dto.request.CreateUserRequest;
@@ -53,6 +54,7 @@ class CreateUserControllerTest {
                 BanInfo.create(),
                 mock(UserStats.class),
                 mock(Wallet.class),
+                ActiveEffects.create(),
                 LocalDateTime.now()
         );
 

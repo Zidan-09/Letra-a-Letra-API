@@ -9,9 +9,9 @@ import com.letraaletra.api.features.inventory.application.input.EquipItemInput;
 import com.letraaletra.api.features.inventory.application.output.EquipItemOutput;
 import com.letraaletra.api.features.inventory.domain.Inventory;
 import com.letraaletra.api.features.inventory.domain.InventoryMovement;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
+import com.letraaletra.api.features.items.domain.Item;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.util.List;
@@ -19,12 +19,12 @@ import java.util.List;
 public class EquipItemUseCase implements UseCase<EquipItemInput, EquipItemOutput> {
     private static final String SOURCE_DETAIL = "EQUIP_ITEM";
 
-    private final ItemDefinitionLookup itemLookup;
+    private final ItemLookup itemLookup;
     private final InventoryRepository inventoryRepository;
     private final BusinessAuditRecorder auditRecorder;
 
     public EquipItemUseCase(
-            ItemDefinitionLookup itemLookup,
+            ItemLookup itemLookup,
             InventoryRepository inventoryRepository,
             BusinessAuditRecorder auditRecorder
     ) {
@@ -35,7 +35,7 @@ public class EquipItemUseCase implements UseCase<EquipItemInput, EquipItemOutput
 
     @Override
     public EquipItemOutput execute(EquipItemInput input) {
-        ItemDefinition definition = itemLookup.getById(input.itemId());
+        Item item = itemLookup.getById(input.itemId());
 
         Inventory inventory = Inventory.restore(
                 input.userId(),
@@ -43,7 +43,7 @@ public class EquipItemUseCase implements UseCase<EquipItemInput, EquipItemOutput
         );
 
         List<InventoryMovement> movements = inventory.equip(
-                definition,
+                item,
                 input.context(),
                 itemLookup::getById
         );

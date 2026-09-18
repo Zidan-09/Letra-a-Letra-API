@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import com.letraaletra.api.features.game.domain.exception.GameNotFoundException;
 import com.letraaletra.api.features.user.domain.ban.BanType;
+import com.letraaletra.api.features.user.domain.effect.ActiveEffects;
 import com.letraaletra.api.features.user.domain.ban.exception.UserAlreadyWasBannedException;
 import com.letraaletra.api.features.user.domain.ban.exception.UserDoesNotHaveBanException;
 import com.letraaletra.api.features.user.domain.exception.UserAlreadyInGameException;
@@ -167,6 +168,7 @@ class UserTest {
                     null,
                     user.getStats(),
                     user.getWallet(),
+                    ActiveEffects.create(),
                     LocalDateTime.now()
             );
 
@@ -188,6 +190,13 @@ class UserTest {
         }
 
         @Test
+        @DisplayName("Usuário recém-criado possui efeitos ativos vazio")
+        void newUserHasEmptyActiveEffects() {
+            assertNotNull(user.getActiveEffects());
+            assertTrue(user.getActiveEffects().isEmpty());
+        }
+
+        @Test
         @DisplayName("restore sem inventário preserva identidade e núcleo")
         void restoreWithoutInventoryKeepsCore() {
             User restored = User.restore(
@@ -202,6 +211,7 @@ class UserTest {
                     user.getBanInfo(),
                     user.getStats(),
                     user.getWallet(),
+                    user.getActiveEffects(),
                     user.getCreatedAt()
             );
 

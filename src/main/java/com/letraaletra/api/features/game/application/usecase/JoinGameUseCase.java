@@ -12,10 +12,10 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionRepository;
+import com.letraaletra.api.features.items.domain.repository.ItemRepository;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.participant.domain.EquippedCosmetic;
-import com.letraaletra.api.features.items.domain.ItemContext;
+import com.letraaletra.api.features.items.domain.EquippableContext;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -25,18 +25,18 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
     private final UserRepository userRepository;
     private final ActorManager<Game> actorManager;
     private final InventoryRepository inventoryRepository;
-    private final ItemDefinitionRepository itemDefinitionRepository;
+    private final ItemRepository itemRepository;
 
     public JoinGameUseCase(
         UserRepository userRepository, 
         ActorManager<Game> actorManager,
         InventoryRepository inventoryRepository,
-        ItemDefinitionRepository itemDefinitionRepository
+        ItemRepository itemRepository
     ) {
         this.userRepository = userRepository;
         this.actorManager = actorManager;
         this.inventoryRepository = inventoryRepository;
-        this.itemDefinitionRepository = itemDefinitionRepository;
+        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -52,9 +52,9 @@ public class JoinGameUseCase implements UseCase<JoinGameInput, JoinGameOutput> {
 
         List<EquippedCosmetic> equipped = EquippedCosmetic.fromProfileItems(
                 items,
-                definitionId -> itemDefinitionRepository.findById(definitionId)
+                itemId -> itemRepository.findById(itemId)
                         .orElseThrow(com.letraaletra.api.features.items.domain.exception.ItemNotFoundException::new),
-                ItemContext.PROFILE
+                EquippableContext.PROFILE
         );
 
         Actor actor = actorManager.get(gameId);

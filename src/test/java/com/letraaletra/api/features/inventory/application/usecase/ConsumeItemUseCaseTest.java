@@ -2,18 +2,16 @@ package com.letraaletra.api.features.inventory.application.usecase;
 
 import com.letraaletra.api.features.inventory.application.input.ConsumeItemInput;
 import com.letraaletra.api.features.inventory.application.output.ConsumeItemOutput;
-import com.letraaletra.api.features.items.domain.EffectType;
+import com.letraaletra.api.features.items.domain.*;
 import com.letraaletra.api.features.inventory.domain.InventoryChangeKind;
-import com.letraaletra.api.features.items.domain.ItemCategory;
-import com.letraaletra.api.features.items.domain.ItemContext;
-import com.letraaletra.api.features.items.domain.ItemDefinition;
-import com.letraaletra.api.features.items.domain.ItemEffect;
-import com.letraaletra.api.features.items.domain.PercentageTimedEffect;
-import com.letraaletra.api.features.items.domain.ItemKind;
 import com.letraaletra.api.features.inventory.domain.UserItem;
 import com.letraaletra.api.features.inventory.domain.exception.InsufficientQuantityException;
 import com.letraaletra.api.features.inventory.domain.repository.InventoryRepository;
-import com.letraaletra.api.features.items.domain.repository.ItemDefinitionLookup;
+import com.letraaletra.api.features.items.domain.repository.ItemLookup;
+import com.letraaletra.api.features.user.domain.User;
+import com.letraaletra.api.features.user.domain.UserFactory;
+import com.letraaletra.api.features.user.domain.effect.effects.ExperienceBonusEffect;
+import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,10 +37,13 @@ import static org.mockito.Mockito.when;
 class ConsumeItemUseCaseTest {
 
     @Mock
-    private ItemDefinitionLookup itemLookup;
+    private ItemLookup itemLookup;
 
     @Mock
     private InventoryRepository inventoryRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder auditRecorder;
@@ -51,21 +52,16 @@ class ConsumeItemUseCaseTest {
     private ConsumeItemUseCase useCase;
 
     private UUID userId;
-    private ItemDefinition boost;
+    private ConsumableItem boost;
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
-        boost = ItemDefinition.create(
+        boost = ConsumableItem.create(
                 "XP Boost 50%",
-                ItemKind.CONSUMABLE,
                 ItemCategory.XP_BOOST,
-                ItemContext.PROFILE,
-                true,
-                1000,
-                true,
-                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60),
-                null
+                EquippableContext.PROFILE,
+                new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60)
         );
     }
 
@@ -98,5 +94,21 @@ class ConsumeItemUseCaseTest {
         assertThrows(InsufficientQuantityException.class, () -> useCase.execute(
                 new ConsumeItemInput(userId, boost.getId(), 2)));
         verify(inventoryRepository, never()).deleteItemsByOwner(any());
+    }
+
+    @Test
+    @DisplayName("consumo de boost deve conceder efeito ativo ao usuario")
+    void consumeBoostShouldGrantActiveEffect() {
+        User user = UserFactory.createLocal("Gamer", "gamer@test.com", "hash");
+        when(itemLookup.getById(boost.getId())).thenReturn(boost);
+        when(inventoryRepository.findItemsByOwner(userId)).thenReturn(List.of(
+                UserItem.restore(userId, boost.getId(), 3, false, LocalDateTime.now(), null)
+        ));
+        when(userRepository.find(userId)).thenReturn(Optional.of(user));
+
+        useCase.execute(new ConsumeItemInput(userId, boost.getId(), 2));
+
+        assertTrue(user.getActiveEffects().has(ExperienceBonusEffect.class));
+        verify(userRepository).save(user);
     }
 }
