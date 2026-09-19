@@ -104,9 +104,9 @@ export async function runFlow(adminContext, playerContext) {
         "Verify invalid reset code"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Verify invalid reset code: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Verify invalid reset code: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -169,9 +169,9 @@ export async function runFlow(adminContext, playerContext) {
         "Reuse reset code"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Reuse reset code: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Reuse reset code: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -459,7 +459,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        409,
         "Change nickname already in use"
     );
 
@@ -520,7 +520,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Change nickname without owning item"
     );
 
@@ -611,7 +611,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Equip unowned item"
     );
 
@@ -651,7 +651,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        403,
         "Auth banned user"
     );
 
@@ -829,8 +829,8 @@ export async function runFlow(adminContext, playerContext) {
     // comum não passa no AdminChecker, e o caminho feliz via HTTP é
     // inalcançável (todos os writers exigem um User real; coberto pelo
     // RevokeItemUseCaseTest unitário). O fluxo preserva a garantia adaptada:
-    // (a) usuário comum recebe 400 ao tentar revogar; (b) admin sem posse
-    // recebe ITEM_NOT_OWNED; (c) o item concedido permanece no inventário.
+    // (a) usuário comum recebe 403 ao tentar revogar; (b) admin sem posse
+    // recebe ITEM_NOT_OWNED (404); (c) o item concedido permanece no inventário.
 
     const revokeItemName = `integration-revoke-${stamp}`;
 
@@ -885,7 +885,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        403,
         "Revoke item without permission"
     );
 
@@ -898,7 +898,7 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Revoke unowned item"
     );
 

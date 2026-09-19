@@ -67,7 +67,7 @@ export async function runFlow(context) {
         zidan.token
     );
 
-    ensureStatus(res, 400, "Sender accepting own request");
+    ensureStatus(res, 409, "Sender accepting own request");
 
     res = await http(
         "PATCH",
@@ -216,7 +216,7 @@ export async function runFlow(context) {
         wadawueu.token
     );
 
-    ensureStatus(res, 400, "Remetente recusando própria solicitação");
+    ensureStatus(res, 409, "Remetente recusando própria solicitação");
 
     res = await http(
         "PATCH",

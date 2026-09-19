@@ -161,7 +161,7 @@ export async function runFlow(context) {
         admin.token
     );
 
-    ensureStatus(res, 400, "Get unknown level by value");
+    ensureStatus(res, 404, "Get unknown level by value");
 
     if (res.body?.code !== "LEVEL_NOT_FOUND") {
         throw new Error(

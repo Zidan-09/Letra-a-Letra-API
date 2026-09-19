@@ -87,7 +87,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Find game by unknown code"
     );
 

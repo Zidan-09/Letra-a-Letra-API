@@ -125,7 +125,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Find unknown offer by id"
     );
 
@@ -222,7 +222,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Find deleted offer by id"
     );
 

@@ -435,7 +435,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Find unknown admin by email"
     );
 
@@ -515,7 +515,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        404,
         "Find deleted admin by email"
     );
 
@@ -630,7 +630,7 @@ export async function runFlow(context) {
 
     ensureStatus(
         res,
-        400,
+        403,
         "Delete super admin as regular admin"
     );
 
@@ -718,9 +718,9 @@ export async function runFlow(context) {
         "Verify invalid reset token"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Verify invalid reset token: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Verify invalid reset token: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -755,9 +755,9 @@ export async function runFlow(context) {
         "Verify superseded reset token"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Verify superseded reset token: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Verify superseded reset token: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -872,9 +872,9 @@ export async function runFlow(context) {
         "Reuse reset token"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Reuse reset token: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Reuse reset token: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
@@ -947,9 +947,9 @@ export async function runFlow(context) {
         "Activate account with invalid token"
     );
 
-    if (res.body?.code !== "INVALID_TOKEN") {
+    if (res.body?.code !== "INVALID_RESET_CODE") {
         throw new Error(
-            `Activate account with invalid token: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+            `Activate account with invalid token: expected INVALID_RESET_CODE, received ${JSON.stringify(res.body)}`
         );
     }
 
