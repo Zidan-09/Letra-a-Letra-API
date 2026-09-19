@@ -56,7 +56,7 @@ class GlobalExceptionHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new GlobalExceptionHandler(failureAuditor);
+        handler = new GlobalExceptionHandler(failureAuditor, new DomainExceptionHttpMapper());
         request = new MockHttpServletRequest();
         request.setRequestURI("/api/test");
         SecurityContextHolder.clearContext();
@@ -362,5 +362,148 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Requisição inválida.", response.getBody().message());
         assertFalse(response.getBody().message().contains("Validation failed"));
+    }
+
+    @Test
+    @DisplayName("UserNotFoundException responde 404 mantendo code/message do domínio")
+    void shouldMapNotFoundDomainExceptionTo404() {
+        request.setMethod("GET");
+
+        com.letraaletra.api.features.user.domain.exception.UserNotFoundException exception =
+                new com.letraaletra.api.features.user.domain.exception.UserNotFoundException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("USER_NOT_FOUND", response.getBody().code());
+        assertEquals("the user was not found", response.getBody().message());
+
+        verify(failureAuditor).recordFailure(request, exception, 404);
+    }
+
+    @Test
+    @DisplayName("NicknameAlreadyInUseException responde 409 mantendo code/message do domínio")
+    void shouldMapConflictDomainExceptionTo409() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException exception =
+                new com.letraaletra.api.features.user.domain.exception.NicknameAlreadyInUseException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("NICKNAME_ALREADY_IN_USE", response.getBody().code());
+
+        verify(failureAuditor).recordFailure(request, exception, 409);
+    }
+
+    @Test
+    @DisplayName("PermissionDeniedException responde 403")
+    void shouldMapForbiddenDomainExceptionTo403() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException exception =
+                new com.letraaletra.api.features.admin.domain.exception.PermissionDeniedException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertEquals("PERMISSION_DENIED", response.getBody().code());
+
+        verify(failureAuditor).recordFailure(request, exception, 403);
+    }
+
+    @Test
+    @DisplayName("InvalidTokenException responde 401")
+    void shouldMapUnauthorizedDomainExceptionTo401() {
+        request.setMethod("GET");
+
+        com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException exception =
+                new com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals("INVALID_TOKEN", response.getBody().code());
+
+        verify(failureAuditor).recordFailure(request, exception, 401);
+    }
+
+    @Test
+    @DisplayName("InvalidResetCodeException responde 400 com INVALID_RESET_CODE")
+    void shouldMapInvalidResetCodeTo400() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException exception =
+                new com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("INVALID_RESET_CODE", response.getBody().code());
+        assertEquals("the provided reset code is invalid", response.getBody().message());
+
+        verify(failureAuditor).recordFailure(request, exception, 400);
+    }
+
+    @Test
+    @DisplayName("MaxAttemptsExceededException responde 429")
+    void shouldMapTooManyRequestsDomainExceptionTo429() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException exception =
+                new com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, response.getStatusCode());
+        assertEquals("MAX_ATTEMPTS_EXCEEDED", response.getBody().code());
+
+        verify(failureAuditor).recordFailure(request, exception, 429);
+    }
+
+    @Test
+    @DisplayName("ImageTooLargeException responde 413")
+    void shouldMapPayloadTooLargeDomainExceptionTo413() {
+        request.setMethod("PUT");
+
+        com.letraaletra.api.features.items.domain.exception.ImageTooLargeException exception =
+                new com.letraaletra.api.features.items.domain.exception.ImageTooLargeException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, response.getStatusCode());
+
+        verify(failureAuditor).recordFailure(request, exception, 413);
+    }
+
+    @Test
+    @DisplayName("EmailSendException responde 502")
+    void shouldMapBadGatewayDomainExceptionTo502() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.shared.domain.exception.EmailSendException exception =
+                new com.letraaletra.api.shared.domain.exception.EmailSendException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.BAD_GATEWAY, response.getStatusCode());
+
+        verify(failureAuditor).recordFailure(request, exception, 502);
+    }
+
+    @Test
+    @DisplayName("ItemNotOwnedException responde 404 sem vazar existência")
+    void shouldMapItemNotOwnedTo404() {
+        request.setMethod("POST");
+
+        com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException exception =
+                new com.letraaletra.api.features.inventory.domain.exception.ItemNotOwnedException();
+
+        ResponseEntity<ErrorResponse> response = handler.handleHttpException(exception, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(failureAuditor).recordFailure(request, exception, 404);
     }
 }

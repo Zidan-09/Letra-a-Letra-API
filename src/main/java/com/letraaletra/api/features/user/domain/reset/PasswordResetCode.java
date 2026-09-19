@@ -1,7 +1,7 @@
 package com.letraaletra.api.features.user.domain.reset;
 
 import com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -117,16 +117,16 @@ public class PasswordResetCode {
         }
 
         if (used) {
-            throw new InvalidTokenException();
+            throw new InvalidResetCodeException();
         }
 
         if (isExpired()) {
-            throw new InvalidTokenException();
+            throw new InvalidResetCodeException();
         }
 
         if (!codeHashed.equals(codeHash)) {
             incrementAttempts();
-            throw new InvalidTokenException();
+            throw new InvalidResetCodeException();
         }
     }
 

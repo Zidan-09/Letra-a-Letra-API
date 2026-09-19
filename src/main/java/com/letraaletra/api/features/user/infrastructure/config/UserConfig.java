@@ -38,6 +38,7 @@ import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
 import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.features.audit.application.port.BusinessAuditRecorder;
 import com.letraaletra.api.features.reward.application.port.RewardFactory;
@@ -232,7 +233,7 @@ public class UserConfig {
                         tokenHashService
                 ),
                 transactions,
-                Set.of(InvalidTokenException.class)
+                Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
         );
     }
 
@@ -252,7 +253,7 @@ public class UserConfig {
                         resetCodeRepository
                 ),
                 transactions,
-                Set.of(InvalidTokenException.class)
+                Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
         );
     }
 

@@ -4,7 +4,8 @@ public enum SecurityMessages implements MessageCode {
     INVALID_CREDENTIALS("the provided credentials are invalid"),
     INVALID_TOKEN("the provided token is invalid"),
     INVALID_USER_DATA("the provided user data is invalid"),
-    SESSION_EXPIRED("the session has expired or was invalidated by another login");
+    SESSION_EXPIRED("the session has expired or was invalidated by another login"),
+    INVALID_RESET_CODE("the provided reset code is invalid");
 
     private final String message;
 

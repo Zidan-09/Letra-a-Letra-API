@@ -7,7 +7,7 @@ import com.letraaletra.api.features.admin.domain.exception.AdminNotFoundExceptio
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository;
 import com.letraaletra.api.shared.domain.security.PasswordService;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
 import org.junit.jupiter.api.DisplayName;
@@ -99,8 +99,8 @@ class ActivateAccountUseCaseTest {
     class ExceptionScenarios {
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when token is not found in repository")
-        void execute_WhenTokenNotFound_ShouldThrowInvalidTokenException() {
+        @DisplayName("Should throw InvalidResetCodeException when token is not found in repository")
+        void execute_WhenTokenNotFound_ShouldThrowInvalidResetCodeException() {
             String rawToken = "invalid-token";
             String hashedToken = "hashed-invalid-token";
             ActivateAccountInput input = new ActivateAccountInput(rawToken, "password123");
@@ -108,7 +108,7 @@ class ActivateAccountUseCaseTest {
             given(tokenHashService.hash(rawToken)).willReturn(hashedToken);
             given(tokenRepository.findByTokenHash(hashedToken)).willReturn(Optional.empty());
 
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+            assertThrows(InvalidResetCodeException.class, () -> useCase.execute(input));
 
             verify(adminRepository, never()).find(any());
             verify(passwordService, never()).hash(any());
@@ -117,8 +117,8 @@ class ActivateAccountUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should throw InvalidTokenException and halt execution when token validation fails (expired or used)")
-        void execute_WhenTokenValidationFails_ShouldThrowInvalidTokenException() {
+        @DisplayName("Should throw InvalidResetCodeException and halt execution when token validation fails (expired or used)")
+        void execute_WhenTokenValidationFails_ShouldThrowInvalidResetCodeException() {
             String rawToken = "invalid-state-token";
             String hashedToken = "hashed-token";
             ActivateAccountInput input = new ActivateAccountInput(rawToken, "password123");
@@ -127,9 +127,9 @@ class ActivateAccountUseCaseTest {
 
             given(tokenHashService.hash(rawToken)).willReturn(hashedToken);
             given(tokenRepository.findByTokenHash(hashedToken)).willReturn(Optional.of(setupToken));
-            doThrow(new InvalidTokenException()).when(setupToken).validate();
+            doThrow(new InvalidResetCodeException()).when(setupToken).validate();
 
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+            assertThrows(InvalidResetCodeException.class, () -> useCase.execute(input));
 
             verify(setupToken).validate();
             verify(setupToken, never()).getAdminId();

@@ -29,6 +29,7 @@ import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
 import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
 import com.letraaletra.api.shared.application.usecase.UseCase;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
@@ -203,7 +204,7 @@ public class AdminConfig {
                         tokenRepository
                 ),
                 transactions,
-                Set.of(InvalidTokenException.class)
+                Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
         );
     }
 
@@ -223,7 +224,7 @@ public class AdminConfig {
                         tokenRepository
                 ),
                 transactions,
-                Set.of(InvalidTokenException.class)
+                Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
         );
     }
 }

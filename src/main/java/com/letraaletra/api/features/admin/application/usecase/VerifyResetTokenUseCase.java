@@ -6,7 +6,7 @@ import com.letraaletra.api.features.admin.domain.AdminPasswordResetToken;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminResetTokenRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
 public class VerifyResetTokenUseCase implements UseCase<VerifyResetTokenInput, Void> {
@@ -29,16 +29,16 @@ public class VerifyResetTokenUseCase implements UseCase<VerifyResetTokenInput, V
         String tokenHash = tokenHashService.hash(input.token());
 
         Admin admin = adminRepository.findByEmail(input.email())
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(InvalidResetCodeException::new);
 
         AdminPasswordResetToken resetToken = tokenRepository
                 .findActiveByAdminId(admin.getId())
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(InvalidResetCodeException::new);
 
         try {
             resetToken.validate(tokenHash);
 
-        } catch (InvalidTokenException e) {
+        } catch (InvalidResetCodeException e) {
             tokenRepository.save(resetToken);
             throw e;
         }

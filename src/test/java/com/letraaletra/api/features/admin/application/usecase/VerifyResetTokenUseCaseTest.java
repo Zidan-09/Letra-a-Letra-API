@@ -5,7 +5,7 @@ import com.letraaletra.api.features.admin.domain.Admin;
 import com.letraaletra.api.features.admin.domain.AdminPasswordResetToken;
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.features.admin.domain.repository.AdminResetTokenRepository;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
 import org.junit.jupiter.api.DisplayName;
@@ -85,8 +85,8 @@ class VerifyResetTokenUseCaseTest {
     class ExceptionScenarios {
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when admin is not found")
-        void execute_WhenAdminNotFound_ShouldThrowInvalidTokenException() {
+        @DisplayName("Should throw InvalidResetCodeException when admin is not found")
+        void execute_WhenAdminNotFound_ShouldThrowInvalidResetCodeException() {
             String email = "unknown@example.com";
             String rawToken = "some-token";
             String hashedToken = "hashed-some-token";
@@ -95,7 +95,7 @@ class VerifyResetTokenUseCaseTest {
             given(tokenHashService.hash(rawToken)).willReturn(hashedToken);
             given(adminRepository.findByEmail(email)).willReturn(Optional.empty());
 
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+            assertThrows(InvalidResetCodeException.class, () -> useCase.execute(input));
 
             verify(tokenHashService).hash(rawToken);
             verify(adminRepository).findByEmail(email);
@@ -104,8 +104,8 @@ class VerifyResetTokenUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when token is not found in repository")
-        void execute_WhenTokenNotFoundInRepository_ShouldThrowInvalidTokenException() {
+        @DisplayName("Should throw InvalidResetCodeException when token is not found in repository")
+        void execute_WhenTokenNotFoundInRepository_ShouldThrowInvalidResetCodeException() {
             String email = "admin@example.com";
             UUID adminId = UUID.randomUUID();
             String rawToken = "unknown-token";
@@ -119,7 +119,7 @@ class VerifyResetTokenUseCaseTest {
             given(admin.getId()).willReturn(adminId);
             given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.empty());
 
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+            assertThrows(InvalidResetCodeException.class, () -> useCase.execute(input));
 
             verify(tokenHashService).hash(rawToken);
             verify(adminRepository).findByEmail(email);
@@ -128,8 +128,8 @@ class VerifyResetTokenUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should throw InvalidTokenException when reset token domain validation fails and save the attempt")
-        void execute_WhenDomainValidationFails_ShouldThrowInvalidTokenExceptionAndSave() {
+        @DisplayName("Should throw InvalidResetCodeException when reset token domain validation fails and save the attempt")
+        void execute_WhenDomainValidationFails_ShouldThrowInvalidResetCodeExceptionAndSave() {
             String email = "admin@example.com";
             UUID adminId = UUID.randomUUID();
             String rawToken = "expired-or-invalid-token";
@@ -143,9 +143,9 @@ class VerifyResetTokenUseCaseTest {
             given(adminRepository.findByEmail(email)).willReturn(Optional.of(admin));
             given(admin.getId()).willReturn(adminId);
             given(tokenRepository.findActiveByAdminId(adminId)).willReturn(Optional.of(resetToken));
-            willThrow(new InvalidTokenException()).given(resetToken).validate(hashedToken);
+            willThrow(new InvalidResetCodeException()).given(resetToken).validate(hashedToken);
 
-            assertThrows(InvalidTokenException.class, () -> useCase.execute(input));
+            assertThrows(InvalidResetCodeException.class, () -> useCase.execute(input));
 
             verify(tokenHashService).hash(rawToken);
             verify(adminRepository).findByEmail(email);

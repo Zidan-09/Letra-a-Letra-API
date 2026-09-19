@@ -39,9 +39,14 @@ public class GlobalExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private final HttpCommandFailureAuditor failureAuditor;
+    private final DomainExceptionHttpMapper domainExceptionHttpMapper;
 
-    public GlobalExceptionHandler(HttpCommandFailureAuditor failureAuditor) {
+    public GlobalExceptionHandler(
+            HttpCommandFailureAuditor failureAuditor,
+            DomainExceptionHttpMapper domainExceptionHttpMapper
+    ) {
         this.failureAuditor = failureAuditor;
+        this.domainExceptionHttpMapper = domainExceptionHttpMapper;
     }
 
     @ExceptionHandler(DomainException.class)
@@ -50,12 +55,14 @@ public class GlobalExceptionHandler {
     ) {
         request.setAttribute("AUDIT_EXCEPTION", ex);
 
-        recordHttpFailure(ex, request, HttpStatus.BAD_REQUEST.value());
+        HttpStatus status = domainExceptionHttpMapper.resolve(ex);
+
+        recordHttpFailure(ex, request, status.value());
 
         MessageCode code = ex.getMessageCode();
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(status)
                 .body(new ErrorResponse(
                         false,
                         code.getCode(),

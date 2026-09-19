@@ -6,7 +6,7 @@ import com.letraaletra.api.features.user.domain.reset.PasswordResetCode;
 import com.letraaletra.api.features.user.domain.reset.exception.MaxAttemptsExceededException;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -100,13 +100,13 @@ class VerifyResetCodeUseCaseTest {
     class DomainExceptions {
 
         @Test
-        @DisplayName("Deve lançar InvalidTokenException quando o usuário não for encontrado")
-        void execute_WhenUserNotFound_ShouldThrowInvalidTokenExceptionAndNotValidateOrSave() {
+        @DisplayName("Deve lançar InvalidResetCodeException quando o usuário não for encontrado")
+        void execute_WhenUserNotFound_ShouldThrowInvalidResetCodeExceptionAndNotValidateOrSave() {
             when(tokenHashService.hash(rawCode)).thenReturn(hashedCode);
             when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
             assertThrows(
-                    InvalidTokenException.class,
+                    InvalidResetCodeException.class,
                     () -> useCase.execute(input)
             );
 
@@ -118,15 +118,15 @@ class VerifyResetCodeUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve lançar InvalidTokenException quando não houver código ativo para o usuário")
-        void execute_WhenCodeNotFound_ShouldThrowInvalidTokenExceptionAndNotValidateOrSave() {
+        @DisplayName("Deve lançar InvalidResetCodeException quando não houver código ativo para o usuário")
+        void execute_WhenCodeNotFound_ShouldThrowInvalidResetCodeExceptionAndNotValidateOrSave() {
             when(tokenHashService.hash(rawCode)).thenReturn(hashedCode);
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
             when(mockUser.getUserId()).thenReturn(userId);
             when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.empty());
 
             assertThrows(
-                    InvalidTokenException.class,
+                    InvalidResetCodeException.class,
                     () -> useCase.execute(input)
             );
 
@@ -138,16 +138,16 @@ class VerifyResetCodeUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve propagar InvalidTokenException quando o código estiver expirado, usado ou inválido no domínio e salvar a tentativa")
-        void execute_WhenCodeValidationFails_ShouldPropagateInvalidTokenExceptionAndSave() {
+        @DisplayName("Deve propagar InvalidResetCodeException quando o código estiver expirado, usado ou inválido no domínio e salvar a tentativa")
+        void execute_WhenCodeValidationFails_ShouldPropagateInvalidResetCodeExceptionAndSave() {
             when(tokenHashService.hash(rawCode)).thenReturn(hashedCode);
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
             when(mockUser.getUserId()).thenReturn(userId);
             when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
-            doThrow(new InvalidTokenException()).when(mockResetCode).validate(hashedCode);
+            doThrow(new InvalidResetCodeException()).when(mockResetCode).validate(hashedCode);
 
             assertThrows(
-                    InvalidTokenException.class,
+                    InvalidResetCodeException.class,
                     () -> useCase.execute(input)
             );
 

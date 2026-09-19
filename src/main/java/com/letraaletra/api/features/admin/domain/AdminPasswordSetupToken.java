@@ -1,6 +1,6 @@
 package com.letraaletra.api.features.admin.domain;
 
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -76,11 +76,11 @@ public class AdminPasswordSetupToken {
 
     public void validate() {
         if (used) {
-            throw new InvalidTokenException();
+            throw new InvalidResetCodeException();
         }
 
         if (isExpired()) {
-            throw new InvalidTokenException();
+            throw new InvalidResetCodeException();
         }
     }
 }

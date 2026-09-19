@@ -7,7 +7,7 @@ import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeReposi
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.application.usecase.UseCase;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 
 public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Void> {
     private final UserRepository userRepository;
@@ -29,16 +29,16 @@ public class VerifyResetCodeUseCase implements UseCase<VerifyResetCodeInput, Voi
         String codeHash = tokenHashService.hash(input.code());
 
         User user = userRepository.findByEmail(input.email())
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(InvalidResetCodeException::new);
 
         PasswordResetCode resetCode =
                 codeRepository.findActiveByUserId(user.getUserId())
-                        .orElseThrow(InvalidTokenException::new);
+                        .orElseThrow(InvalidResetCodeException::new);
 
         try {
             resetCode.validate(codeHash);
 
-        } catch (InvalidTokenException e) {
+        } catch (InvalidResetCodeException e) {
             codeRepository.save(resetCode);
             throw e;
         }

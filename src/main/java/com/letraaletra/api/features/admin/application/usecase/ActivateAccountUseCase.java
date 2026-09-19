@@ -9,7 +9,7 @@ import com.letraaletra.api.features.admin.domain.repository.AdminTokenRepository
 import com.letraaletra.api.features.admin.domain.repository.AdminRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
-import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
+import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 
 public class ActivateAccountUseCase implements UseCase<ActivateAccountInput, Void> {
     private final TokenHashService tokenHashService;
@@ -34,7 +34,7 @@ public class ActivateAccountUseCase implements UseCase<ActivateAccountInput, Voi
         String tokenHash = tokenHashService.hash(input.token());
 
         AdminPasswordSetupToken setupToken = tokenRepository.findByTokenHash(tokenHash)
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(InvalidResetCodeException::new);
 
         setupToken.validate();
 
