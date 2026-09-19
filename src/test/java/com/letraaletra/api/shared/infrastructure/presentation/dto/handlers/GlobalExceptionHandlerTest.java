@@ -23,9 +23,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -184,5 +184,183 @@ class GlobalExceptionHandlerTest {
         assertEquals("INTERNAL_ERROR", response.getBody().code());
 
         verify(failureAuditor).recordFailure(request, exception, 500);
+    }
+
+    @Test
+    @DisplayName("MethodArgumentNotValid com typeMismatch não expõe assinatura nem detalhes internos")
+    void shouldSanitizeMethodArgumentNotValid() {
+        request.setMethod("PUT");
+
+        org.springframework.validation.BeanPropertyBindingResult bindingResult =
+                new org.springframework.validation.BeanPropertyBindingResult(new Object(), "updateItemRequest");
+        bindingResult.addError(new org.springframework.validation.FieldError(
+                "updateItemRequest",
+                "isNewAsset",
+                null,
+                false,
+                new String[]{"typeMismatch.updateItemRequest.isNewAsset"},
+                null,
+                "Failed to convert value of type 'null' to required type 'boolean'; Failed to convert from type [null] to type [boolean] for value [null]"));
+
+        org.springframework.core.MethodParameter parameter = null;
+        try {
+            parameter = new org.springframework.core.MethodParameter(
+                    com.letraaletra.api.features.items.infrastructure.controller.UpdateItemController.class
+                            .getMethod("handle",
+                                    com.letraaletra.api.shared.domain.AuthenticatedUser.class,
+                                    java.util.UUID.class,
+                                    com.letraaletra.api.features.items.infrastructure.presentation.dto.request.UpdateItemRequest.class),
+                    2);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+
+        org.springframework.web.bind.MethodArgumentNotValidException exception =
+                new org.springframework.web.bind.MethodArgumentNotValidException(parameter, bindingResult);
+
+        ResponseEntity<ErrorResponse> response = handler.handleValidation(exception, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("INVALID_REQUEST", response.getBody().code());
+        assertEquals("Requisição inválida.", response.getBody().message());
+        assertFalse(response.getBody().message().contains("Failed to convert"));
+        assertFalse(response.getBody().message().contains("UpdateItemController"));
+        assertFalse(response.getBody().message().contains("ResponseEntity"));
+    }
+
+    @Test
+    @DisplayName("BindException não expõe mensagem interna")
+    void shouldSanitizeBindException() {
+        request.setMethod("PUT");
+
+        org.springframework.validation.BeanPropertyBindingResult bindingResult =
+                new org.springframework.validation.BeanPropertyBindingResult(new Object(), "updateItemRequest");
+        bindingResult.addError(new org.springframework.validation.FieldError(
+                "updateItemRequest", "isNewAsset", null, false, null, null,
+                "Failed to convert value of type 'null' to required type 'boolean'"));
+
+        org.springframework.validation.BindException exception =
+                new org.springframework.validation.BindException(bindingResult);
+
+        ResponseEntity<ErrorResponse> response = handler.handleBindException(exception, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("INVALID_REQUEST", response.getBody().code());
+        assertEquals("Requisição inválida.", response.getBody().message());
+    }
+
+    @Test
+    @DisplayName("HandlerMethodValidationException responde 400 genérico sem vazar detalhes")
+    void shouldSanitizeHandlerMethodValidation() {
+        request.setMethod("PUT");
+
+        org.springframework.validation.method.MethodValidationResult validationResult =
+                org.mockito.Mockito.mock(org.springframework.validation.method.MethodValidationResult.class);
+        org.springframework.web.method.annotation.HandlerMethodValidationException exception =
+                new org.springframework.web.method.annotation.HandlerMethodValidationException(validationResult);
+
+        ResponseEntity<ErrorResponse> response = handler.handleHandlerMethodValidation(exception, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("INVALID_REQUEST", response.getBody().code());
+        assertEquals("Requisição inválida.", response.getBody().message());
+    }
+
+    @Test
+    @DisplayName("IllegalArgumentException de framework é sanitizada; do nosso código preserva mensagem")
+    void shouldSanitizeFrameworkIllegalArgumentButKeepOwnCode() {
+        request.setMethod("POST");
+
+        IllegalArgumentException frameworkEx = new IllegalArgumentException(
+                "Validation failed for argument [2] in public org.springframework.http.ResponseEntity<?> handle(...): Failed to convert");
+        frameworkEx.setStackTrace(new StackTraceElement[]{
+                new StackTraceElement("org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor",
+                        "bindRequestParameters", "ServletModelAttributeMethodProcessor.java", 100)
+        });
+
+        ResponseEntity<ErrorResponse> sanitized = handler.handleIllegalArgument(frameworkEx, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, sanitized.getStatusCode());
+        assertEquals("Requisição inválida.", sanitized.getBody().message());
+        assertFalse(sanitized.getBody().message().contains("Validation failed"));
+        assertFalse(sanitized.getBody().message().contains("org.springframework"));
+
+        IllegalArgumentException ownEx = new IllegalArgumentException("Invalid path.");
+        ownEx.setStackTrace(new StackTraceElement[]{
+                new StackTraceElement("com.letraaletra.api.features.admin.infrastructure.controller.FindGameLogsController",
+                        "handle", "FindGameLogsController.java", 206)
+        });
+
+        ResponseEntity<ErrorResponse> preserved = handler.handleIllegalArgument(ownEx, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, preserved.getStatusCode());
+        assertEquals("Invalid path.", preserved.getBody().message());
+    }
+
+    @Test
+    @DisplayName("NoResourceFound não expõe mensagem interna")
+    void shouldSanitizeNoResourceFound() {
+        request.setMethod("GET");
+
+        ResponseEntity<ErrorResponse> response = handler.handleNoResourceFound(
+                new NoResourceFoundException(
+                        org.springframework.http.HttpMethod.GET, "/missing", "No static resource missing."),
+                request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("RESOURCE_NOT_FOUND", response.getBody().code());
+        assertEquals("Recurso não encontrado.", response.getBody().message());
+        assertFalse(response.getBody().message().contains("No static resource"));
+    }
+
+    @Test
+    @DisplayName("parâmetro ausente e type mismatch retornam 400 genérico")
+    void shouldSanitizeFrameworkBadRequests() {
+        request.setMethod("GET");
+
+        ResponseEntity<ErrorResponse> missingParam = handler.handleFrameworkBadRequest(
+                new org.springframework.web.bind.MissingServletRequestParameterException("page", "int"),
+                request);
+        assertEquals(HttpStatus.BAD_REQUEST, missingParam.getStatusCode());
+        assertEquals("Requisição inválida.", missingParam.getBody().message());
+
+        ResponseEntity<ErrorResponse> multipart = handler.handleFrameworkBadRequest(
+                new org.springframework.web.multipart.MultipartException("Failed to parse multipart servlet request"),
+                request);
+        assertEquals(HttpStatus.BAD_REQUEST, multipart.getStatusCode());
+        assertEquals("Requisição inválida.", multipart.getBody().message());
+    }
+
+    @Test
+    @DisplayName("ResponseStatusException não expõe reason interno")
+    void shouldSanitizeResponseStatusException() {
+        request.setMethod("GET");
+
+        org.springframework.web.server.ResponseStatusException notFound =
+                new org.springframework.web.server.ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "secret internal reason with com.letraaletra.api.Foo.handle");
+
+        ResponseEntity<ErrorResponse> response = handler.handleResponseStatus(notFound, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Recurso não encontrado.", response.getBody().message());
+        assertFalse(response.getBody().message().contains("secret"));
+    }
+
+    @Test
+    @DisplayName("ErrorResponseException 400 é sanitizada sem expor detail")
+    void shouldSanitizeErrorResponseException() {
+        request.setMethod("GET");
+
+        org.springframework.web.ErrorResponseException exception =
+                new org.springframework.web.server.ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Validation failed for argument [2] in public ResponseEntity handle(...)");
+
+        ResponseEntity<ErrorResponse> response = handler.handleSpringErrorResponse(exception, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Requisição inválida.", response.getBody().message());
+        assertFalse(response.getBody().message().contains("Validation failed"));
     }
 }
