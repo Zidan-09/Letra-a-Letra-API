@@ -1,6 +1,7 @@
 package com.letraaletra.api.features.game.infrastructure.config;
 
 import com.letraaletra.api.features.game.application.input.CreateGameInput;
+import com.letraaletra.api.features.game.application.input.FindActiveGameByRoomNameInput;
 import com.letraaletra.api.features.game.application.input.FindByCodeInput;
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.input.GetGamesInput;
@@ -9,6 +10,7 @@ import com.letraaletra.api.features.game.application.input.JoinGameInput;
 import com.letraaletra.api.features.game.application.input.LeftGameInput;
 import com.letraaletra.api.features.game.application.input.StartGameInput;
 import com.letraaletra.api.features.game.application.output.CreateGameOutput;
+import com.letraaletra.api.features.game.application.output.FindActiveGameByRoomNameOutput;
 import com.letraaletra.api.features.game.application.output.FindByCodeOutput;
 import com.letraaletra.api.features.game.application.output.GetActiveGamesOutput;
 import com.letraaletra.api.features.game.application.output.GetGamesOutput;
@@ -183,6 +185,19 @@ public class GameConfig {
                 new GetActiveGamesUseCase(
                         gameQueryService,
                         adminChecker
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<FindActiveGameByRoomNameInput, FindActiveGameByRoomNameOutput> findActiveGameByRoomNameUseCase(
+            GameQueryService gameQueryService,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new FindActiveGameByRoomNameUseCase(
+                        gameQueryService
                 ),
                 transactions
         );

@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.game.infrastructure.persistence.memory;
 
+import com.letraaletra.api.features.game.application.input.FindActiveGameByRoomNameInput;
 import com.letraaletra.api.features.game.application.input.GetActiveGamesInput;
 import com.letraaletra.api.features.game.application.input.GetPublicGamesInput;
 import com.letraaletra.api.features.game.application.port.Actor;
@@ -62,6 +63,39 @@ public class InMemoryGameQueryService implements GameQueryService {
     @Override
     public Page<Game> getAllActiveGames(GetActiveGamesInput input) {
         List<Game> games = getGames().toList();
+
+        Pageable pageable = PageRequest.of(
+                input.page(),
+                input.size(),
+                input.sort()
+        );
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), games.size());
+
+        List<Game> content = start >= games.size()
+                ? List.of()
+                : games.subList(start, end);
+
+        return new PageImpl<>(content, pageable, games.size());
+    }
+
+    @Override
+    public Page<Game> searchActiveByRoomName(FindActiveGameByRoomNameInput input) {
+        String search = input.roomName() == null ? "" : input.roomName().toLowerCase();
+
+        List<Game> games = getGames()
+                .filter(game -> game.getRoomName() != null
+                        && game.getRoomName().toLowerCase().contains(search))
+                .sorted((left, right) -> {
+                    boolean leftPrefix = left.getRoomName().toLowerCase().startsWith(search);
+                    boolean rightPrefix = right.getRoomName().toLowerCase().startsWith(search);
+                    if (leftPrefix != rightPrefix) {
+                        return leftPrefix ? -1 : 1;
+                    }
+                    return left.getRoomName().compareToIgnoreCase(right.getRoomName());
+                })
+                .toList();
 
         Pageable pageable = PageRequest.of(
                 input.page(),
