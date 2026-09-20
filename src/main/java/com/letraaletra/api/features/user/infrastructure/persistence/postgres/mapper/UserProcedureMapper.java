@@ -24,7 +24,6 @@ public final class UserProcedureMapper {
         String googleId = rs.getString("google_id");
         UUID tokenVersion = (UUID) rs.getObject("token_version");
         UUID currentGameId = (UUID) rs.getObject("current_game_id");
-        boolean canChangeNickname = rs.getBoolean("can_change_nickname");
         String banTypeStr = rs.getString("ban_type");
         String banReason = rs.getString("ban_reason");
         java.sql.Timestamp banExpiresTs = rs.getTimestamp("ban_expires_at");
@@ -57,7 +56,6 @@ public final class UserProcedureMapper {
                 tokenVersion,
                 googleId,
                 currentGameId,
-                canChangeNickname,
                 banInfo,
                 UserStats.restore(totalMatches, totalWins, winStreak, level, experience, rankingPoints),
                 Wallet.restore(softCoins, hardGems),

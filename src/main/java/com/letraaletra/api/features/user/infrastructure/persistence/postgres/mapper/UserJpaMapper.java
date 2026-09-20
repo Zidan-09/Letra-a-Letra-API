@@ -19,7 +19,6 @@ public class UserJpaMapper {
         entity.setPasswordHash(user.getPasswordHash());
         entity.setTokenVersion(user.getTokenVersion());
         entity.setGoogleId(user.getGoogleId());
-        entity.setCanChangeNickname(user.canChangeNickname());
         entity.setCurrentGameId(user.getCurrentGameId());
         entity.setCreatedAt(user.getCreatedAt());
 
@@ -35,7 +34,6 @@ public class UserJpaMapper {
                 projection.getTokenVersion(),
                 projection.getGoogleId(),
                 projection.getCurrentGameId(),
-                projection.isCanChangeNickname(),
                 projection.getBanType() == null
                         ? BanInfo.create()
                         : BanInfo.restore(

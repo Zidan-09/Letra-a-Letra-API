@@ -50,7 +50,6 @@ class CreateUserControllerTest {
                 UUID.randomUUID(),
                 null,
                 UUID.randomUUID(),
-                false,
                 BanInfo.create(),
                 mock(UserStats.class),
                 mock(Wallet.class),

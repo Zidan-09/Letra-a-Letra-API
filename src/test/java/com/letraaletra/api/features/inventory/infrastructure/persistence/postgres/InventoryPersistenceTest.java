@@ -65,7 +65,6 @@ class InventoryPersistenceTest {
         user.setUsername("owner-" + ownerId);
         user.setEmail(ownerId + "@test.com");
         user.setCreatedAt(LocalDateTime.now());
-        user.setCanChangeNickname(true);
         users.save(user);
 
         avatar = EquippableItem.create(
@@ -93,7 +92,7 @@ class InventoryPersistenceTest {
                 .map(ItemJpaMapper::toDomain)
                 .orElseThrow();
 
-        assertTrue(reloadedAvatar instanceof EquippableItem);
+        assertInstanceOf(EquippableItem.class, reloadedAvatar);
         EquippableItem reloaded = (EquippableItem) reloadedAvatar;
         assertEquals(avatar.getId(), reloaded.getId());
         assertEquals(EquippableCategory.AVATAR, reloaded.getCategory());
@@ -106,7 +105,7 @@ class InventoryPersistenceTest {
                 .map(ItemJpaMapper::toDomain)
                 .orElseThrow();
 
-        assertTrue(reloadedBoost instanceof ConsumableItem);
+        assertInstanceOf(ConsumableItem.class, reloadedBoost);
         ConsumableItem reloadedConsumable = (ConsumableItem) reloadedBoost;
         assertEquals(new PercentageTimedEffect(EffectType.XP_BOOST_PCT, 50, 60), reloadedConsumable.getEffect());
     }
@@ -157,7 +156,6 @@ class InventoryPersistenceTest {
         other.setUsername("other-" + otherOwner);
         other.setEmail(otherOwner + "@test.com");
         other.setCreatedAt(LocalDateTime.now());
-        other.setCanChangeNickname(true);
         users.save(other);
 
         Inventory inventory = Inventory.create(ownerId);
@@ -165,8 +163,8 @@ class InventoryPersistenceTest {
         Inventory otherInventory = Inventory.create(otherOwner);
         otherInventory.grant(avatar, 1);
 
-        items.save(UserItemJpaMapper.toEntity(ownerId, inventory.getItems().get(0)));
-        items.save(UserItemJpaMapper.toEntity(otherOwner, otherInventory.getItems().get(0)));
+        items.save(UserItemJpaMapper.toEntity(ownerId, inventory.getItems().getFirst()));
+        items.save(UserItemJpaMapper.toEntity(otherOwner, otherInventory.getItems().getFirst()));
         entityManager.flush();
 
         items.deleteItemsByOwner(ownerId);
@@ -196,8 +194,8 @@ class InventoryPersistenceTest {
                 new NicknameChangeEffect()
         );
         Item reloadedNickname = ItemJpaMapper.toDomain(ItemJpaMapper.toEntity(nickname));
-        assertTrue(reloadedNickname instanceof ConsumableItem);
+        assertInstanceOf(ConsumableItem.class, reloadedNickname);
         ConsumableItem reloaded = (ConsumableItem) reloadedNickname;
-        assertTrue(reloaded.getEffect() instanceof NicknameChangeEffect);
+        assertInstanceOf(NicknameChangeEffect.class, reloaded.getEffect());
     }
 }

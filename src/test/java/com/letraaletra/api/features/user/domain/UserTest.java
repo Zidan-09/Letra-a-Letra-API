@@ -1,7 +1,6 @@
 package com.letraaletra.api.features.user.domain;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -164,7 +163,6 @@ class UserTest {
                     UUID.randomUUID(),
                     null,
                     null,
-                    true,
                     null,
                     user.getStats(),
                     user.getWallet(),
@@ -207,7 +205,6 @@ class UserTest {
                     user.getTokenVersion(),
                     user.getGoogleId(),
                     user.getCurrentGameId(),
-                    user.canChangeNickname(),
                     user.getBanInfo(),
                     user.getStats(),
                     user.getWallet(),

@@ -42,7 +42,7 @@ class AuthUserControllerTest {
     void signInUser() {
         AuthUserRequest request = new AuthUserRequest("teste@email.com", "12341234");
 
-        SignInOutput output = new SignInOutput(userId, "token");
+        SignInOutput output = new SignInOutput(userId, "token", "refresh-token");
 
         when(authUserUseCase.execute(any(SignInInput.class)))
                 .thenReturn(output);
@@ -56,6 +56,7 @@ class AuthUserControllerTest {
         Assertions.assertNotNull(body);
 
         Assertions.assertNotNull(body.data());
+        Assertions.assertEquals("refresh-token", body.data().refreshToken());
         Assertions.assertTrue(body.success());
     }
 }

@@ -6,8 +6,7 @@ public class UserFactory {
                 nickname,
                 email,
                 passwordHash,
-                null,
-                true
+                null
         );
     }
 
@@ -16,8 +15,7 @@ public class UserFactory {
                 nickname,
                 email,
                 null,
-                googleId,
-                true
+                googleId
         );
     }
 }

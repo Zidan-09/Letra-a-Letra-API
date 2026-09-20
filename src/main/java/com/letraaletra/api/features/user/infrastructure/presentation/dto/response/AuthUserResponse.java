@@ -2,6 +2,7 @@ package com.letraaletra.api.features.user.infrastructure.presentation.dto.respon
 
 public record AuthUserResponse(
         String id,
-        String token
+        String token,
+        String refreshToken
 ) {
 }

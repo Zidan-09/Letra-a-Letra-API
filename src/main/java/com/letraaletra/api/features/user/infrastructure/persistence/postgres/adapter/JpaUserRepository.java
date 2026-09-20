@@ -87,16 +87,15 @@ public class JpaUserRepository implements UserRepository {
         effectsRepository.saveAll(entities);
     }
 
-    private User attachEffects(User user) {
+    private void attachEffects(User user) {
         if (effectsRepository == null) {
-            return user;
+            return;
         }
 
         effectsRepository.findByUserId(user.getUserId()).stream()
                 .map(UserActiveEffectJpaMapper::toDomain)
                 .forEach(user.getActiveEffects()::add);
 
-        return user;
     }
 
     private List<User> attachEffects(List<User> users) {
@@ -131,7 +130,6 @@ public class JpaUserRepository implements UserRepository {
                     user.getPasswordHash(),
                     user.getTokenVersion(),
                     user.getGoogleId(),
-                    user.canChangeNickname(),
                     user.getCurrentGameId(),
                     user.getCreatedAt() != null ? java.sql.Timestamp.valueOf(user.getCreatedAt()) : null,
                     user.getStats().getTotalMatches(),

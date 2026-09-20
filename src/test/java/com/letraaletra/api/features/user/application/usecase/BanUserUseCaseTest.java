@@ -9,6 +9,9 @@ import com.letraaletra.api.features.user.domain.ban.BanHistory;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
+import com.letraaletra.api.features.user.domain.session.UserSession;
+import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +57,9 @@ class BanUserUseCaseTest {
 
     @Mock
     private AdminChecker adminChecker;
+
+    @Mock
+    private UserSessionRepository sessionRepository;
 
     @InjectMocks
     private BanUserUseCase useCase;
@@ -108,6 +114,37 @@ class BanUserUseCaseTest {
                 inOrder.verify(userRepository).save(user);
 
                 verifyNoMoreInteractions(userRepository, banHistoryRepository, adminChecker);
+            }
+        }
+
+        @Test
+        @DisplayName("Deve revogar a sessao persistente com USER_BANNED quando existir sessao ativa")
+        void execute_WhenSessionExists_ShouldRevokeSessionWithUserBanned() {
+            LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(input.expiresIn());
+            when(userRepository.find(userId)).thenReturn(Optional.of(user));
+            when(user.getUserId()).thenReturn(userId);
+
+            BanHistory banHistoryMock = mock(BanHistory.class);
+            when(banHistoryMock.getExpiresAt()).thenReturn(expiresAt);
+            when(banHistoryMock.getReason()).thenReturn(input.reason());
+
+            UserSession mockSession = mock(UserSession.class);
+            when(sessionRepository.findByUserId(userId)).thenReturn(Optional.of(mockSession));
+
+            try (MockedStatic<BanHistory> banHistoryStaticMock = mockStatic(BanHistory.class)) {
+                banHistoryStaticMock.when(() -> BanHistory.create(
+                        eq(userId),
+                        eq(adminAuthId),
+                        eq(input.reason()),
+                        eq(input.type()),
+                        eq(input.expiresIn())
+                )).thenReturn(banHistoryMock);
+
+                useCase.execute(input);
+
+                verify(sessionRepository, times(1)).findByUserId(userId);
+                verify(mockSession, times(1)).revoke(eq(SessionRevocationReason.USER_BANNED), any());
+                verify(sessionRepository, times(1)).save(mockSession);
             }
         }
     }

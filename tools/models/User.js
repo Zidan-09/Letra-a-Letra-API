@@ -19,5 +19,6 @@ export class User {
 
         this.id = id;
         this.token = token;
+        this.refreshToken = data.refreshToken ?? data.refresh_token ?? null;
     }
 }

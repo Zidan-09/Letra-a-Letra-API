@@ -16,7 +16,8 @@ public class AuthUserMapper {
     public static AuthUserResponse toResponse(SignInOutput output) {
         return new AuthUserResponse(
                 output.id().toString(),
-                output.token()
+                output.token(),
+                output.refreshToken()
         );
     }
 }

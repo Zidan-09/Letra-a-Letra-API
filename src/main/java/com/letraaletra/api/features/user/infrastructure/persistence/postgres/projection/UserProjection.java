@@ -16,7 +16,6 @@ public interface UserProjection {
     UUID getTokenVersion();
 
     UUID getCurrentGameId();
-    boolean isCanChangeNickname();
 
     BanType getBanType();
     String getBanReason();

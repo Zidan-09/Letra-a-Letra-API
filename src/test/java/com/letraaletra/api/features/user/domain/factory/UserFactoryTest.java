@@ -18,7 +18,6 @@ class UserFactoryTest {
         assertEquals("local@email.com", user.getEmail());
         assertEquals("password-hash", user.getPasswordHash());
         assertNull(user.getGoogleId(), "Usuários locais não devem possuir googleId");
-        assertTrue(user.canChangeNickname());
         assertTrue(user.isNotInGame());
 
         assertNotNull(user.getStats());
@@ -35,7 +34,6 @@ class UserFactoryTest {
         assertEquals("google@email.com", user.getEmail());
         assertNull(user.getPasswordHash(), "Cadastro via Google não possui hash de senha próprio");
         assertEquals("sub-google-123", user.getGoogleId());
-        assertTrue(user.canChangeNickname());
         assertTrue(user.isNotInGame());
 
         assertNotNull(user.getStats());

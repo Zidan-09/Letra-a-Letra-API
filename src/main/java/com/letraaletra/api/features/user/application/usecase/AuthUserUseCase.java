@@ -1,6 +1,8 @@
 package com.letraaletra.api.features.user.application.usecase;
 
+import com.letraaletra.api.features.user.application.input.IssueSessionInput;
 import com.letraaletra.api.features.user.application.input.SignInInput;
+import com.letraaletra.api.features.user.application.output.IssueSessionOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.domain.ban.exception.UserBannedFromGameException;
 import com.letraaletra.api.shared.application.usecase.UseCase;
@@ -11,17 +13,22 @@ import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordExce
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
 
-import java.util.UUID;
-
 public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final TokenService tokenService;
+    private final UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase;
 
-    public AuthUserUseCase(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
+    public AuthUserUseCase(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            TokenService tokenService,
+            UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase
+    ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.tokenService = tokenService;
+        this.issueSessionUseCase = issueSessionUseCase;
     }
 
     @Override
@@ -35,12 +42,12 @@ public class AuthUserUseCase implements UseCase<SignInInput, SignInOutput> {
 
         checkMatch(input.password(), user.getPasswordHash());
 
-        user.setTokenVersion(UUID.randomUUID());
+        IssueSessionOutput session = issueSessionUseCase.execute(new IssueSessionInput(user.getUserId()));
         String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
 
         userRepository.save(user);
 
-        return new SignInOutput(user.getUserId(), token);
+        return new SignInOutput(user.getUserId(), token, session.refreshToken());
     }
 
     private void checkMatch(String password, String hash) {

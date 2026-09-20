@@ -1,13 +1,16 @@
 package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.AuthInput;
+import com.letraaletra.api.features.user.application.input.IssueSessionInput;
 import com.letraaletra.api.features.user.application.output.GoogleAuthData;
+import com.letraaletra.api.features.user.application.output.IssueSessionOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidTokenException;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +48,9 @@ class GoogleAuthUseCaseTest {
 
     @Mock
     private GoogleTokenService googleTokenService;
+
+    @Mock
+    private UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase;
 
     @InjectMocks
     private GoogleAuthUseCase useCase;
@@ -84,6 +90,7 @@ class GoogleAuthUseCaseTest {
             when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.of(mockUser));
             when(mockUser.getUserId()).thenReturn(userId);
             when(mockUser.getTokenVersion()).thenReturn(tokenVersion);
+            when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
             when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             SignInOutput output = useCase.execute(input);
@@ -91,13 +98,14 @@ class GoogleAuthUseCaseTest {
             assertNotNull(output);
             assertEquals(userId, output.id());
             assertEquals(jwtToken, output.token());
+            assertEquals("refresh-token", output.refreshToken());
 
-            InOrder inOrder = inOrder(googleTokenService, userRepository, mockUser, tokenService);
+            InOrder inOrder = inOrder(googleTokenService, userRepository, mockUser, issueSessionUseCase, tokenService);
             inOrder.verify(googleTokenService).verify(validGoogleToken);
             inOrder.verify(userRepository).findByGoogleId(googleId);
-            inOrder.verify(mockUser).setTokenVersion(any());
-            inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
             inOrder.verify(userRepository).save(mockUser);
+            inOrder.verify(issueSessionUseCase).execute(new IssueSessionInput(userId));
+            inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
 
             verifyNoInteractions(nicknameService);
         }
@@ -114,6 +122,7 @@ class GoogleAuthUseCaseTest {
             when(nicknameService.get()).thenReturn(generatedNickname);
             when(createdUser.getUserId()).thenReturn(userId);
             when(createdUser.getTokenVersion()).thenReturn(tokenVersion);
+            when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
             when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             try (MockedStatic<UserFactory> userFactoryMock = mockStatic(UserFactory.class)) {
@@ -125,14 +134,15 @@ class GoogleAuthUseCaseTest {
                 assertNotNull(output);
                 assertEquals(userId, output.id());
                 assertEquals(jwtToken, output.token());
+                assertEquals("refresh-token", output.refreshToken());
 
-                InOrder inOrder = inOrder(googleTokenService, userRepository, nicknameService, createdUser, tokenService);
+                InOrder inOrder = inOrder(googleTokenService, userRepository, nicknameService, createdUser, issueSessionUseCase, tokenService);
                 inOrder.verify(googleTokenService).verify(validGoogleToken);
                 inOrder.verify(userRepository).findByGoogleId(googleId);
                 inOrder.verify(nicknameService).get();
-                inOrder.verify(createdUser).setTokenVersion(any());
-                inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
                 inOrder.verify(userRepository).save(createdUser);
+                inOrder.verify(issueSessionUseCase).execute(new IssueSessionInput(userId));
+                inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
 
                 userFactoryMock.verify(() -> UserFactory.createGoogle(generatedNickname, email, googleId), times(1));
             }
@@ -158,7 +168,7 @@ class GoogleAuthUseCaseTest {
             );
 
             verify(googleTokenService, times(1)).verify(invalidToken);
-            verifyNoInteractions(userRepository, nicknameService, tokenService);
+            verifyNoInteractions(userRepository, nicknameService, tokenService, issueSessionUseCase);
         }
     }
 
@@ -186,7 +196,7 @@ class GoogleAuthUseCaseTest {
             verify(userRepository, times(1)).findByGoogleId(googleId);
             verify(nicknameService, times(1)).get();
             verify(userRepository, never()).save(any());
-            verifyNoInteractions(tokenService);
+            verifyNoInteractions(tokenService, issueSessionUseCase);
         }
 
         @Test
@@ -199,9 +209,6 @@ class GoogleAuthUseCaseTest {
             when(googleTokenService.verify(validGoogleToken)).thenReturn(googleAuthData);
             when(userRepository.findByGoogleId(googleId)).thenReturn(Optional.empty());
             when(nicknameService.get()).thenReturn(generatedNickname);
-            when(createdUser.getUserId()).thenReturn(userId);
-            when(createdUser.getTokenVersion()).thenReturn(tokenVersion);
-            when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn(jwtToken);
 
             doThrow(new RuntimeException("Erro de conexão com o banco de dados"))
                     .when(userRepository).save(any(User.class));
@@ -216,8 +223,8 @@ class GoogleAuthUseCaseTest {
                 );
 
                 assertEquals("Erro de conexão com o banco de dados", exception.getMessage());
-                verify(tokenService).generateUserToken(userId, tokenVersion);
                 verify(userRepository, times(1)).save(createdUser);
+                verifyNoInteractions(tokenService, issueSessionUseCase);
             }
         }
     }
@@ -240,7 +247,7 @@ class GoogleAuthUseCaseTest {
             );
 
             verify(googleTokenService, times(1)).verify(null);
-            verifyNoInteractions(userRepository, nicknameService, tokenService);
+            verifyNoInteractions(userRepository, nicknameService, tokenService, issueSessionUseCase);
         }
     }
 }

@@ -58,7 +58,7 @@ class JpaGameRepositorySpectatorTest {
 
     private User newUser(String username) {
         User u = UserFactory.createLocal(username, username + "@test.com", "hash");
-        em.createNativeQuery("INSERT INTO \"user\" (user_id, username, email, password_hash, token_version, can_change_nickname, created_at) VALUES (?, ?, ?, ?, ?, true, CURRENT_TIMESTAMP)")
+        em.createNativeQuery("INSERT INTO \"user\" (user_id, username, email, password_hash, token_version, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
                 .setParameter(1, u.getUserId())
                 .setParameter(2, u.getUsername())
                 .setParameter(3, u.getEmail())

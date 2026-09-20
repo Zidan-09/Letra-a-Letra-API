@@ -6,11 +6,15 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.reset.exception.SamePasswordException;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
+import com.letraaletra.api.features.user.domain.session.UserSession;
+import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
@@ -18,17 +22,20 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     private final TokenHashService tokenHashService;
     private final PasswordService passwordService;
     private final ResetCodeRepository codeRepository;
+    private final UserSessionRepository sessionRepository;
 
     public ResetPasswordUseCase(
             UserRepository userRepository,
             TokenHashService tokenHashService,
             PasswordService passwordService,
-            ResetCodeRepository codeRepository
+            ResetCodeRepository codeRepository,
+            UserSessionRepository sessionRepository
     ) {
         this.userRepository = userRepository;
         this.tokenHashService = tokenHashService;
         this.passwordService = passwordService;
         this.codeRepository = codeRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
@@ -58,9 +65,16 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
         user.changePassword(passwordService.hash(input.newPassword()));
         user.setTokenVersion(UUID.randomUUID());
 
+        sessionRepository.findByUserId(user.getUserId()).ifPresent(this::revoke);
+
         userRepository.save(user);
         codeRepository.save(resetCode);
 
         return null;
+    }
+
+    private void revoke(UserSession session) {
+        session.revoke(SessionRevocationReason.PASSWORD_RESET, LocalDateTime.now());
+        sessionRepository.save(session);
     }
 }

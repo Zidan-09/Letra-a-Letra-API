@@ -16,7 +16,7 @@ Backend do jogo **Letra a Letra**: um jogo de palavras multiplayer em tempo real
 | Framework | Spring Boot 4.0.5 (Maven) |
 | Banco de dados | PostgreSQL 16 (dev/prod) · H2 em memória (testes) |
 | Tempo real | WebSocket puro (`spring-boot-starter-websocket`) |
-| Autenticação | JWT próprio (HS256, expiração de 6h) + login com Google |
+| Autenticação | JWT próprio (HS256, expiração de 15min em prod) + Refresh Token opaco com rotação (90 dias deslizantes) + login com Google |
 | Armazenamento de assets | Cloudflare R2 (assets de itens) |
 
 O projeto expõe uma API HTTP pública e dois canais WebSocket para ações em tempo real (salas/gameplay e console admin). A autenticação HTTP usa `Authorization: Bearer <JWT>`; o WebSocket recebe o JWT via query param `token`.
@@ -29,7 +29,8 @@ Organizadas por feature (pacotes em `features/`):
 
 ### Usuário (`user`)
 - Criação de conta local (email/senha) e autenticação por Google
-- Login (`POST /user/auth`) retornando JWT; perfil próprio (`GET /user/me`)
+- Login (`POST /user/auth`) retornando JWT + Refresh Token; renovação (`POST /user/auth/refresh`) com rotação; logout (`POST /user/auth/logout`) revogando a sessão; perfil próprio (`GET /user/me`)
+- Sessão persistente única por usuário: novo login substitui a anterior; reutilização de token antigo revoga a sessão (`TOKEN_REUSE`); recuperação de retry dentro da janela via token imediatamente anterior
 - Alteração de nickname; busca por username; listagem de usuários (admin)
 - Inventário de itens (consultar, equipar, consumir, revogar), carteira (`soft_coins`, `hard_gems`)
 - Banimento/desbanimento, concessão e revogação de recompensas e itens (admin)
@@ -146,7 +147,7 @@ A especificação OpenAPI é gerada pelo springdoc: JSON em `/docs` e Swagger UI
 
 | Domínio | Rotas |
 |---|---|
-| Usuário | `POST /user` · `POST /user/auth` · `POST /user/auth/google` · `GET /user/me` · `PATCH /user/nickname` · `GET /user` · `GET /user/username/{username}` · `GET /user/transactions` · `POST /user/auth/forgot-password` · `POST /user/auth/verify-reset-code` · `POST /user/auth/reset-password` |
+| Usuário | `POST /user` · `POST /user/auth` · `POST /user/auth/google` · `POST /user/auth/refresh` · `POST /user/auth/logout` · `GET /user/me` · `PATCH /user/nickname` · `GET /user` · `GET /user/username/{username}` · `GET /user/transactions` · `POST /user/auth/forgot-password` · `POST /user/auth/verify-reset-code` · `POST /user/auth/reset-password` |
 | Usuário (admin) | `PATCH /user/{userId}/ban` · `PATCH /user/{userId}/unban` · `PATCH /user/{userId}/grant-reward` · `PATCH /user/{userId}/wallet/revoke` |
 | Inventário | `GET /user/items` · `POST /user/items/{itemId}/consume` · `POST /user/items/{itemId}/equip` · `DELETE /user/items/{itemId}` |
 | Itens (admin) | `POST /admin/items` · `PUT /admin/items/{itemId}` · `GET /admin/items` · `GET /admin/items/{itemId}` · `DELETE /admin/items/{itemId}` |
@@ -247,6 +248,9 @@ Variáveis esperadas:
 | `PORT` | porta HTTP (padrão 8080) |
 | `DB_NAME` / `DB_URL` / `DB_USER` / `DB_PASSWORD` | conexão PostgreSQL |
 | `JWT_SECRET` | segredo HS256 dos tokens (mínimo 32 caracteres) |
+| `JWT_EXPIRATION` | expiração do Access Token em ms (prod: 900000 = 15min) |
+| `REFRESH_EXPIRATION` | expiração deslizante do Refresh Token em ms (padrão: 7776000000 = 90 dias) |
+| `REFRESH_RECOVERY_WINDOW` | janela de recuperação do token anterior em ms (padrão: 300000 = 5min) |
 | `CLIENT_ID` | client id do login Google |
 | `CLOUDFLARE_TOKEN` / `CLOUDFLARE_ACCESS_KEY_ID` / `CLOUDFLARE_SECRET_ACCESS_KEY` | credenciais R2 |
 | `CLOUDFLARE_BUCKET_NAME` / `CLOUDFLARE_PUBLIC_URL` | bucket e URL pública dos assets de itens |

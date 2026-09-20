@@ -64,7 +64,7 @@ class JpaUserRepositoryTest {
 
         ArgumentCaptor<UserStatsJpaEntity> statsCaptor = ArgumentCaptor.forClass(UserStatsJpaEntity.class);
         verify(statsRepository, times(2)).save(statsCaptor.capture());
-        assertEquals(1, statsCaptor.getAllValues().get(0).getTotalMatches());
+        assertEquals(1, statsCaptor.getAllValues().getFirst().getTotalMatches());
         assertEquals(1, statsCaptor.getAllValues().get(0).getTotalWins());
         assertEquals(winner.getUserId(), statsCaptor.getAllValues().get(0).getUserId());
         assertEquals(loser.getUserId(), statsCaptor.getAllValues().get(1).getUserId());

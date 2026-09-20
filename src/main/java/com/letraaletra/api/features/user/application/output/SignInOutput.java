@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record SignInOutput(
         UUID id,
-        String token
+        String token,
+        String refreshToken
 ) {
 }

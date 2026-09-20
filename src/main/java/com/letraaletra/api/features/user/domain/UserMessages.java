@@ -6,6 +6,7 @@ public enum UserMessages implements MessageCode {
     USER_NOT_FOUND("the user was not found"),
 
     SESSION_NOT_FOUND("the session was not found"),
+    SESSION_REVOKED("the session has been revoked"),
 
     USER_ALREADY_EXISTS("the user already exists"),
     EMAIL_ALREADY_IN_USE("the email address is already in use"),

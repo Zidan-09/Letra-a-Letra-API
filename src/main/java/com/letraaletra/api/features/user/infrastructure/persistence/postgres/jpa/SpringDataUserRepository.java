@@ -24,7 +24,6 @@ public interface SpringDataUserRepository
         u.tokenVersion as tokenVersion,
 
         u.currentGameId AS currentGameId,
-        u.canChangeNickname AS canChangeNickname,
     
         b.type AS banType,
         b.reason AS banReason,

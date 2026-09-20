@@ -21,7 +21,6 @@ public class User {
     private final String googleId;
     private UUID currentGameId;
     private BanInfo banInfo;
-    private boolean canChangeNickname;
     private final UserStats stats;
     private final Wallet wallet;
     private final ActiveEffects activeEffects;
@@ -36,7 +35,6 @@ public class User {
             String googleId,
             UUID currentGameId,
             BanInfo banInfo,
-            boolean canChangeNickname,
             UserStats stats,
             Wallet wallet,
             ActiveEffects activeEffects,
@@ -50,7 +48,6 @@ public class User {
         this.googleId = googleId;
         this.currentGameId = currentGameId;
         this.banInfo = banInfo == null ? BanInfo.create() : banInfo;
-        this.canChangeNickname = canChangeNickname;
         this.stats = stats;
         this.wallet = wallet;
         this.activeEffects = activeEffects;
@@ -61,8 +58,7 @@ public class User {
             String username,
             String email,
             String hashPassword,
-            String googleId,
-            boolean canChangeNickname
+            String googleId
     ) {
         return new User(
                 UUID.randomUUID(),
@@ -73,7 +69,6 @@ public class User {
                 googleId,
                 null,
                 BanInfo.create(),
-                canChangeNickname,
                 UserStats.create(),
                 Wallet.create(),
                 ActiveEffects.create(),
@@ -89,7 +84,6 @@ public class User {
             UUID tokenVersion,
             String googleId,
             UUID currentGameId,
-            boolean canChangeNickname,
             BanInfo banInfo,
             UserStats stats,
             Wallet wallet,
@@ -105,7 +99,6 @@ public class User {
                 googleId,
                 currentGameId,
                 banInfo,
-                canChangeNickname,
                 stats,
                 wallet,
                 activeEffects,
@@ -147,10 +140,6 @@ public class User {
 
     public BanInfo getBanInfo() {
         return banInfo;
-    }
-
-    public boolean canChangeNickname() {
-        return canChangeNickname;
     }
 
     public UserStats getStats() {
@@ -203,10 +192,6 @@ public class User {
 
     public void setTokenVersion(UUID tokenVersion) {
         this.tokenVersion = tokenVersion;
-    }
-
-    public void setCanChangeNickname(boolean canChangeNickname) {
-        this.canChangeNickname = canChangeNickname;
     }
 
     public void changePassword(String newPasswordHash) {

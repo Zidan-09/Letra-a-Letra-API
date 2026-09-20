@@ -1,10 +1,13 @@
 package com.letraaletra.api.features.user.application.usecase;
 
+import com.letraaletra.api.features.user.application.input.IssueSessionInput;
 import com.letraaletra.api.features.user.application.input.SignInInput;
+import com.letraaletra.api.features.user.application.output.IssueSessionOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.exception.UserNotFoundException;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidPasswordException;
@@ -35,6 +38,9 @@ class AuthUserUseCaseTest {
     @Mock
     private TokenService tokenService;
 
+    @Mock
+    private UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase;
+
     @InjectMocks
     private AuthUserUseCase authUserUseCase;
 
@@ -60,6 +66,7 @@ class AuthUserUseCaseTest {
         when(user.getTokenVersion()).thenReturn(tokenVersion);
 
         when(passwordService.matches(input.password(), "hashed-password")).thenReturn(true);
+        when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
         when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn("jwt-token");
 
         SignInOutput output = authUserUseCase.execute(input);
@@ -67,10 +74,11 @@ class AuthUserUseCaseTest {
         assertNotNull(output);
         assertEquals(userId, output.id());
         assertEquals("jwt-token", output.token());
+        assertEquals("refresh-token", output.refreshToken());
 
         verify(userRepository).findByEmail(input.email());
         verify(passwordService).matches("123456", "hashed-password");
-        verify(user).setTokenVersion(any());
+        verify(issueSessionUseCase).execute(new IssueSessionInput(userId));
         verify(tokenService).generateUserToken(userId, tokenVersion);
         verify(userRepository).save(user);
     }
@@ -83,7 +91,7 @@ class AuthUserUseCaseTest {
         assertThrows(UserNotFoundException.class, () -> authUserUseCase.execute(input));
 
         verify(userRepository).findByEmail(input.email());
-        verifyNoInteractions(passwordService, tokenService);
+        verifyNoInteractions(passwordService, tokenService, issueSessionUseCase);
     }
 
     @Test
@@ -96,6 +104,7 @@ class AuthUserUseCaseTest {
         assertThrows(InvalidPasswordException.class, () -> authUserUseCase.execute(input));
 
         verify(tokenService, never()).generateUserToken(any(), any());
+        verify(issueSessionUseCase, never()).execute(any());
         verify(userRepository, never()).save(any());
     }
 
@@ -115,6 +124,7 @@ class AuthUserUseCaseTest {
 
         assertSame(exception, thrown);
         verify(tokenService, never()).generateUserToken(any(), any());
+        verify(issueSessionUseCase, never()).execute(any());
     }
 
     @Test
@@ -125,6 +135,7 @@ class AuthUserUseCaseTest {
         when(user.getUserId()).thenReturn(userId);
         when(user.getTokenVersion()).thenReturn(tokenVersion);
         when(passwordService.matches(input.password(), "hashed-password")).thenReturn(true);
+        when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
 
         RuntimeException exception = new RuntimeException("token error");
         when(tokenService.generateUserToken(userId, tokenVersion)).thenThrow(exception);
@@ -145,14 +156,15 @@ class AuthUserUseCaseTest {
         when(user.getUserId()).thenReturn(userId);
         when(user.getTokenVersion()).thenReturn(tokenVersion);
         when(passwordService.matches(anyString(), anyString())).thenReturn(true);
+        when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
         when(tokenService.generateUserToken(any(), any())).thenReturn("token");
 
         authUserUseCase.execute(input);
 
-        InOrder inOrder = inOrder(userRepository, passwordService, user, tokenService);
+        InOrder inOrder = inOrder(userRepository, passwordService, issueSessionUseCase, tokenService, user);
         inOrder.verify(userRepository).findByEmail(input.email());
         inOrder.verify(passwordService).matches("123456", "hash");
-        inOrder.verify(user).setTokenVersion(any());
+        inOrder.verify(issueSessionUseCase).execute(new IssueSessionInput(userId));
         inOrder.verify(tokenService).generateUserToken(userId, tokenVersion);
         inOrder.verify(userRepository).save(user);
     }
@@ -165,6 +177,7 @@ class AuthUserUseCaseTest {
         when(user.getUserId()).thenReturn(userId);
         when(user.getTokenVersion()).thenReturn(tokenVersion);
         when(passwordService.matches(input.password(), "hashed-password")).thenReturn(true);
+        when(issueSessionUseCase.execute(any())).thenReturn(new IssueSessionOutput("refresh-token"));
         when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn("jwt-token");
 
         authUserUseCase.execute(input);

@@ -2,6 +2,7 @@ package com.letraaletra.api.features.user.infrastructure.config;
 
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
+import com.letraaletra.api.features.user.application.port.RefreshTokenGenerator;
 import com.letraaletra.api.features.user.application.port.ResetCodeService;
 import com.letraaletra.api.features.user.application.port.PasswordResetCodeEmailService;
 import com.letraaletra.api.features.user.application.input.AuthInput;
@@ -14,7 +15,10 @@ import com.letraaletra.api.features.user.application.input.GetMyProfileInput;
 import com.letraaletra.api.features.user.application.input.GetMyTransactionsInput;
 import com.letraaletra.api.features.user.application.input.GetUsersInput;
 import com.letraaletra.api.features.user.application.input.GrantUserRewardInput;
+import com.letraaletra.api.features.user.application.input.IssueSessionInput;
+import com.letraaletra.api.features.user.application.input.RefreshSessionInput;
 import com.letraaletra.api.features.user.application.input.ResetPasswordInput;
+import com.letraaletra.api.features.user.application.input.RevokeSessionInput;
 import com.letraaletra.api.features.user.application.input.RevokeUserWalletInput;
 import com.letraaletra.api.features.user.application.input.SignInInput;
 import com.letraaletra.api.features.user.application.input.UnbanUserInput;
@@ -25,6 +29,8 @@ import com.letraaletra.api.features.user.application.output.FindUserByUsernameOu
 import com.letraaletra.api.features.user.application.output.GetMyProfileOutput;
 import com.letraaletra.api.features.user.application.output.GetMyTransactionsOutput;
 import com.letraaletra.api.features.user.application.output.GetUsersOutput;
+import com.letraaletra.api.features.user.application.output.IssueSessionOutput;
+import com.letraaletra.api.features.user.application.output.RefreshSessionOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.transaction.application.input.GetTransactionsInput;
 import com.letraaletra.api.features.transaction.application.output.GetTransactionsOutput;
@@ -32,6 +38,8 @@ import com.letraaletra.api.features.user.application.usecase.GetUsersUseCase;
 import com.letraaletra.api.features.transaction.application.usecase.GetTransactionsUseCase;
 import com.letraaletra.api.features.user.application.usecase.*;
 import com.letraaletra.api.features.user.domain.ban.repository.BanHistoryRepository;
+import com.letraaletra.api.features.user.domain.ban.exception.UserBannedFromGameException;
+import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.features.transaction.domain.repository.TransactionRepository;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
@@ -46,6 +54,7 @@ import com.letraaletra.api.shared.domain.service.TokenHashService;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -76,6 +85,7 @@ public class UserConfig {
             NicknameService nicknameService,
             UserRepository userRepository,
             GoogleTokenService googleTokenService,
+            UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -83,7 +93,8 @@ public class UserConfig {
                         tokenService,
                         nicknameService,
                         userRepository,
-                        googleTokenService
+                        googleTokenService,
+                        issueSessionUseCase
                 ),
                 transactions
         );
@@ -113,13 +124,73 @@ public class UserConfig {
             UserRepository userRepository,
             PasswordService passwordService,
             TokenService tokenService,
+            UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new AuthUserUseCase(
                         userRepository,
                         passwordService,
-                        tokenService
+                        tokenService,
+                        issueSessionUseCase
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase(
+            UserSessionRepository sessionRepository,
+            RefreshTokenGenerator refreshTokenGenerator,
+            TokenHashService tokenHashService,
+            @Value("${api.security.refresh.expiration}") long refreshExpirationMillis,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new IssueSessionUseCase(
+                        sessionRepository,
+                        refreshTokenGenerator,
+                        tokenHashService,
+                        refreshExpirationMillis
+                ),
+                transactions
+        );
+    }
+
+    @Bean
+    public UseCase<RefreshSessionInput, RefreshSessionOutput> refreshSessionUseCase(
+            UserSessionRepository sessionRepository,
+            UserRepository userRepository,
+            TokenHashService tokenHashService,
+            RefreshTokenGenerator refreshTokenGenerator,
+            TokenService tokenService,
+            @Value("${api.security.refresh.expiration}") long refreshExpirationMillis,
+            @Value("${api.security.refresh.recovery-window}") long recoveryWindowMillis,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new RefreshSessionUseCase(
+                        sessionRepository,
+                        userRepository,
+                        tokenHashService,
+                        refreshTokenGenerator,
+                        tokenService,
+                        refreshExpirationMillis,
+                        recoveryWindowMillis
+                ),
+                transactions,
+                Set.of(InvalidTokenException.class, UserBannedFromGameException.class)
+        );
+    }
+
+    @Bean
+    public UseCase<RevokeSessionInput, Void> revokeSessionUseCase(
+            UserSessionRepository sessionRepository,
+            TransactionalExecutorService transactions
+    ) {
+        return new TransactionalUseCase<>(
+                new RevokeSessionUseCase(
+                        sessionRepository
                 ),
                 transactions
         );
@@ -243,6 +314,7 @@ public class UserConfig {
             TokenHashService tokenHashService,
             PasswordService passwordService,
             ResetCodeRepository resetCodeRepository,
+            UserSessionRepository sessionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -250,7 +322,8 @@ public class UserConfig {
                         userRepository,
                         tokenHashService,
                         passwordService,
-                        resetCodeRepository
+                        resetCodeRepository,
+                        sessionRepository
                 ),
                 transactions,
                 Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
@@ -262,13 +335,15 @@ public class UserConfig {
             UserRepository userRepository,
             BanHistoryRepository banHistoryRepository,
             AdminChecker adminChecker,
+            UserSessionRepository sessionRepository,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new BanUserUseCase(
                         userRepository,
                         banHistoryRepository,
-                        adminChecker
+                        adminChecker,
+                        sessionRepository
                 ),
                 transactions
         );

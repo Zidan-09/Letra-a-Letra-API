@@ -926,4 +926,190 @@ export async function runFlow(adminContext, playerContext) {
             "Get items after revoke attempts: granted item missing"
         );
     }
+
+    // Fluxo 18: Sessao persistente com Refresh Token e rotacao.
+    // A -> B -> C, reutilizacao de A rejeitada, logout revoga, novo login substitui.
+
+    res = await http(
+        "POST",
+        "/user/auth",
+        {
+            email: mainUser.email,
+            password: mainUser.password
+        }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Auth user for session flow"
+    );
+
+    const refreshA = res.body?.data?.refreshToken;
+
+    if (!refreshA) {
+        throw new Error(
+            `Auth user for session flow: refreshToken not found body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    mainUser.setAuth(res.body.data);
+
+    res = await http(
+        "POST",
+        "/user/auth/refresh",
+        { refreshToken: refreshA }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Refresh session A -> B"
+    );
+
+    const refreshB = res.body?.data?.refreshToken;
+    const accessB = res.body?.data?.token;
+
+    if (!refreshB || !accessB || refreshB === refreshA) {
+        throw new Error(
+            `Refresh session A -> B: expected rotated pair body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "GET",
+        "/user/me",
+        undefined,
+        accessB
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Get profile with rotated access token"
+    );
+
+    res = await http(
+        "POST",
+        "/user/auth/refresh",
+        { refreshToken: refreshB }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Refresh session B -> C"
+    );
+
+    const refreshC = res.body?.data?.refreshToken;
+
+    if (!refreshC || refreshC === refreshB) {
+        throw new Error(
+            `Refresh session B -> C: expected rotated pair body=${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "POST",
+        "/user/auth/refresh",
+        { refreshToken: refreshA }
+    );
+
+    ensureStatus(
+        res,
+        401,
+        "Reject ancient refresh token"
+    );
+
+    res = await http(
+        "POST",
+        "/user/auth/refresh",
+        { refreshToken: refreshC }
+    );
+
+    ensureStatus(
+        res,
+        401,
+        "Reject refresh after reuse revocation"
+    );
+
+    res = await http(
+        "POST",
+        "/user/auth",
+        {
+            email: mainUser.email,
+            password: mainUser.password
+        }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Auth user after session revocation"
+    );
+
+    const refreshD = res.body?.data?.refreshToken;
+    const accessD = res.body?.data?.token;
+
+    if (!refreshD) {
+        throw new Error(
+            "Auth user after session revocation: refreshToken not found"
+        );
+    }
+
+    mainUser.setAuth(res.body.data);
+
+    res = await http(
+        "POST",
+        "/user/auth/logout",
+        undefined,
+        accessD
+    );
+
+    ensureStatus(
+        res,
+        204,
+        "Logout"
+    );
+
+    res = await http(
+        "POST",
+        "/user/auth/refresh",
+        { refreshToken: refreshD }
+    );
+
+    ensureStatus(
+        res,
+        401,
+        "Reject refresh after logout"
+    );
+
+    if (res.body?.code !== "SESSION_REVOKED") {
+        throw new Error(
+            `Reject refresh after logout: expected SESSION_REVOKED, received ${JSON.stringify(res.body)}`
+        );
+    }
+
+    res = await http(
+        "POST",
+        "/user/auth",
+        {
+            email: mainUser.email,
+            password: mainUser.password
+        }
+    );
+
+    ensureStatus(
+        res,
+        200,
+        "Auth user after logout"
+    );
+
+    if (!res.body?.data?.refreshToken) {
+        throw new Error(
+            "Auth user after logout: refreshToken not found"
+        );
+    }
+
+    mainUser.setAuth(res.body.data);
 }

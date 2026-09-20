@@ -6,6 +6,9 @@ import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.reset.exception.SamePasswordException;
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.features.user.domain.repository.UserRepository;
+import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
+import com.letraaletra.api.features.user.domain.session.UserSession;
+import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
@@ -26,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -50,6 +54,9 @@ class ResetPasswordUseCaseTest {
 
     @Mock
     private ResetCodeRepository codeRepository;
+
+    @Mock
+    private UserSessionRepository sessionRepository;
 
     @InjectMocks
     private ResetPasswordUseCase useCase;
@@ -111,6 +118,27 @@ class ResetPasswordUseCaseTest {
 
             verify(userRepository, times(1)).save(mockUser);
             verify(codeRepository, times(1)).save(mockResetCode);
+        }
+
+        @Test
+        @DisplayName("Deve revogar a sessao persistente com PASSWORD_RESET quando existir sessao ativa")
+        void execute_WhenSessionExists_ShouldRevokeSessionWithPasswordReset() {
+            when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
+            when(mockUser.getPasswordHash()).thenReturn(currentPasswordHash);
+            when(passwordService.matches(newRawPassword, currentPasswordHash)).thenReturn(false);
+            when(passwordService.hash(newRawPassword)).thenReturn(newPasswordHash);
+
+            UserSession mockSession = mock(UserSession.class);
+            when(sessionRepository.findByUserId(userId)).thenReturn(Optional.of(mockSession));
+
+            useCase.execute(input);
+
+            verify(sessionRepository, times(1)).findByUserId(userId);
+            verify(mockSession, times(1)).revoke(eq(SessionRevocationReason.PASSWORD_RESET), any());
+            verify(sessionRepository, times(1)).save(mockSession);
         }
     }
 

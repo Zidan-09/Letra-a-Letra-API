@@ -1,7 +1,9 @@
 package com.letraaletra.api.features.user.application.usecase;
 
 import com.letraaletra.api.features.user.application.input.AuthInput;
+import com.letraaletra.api.features.user.application.input.IssueSessionInput;
 import com.letraaletra.api.features.user.application.output.GoogleAuthData;
+import com.letraaletra.api.features.user.application.output.IssueSessionOutput;
 import com.letraaletra.api.features.user.application.output.SignInOutput;
 import com.letraaletra.api.features.user.application.port.GoogleTokenService;
 import com.letraaletra.api.features.user.application.port.NicknameService;
@@ -12,24 +14,25 @@ import com.letraaletra.api.shared.domain.security.TokenService;
 import com.letraaletra.api.features.user.domain.User;
 import com.letraaletra.api.features.user.domain.UserFactory;
 
-import java.util.UUID;
-
 public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
     private final TokenService tokenService;
     private final NicknameService nicknameService;
     private final UserRepository userRepository;
     private final GoogleTokenService googleTokenService;
+    private final UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase;
 
     public GoogleAuthUseCase(
             TokenService tokenService,
             NicknameService nicknameService,
             UserRepository userRepository,
-            GoogleTokenService googleTokenService
+            GoogleTokenService googleTokenService,
+            UseCase<IssueSessionInput, IssueSessionOutput> issueSessionUseCase
     ) {
         this.tokenService = tokenService;
         this.nicknameService = nicknameService;
         this.userRepository = userRepository;
         this.googleTokenService = googleTokenService;
+        this.issueSessionUseCase = issueSessionUseCase;
     }
 
     @Override
@@ -50,11 +53,11 @@ public class GoogleAuthUseCase implements UseCase<AuthInput, SignInOutput> {
             throw new UserBannedFromGameException();
         }
 
-        user.setTokenVersion(UUID.randomUUID());
-        String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
-
         userRepository.save(user);
 
-        return new SignInOutput(user.getUserId(), token);
+        IssueSessionOutput session = issueSessionUseCase.execute(new IssueSessionInput(user.getUserId()));
+        String token = tokenService.generateUserToken(user.getUserId(), user.getTokenVersion());
+
+        return new SignInOutput(user.getUserId(), token, session.refreshToken());
     }
 }
