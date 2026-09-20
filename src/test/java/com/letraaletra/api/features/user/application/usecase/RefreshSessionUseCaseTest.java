@@ -143,22 +143,32 @@ class RefreshSessionUseCaseTest {
     }
 
     @Test
-    @DisplayName("Deve revogar com TOKEN_REUSE quando o token nao for atual nem anterior")
-    void execute_WhenUnknownOldToken_ShouldRevokeAndThrow() {
+    @DisplayName("Deve rejeitar token antigo sem vinculo sem afetar a sessao legitima")
+    void execute_WhenAncientTokenWithoutLink_ShouldRejectAndPreserveSession() {
         LocalDateTime now = LocalDateTime.now();
-        UserSession session = UserSession.create(userId, "hash-c", now.minusMinutes(10), now.plusDays(90));
-        session.rotate("hash-d", now, now.plusDays(90));
+        UserSession session = UserSession.create(userId, "hash-a", now.minusMinutes(10), now.plusDays(90));
+        session.rotate("hash-b", now, now.plusDays(90));
+        session.rotate("hash-c", now.plusMinutes(1), now.plusDays(90));
 
         when(tokenHashService.hash("raw-a")).thenReturn("hash-a");
-        when(sessionRepository.findByTokenHashForUpdate("hash-a")).thenReturn(Optional.of(session));
-        stubActiveUser();
+        when(sessionRepository.findByTokenHashForUpdate("hash-a")).thenReturn(Optional.empty());
 
         assertThrows(InvalidTokenException.class, () -> useCase.execute(new RefreshSessionInput("raw-a")));
 
-        assertTrue(session.isRevoked());
-        assertEquals(SessionRevocationReason.TOKEN_REUSE, session.getRevocationReason());
+        verify(sessionRepository, never()).save(any(UserSession.class));
+
+        when(tokenHashService.hash("raw-c")).thenReturn("hash-c");
+        when(sessionRepository.findByTokenHashForUpdate("hash-c")).thenReturn(Optional.of(session));
+        stubActiveUserWithTokens();
+        when(refreshTokenGenerator.generate()).thenReturn("raw-d");
+        when(tokenHashService.hash("raw-d")).thenReturn("hash-d");
+        when(tokenService.generateUserToken(userId, tokenVersion)).thenReturn("access-d");
+
+        RefreshSessionOutput output = useCase.execute(new RefreshSessionInput("raw-c"));
+
+        assertEquals("raw-d", output.refreshToken());
+        assertFalse(session.isRevoked());
         verify(sessionRepository, times(1)).save(session);
-        verify(refreshTokenGenerator, never()).generate();
     }
 
     @Test

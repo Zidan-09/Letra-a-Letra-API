@@ -1021,6 +1021,12 @@ export async function runFlow(adminContext, playerContext) {
         "Reject ancient refresh token"
     );
 
+    if (res.body?.code !== "INVALID_TOKEN") {
+        throw new Error(
+            `Reject ancient refresh token: expected INVALID_TOKEN, received ${JSON.stringify(res.body)}`
+        );
+    }
+
     res = await http(
         "POST",
         "/user/auth/refresh",
@@ -1029,9 +1035,17 @@ export async function runFlow(adminContext, playerContext) {
 
     ensureStatus(
         res,
-        401,
-        "Reject refresh after reuse revocation"
+        200,
+        "Refresh with current token after ancient rejection"
     );
+
+    const refreshE = res.body?.data?.refreshToken;
+
+    if (!refreshE || refreshE === refreshC) {
+        throw new Error(
+            `Refresh with current token: expected rotated pair body=${JSON.stringify(res.body)}`
+        );
+    }
 
     res = await http(
         "POST",
