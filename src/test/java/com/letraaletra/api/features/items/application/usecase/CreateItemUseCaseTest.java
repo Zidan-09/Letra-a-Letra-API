@@ -170,6 +170,25 @@ class CreateItemUseCaseTest {
     }
 
     @Test
+    @DisplayName("nome do item deve ser preservado enquanto o assetPath usa o slug")
+    void itemNameShouldBePreservedWhileAssetPathUsesSlug() {
+        when(itemRepository.findByName("Letra a Letra Banner")).thenReturn(Optional.empty());
+        when(imageConverter.convertToWebp(ArgumentMatchers.any(), ArgumentMatchers.eq("image/png")))
+                .thenReturn(new byte[]{4, 5, 6});
+        when(assetStorage.upload(ArgumentMatchers.any(), ArgumentMatchers.eq("Letra a Letra Banner"), ArgumentMatchers.eq(EquippableCategory.BANNER)))
+                .thenReturn("BANNER/letra-a-letra-banner.webp");
+
+        CreateItemOutput output = useCase.execute(new CreateItemInput(
+                principal, "Letra a Letra Banner", ItemKind.EQUIPPABLE, EquippableCategory.BANNER,
+                EquippableContext.PROFILE, null,
+                new ItemAssetUpload(new byte[]{1, 2, 3}, "image/png")
+        ));
+
+        assertEquals("Letra a Letra Banner", output.item().getName());
+        assertEquals("BANNER/letra-a-letra-banner.webp", ((EquippableItem) output.item()).getAssetPath());
+    }
+
+    @Test
     @DisplayName("nome duplicado deve falhar sem salvar")
     void duplicateNameShouldFailWithoutSaving() {
         when(itemRepository.findByName("Blue Avatar"))

@@ -16,6 +16,9 @@ a versão e a data reais.
 - Testes do handler global de exceções, fixando os payloads de erro HTTP.
 
 ### Fixed
+- URL do CDN dos itens: o nome cadastrado agora é convertido em slug (minúsculas e espaços
+  substituídos por `-`) ao montar o caminho do asset (`BANNER/letra-a-letra-banner.webp`),
+  sem alterar o campo `name` do item.
 - `GET /offer` (e `GET /level`) com 500 `function sp_*_find_page(integer, integer)
   is not unique`: removidos os overloads obsoletos de 2 args em
   `docker/postgres/03_functions.sql` (conflitavam com as versões de 4 args com

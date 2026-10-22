@@ -1,5 +1,6 @@
 package com.letraaletra.api.features.items.infrastructure.persistence.storage;
 
+import com.letraaletra.api.features.items.domain.ItemSlug;
 import com.letraaletra.api.features.items.domain.equippable.EquippableCategory;
 import com.letraaletra.api.features.items.domain.repository.ItemAssetStorage;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ public class LocalItemAssetStorage implements ItemAssetStorage {
     @Override
     public String upload(byte[] file, String fileName, EquippableCategory category) {
         try {
-            return category.name() + "/" + fileName + ".webp";
+            return category.name() + "/" + ItemSlug.from(fileName).value() + ".webp";
         } catch (Exception e) {
             logger.error("Error on upload asset to CDN");
 
@@ -26,7 +27,7 @@ public class LocalItemAssetStorage implements ItemAssetStorage {
     @Override
     public String copy(String oldPath, String newName, EquippableCategory newCategory) {
         try {
-            return newCategory.name() + "/" + newName + ".webp";
+            return newCategory.name() + "/" + ItemSlug.from(newName).value() + ".webp";
         } catch (Exception e) {
             logger.error("Error to move asset on CDN");
 
