@@ -51,8 +51,14 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) {
         String userId = (String) session.getAttributes().get("userId");
+        UUID parsedUserId = parseUserId(userId);
 
-        boolean knownUser = userDirectory.exists(UUID.fromString(userId));
+        if (parsedUserId == null) {
+            log.warn("WebSocket session {} sent a message without a valid userId", session.getId());
+            return;
+        }
+
+        boolean knownUser = userDirectory.exists(parsedUserId);
 
         WsRequest request;
 
@@ -71,7 +77,19 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
             requestRouter.dispatch(request, session);
 
         } catch (Exception e) {
-            sendError(e, userId, knownUser);
+            sendError(e, parsedUserId, knownUser);
+        }
+    }
+
+    private UUID parseUserId(String userId) {
+        if (userId == null || userId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
 
@@ -93,7 +111,7 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
         }
     }
 
-    private void sendError(Exception ex, String userId, boolean knownUser) {
+    private void sendError(Exception ex, UUID userId, boolean knownUser) {
 
         Throwable cause = ex;
 
@@ -112,7 +130,7 @@ public class MainWebSocketEndpoint extends TextWebSocketHandler {
         ErrorWsResponse json = new ErrorWsResponse(message);
 
         if (knownUser) {
-            messageSender.sendToUser(UUID.fromString(userId), json);
+            messageSender.sendToUser(userId, json);
         }
     }
 }

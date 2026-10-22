@@ -1,5 +1,6 @@
 package com.letraaletra.api.shared.infrastructure.websocket;
 
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Component
-public class InMemoryWsConnectionRegistry implements WsConnectionRegistry {
+public class InMemoryWsConnectionRegistry implements WsConnectionRegistry, WsSessionCloser {
     private final Map<String, WebSocketSession> sessionsBySessionId = new ConcurrentHashMap<>();
     private final Map<String, String> sessionIdByUserId = new ConcurrentHashMap<>();
     private final Map<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
@@ -93,5 +94,26 @@ public class InMemoryWsConnectionRegistry implements WsConnectionRegistry {
     @Override
     public long playersOnline() {
         return sessionsBySessionId.size();
+    }
+
+    @Override
+    public void closeByUserId(UUID userId) {
+        if (userId == null) {
+            return;
+        }
+
+        AfterCommitRunner.run(() -> doCloseByUserId(userId));
+    }
+
+    private void doCloseByUserId(UUID userId) {
+        WebSocketSession session = findByUserId(userId);
+        if (session == null) {
+            return;
+        }
+
+        try {
+            session.close();
+        } catch (Exception ignored) {
+        }
     }
 }

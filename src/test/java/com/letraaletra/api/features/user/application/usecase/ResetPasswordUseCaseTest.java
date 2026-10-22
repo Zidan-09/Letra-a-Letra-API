@@ -9,6 +9,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
 import com.letraaletra.api.features.user.domain.session.UserSession;
 import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
 import com.letraaletra.api.shared.domain.service.TokenHashService;
@@ -57,6 +58,9 @@ class ResetPasswordUseCaseTest {
 
     @Mock
     private UserSessionRepository sessionRepository;
+
+    @Mock
+    private WsSessionCloser wsSessionCloser;
 
     @InjectMocks
     private ResetPasswordUseCase useCase;
@@ -139,6 +143,22 @@ class ResetPasswordUseCaseTest {
             verify(sessionRepository, times(1)).findByUserId(userId);
             verify(mockSession, times(1)).revoke(eq(SessionRevocationReason.PASSWORD_RESET), any());
             verify(sessionRepository, times(1)).save(mockSession);
+        }
+
+        @Test
+        @DisplayName("Deve fechar a sessao WebSocket do usuario apos redefinir a senha")
+        void execute_WhenPasswordIsReset_ShouldCloseUserWsSession() {
+            when(tokenHashService.hash(rawCode)).thenReturn(codeHash);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+            when(mockUser.getUserId()).thenReturn(userId);
+            when(codeRepository.findActiveByUserId(userId)).thenReturn(Optional.of(mockResetCode));
+            when(mockUser.getPasswordHash()).thenReturn(currentPasswordHash);
+            when(passwordService.matches(newRawPassword, currentPasswordHash)).thenReturn(false);
+            when(passwordService.hash(newRawPassword)).thenReturn(newPasswordHash);
+
+            useCase.execute(input);
+
+            verify(wsSessionCloser, times(1)).closeByUserId(userId);
         }
     }
 

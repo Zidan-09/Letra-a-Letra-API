@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
@@ -16,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -153,5 +156,48 @@ class InMemoryWsConnectionRegistryTest {
         long active = repository.playersOnline();
         assertEquals(1, active);
         assertTrue(repository.findByUserId(userId).isOpen());
+    }
+
+    @Test
+    @DisplayName("closeByUserId fecha a sessão do usuário sem transação ativa")
+    void shouldCloseSessionImmediatelyWhenNoTransactionIsActive() throws Exception {
+        saveAndCapture(newSession);
+
+        repository.closeByUserId(userId);
+
+        verify(newSession, atLeastOnce()).close();
+    }
+
+    @Test
+    @DisplayName("closeByUserId com userId desconhecido é uma operação segura")
+    void shouldTolerateCloseForUnknownUser() {
+        assertDoesNotThrow(() -> repository.closeByUserId(UUID.randomUUID()));
+        assertEquals(0, repository.playersOnline());
+    }
+
+    @Test
+    @DisplayName("closeByUserId com userId nulo é ignorado")
+    void shouldIgnoreCloseForNullUser() {
+        assertDoesNotThrow(() -> repository.closeByUserId(null));
+    }
+
+    @Test
+    @DisplayName("com transação ativa, closeByUserId adia o close para depois do commit")
+    void shouldDeferCloseUntilAfterCommitWhenTransactionIsActive() throws Exception {
+        saveAndCapture(newSession);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            repository.closeByUserId(userId);
+
+            verify(newSession, never()).close();
+
+            TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(TransactionSynchronization::afterCommit);
+
+            verify(newSession, atLeastOnce()).close();
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 }

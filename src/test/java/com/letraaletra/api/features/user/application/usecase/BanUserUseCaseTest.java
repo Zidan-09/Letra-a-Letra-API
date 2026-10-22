@@ -13,6 +13,7 @@ import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
 import com.letraaletra.api.features.user.domain.session.UserSession;
 import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,6 +61,9 @@ class BanUserUseCaseTest {
 
     @Mock
     private UserSessionRepository sessionRepository;
+
+    @Mock
+    private WsSessionCloser wsSessionCloser;
 
     @InjectMocks
     private BanUserUseCase useCase;
@@ -145,6 +149,32 @@ class BanUserUseCaseTest {
                 verify(sessionRepository, times(1)).findByUserId(userId);
                 verify(mockSession, times(1)).revoke(eq(SessionRevocationReason.USER_BANNED), any());
                 verify(sessionRepository, times(1)).save(mockSession);
+            }
+        }
+
+        @Test
+        @DisplayName("Deve fechar a sessao WebSocket do usuario banido")
+        void execute_WhenBanSucceeds_ShouldCloseUserWsSession() {
+            LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(input.expiresIn());
+            when(userRepository.find(userId)).thenReturn(Optional.of(user));
+            when(user.getUserId()).thenReturn(userId);
+
+            BanHistory banHistoryMock = mock(BanHistory.class);
+            when(banHistoryMock.getExpiresAt()).thenReturn(expiresAt);
+            when(banHistoryMock.getReason()).thenReturn(input.reason());
+
+            try (MockedStatic<BanHistory> banHistoryStaticMock = mockStatic(BanHistory.class)) {
+                banHistoryStaticMock.when(() -> BanHistory.create(
+                        eq(userId),
+                        eq(adminAuthId),
+                        eq(input.reason()),
+                        eq(input.type()),
+                        eq(input.expiresIn())
+                )).thenReturn(banHistoryMock);
+
+                useCase.execute(input);
+
+                verify(wsSessionCloser, times(1)).closeByUserId(userId);
             }
         }
     }

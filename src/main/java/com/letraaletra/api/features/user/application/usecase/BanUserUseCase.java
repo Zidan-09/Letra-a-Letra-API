@@ -11,6 +11,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
 import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 
 import java.time.LocalDateTime;
@@ -20,17 +21,20 @@ public class BanUserUseCase implements UseCase<BanUserInput, Void> {
     private final BanHistoryRepository banHistoryRepository;
     private final AdminChecker adminChecker;
     private final UserSessionRepository sessionRepository;
+    private final WsSessionCloser wsSessionCloser;
 
     public BanUserUseCase(
             UserRepository userRepository,
             BanHistoryRepository banHistoryRepository,
             AdminChecker adminChecker,
-            UserSessionRepository sessionRepository
+            UserSessionRepository sessionRepository,
+            WsSessionCloser wsSessionCloser
     ) {
         this.userRepository = userRepository;
         this.banHistoryRepository = banHistoryRepository;
         this.adminChecker = adminChecker;
         this.sessionRepository = sessionRepository;
+        this.wsSessionCloser = wsSessionCloser;
     }
 
     @Override
@@ -57,6 +61,8 @@ public class BanUserUseCase implements UseCase<BanUserInput, Void> {
 
         banHistoryRepository.save(banHistory);
         userRepository.save(user);
+
+        wsSessionCloser.closeByUserId(user.getUserId());
 
         return null;
     }

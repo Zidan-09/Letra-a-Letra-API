@@ -4,6 +4,7 @@ import com.letraaletra.api.features.user.application.input.RevokeSessionInput;
 import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
 import com.letraaletra.api.features.user.domain.session.UserSession;
 import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.domain.AuthenticatedUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class RevokeSessionUseCaseTest {
     @Mock
     private UserSessionRepository sessionRepository;
 
+    @Mock
+    private WsSessionCloser wsSessionCloser;
+
     @InjectMocks
     private RevokeSessionUseCase useCase;
 
@@ -49,11 +53,12 @@ class RevokeSessionUseCaseTest {
         assertTrue(session.isRevoked());
         assertEquals(SessionRevocationReason.LOGOUT, session.getRevocationReason());
         verify(sessionRepository, times(1)).save(session);
+        verify(wsSessionCloser, times(1)).closeByUserId(userId);
     }
 
     @Test
-    @DisplayName("Deve ser idempotente quando nao existir sessao")
-    void execute_WhenNoSession_ShouldDoNothing() {
+    @DisplayName("Deve fechar a sessao WebSocket mesmo quando nao existir sessao persistente")
+    void execute_WhenNoSession_ShouldStillCloseWsSession() {
         UUID userId = UUID.randomUUID();
         AuthenticatedUser principal = new AuthenticatedUser(userId, "player", false, false);
 
@@ -62,5 +67,6 @@ class RevokeSessionUseCaseTest {
         assertNull(useCase.execute(new RevokeSessionInput(principal)));
 
         verify(sessionRepository, never()).save(any(UserSession.class));
+        verify(wsSessionCloser, times(1)).closeByUserId(userId);
     }
 }

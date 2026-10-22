@@ -44,6 +44,7 @@ import com.letraaletra.api.features.transaction.domain.repository.TransactionRep
 import com.letraaletra.api.features.user.domain.reset.repository.ResetCodeRepository;
 import com.letraaletra.api.shared.application.port.AdminChecker;
 import com.letraaletra.api.shared.application.port.TransactionalExecutorService;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.application.usecase.TransactionalUseCase;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
@@ -186,11 +187,13 @@ public class UserConfig {
     @Bean
     public UseCase<RevokeSessionInput, Void> revokeSessionUseCase(
             UserSessionRepository sessionRepository,
+            WsSessionCloser wsSessionCloser,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
                 new RevokeSessionUseCase(
-                        sessionRepository
+                        sessionRepository,
+                        wsSessionCloser
                 ),
                 transactions
         );
@@ -315,6 +318,7 @@ public class UserConfig {
             PasswordService passwordService,
             ResetCodeRepository resetCodeRepository,
             UserSessionRepository sessionRepository,
+            WsSessionCloser wsSessionCloser,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -323,7 +327,8 @@ public class UserConfig {
                         tokenHashService,
                         passwordService,
                         resetCodeRepository,
-                        sessionRepository
+                        sessionRepository,
+                        wsSessionCloser
                 ),
                 transactions,
                 Set.of(InvalidTokenException.class, InvalidResetCodeException.class)
@@ -336,6 +341,7 @@ public class UserConfig {
             BanHistoryRepository banHistoryRepository,
             AdminChecker adminChecker,
             UserSessionRepository sessionRepository,
+            WsSessionCloser wsSessionCloser,
             TransactionalExecutorService transactions
     ) {
         return new TransactionalUseCase<>(
@@ -343,7 +349,8 @@ public class UserConfig {
                         userRepository,
                         banHistoryRepository,
                         adminChecker,
-                        sessionRepository
+                        sessionRepository,
+                        wsSessionCloser
                 ),
                 transactions
         );

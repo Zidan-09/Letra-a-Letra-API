@@ -1,7 +1,17 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 
 cd /d "%~dp0.."
+
+set "API_LOG=%CD%\logs\test-api.log"
+set "API_WINDOW_TITLE=API TEST"
+set "MAX_WAIT_SECONDS=120"
+set "WAIT_COUNT=0"
+set "WAIT_INTERVAL=2"
+
+if not exist "logs" mkdir "logs"
+
+del "%API_LOG%" 2>nul
 
 echo.
 echo ==========================
@@ -15,7 +25,7 @@ call mvnw test
 if errorlevel 1 (
     echo.
     echo ERRO: Testes unitarios falharam.
-    goto cleanup
+    goto cleanup_with_error
 )
 
 echo.
@@ -43,7 +53,7 @@ docker run ^
 if errorlevel 1 (
     echo.
     echo ERRO: Falha ao iniciar o MailHog.
-    goto cleanup
+    goto cleanup_with_error
 )
 
 echo [5] Gerando pacote...
@@ -53,23 +63,30 @@ call mvnw clean package -DskipTests
 if errorlevel 1 (
     echo.
     echo ERRO: Falha ao gerar o pacote.
-    goto cleanup
+    goto cleanup_with_error
 )
 
 echo [6] Iniciando API...
 
-start "API TEST" cmd /c "cd /d "%CD%" && mvnw spring-boot:run -Dspring-boot.run.profiles=test"
+start "%API_WINDOW_TITLE%" cmd /k "cd /d "%CD%" && mvnw spring-boot:run -Dspring-boot.run.profiles=test -Dspring-boot.run.useTestClasspath=true > "%API_LOG%" 2>&1"
 
 echo [7] Aguardando API ficar disponivel...
 
 :wait
-curl -sf http://localhost:8080/actuator/health > nul
+curl -sf http://localhost:8080/actuator/health > nul 2>&1
+if not errorlevel 1 goto api_ready
 
-if errorlevel 1 (
-    timeout /t 2 /nobreak > nul
-    goto wait
+set /a WAIT_COUNT+=WAIT_INTERVAL
+if %WAIT_COUNT% GEQ %MAX_WAIT_SECONDS% (
+    echo.
+    echo ERRO: Timeout esperando a API iniciar (%MAX_WAIT_SECONDS% segundos).
+    goto api_failed
 )
 
+timeout /t %WAIT_INTERVAL% /nobreak > nul
+goto wait
+
+:api_ready
 echo [8] API pronta!
 
 echo.
@@ -90,7 +107,7 @@ pause
 if not "%RUNNER_EXIT%"=="0" (
     echo.
     echo ERRO: Testes de integracao falharam.
-    goto cleanup
+    goto cleanup_with_error
 )
 
 echo.
@@ -104,16 +121,53 @@ echo ==========================
 echo.
 pause
 
-:cleanup
+goto cleanup
 
+:api_failed
+echo.
+echo ===============================================
+echo FALHA AO INICIAR A API
+echo ===============================================
+echo.
+if exist "%API_LOG%" (
+    echo Log salvo em: %API_LOG%
+    echo.
+    echo Ultimas linhas do log:
+    echo ------------------------------------------------
+    powershell -Command "Get-Content '%API_LOG%' -Tail 50"
+    echo ------------------------------------------------
+) else (
+    echo Log nao encontrado em: %API_LOG%
+)
+echo.
+echo Verifique a janela '%API_WINDOW_TITLE%' para mais detalhes.
+echo.
+goto cleanup_with_error
+
+:cleanup
 echo.
 echo ==========================
 echo Cleaning Test Environment
 echo ==========================
 
+call :stop_environment
+endlocal
+exit /b 0
+
+:cleanup_with_error
+echo.
+echo ==========================
+echo Cleaning Test Environment
+echo ==========================
+
+call :stop_environment
+endlocal
+exit /b 1
+
+:stop_environment
 echo [1] Encerrando API...
 
-taskkill /FI "WINDOWTITLE eq API TEST*" /T /F > nul 2>&1
+taskkill /FI "WINDOWTITLE eq %API_WINDOW_TITLE%*" /T /F > nul 2>&1
 
 echo [2] Encerrando MailHog...
 
@@ -122,7 +176,4 @@ docker rm letra-a-letra-mailhog-test > nul 2>&1
 
 echo.
 echo Ambiente de testes encerrado.
-
-pause
-
-endlocal
+exit /b 0

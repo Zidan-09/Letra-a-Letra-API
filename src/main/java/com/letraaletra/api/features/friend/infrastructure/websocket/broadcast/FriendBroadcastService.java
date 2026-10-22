@@ -3,13 +3,12 @@ package com.letraaletra.api.features.friend.infrastructure.websocket.broadcast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letraaletra.api.features.friend.application.port.FriendNotifier;
 import com.letraaletra.api.features.friend.infrastructure.presentation.dto.response.FriendRequestEvent;
+import com.letraaletra.api.shared.infrastructure.websocket.AfterCommitRunner;
 import com.letraaletra.api.shared.infrastructure.websocket.WsConnectionRegistry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -54,17 +53,7 @@ public class FriendBroadcastService implements FriendNotifier {
             return;
         }
 
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    sendEvent(userId, event);
-                }
-            });
-            return;
-        }
-
-        sendEvent(userId, event);
+        AfterCommitRunner.run(() -> sendEvent(userId, event));
     }
 
     private void sendEvent(UUID userId, String event) {

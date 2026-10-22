@@ -9,6 +9,7 @@ import com.letraaletra.api.features.user.domain.repository.UserRepository;
 import com.letraaletra.api.features.user.domain.session.SessionRevocationReason;
 import com.letraaletra.api.features.user.domain.session.UserSession;
 import com.letraaletra.api.features.user.domain.session.repository.UserSessionRepository;
+import com.letraaletra.api.shared.application.port.WsSessionCloser;
 import com.letraaletra.api.shared.application.usecase.UseCase;
 import com.letraaletra.api.shared.domain.security.PasswordService;
 import com.letraaletra.api.shared.domain.security.exceptions.InvalidResetCodeException;
@@ -23,19 +24,22 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
     private final PasswordService passwordService;
     private final ResetCodeRepository codeRepository;
     private final UserSessionRepository sessionRepository;
+    private final WsSessionCloser wsSessionCloser;
 
     public ResetPasswordUseCase(
             UserRepository userRepository,
             TokenHashService tokenHashService,
             PasswordService passwordService,
             ResetCodeRepository codeRepository,
-            UserSessionRepository sessionRepository
+            UserSessionRepository sessionRepository,
+            WsSessionCloser wsSessionCloser
     ) {
         this.userRepository = userRepository;
         this.tokenHashService = tokenHashService;
         this.passwordService = passwordService;
         this.codeRepository = codeRepository;
         this.sessionRepository = sessionRepository;
+        this.wsSessionCloser = wsSessionCloser;
     }
 
     @Override
@@ -69,6 +73,8 @@ public class ResetPasswordUseCase implements UseCase<ResetPasswordInput, Void> {
 
         userRepository.save(user);
         codeRepository.save(resetCode);
+
+        wsSessionCloser.closeByUserId(user.getUserId());
 
         return null;
     }

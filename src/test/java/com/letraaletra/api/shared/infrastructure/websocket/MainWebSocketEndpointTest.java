@@ -31,7 +31,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -217,14 +216,25 @@ class MainWebSocketEndpointTest {
     }
 
     @Test
-    @DisplayName("atributo userId ausente propaga a falha de resolução (comportamento atual)")
-    void shouldPropagateWhenUserIdAttributeMissing() {
+    @DisplayName("atributo userId ausente não propaga exceção nem roteia a mensagem")
+    void shouldIgnoreMessageWhenUserIdAttributeMissing() {
         when(session.getAttributes()).thenReturn(Map.of());
 
-        assertThrows(RuntimeException.class,
-                () -> endpoint.handleTextMessage(session, payload("{\"type\":\"TEST_PING\"}")));
+        endpoint.handleTextMessage(session, payload("{\"type\":\"TEST_PING\"}"));
 
         verifyNoInteractions(messageSender);
+        verify(requestRouter, never()).dispatch(any(), any());
+    }
+
+    @Test
+    @DisplayName("userId malformado não propaga exceção nem roteia a mensagem")
+    void shouldIgnoreMessageWhenUserIdIsMalformed() {
+        when(session.getAttributes()).thenReturn(Map.of("userId", "not-a-uuid"));
+
+        endpoint.handleTextMessage(session, payload("{\"type\":\"TEST_PING\"}"));
+
+        verifyNoInteractions(messageSender);
+        verify(requestRouter, never()).dispatch(any(), any());
     }
 
     @Test
