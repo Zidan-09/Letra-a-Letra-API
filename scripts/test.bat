@@ -68,22 +68,20 @@ if errorlevel 1 (
 
 echo [6] Iniciando API...
 
-start "%API_WINDOW_TITLE%" cmd /k "cd /d "%CD%" && mvnw spring-boot:run -Dspring-boot.run.profiles=test -Dspring-boot.run.useTestClasspath=true > "%API_LOG%" 2>&1"
+start "%API_WINDOW_TITLE%" /D "%CD%" cmd /k "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=test -Dspring-boot.run.useTestClasspath=true"
 
 echo [7] Aguardando API ficar disponivel...
 
 :wait
-curl -sf http://localhost:8080/actuator/health > nul 2>&1
-if not errorlevel 1 goto api_ready
+curl.exe -sf http://localhost:8080/actuator/health >nul 2>&1
 
-set /a WAIT_COUNT+=WAIT_INTERVAL
-if %WAIT_COUNT% GEQ %MAX_WAIT_SECONDS% (
-    echo.
-    echo ERRO: Timeout esperando a API iniciar (%MAX_WAIT_SECONDS% segundos).
-    goto api_failed
-)
+if %ERRORLEVEL% EQU 0 goto api_ready
 
-timeout /t %WAIT_INTERVAL% /nobreak > nul
+set /a WAIT_COUNT=WAIT_COUNT+WAIT_INTERVAL
+
+if %WAIT_COUNT% GEQ %MAX_WAIT_SECONDS% goto api_failed
+
+timeout /t %WAIT_INTERVAL% /nobreak >nul
 goto wait
 
 :api_ready
